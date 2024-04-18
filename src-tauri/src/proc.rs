@@ -1,6 +1,14 @@
 use std::fs;
+use serde::{Serialize, Deserialize};
 
-fn list_proc_pid() -> Vec<String> {
+#[derive(Serialize, Deserialize)]
+pub struct Process {
+    pub pid: String,
+    pub name: Option<String>,
+    pub ppid: Option<String>,
+}
+
+pub fn list_proc_pid() -> Vec<String> {
     let entries = fs::read_dir("/proc").unwrap();
 
     let mut folders = Vec::new();
@@ -17,7 +25,7 @@ fn list_proc_pid() -> Vec<String> {
     folders
 }
 
-fn read_proc_file(pid: &str, keyword: &str) -> Option<String> {
+pub fn read_proc_file(pid: &str, keyword: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
         for line in status.lines() {
             if line.starts_with(keyword) {
@@ -30,22 +38,29 @@ fn read_proc_file(pid: &str, keyword: &str) -> Option<String> {
     None
 }
 
-fn get_name(pid: &str) -> Option<String> {
+pub fn get_name(pid: &str) -> Option<String> {
     read_proc_file(pid, "Name:").map(|name| name.to_string())
 }
 
-fn get_ppid(pid: &str) -> Option<String> {
+pub fn get_ppid(pid: &str) -> Option<String> {
     read_proc_file(pid, "PPid:").map(|name| name.to_string())
 }
 
-pub fn print_names() {
+#[tauri::command]
+pub fn get_processes() -> Vec<Process> {
+    let mut processes = Vec::new();
     let pids = list_proc_pid();
     for pid in pids {
         if let Some(name) = get_name(&pid) {
             if let Some(ppid) = get_ppid(&pid) {
-                println!("PID: {}, Name: {}, PPID: {}", pid, name, ppid);
+                let process = Process {
+                    pid: pid.clone(),
+                    name: Some(name),
+                    ppid: Some(ppid),
+                };
+                processes.push(process);
             }
         }
     }
+    processes
 }
-
