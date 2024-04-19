@@ -8,6 +8,7 @@ pub struct Process {
     pub ppid: Option<String>,
     pub state: Option<String>,
     pub user: Option<String>,
+    pub memory: Option<String>,
 }
 
 pub fn list_proc_pid() -> Vec<String> {
@@ -76,6 +77,29 @@ pub fn get_proc_state(pid: &str) -> Option<String> {
     }
 }
 
+pub fn get_proc_mem(pid: &str) -> Option<String> {
+    if let Ok(status) = fs::read_to_string(format!("/proc/{}/statm", pid)) {
+        if let Some(resident_str) = status.split_whitespace().nth(1) {
+            if let Ok(resident) = resident_str.parse::<u64>() {
+                let mem = resident * 4;
+                let mem_str = if mem > 1024 * 1024 {
+                    format!("{:.2} Gb", mem as f64 / (1024.0 * 1024.0))
+                } else if mem > 1024 {
+                    format!("{:.2} Mb", mem as f64 / 1024.0)
+                } else {
+                    format!("{:.2} Kb", mem)
+                };
+                Some(mem_str)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    }
+}
 fn get_proc_user(pid: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
         for line in status.lines() {
@@ -119,16 +143,19 @@ pub fn get_processes() -> Vec<Process> {
             if let Some(ppid) = get_ppid(&pid) {
                 if let Some(state) = get_proc_state(&pid){
                     if let Some(user) = get_proc_user(&pid){
+                        if let Some(memory) = get_proc_mem(&pid){
                 let process = Process {
                     pid: pid.clone(),
                     name: Some(name),
                     ppid: Some(ppid),
                     state: Some(state),
                     user: Some(user),
+                    memory: Some(memory),
                 };
                 processes.push(process);
              }
             }
+        }
         }
         }
     }

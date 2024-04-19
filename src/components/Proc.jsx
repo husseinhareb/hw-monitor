@@ -35,6 +35,7 @@ function Proc() {
             <th>ppid</th>
             <th>name</th>
             <th>state</th>
+            <th>memory</th>
 
           </tr>
         </thead>
@@ -46,6 +47,7 @@ function Proc() {
               <td>{process.ppid}</td>
               <td>{process.name}</td>
               <td>{process.state}</td>
+              <td>{process.memory}</td>
             </tr>
           ))}
         </tbody>
