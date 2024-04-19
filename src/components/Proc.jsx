@@ -1,35 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 
 function Proc() {
-  const [greetMsg, setGreetMsg] = useState('');
   const [processes, setProcesses] = useState([]);
+  const [error, setError] = useState(null);
 
-  async function getProcesses() {
-    try {
-      const processes = await invoke("get_processes");
-      console.log(processes); // For debugging purposes
-      setProcesses(processes);
-    } catch (error) {
-      console.error(error);
-      setGreetMsg("Error: Failed to fetch process information");
-    }
-  }
+  useEffect(() => {
+    const fetchProcesses = async () => {
+      try {
+        const processes = await invoke("get_processes");
+        setProcesses(processes);
+      } catch (error) {
+        console.error(error);
+        setError("Error: Failed to fetch process information");
+      }
+    };
+
+    fetchProcesses();
+
+    const intervalId = setInterval(fetchProcesses, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+
 
   return (
     <div>
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          getProcesses();
-        }}
-      >
-        <button type="submit">Fetch Processes</button>
-      </form>
-
-      <p>{greetMsg}</p>
-
       <table>
         <thead>
           <tr>
