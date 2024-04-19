@@ -6,7 +6,8 @@ pub struct Process {
     pub pid: String,
     pub name: Option<String>,
     pub ppid: Option<String>,
-    pub state: Option<String>
+    pub state: Option<String>,
+    pub user: Option<String>,
 }
 
 pub fn list_proc_pid() -> Vec<String> {
@@ -75,6 +76,39 @@ pub fn get_proc_state(pid: &str) -> Option<String> {
     }
 }
 
+fn get_proc_user(pid: &str) -> Option<String> {
+    if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
+        for line in status.lines() {
+            if line.starts_with("Uid:") {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if let Some(uid_str) = parts.get(1) {
+                    if let Ok(uid) = uid_str.parse::<u32>() {
+                        if let Some(username) = get_username(uid) {
+                            return Some(username);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
+fn get_username(uid: u32) -> Option<String> {
+    if let Ok(passwd_content) = fs::read_to_string("/etc/passwd") {
+        for line in passwd_content.lines() {
+            let fields: Vec<&str> = line.split(':').collect();
+            if let (Some(name), Some(passwd_uid)) = (fields.get(0), fields.get(2)) {
+                if let Ok(uid_from_file) = passwd_uid.parse::<u32>() {
+                    if uid_from_file == uid {
+                        return Some(name.to_string());
+                    }
+                }
+            }
+        }
+    }
+    None
+}
 
 #[tauri::command]
 pub fn get_processes() -> Vec<Process> {
@@ -84,13 +118,16 @@ pub fn get_processes() -> Vec<Process> {
         if let Some(name) = get_name(&pid) {
             if let Some(ppid) = get_ppid(&pid) {
                 if let Some(state) = get_proc_state(&pid){
+                    if let Some(user) = get_proc_user(&pid){
                 let process = Process {
                     pid: pid.clone(),
                     name: Some(name),
                     ppid: Some(ppid),
                     state: Some(state),
+                    user: Some(user),
                 };
                 processes.push(process);
+             }
             }
         }
         }

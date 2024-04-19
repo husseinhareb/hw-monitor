@@ -33,6 +33,7 @@ function Proc() {
       <table>
         <thead>
           <tr>
+            <th>user</th>
             <th>pid</th>
             <th>ppid</th>
             <th>name</th>
@@ -43,6 +44,7 @@ function Proc() {
         <tbody>
           {processes.map((process, index) => (
             <tr key={index}>
+              <td>{process.user}</td>
               <td>{process.pid}</td>
               <td>{process.ppid}</td>
               <td>{process.name}</td>
