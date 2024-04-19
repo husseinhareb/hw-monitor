@@ -36,6 +36,8 @@ function Proc() {
             <th>pid</th>
             <th>ppid</th>
             <th>name</th>
+            <th>state</th>
+
           </tr>
         </thead>
         <tbody>
@@ -44,6 +46,7 @@ function Proc() {
               <td>{process.pid}</td>
               <td>{process.ppid}</td>
               <td>{process.name}</td>
+              <td>{process.state}</td>
             </tr>
           ))}
         </tbody>
