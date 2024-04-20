@@ -28,7 +28,7 @@ function Proc() {
   }, [sortBy, sortOrder]);
 
   const sortProcesses = (column) => {
-    // If the clicked column is already the sorted column, reverse the sort order
+    
     const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
     setSortBy(column);
     setSortOrder(newSortOrder);
@@ -36,29 +36,42 @@ function Proc() {
 
   const sortProcessesByColumn = (processes, column, order) => {
     if (!column) return processes;
-
+  
     return [...processes].sort((a, b) => {
-        let valueA;
-        let valueB;
-
-        if (column === "memory") {
-            valueA = parseFloat(a[column].replace(/[^\d.]/g, ""));
-            valueB = parseFloat(b[column].replace(/[^\d.]/g, ""));
-        } else if (column === "pid" || column === "ppid") {
-            valueA = parseInt(a[column], 10);
-            valueB = parseInt(b[column], 10);
-        } else {
-            valueA = a[column].toLowerCase();
-            valueB = b[column].toLowerCase();
-        }
-        if (order === 'asc') {
-          return valueA < valueB ? -1 : 1;
-        } else {
-          return valueA > valueB ? -1 : 1;
-        }
+      let valueA;
+      let valueB;
+  
+      if (column === "memory") {
+        const parseMemoryValue = (memoryStr) => {
+          const match = memoryStr.match(/([\d.]+)\s*(\w+)/);
+          if (match) {
+            const value = parseFloat(match[1]);
+            const unit = match[2].toLowerCase();
+            if (unit === "gb") return value * 1024;
+            if (unit === "kb") return value / 1024;
+            if (unit === "mb") return value;
+          }
+          return parseFloat(memoryStr);
+        };
+  
+        valueA = parseMemoryValue(a[column]);
+        valueB = parseMemoryValue(b[column]);
+      } else if (column === "pid" || column === "ppid") {
+        valueA = parseInt(a[column], 10);
+        valueB = parseInt(b[column], 10);
+      } else {
+        valueA = a[column].toLowerCase();
+        valueB = b[column].toLowerCase();
+      }
+  
+      if (order === 'asc') {
+        return valueA - valueB;
+      } else {
+        return valueB - valueA;
+      }
     });
-};
-
+  };
+  
 
   return (
     <div>

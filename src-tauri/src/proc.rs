@@ -3,15 +3,15 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
-    pub pid: String,
-    pub name: Option<String>,
-    pub ppid: Option<String>,
-    pub state: Option<String>,
-    pub user: Option<String>,
-    pub memory: Option<String>,
+    pid: String,
+    name: Option<String>,
+    ppid: Option<String>,
+    state: Option<String>,
+    user: Option<String>,
+    memory: Option<String>,
 }
 
-pub fn list_proc_pid() -> Vec<String> {
+fn list_proc_pid() -> Vec<String> {
     let entries = fs::read_dir("/proc").unwrap();
 
     let mut folders = Vec::new();
@@ -28,7 +28,7 @@ pub fn list_proc_pid() -> Vec<String> {
     folders
 }
 
-pub fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
+fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
         for line in status.lines() {
             if line.starts_with(keyword) {
@@ -41,16 +41,16 @@ pub fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
     None
 }
 
-pub fn get_name(pid: &str) -> Option<String> {
+fn get_name(pid: &str) -> Option<String> {
     read_proc_status_file(pid, "Name:").map(|name| name.to_string())
 }
 
-pub fn get_ppid(pid: &str) -> Option<String> {
+fn get_ppid(pid: &str) -> Option<String> {
    read_proc_status_file(pid, "PPid:").map(|name| name.to_string())
 }
 
 
-pub fn get_proc_state(pid: &str) -> Option<String> {
+fn get_proc_state(pid: &str) -> Option<String> {
     if let Ok(file_content) = fs::read_to_string(format!("/proc/{}/stat", pid)) {
         if let Some(state_abbrev) = file_content.split_whitespace().nth(2) {
             match state_abbrev {
@@ -64,7 +64,6 @@ pub fn get_proc_state(pid: &str) -> Option<String> {
                 "X" => Some("Dead".to_string()),
                 "x" => Some("Dead".to_string()),
                 "K" => Some("Wakekill".to_string()),
-                "W" => Some("Waking".to_string()),
                 "P" => Some("Parked".to_string()),
                 "I" => Some("Idle".to_string()),
                 _ => None,
@@ -77,7 +76,7 @@ pub fn get_proc_state(pid: &str) -> Option<String> {
     }
 }
 
-pub fn get_proc_mem(pid: &str) -> Option<String> {
+fn get_proc_mem(pid: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/statm", pid)) {
         if let Some(resident_str) = status.split_whitespace().nth(1) {
             if let Ok(resident) = resident_str.parse::<u64>() {
