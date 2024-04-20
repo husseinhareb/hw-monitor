@@ -1,5 +1,7 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
+use std::thread;
+use std::time::Duration;
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -9,6 +11,7 @@ pub struct Process {
     state: Option<String>,
     user: Option<String>,
     memory: Option<String>,
+    cpu: Option<String>,
 }
 
 fn list_proc_pid() -> Vec<String> {
@@ -133,6 +136,43 @@ fn get_username(uid: u32) -> Option<String> {
     None
 }
 
+
+fn read_stat(pid: u32) -> Result<String, std::io::Error> {
+    fs::read_to_string(format!("/proc/{}/stat", pid))
+}
+
+fn read_cpu_time() -> Result<u64, std::io::Error> {
+    let stat = fs::read_to_string("/proc/stat")?;
+    let values: Vec<&str> = stat.lines().next().unwrap().split_whitespace().collect();
+    let user = values[1].parse::<u64>().unwrap();
+    let nice = values[2].parse::<u64>().unwrap();
+    let system = values[3].parse::<u64>().unwrap();
+    let idle = values[4].parse::<u64>().unwrap();
+    Ok(user + nice + system + idle)
+}
+
+fn read_process_cpu_time(pid: u32) -> Result<u64, std::io::Error> {
+    let stat = read_stat(pid)?;
+    let values: Vec<&str> = stat.split_whitespace().collect();
+    let utime = values[13].parse::<u64>().unwrap();
+    let stime = values[14].parse::<u64>().unwrap();
+    Ok(utime + stime)
+}
+
+fn calculate_cpu_usage(pid: u32) -> Result<f64, std::io::Error> {
+    let total_cpu_start = read_cpu_time()?;
+    let process_cpu_start = read_process_cpu_time(pid)?;
+    let total_cpu_end = read_cpu_time()?;
+    //thread::sleep(Duration::from_secs(2));  // Wait for a second
+    let process_cpu_end = read_process_cpu_time(pid)?;
+
+    let total_cpu_time = total_cpu_end - total_cpu_start;
+    let process_cpu_time = process_cpu_end - process_cpu_start;
+
+    let cpu_usage_percent = (process_cpu_time as f64 / total_cpu_time as f64) * 100.0;
+    Ok(cpu_usage_percent)
+}
+
 #[tauri::command]
 pub fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
@@ -143,19 +183,22 @@ pub fn get_processes() -> Vec<Process> {
                 if let Some(state) = get_proc_state(&pid){
                     if let Some(user) = get_proc_user(&pid){
                         if let Some(memory) = get_proc_mem(&pid){
-                let process = Process {
-                    pid: pid.clone(),
-                    name: Some(name),
-                    ppid: Some(ppid),
-                    state: Some(state),
-                    user: Some(user),
-                    memory: Some(memory),
-                };
-                processes.push(process);
-             }
+                            if let Ok(cpu_usage) = calculate_cpu_usage(pid.parse().unwrap()) {
+                                let process = Process {
+                                    pid: pid.clone(),
+                                    name: Some(name),
+                                    ppid: Some(ppid),
+                                    state: Some(state),
+                                    user: Some(user),
+                                    memory: Some(memory),
+                                    cpu: Some(cpu_usage.to_string()), // Convert f64 to String
+                                };
+                                processes.push(process);
+                            }
+                        }
+                    }
+                }
             }
-        }
-        }
         }
     }
     processes
