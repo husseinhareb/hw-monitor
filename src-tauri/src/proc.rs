@@ -1,7 +1,7 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
-use std::thread;
 use std::time::Duration;
+use std::thread::sleep;
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -12,6 +12,11 @@ pub struct Process {
     user: Option<String>,
     memory: Option<String>,
     cpu: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TotalUsage {
+    memory: Option<String>,
 }
 
 fn list_proc_pid() -> Vec<String> {
@@ -49,9 +54,8 @@ fn get_name(pid: &str) -> Option<String> {
 }
 
 fn get_ppid(pid: &str) -> Option<String> {
-   read_proc_status_file(pid, "PPid:").map(|name| name.to_string())
+    read_proc_status_file(pid, "PPid:").map(|name| name.to_string())
 }
-
 
 fn get_proc_state(pid: &str) -> Option<String> {
     if let Ok(file_content) = fs::read_to_string(format!("/proc/{}/stat", pid)) {
@@ -102,6 +106,7 @@ fn get_proc_mem(pid: &str) -> Option<String> {
         None
     }
 }
+
 fn get_proc_user(pid: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
         for line in status.lines() {
@@ -136,7 +141,6 @@ fn get_username(uid: u32) -> Option<String> {
     None
 }
 
-
 fn read_stat(pid: u32) -> Result<String, std::io::Error> {
     fs::read_to_string(format!("/proc/{}/stat", pid))
 }
@@ -163,7 +167,7 @@ fn calculate_cpu_usage(pid: u32) -> Result<f64, std::io::Error> {
     let total_cpu_start = read_cpu_time()?;
     let process_cpu_start = read_process_cpu_time(pid)?;
     let total_cpu_end = read_cpu_time()?;
-    //thread::sleep(Duration::from_secs(2));  // Wait for a second
+    //sleep(Duration::from_secs(1));
     let process_cpu_end = read_process_cpu_time(pid)?;
 
     let total_cpu_time = total_cpu_end - total_cpu_start;
@@ -173,6 +177,46 @@ fn calculate_cpu_usage(pid: u32) -> Result<f64, std::io::Error> {
     Ok(cpu_usage_percent)
 }
 
+
+fn get_memory_usage_percentage() -> Option<u64> {
+    let mut total_memory = 0;
+    let mut used_memory = 0;
+
+    if let Ok(meminfo) = fs::read_to_string("/proc/meminfo") {
+        for line in meminfo.lines() {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() >= 2 && parts[0] == "MemTotal:" {
+                if let Ok(mem_total) = parts[1].parse::<u64>() {
+                    total_memory = mem_total;
+                }
+            }
+            if parts.len() >= 2 && parts[0] == "MemAvailable:" {
+                if let Ok(memory_used) = parts[1].parse::<u64>() {
+                    used_memory = memory_used;
+                }
+            }
+        }
+        if total_memory != 0 {
+            let memory_usage_percentage = ((total_memory - used_memory) * 100) / total_memory;
+            return Some(memory_usage_percentage);
+        }
+    }
+    None
+}
+
+
+#[tauri::command]
+pub fn get_total_usages() -> Vec<TotalUsage> {
+    let mut total_usages = Vec::new();
+    if let Some(memory) = get_memory_usage_percentage() {
+        let total_usage = TotalUsage {
+            memory: Some(memory.to_string()),
+        };
+        total_usages.push(total_usage);
+    }
+    total_usages
+}
+
 #[tauri::command]
 pub fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
@@ -180,9 +224,9 @@ pub fn get_processes() -> Vec<Process> {
     for pid in pids {
         if let Some(name) = get_name(&pid) {
             if let Some(ppid) = get_ppid(&pid) {
-                if let Some(state) = get_proc_state(&pid){
-                    if let Some(user) = get_proc_user(&pid){
-                        if let Some(memory) = get_proc_mem(&pid){
+                if let Some(state) = get_proc_state(&pid) {
+                    if let Some(user) = get_proc_user(&pid) {
+                        if let Some(memory) = get_proc_mem(&pid) {
                             if let Ok(cpu_usage) = calculate_cpu_usage(pid.parse().unwrap()) {
                                 let process = Process {
                                     pid: pid.clone(),
@@ -191,7 +235,7 @@ pub fn get_processes() -> Vec<Process> {
                                     state: Some(state),
                                     user: Some(user),
                                     memory: Some(memory),
-                                    cpu: Some(cpu_usage.to_string()), // Convert f64 to String
+                                    cpu: Some(cpu_usage.to_string()),
                                 };
                                 processes.push(process);
                             }

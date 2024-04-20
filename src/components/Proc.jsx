@@ -6,26 +6,32 @@ function Proc() {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc'); // Default sort order is ascending
+  const [totalUsages, setTotalUsages] = useState([]);
 
   useEffect(() => {
-    const fetchProcesses = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch processes
         const fetchedProcesses = await invoke("get_processes");
-        // Sort the fetched processes based on the sorting state
         const sortedProcesses = sortProcessesByColumn(fetchedProcesses, sortBy, sortOrder);
         setProcesses(sortedProcesses);
+  
+        // Fetch total usages
+        const fetchedTotalUsages = await invoke("get_total_usages");
+        console.log("Fetched total usages:");
+        setTotalUsages(fetchedTotalUsages);
       } catch (error) {
-        console.error(error);
-        setError("Error: Failed to fetch process information");
+        console.error("Error fetching data:", error);
+        setError("Error: Failed to fetch data");
       }
     };
-
-    fetchProcesses();
-
-    const intervalId = setInterval(fetchProcesses, 1000);
-
+  
+    fetchData();
+    const intervalId = setInterval(fetchData, 1000);
+  
     return () => clearInterval(intervalId);
   }, [sortBy, sortOrder]);
+  
 
   const sortProcesses = (column) => {
 
@@ -59,10 +65,10 @@ function Proc() {
       } else if (column === "pid" || column === "ppid") {
         valueA = parseInt(a[column], 10);
         valueB = parseInt(b[column], 10);
-      } else if (column==='cpu usage'){
+      } else if (column === 'cpu usage') {
         valueA = parseFloat(a[column], 3);
         valueB = parseFloat(b[column], 3);
-      }else{
+      } else {
         valueA = a[column].toLowerCase();
         valueB = b[column].toLowerCase();
       }
@@ -86,7 +92,7 @@ function Proc() {
             <th onClick={() => sortProcesses('ppid')}>ppid</th>
             <th onClick={() => sortProcesses('name')}>name</th>
             <th onClick={() => sortProcesses('state')}>state</th>
-            <th onClick={() => sortProcesses('memory')}>memory</th>
+            <th onClick={() => sortProcesses('memory')}>{totalUsages[0].memory}% <br/>memory</th>
             <th onClick={() => sortProcesses('memory')}>cpu usage</th>
 
           </tr>

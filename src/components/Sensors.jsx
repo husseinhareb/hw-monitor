@@ -5,7 +5,7 @@ function Sensors() {
 
     return (
         <div>
-            wwhaaa
+            Sensors
         </div>
     );
 }

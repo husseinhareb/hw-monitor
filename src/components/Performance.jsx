@@ -5,7 +5,7 @@ function Performance() {
 
     return (
         <div>
-            wwhaaa
+            Performance
         </div>
     );
 }

@@ -5,7 +5,7 @@ function Disks() {
 
     return (
         <div>
-            wwhaaa
+            Disks
         </div>
     );
 }
