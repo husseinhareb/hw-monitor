@@ -42,6 +42,12 @@ function Sidebar() {
     }
   }, [totalUsages]);
 
+  useEffect(() => {
+    // Reset CPU and memory usage data when switching between components
+    setcpuUsage([]);
+    setMemoryUsage([]);
+  }, [activeItem]);
+
   const renderComponent = () => {
     switch (activeItem) {
       case 'CPU':
