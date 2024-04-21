@@ -15,24 +15,23 @@ function Proc() {
         const fetchedProcesses = await invoke("get_processes");
         const sortedProcesses = sortProcessesByColumn(fetchedProcesses, sortBy, sortOrder);
         setProcesses(sortedProcesses);
-  
+
         // Fetch total usages
         const fetchedTotalUsages = await invoke("get_total_usages");
         setTotalUsages(fetchedTotalUsages);
-        console.log(fetchedTotalUsages)
 
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error: Failed to fetch data");
       }
     };
-  
+
     fetchData();
     const intervalId = setInterval(fetchData, 1000);
-  
+
     return () => clearInterval(intervalId);
   }, [sortBy, sortOrder]);
-  
+
 
   const sortProcesses = (column) => {
 
@@ -93,8 +92,25 @@ function Proc() {
             <th onClick={() => sortProcesses('ppid')}>ppid</th>
             <th onClick={() => sortProcesses('name')}>name</th>
             <th onClick={() => sortProcesses('state')}>state</th>
-            <th onClick={() => sortProcesses('memory')}>{totalUsages.memory}% <br/>memory</th>
-            <th onClick={() => sortProcesses('memory')}>{totalUsages.cpu}% <br/> Cpu usage</th>
+            {totalUsages && totalUsages.memory !== null ? (
+              <th onClick={() => sortProcesses('memory')}>
+                {totalUsages.memory}% <br /> memory
+              </th>
+            ) : (
+              <th onClick={() => sortProcesses('memory')}>
+                N/A <br /> memory
+              </th>
+            )}
+
+            {totalUsages && totalUsages.cpu !== null ? (
+              <th onClick={() => sortProcesses('cpu')}>
+                {totalUsages.cpu}% <br /> CPU usage
+              </th>
+            ) : (
+              <th onClick={() => sortProcesses('cpu')}>
+                N/A <br /> CPU usage
+              </th>
+            )}
 
           </tr>
         </thead>

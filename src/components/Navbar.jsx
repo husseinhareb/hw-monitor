@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { StyledButton, StyledNav, StyledUl } from "../styled-components/nav-style";
+import { StyledButton, StyledNav, StyledUl } from "../styled-components/navbar-style";
 import Proc from "./Proc";
-import Performance from "./Performance";
+import Sidebar from "./Sidebar";
 import Sensors from "./Sensors";
 import Disks from "./Disks";
 
@@ -10,7 +10,7 @@ function Navbar() {
 
     const componentMap = {
         Proc: Proc,
-        Performance: Performance,
+        Sidebar: Sidebar,
         Sensors: Sensors,
         Disks: Disks
     };
@@ -29,7 +29,7 @@ function Navbar() {
                         <StyledButton onClick={() => handleButtonClick("Proc")}>Processes</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Performance")}>Performance</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Sidebar")}>Performance</StyledButton>
                     </li>
                     <li>
                         <StyledButton onClick={() => handleButtonClick("Sensors")}>Sensors</StyledButton>

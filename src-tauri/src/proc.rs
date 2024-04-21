@@ -1,8 +1,7 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
+use std::io::{BufReader,BufRead};
 use std::fs::File;
-use std::io::{BufRead, BufReader};
-
 static mut PREVIOUS_IDLE_TIME: usize = 0;
 static mut PREVIOUS_TOTAL_TIME: usize = 0;
 
@@ -219,7 +218,7 @@ fn get_cpu_times() -> Vec<usize> {
     buf_reader.read_line(&mut line).expect("Failed to read /proc/stat");
 
     line.split_whitespace()
-        .skip(1) // Skip the 'cpu' prefix.
+        .skip(1)
         .filter_map(|x| x.parse().ok())
         .collect()
 }
@@ -245,15 +244,20 @@ fn get_cpu_usage_percentage() -> Option<u64> {
         if get_cpu_times_diff(&mut idle_time, &mut total_time) {
             let idle_time_delta = idle_time as isize - PREVIOUS_IDLE_TIME as isize;
             let total_time_delta = total_time as isize - PREVIOUS_TOTAL_TIME as isize;
-            let utilization = 100 - ((100 * idle_time_delta) / total_time_delta);
-            PREVIOUS_IDLE_TIME = idle_time;
-            PREVIOUS_TOTAL_TIME = total_time;
-            Some(utilization as u64)
+            if total_time_delta != 0 {
+                let utilization = 100 - ((100 * idle_time_delta) / total_time_delta);
+                PREVIOUS_IDLE_TIME = idle_time;
+                PREVIOUS_TOTAL_TIME = total_time;
+                Some(utilization as u64)
+            } else {
+                None
+            }
         } else {
             None
         }
     }
 }
+
 
 #[tauri::command]
 pub fn get_total_usages() -> Option<TotalUsage> {
@@ -264,7 +268,8 @@ pub fn get_total_usages() -> Option<TotalUsage> {
                 cpu: Some(cpu.to_string()),
             };
             return Some(total_usage);
-        }
+        };
+
     }
     None
 }
