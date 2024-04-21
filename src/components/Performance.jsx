@@ -1,11 +1,15 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
 import { invoke } from "@tauri-apps/api/tauri";
+import Cpu from './Cpu';
 
 function Sidebar() {
   const [activeItem, setActiveItem] = useState("CPU");
   const [totalUsages, setTotalUsages] = useState([]);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null);
+  const [cpuUsage, setcpuUsage] = useState([]);
+  const chartInstance = useRef(null);
 
   const handleItemClick = (itemName) => {
     setActiveItem(itemName);
@@ -14,10 +18,8 @@ function Sidebar() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch total usages
         const fetchedTotalUsages = await invoke("get_total_usages");
         setTotalUsages(fetchedTotalUsages);
-        console.log(fetchedTotalUsages)
 
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -29,29 +31,32 @@ function Sidebar() {
     const intervalId = setInterval(fetchData, 1000);
 
     return () => clearInterval(intervalId);
-  },[]);
+  }, []);
 
+  useEffect(() => {
+    if (totalUsages && totalUsages.cpu) {
+      setcpuUsage(prevcpuUsage => [...prevcpuUsage, totalUsages.cpu]);
+    }
+  }, [totalUsages]);
 
   const renderComponent = () => {
     switch (activeItem) {
       case 'CPU':
         return (
           <div>
-            {/* CPU component content */}
             <p>CPU Component</p>
+            <Cpu cpuUsage={cpuUsage} />
           </div>
         );
       case 'GPU':
         return (
           <div>
-            {/* GPU component content */}
             <p>GPU Component</p>
           </div>
         );
       case 'DISK':
         return (
           <div>
-            {/* DISK component content */}
             <p>DISK Component</p>
           </div>
         );
