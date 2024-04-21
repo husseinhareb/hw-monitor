@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
 import { invoke } from "@tauri-apps/api/tauri";
 import Cpu from './Cpu';
@@ -7,9 +7,7 @@ function Sidebar() {
   const [activeItem, setActiveItem] = useState("CPU");
   const [totalUsages, setTotalUsages] = useState([]);
   const [error, setError] = useState(null);
-  const chartRef = useRef(null);
   const [cpuUsage, setcpuUsage] = useState([]);
-  const chartInstance = useRef(null);
 
   const handleItemClick = (itemName) => {
     setActiveItem(itemName);
@@ -44,14 +42,13 @@ function Sidebar() {
       case 'CPU':
         return (
           <div>
-            <p>CPU Component</p>
             <Cpu cpuUsage={cpuUsage} />
           </div>
         );
-      case 'GPU':
+      case 'Memory':
         return (
           <div>
-            <p>GPU Component</p>
+            <p>Memory Component</p>
           </div>
         );
       case 'DISK':
@@ -71,7 +68,7 @@ function Sidebar() {
         <Title>Performance</Title>
         <List>
           <ListItem onClick={() => handleItemClick("CPU")}>CPU</ListItem>
-          <ListItem onClick={() => handleItemClick("GPU")}>GPU</ListItem>
+          <ListItem onClick={() => handleItemClick("Memory")}>Memory</ListItem>
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
         </List>
       </SidebarContainer>

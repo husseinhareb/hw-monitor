@@ -1,27 +1,28 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Chart from 'chart.js/auto';
+import { invoke } from "@tauri-apps/api/tauri";
 
 function Cpu({ cpuUsage }) {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
+    const [cpuData, setCpuData] = useState({ name: "Fetching CPU data..." }); // Initial value for cpuData
 
-    try {
-        // Fetch processes
-        const fetchedProcesses = await invoke("get_processes");
-        const sortedProcesses = sortProcessesByColumn(fetchedProcesses, sortBy, sortOrder);
-        setProcesses(sortedProcesses);
+    const fetchCpuData = async () => {
+        try {
+            const fetchedCpuData = await invoke("get_cpu_informations");
+            setCpuData(fetchedCpuData);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
 
-        // Fetch total usages
-        const fetchedTotalUsages = await invoke("get_total_usages");
-        setTotalUsages(fetchedTotalUsages);
-
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Error: Failed to fetch data");
-    }
+    useEffect(() => {
+        fetchCpuData(); 
+    }, []);
 
     useEffect(() => {
         if (chartRef.current !== null) {
+            // Create chart instance
             const ctx = chartRef.current.getContext('2d');
             chartInstance.current = new Chart(ctx, {
                 type: 'line',
@@ -48,6 +49,7 @@ function Cpu({ cpuUsage }) {
         }
 
         return () => {
+            // Cleanup chart instance
             if (chartInstance.current !== null) {
                 chartInstance.current.destroy();
             }
@@ -55,6 +57,7 @@ function Cpu({ cpuUsage }) {
     }, []);
 
     useEffect(() => {
+        // Update chart data when cpuUsage prop changes
         if (chartInstance.current !== null) {
             updateChartData();
         }
@@ -66,7 +69,12 @@ function Cpu({ cpuUsage }) {
         chartInstance.current.update();
     };
 
-    return <canvas ref={chartRef} width={500} height={300}></canvas>;
+    return (
+        <div>
+            <p>{cpuData.name}</p> {/* Render CPU name only when cpuData is available */}
+            <canvas ref={chartRef} width={500} height={300}></canvas>
+        </div>
+    );
 }
 
 export default Cpu;
