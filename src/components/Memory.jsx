@@ -2,24 +2,24 @@ import React, { useState, useEffect, useRef } from "react";
 import Chart from 'chart.js/auto';
 import { invoke } from "@tauri-apps/api/tauri";
 
-function Cpu({ cpuUsage }) {
+function Memory({ memoryUsage }) {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
-    const [cpuData, setCpuData] = useState({ name: "Fetching CPU data..." }); // Initial value for cpuData
+   // const [MemoryData, setMemoryData] = useState({ name: "Fetching Memory data..." }); // Initial value for MemoryData
 
-    const fetchCpuData = async () => {
+   /* const fetchMemoryData = async () => {
         try {
-            const fetchedCpuData = await invoke("get_cpu_informations");
-            setCpuData(fetchedCpuData);
+            const fetchedMemoryData = await invoke("get_Memory_informations");
+            setMemoryData(fetchedMemoryData);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
     };
 
     useEffect(() => {
-        fetchCpuData(); 
+        fetchMemoryData(); 
     }, []);
-
+*/
     useEffect(() => {
         if (chartRef.current !== null) {
             // Create chart instance
@@ -29,8 +29,8 @@ function Cpu({ cpuUsage }) {
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'CPU Usage',
-                        data: cpuUsage,
+                        label: 'Memory Usage',
+                        data: memoryUsage,
                         borderColor: 'rgb(75, 192, 192)',
                         tension: 0.1,
                         fill: true,
@@ -59,25 +59,23 @@ function Cpu({ cpuUsage }) {
     }, []);
 
     useEffect(() => {
-        // Update chart data when cpuUsage prop changes
+        // Update chart data when memoryUsage prop changes
         if (chartInstance.current !== null) {
             updateChartData();
         }
-    }, [cpuUsage]);
+    }, [memoryUsage]);
 
     const updateChartData = () => {
         chartInstance.current.data.labels.push((chartInstance.current.data.labels.length + 1) + "s");
-        chartInstance.current.data.datasets[0].data = cpuUsage;
+        chartInstance.current.data.datasets[0].data = memoryUsage;
         chartInstance.current.update();
     };
 
     return (
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
-            <p>{cpuData.name}</p> 
-            <p> cores: {cpuData.cores}</p>
         </div>
     );
 }
 
-export default Cpu;
+export default Memory;

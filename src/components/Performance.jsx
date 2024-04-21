@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
 import { invoke } from "@tauri-apps/api/tauri";
 import Cpu from './Cpu';
+import Memory from './Memory';
 
 function Sidebar() {
-  const [activeItem, setActiveItem] = useState("CPU");
+  const [activeItem, setActiveItem] = useState("Memory");
   const [totalUsages, setTotalUsages] = useState([]);
   const [error, setError] = useState(null);
   const [cpuUsage, setcpuUsage] = useState([]);
+  const [memoryUsage, setMemoryUsage] = useState([]);
 
   const handleItemClick = (itemName) => {
     setActiveItem(itemName);
@@ -35,6 +37,9 @@ function Sidebar() {
     if (totalUsages && totalUsages.cpu) {
       setcpuUsage(prevcpuUsage => [...prevcpuUsage, totalUsages.cpu]);
     }
+    if (totalUsages && totalUsages.memory) {
+      setMemoryUsage(prevMemoryUsage => [...prevMemoryUsage, totalUsages.memory]);
+    }
   }, [totalUsages]);
 
   const renderComponent = () => {
@@ -48,7 +53,7 @@ function Sidebar() {
       case 'Memory':
         return (
           <div>
-            <p>Memory Component</p>
+            <Memory memoryUsage={memoryUsage} />
           </div>
         );
       case 'DISK':
