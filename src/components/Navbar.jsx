@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyledButton, StyledNav, StyledUl } from "../styled-components/navbar-style";
 import Proc from "./Proc";
-import Sidebar from "./Sidebar";
+import Sidebar from "./Performance";
 import Sensors from "./Sensors";
 import Disks from "./Disks";
 
