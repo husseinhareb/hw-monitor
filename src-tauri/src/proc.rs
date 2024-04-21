@@ -1,7 +1,11 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
-use std::time::Duration;
-use std::thread::sleep;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
+static mut PREVIOUS_IDLE_TIME: usize = 0;
+static mut PREVIOUS_TOTAL_TIME: usize = 0;
+
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -17,7 +21,10 @@ pub struct Process {
 #[derive(Serialize, Deserialize)]
 pub struct TotalUsage {
     memory: Option<String>,
+    cpu: Option<String>,
 }
+
+
 
 fn list_proc_pid() -> Vec<String> {
     let entries = fs::read_dir("/proc").unwrap();
@@ -167,7 +174,7 @@ fn calculate_cpu_usage(pid: u32) -> Result<f64, std::io::Error> {
     let total_cpu_start = read_cpu_time()?;
     let process_cpu_start = read_process_cpu_time(pid)?;
     let total_cpu_end = read_cpu_time()?;
-    //sleep(Duration::from_secs(1));
+    //sleep(Duration::from_millis(100));
     let process_cpu_end = read_process_cpu_time(pid)?;
 
     let total_cpu_time = total_cpu_end - total_cpu_start;
@@ -205,17 +212,64 @@ fn get_memory_usage_percentage() -> Option<u64> {
 }
 
 
-#[tauri::command]
-pub fn get_total_usages() -> Vec<TotalUsage> {
-    let mut total_usages = Vec::new();
-    if let Some(memory) = get_memory_usage_percentage() {
-        let total_usage = TotalUsage {
-            memory: Some(memory.to_string()),
-        };
-        total_usages.push(total_usage);
-    }
-    total_usages
+fn get_cpu_times() -> Vec<usize> {
+    let file = File::open("/proc/stat").expect("Failed to open /proc/stat");
+    let mut buf_reader = BufReader::new(file);
+    let mut line = String::new();
+    buf_reader.read_line(&mut line).expect("Failed to read /proc/stat");
+
+    line.split_whitespace()
+        .skip(1) // Skip the 'cpu' prefix.
+        .filter_map(|x| x.parse().ok())
+        .collect()
 }
+
+fn get_cpu_times_diff(idle_time: &mut usize, total_time: &mut usize) -> bool {
+    let cpu_times = get_cpu_times();
+    if cpu_times.len() < 4 {
+        return false;
+    }
+
+    *idle_time = cpu_times[3];
+    *total_time = cpu_times.iter().sum();
+    true
+}
+
+
+
+fn get_cpu_usage_percentage() -> Option<u64> {
+    let mut idle_time = 0;
+    let mut total_time = 0;
+
+    unsafe {
+        if get_cpu_times_diff(&mut idle_time, &mut total_time) {
+            let idle_time_delta = idle_time as isize - PREVIOUS_IDLE_TIME as isize;
+            let total_time_delta = total_time as isize - PREVIOUS_TOTAL_TIME as isize;
+            let utilization = 100 - ((100 * idle_time_delta) / total_time_delta);
+            PREVIOUS_IDLE_TIME = idle_time;
+            PREVIOUS_TOTAL_TIME = total_time;
+            Some(utilization as u64)
+        } else {
+            None
+        }
+    }
+}
+
+#[tauri::command]
+pub fn get_total_usages() -> Option<TotalUsage> {
+    if let Some(memory) = get_memory_usage_percentage() {
+        if let Some(cpu) = get_cpu_usage_percentage() {
+            let total_usage = TotalUsage {
+                memory: Some(memory.to_string()),
+                cpu: Some(cpu.to_string()),
+            };
+            return Some(total_usage);
+        }
+    }
+    None
+}
+
+
 
 #[tauri::command]
 pub fn get_processes() -> Vec<Process> {

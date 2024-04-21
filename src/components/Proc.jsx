@@ -18,8 +18,9 @@ function Proc() {
   
         // Fetch total usages
         const fetchedTotalUsages = await invoke("get_total_usages");
-        console.log("Fetched total usages:");
         setTotalUsages(fetchedTotalUsages);
+        console.log(fetchedTotalUsages)
+
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error: Failed to fetch data");
@@ -92,8 +93,8 @@ function Proc() {
             <th onClick={() => sortProcesses('ppid')}>ppid</th>
             <th onClick={() => sortProcesses('name')}>name</th>
             <th onClick={() => sortProcesses('state')}>state</th>
-            <th onClick={() => sortProcesses('memory')}>{totalUsages[0].memory}% <br/>memory</th>
-            <th onClick={() => sortProcesses('memory')}>cpu usage</th>
+            <th onClick={() => sortProcesses('memory')}>{totalUsages.memory}% <br/>memory</th>
+            <th onClick={() => sortProcesses('memory')}>{totalUsages.cpu}% <br/> Cpu usage</th>
 
           </tr>
         </thead>
