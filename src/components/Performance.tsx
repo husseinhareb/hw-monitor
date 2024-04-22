@@ -4,26 +4,28 @@ import { invoke } from "@tauri-apps/api/tauri";
 import Cpu from './Cpu';
 import Memory from './Memory';
 
-function Sidebar() {
-  const [activeItem, setActiveItem] = useState("Memory");
-  const [totalUsages, setTotalUsages] = useState([]);
-  const [error, setError] = useState(null);
-  const [cpuUsage, setcpuUsage] = useState([]);
-  const [memoryUsage, setMemoryUsage] = useState([]);
+interface TotalUsages {
+  cpu: number | null;
+  memory: number | null;
+}
 
-  const handleItemClick = (itemName) => {
+const Sidebar: React.FC = () => {
+  const [activeItem, setActiveItem] = useState<string>("Memory");
+  const [totalUsages, setTotalUsages] = useState<TotalUsages>({ cpu: null, memory: null });
+  const [cpuUsage, setcpuUsage] = useState<number[]>([]);
+  const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
+
+  const handleItemClick = (itemName: string) => {
     setActiveItem(itemName);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedTotalUsages = await invoke("get_total_usages");
+        const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
         setTotalUsages(fetchedTotalUsages);
-
       } catch (error) {
         console.error("Error fetching data:", error);
-        setError("Error: Failed to fetch data");
       }
     };
 
@@ -34,11 +36,11 @@ function Sidebar() {
   }, []);
 
   useEffect(() => {
-    if (totalUsages && totalUsages.cpu) {
-      setcpuUsage(prevcpuUsage => [...prevcpuUsage, totalUsages.cpu]);
+    if (totalUsages.cpu !== null) {
+      setcpuUsage(prevcpuUsage => [...prevcpuUsage, totalUsages.cpu as number]);
     }
-    if (totalUsages && totalUsages.memory) {
-      setMemoryUsage(prevMemoryUsage => [...prevMemoryUsage, totalUsages.memory]);
+    if (totalUsages.memory !== null) {
+      setMemoryUsage(prevMemoryUsage => [...prevMemoryUsage, totalUsages.memory as number]);
     }
   }, [totalUsages]);
 
@@ -51,23 +53,11 @@ function Sidebar() {
   const renderComponent = () => {
     switch (activeItem) {
       case 'CPU':
-        return (
-          <div>
-            <Cpu cpuUsage={cpuUsage} />
-          </div>
-        );
+        return <Cpu cpuUsage={cpuUsage} />;
       case 'Memory':
-        return (
-          <div>
-            <Memory memoryUsage={memoryUsage} />
-          </div>
-        );
+        return <Memory memoryUsage={memoryUsage} />;
       case 'DISK':
-        return (
-          <div>
-            <p>DISK Component</p>
-          </div>
-        );
+        return <div><p>DISK Component</p></div>;
       default:
         return null;
     }
@@ -83,9 +73,7 @@ function Sidebar() {
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
         </List>
       </SidebarContainer>
-      <div>
-        {renderComponent()}
-      </div>
+      <div>{renderComponent()}</div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ use std::fs;
 pub struct CpuInformations {
     name: Option<String>,
     cores: Option<String>,
+    threads: Option<String>,
 }
 
 fn get_cpu_name() -> Option<String> {
@@ -34,17 +35,33 @@ fn get_cpu_nb_cores() -> Option<String> {
     }
     None
 }
+fn get_cpu_nb_threads() -> Option<String> {
+    if let Ok(cpu_info) = fs::read_to_string("/proc/cpuinfo") {
+        for line in cpu_info.lines() {
+            if line.starts_with("siblings") {
+                let parts: Vec<&str> = line.split(":").collect();
+                if let Some(name) = parts.get(1) {
+                    return Some(name.trim().to_string());
+                }
+            }
+        }
+    }
+    None
+}
 
 #[tauri::command]
 pub fn get_cpu_informations() -> Option<CpuInformations> {
     if let Some(cpu_name) = get_cpu_name() {
         if let Some(cores) = get_cpu_nb_cores() {
-            let cpu_info = CpuInformations {
+            if let Some(threads) = get_cpu_nb_threads() {
+                let cpu_info = CpuInformations {
                 name: Some(cpu_name),
                 cores: Some(cores),
+                threads: Some(threads),
             };
             return Some(cpu_info);
         }
+    }
     }
     None
 }

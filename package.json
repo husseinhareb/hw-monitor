@@ -5,21 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri"
   },
   "dependencies": {
     "@tauri-apps/api": "^1",
-    "chart.js": "^3.9.1",
+    "chart.js": "^4.4.2",
     "react": "^18.2.0",
-    "react-chartjs-2": "^4.3.1",
     "react-dom": "^18.2.0",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.0.2",
     "vite": "^5.0.0"
   }
 }

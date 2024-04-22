@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-function Sensors() {
-
-
+const Sensors: React.FC = () => {
     return (
         <div>
             Sensors

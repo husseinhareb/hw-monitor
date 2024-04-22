@@ -1,25 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, FunctionComponent } from "react";
 import { StyledButton, StyledNav, StyledUl } from "../styled-components/navbar-style";
 import Proc from "./Proc";
 import Sidebar from "./Performance";
 import Sensors from "./Sensors";
 import Disks from "./Disks";
 
-function Navbar() {
-    const [activeComponent, setActiveComponent] = useState("Proc");
+type ComponentName = "Proc" | "Sidebar" | "Sensors" | "Disks";
 
-    const componentMap = {
-        Proc: Proc,
-        Sidebar: Sidebar,
-        Sensors: Sensors,
-        Disks: Disks
-    };
+const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
+    Proc,
+    Sidebar,
+    Sensors,
+    Disks
+};
 
-    const handleButtonClick = (componentName) => {
+const Navbar: React.FC = () => {
+    const [activeComponent, setActiveComponent] = useState<ComponentName>("Proc");
+
+    const handleButtonClick = (componentName: ComponentName) => {
         setActiveComponent(componentName);
     };
 
-    const DynamicComponent = componentMap[activeComponent]; // Get the component dynamically
+    const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
     return (
         <div>
