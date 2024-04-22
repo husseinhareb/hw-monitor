@@ -10,25 +10,33 @@ interface CpuData {
     name: string;
     cores: number;
     threads: number;
+    cpu_speed: number;
 }
 
 const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0 });
+    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0,cpu_speed: 0.0 });
 
-    const fetchCpuData = async () => {
-        try {
-            const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
-            setCpuData(fetchedCpuData);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    };
+
 
     useEffect(() => {
+
+        const fetchCpuData = async () => {
+            try {
+                const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
+                setCpuData(fetchedCpuData);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
         fetchCpuData();
+        const intervalId = setInterval(fetchCpuData, 1000);
+
+        return () => clearInterval(intervalId);
     }, []);
+
 
     useEffect(() => {
         if (chartRef.current !== null) {
@@ -91,6 +99,7 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
             <p>{cpuData.name}</p>
             <p> cores: {cpuData.cores}</p>
             <p>threads: {cpuData.threads}</p>
+            <p>Cpu Speed: {cpuData.cpu_speed} GHz</p>
         </div>
     );
 }

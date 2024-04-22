@@ -9,7 +9,7 @@ interface TotalUsages {
   memory: number | null;
 }
 
-const Sidebar: React.FC = () => {
+const Performance: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string>("Memory");
   const [totalUsages, setTotalUsages] = useState<TotalUsages>({ cpu: null, memory: null });
   const [cpuUsage, setcpuUsage] = useState<number[]>([]);
@@ -78,4 +78,4 @@ const Sidebar: React.FC = () => {
   );
 };
 
-export default Sidebar;
+export default Performance;

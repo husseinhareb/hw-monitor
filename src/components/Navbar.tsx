@@ -1,15 +1,15 @@
 import React, { useState, FunctionComponent } from "react";
 import { StyledButton, StyledNav, StyledUl } from "../styled-components/navbar-style";
 import Proc from "./Proc";
-import Sidebar from "./Performance";
+import Performance from "./Performance";
 import Sensors from "./Sensors";
 import Disks from "./Disks";
 
-type ComponentName = "Proc" | "Sidebar" | "Sensors" | "Disks";
+type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks";
 
 const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
     Proc,
-    Sidebar,
+    Performance,
     Sensors,
     Disks
 };
@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
                         <StyledButton onClick={() => handleButtonClick("Proc")}>Processes</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Sidebar")}>Performance</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Performance")}>Performance</StyledButton>
                     </li>
                     <li>
                         <StyledButton onClick={() => handleButtonClick("Sensors")}>Sensors</StyledButton>
