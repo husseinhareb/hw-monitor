@@ -7,9 +7,12 @@ pub struct CpuInformations {
     name: Option<String>,
     cores: Option<String>,
     threads: Option<String>,
+    socket: Option<String>,
     cpu_speed: Option<String>,
     base_speed: Option<String>,
     max_speed: Option<String>,
+    virtualization: Option<String>,
+    
 }
 
 fn get_base_speed_from_file() -> Option<String> {
@@ -62,6 +65,7 @@ fn get_base_speed_from_lscpu() -> Option<String> {
     None
 }
 
+
 fn get_cpu_info() -> Option<CpuInformations> {
     let base_speed = get_base_speed_from_file().or_else(|| get_base_speed_from_lscpu());
     let max_speed = get_max_speed_from_file().or_else(|| get_max_speed_from_lscpu());
@@ -70,7 +74,10 @@ fn get_cpu_info() -> Option<CpuInformations> {
         let mut cpu_name = None;
         let mut cores = None;
         let mut threads = None;
-        let mut cpu_speeds = Vec::new(); // Changed to store all CPU speeds
+        let mut cpu_speeds = Vec::new();
+        let mut virtualization = None;
+        let mut num_sockets = 0;
+        let mut counted_sockets: Vec<String> = Vec::new();
 
         for line in cpu_info.lines() {
             if line.starts_with("model name") {
@@ -94,6 +101,25 @@ fn get_cpu_info() -> Option<CpuInformations> {
                         cpu_speeds.push(speed); // Store CPU speed in the vector
                     }
                 }
+            } else if line.starts_with("flags") {
+                // Check if the flags line contains the virtualization flags
+                if line.contains(" vmx ") || line.contains(" svm ") {
+                    // If virtualization flags are found, set the status to "Enabled"
+                    virtualization = Some("Enabled".to_string());
+                } else {
+                    // If virtualization flags are not found, set the status to "Disabled"
+                    virtualization = Some("Disabled".to_string());
+                }
+            } else if line.starts_with("physical id") {
+                let parts: Vec<&str> = line.split(":").collect();
+                if let Some(socket_id) = parts.get(1) {
+                    let socket_id = socket_id.trim().to_string();
+                    // Check if this socket has already been counted
+                    if !counted_sockets.contains(&socket_id) {
+                        num_sockets += 1;
+                        counted_sockets.push(socket_id);
+                    }
+                }
             }
         }
 
@@ -110,11 +136,14 @@ fn get_cpu_info() -> Option<CpuInformations> {
                 base_speed, // Assign the base speed to the struct field
                 cpu_speed: Some(formatted_speed), // Store the formatted CPU speed
                 max_speed,
+                virtualization,
+                socket: Some(num_sockets.to_string()), // Store the number of sockets
             });
         }
     }
     None
 }
+
 
 #[tauri::command]
 pub fn get_cpu_informations() -> Option<CpuInformations> {

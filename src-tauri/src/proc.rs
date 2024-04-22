@@ -21,6 +21,7 @@ pub struct Process {
 pub struct TotalUsage {
     memory: Option<String>,
     cpu: Option<String>,
+    processes: Option<String>
 }
 
 
@@ -53,6 +54,31 @@ fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
         }
     }
     None
+}
+
+fn get_running_processes_count() -> Option<usize> {
+    // Read the contents of the /proc directory
+    if let Ok(entries) = fs::read_dir("/proc") {
+        // Count the number of entries that are directories and have numeric names
+        let count = entries
+            .filter_map(|entry| {
+                entry.ok().and_then(|e| {
+                    e.file_name().into_string().ok().and_then(|s| {
+                        // Check if the entry name is numeric
+                        if s.chars().all(char::is_numeric) {
+                            Some(())
+                        } else {
+                            None
+                        }
+                    })
+                })
+            })
+            .count();
+
+        Some(count)
+    } else {
+        None // Return None if reading the directory fails
+    }
 }
 
 fn get_name(pid: &str) -> Option<String> {
@@ -263,13 +289,16 @@ fn get_cpu_usage_percentage() -> Option<u64> {
 pub fn get_total_usages() -> Option<TotalUsage> {
     if let Some(memory) = get_memory_usage_percentage() {
         if let Some(cpu) = get_cpu_usage_percentage() {
+            if let Some(processes) = get_running_processes_count() {
+
             let total_usage = TotalUsage {
                 memory: Some(memory.to_string()),
                 cpu: Some(cpu.to_string()),
+                processes: Some(processes.to_string()),
             };
             return Some(total_usage);
         };
-
+    }
     }
     None
 }
