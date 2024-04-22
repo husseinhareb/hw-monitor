@@ -11,17 +11,17 @@ interface CpuData {
     cores: number;
     threads: number;
     cpu_speed: number;
+    base_speed: number;
+    max_speed: number;
 }
 
 const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0,cpu_speed: 0.0 });
-
-
+    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0,base_speed: 0.0, max_speed: 0.0});
+    const [lastCpuUsage, setLastCpuUsage] = useState<number | null>(null);
 
     useEffect(() => {
-
         const fetchCpuData = async () => {
             try {
                 const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
@@ -36,7 +36,6 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
 
         return () => clearInterval(intervalId);
     }, []);
-
 
     useEffect(() => {
         if (chartRef.current !== null) {
@@ -81,11 +80,13 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
     useEffect(() => {
         // Update chart data when cpuUsage prop changes
         if (chartInstance.current !== null) {
-            updateChartData();
+            const lastUsage = cpuUsage[cpuUsage.length - 1];
+            setLastCpuUsage(lastUsage);
+            updateChartData(lastUsage);
         }
     }, [cpuUsage]);
 
-    const updateChartData = () => {
+    const updateChartData = (lastCpuUsage: number) => {
         if (chartInstance.current !== null) {
             chartInstance.current.data.labels?.push(((chartInstance.current.data.labels?.length ?? 0) + 1) + "s");
             chartInstance.current.data.datasets[0].data = cpuUsage;
@@ -97,9 +98,13 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
             <p>{cpuData.name}</p>
+            <p>Cpu usage: {lastCpuUsage}%</p>
             <p> cores: {cpuData.cores}</p>
             <p>threads: {cpuData.threads}</p>
             <p>Cpu Speed: {cpuData.cpu_speed} GHz</p>
+            <p>Base Speed: {cpuData.base_speed/1000000} GHz</p>
+            <p>Base Speed: {cpuData.max_speed/1000000} GHz</p>
+
         </div>
     );
 }
