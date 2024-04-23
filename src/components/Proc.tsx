@@ -17,6 +17,7 @@ interface TotalUsages {
     cpu: number | null;
 }
 
+
 const Proc: React.FC = () => {
     const [processes, setProcesses] = useState<Process[]>([]);
     const [sortBy, setSortBy] = useState<string | null>(null);
@@ -33,7 +34,7 @@ const Proc: React.FC = () => {
 
                 // Fetch total usages
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-                setTotalUsages(fetchedTotalUsages);
+                setTotalUsages(fetchedTotalUsages); 
 
             } catch (error) {
                 console.error("Error fetching data:", error);

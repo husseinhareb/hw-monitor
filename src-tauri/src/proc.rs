@@ -2,8 +2,55 @@ use std::fs;
 use serde::{Serialize, Deserialize};
 use std::io::{BufReader,BufRead};
 use std::fs::File;
+
+use sysinfo::Pid;
+
 static mut PREVIOUS_IDLE_TIME: usize = 0;
 static mut PREVIOUS_TOTAL_TIME: usize = 0;
+
+#[derive(Serialize, Deserialize)]
+pub struct ProcessCpu {
+    pid: Option<String>,
+    cpu_usage: Option<String>,
+}
+
+fn calculate_cpu_usage(pid: usize) -> Result<f32, std::io::Error> {
+    let mut sys = sysinfo::System::new_all();
+    sys.refresh_all();
+
+    if let Some(process) = sys.process(Pid::from(pid)) {
+        println!("Process CPU Usage: {}%", process.cpu_usage());
+        Ok(process.cpu_usage())
+    } else {
+        // Handle the case when the process is not found
+        Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "Process not found",
+        ))
+    }
+}
+
+#[tauri::command]
+pub fn get_cpu_usage_proccess() -> Vec<ProcessCpu> {
+    let mut processes = Vec::new();
+    let pids = list_proc_pid();
+    for pid in pids {
+        if let Ok(pid_num) = pid.parse::<usize>() {
+            if let Ok(cpu_usage) = calculate_cpu_usage(pid_num) {
+                let process = ProcessCpu {
+                    pid: Some(pid.clone()),
+                    cpu_usage: Some(cpu_usage.to_string()),
+                };
+                processes.push(process);
+            } else {
+                println!("Failed to retrieve CPU usage for process {}", pid);
+            }
+        } else {
+            println!("Failed to parse PID: {}", pid);
+        }
+    }
+    processes
+}
 
 
 #[derive(Serialize, Deserialize)]
@@ -14,8 +61,6 @@ pub struct Process {
     state: Option<String>,
     user: Option<String>,
     memory: Option<String>,
-    cpu: Option<String>,
-
 }
 
 #[derive(Serialize, Deserialize)]
@@ -50,7 +95,6 @@ fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
         for line in status.lines() {
             if line.starts_with(keyword) {
                 let mut parts = line.split_whitespace();
-                // Skip the keyword itself
                 parts.next();
                 if let Some(value) = parts.next() {
                     return Some(value.to_string());
@@ -62,14 +106,11 @@ fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
 }
 
 fn get_running_processes_count() -> Option<usize> {
-    // Read the contents of the /proc directory
     if let Ok(entries) = fs::read_dir("/proc") {
-        // Count the number of entries that are directories and have numeric names
         let count = entries
             .filter_map(|entry| {
                 entry.ok().and_then(|e| {
                     e.file_name().into_string().ok().and_then(|s| {
-                        // Check if the entry name is numeric
                         if s.chars().all(char::is_numeric) {
                             Some(())
                         } else {
@@ -81,7 +122,7 @@ fn get_running_processes_count() -> Option<usize> {
             .count();
         Some(count)
     } else {
-        None // Return None if reading the directory fails
+        None 
     }
 }
 
@@ -178,41 +219,6 @@ fn get_username(uid: u32) -> Option<String> {
     None
 }
 
-fn read_stat(pid: u32) -> Result<String, std::io::Error> {
-    fs::read_to_string(format!("/proc/{}/stat", pid))
-}
-
-fn read_cpu_time() -> Result<u64, std::io::Error> {
-    let stat = fs::read_to_string("/proc/stat")?;
-    let values: Vec<&str> = stat.lines().next().unwrap().split_whitespace().collect();
-    let user = values[1].parse::<u64>().unwrap();
-    let nice = values[2].parse::<u64>().unwrap();
-    let system = values[3].parse::<u64>().unwrap();
-    let idle = values[4].parse::<u64>().unwrap();
-    Ok(user + nice + system + idle)
-}
-
-fn read_process_cpu_time(pid: u32) -> Result<u64, std::io::Error> {
-    let stat = read_stat(pid)?;
-    let values: Vec<&str> = stat.split_whitespace().collect();
-    let utime = values[13].parse::<u64>().unwrap();
-    let stime = values[14].parse::<u64>().unwrap();
-    Ok(utime + stime)
-}
-
-fn calculate_cpu_usage(pid: u32) -> Result<f64, std::io::Error> {
-    let total_cpu_start = read_cpu_time()?;
-    let process_cpu_start = read_process_cpu_time(pid)?;
-    let total_cpu_end = read_cpu_time()?;
-    //sleep(Duration::from_millis(100));
-    let process_cpu_end = read_process_cpu_time(pid)?;
-
-    let total_cpu_time = total_cpu_end - total_cpu_start;
-    let process_cpu_time = process_cpu_end - process_cpu_start;
-
-    let cpu_usage_percent = (process_cpu_time as f64 / total_cpu_time as f64) * 100.0;
-    Ok(cpu_usage_percent)
-}
 
 
 fn get_memory_usage_percentage() -> Option<u64> {
@@ -320,7 +326,6 @@ pub fn get_processes() -> Vec<Process> {
                 if let Some(state) = get_proc_state(&pid) {
                     if let Some(user) = get_proc_user(&pid) {
                         if let Some(memory) = get_proc_mem(&pid) {
-                            if let Ok(cpu_usage) = calculate_cpu_usage(pid.parse().unwrap()) {
                                 let process = Process {
                                     pid: pid.clone(),
                                     name: Some(name),
@@ -328,12 +333,8 @@ pub fn get_processes() -> Vec<Process> {
                                     state: Some(state),
                                     user: Some(user),
                                     memory: Some(memory),
-                                    cpu: Some(cpu_usage.to_string()),
                                 };
                                 processes.push(process);
-                            } else {
-                                println!("Failed to calculate CPU usage for process {}", pid);
-                            }
                         } else {
                             println!("Failed to retrieve memory info for process {}", pid);
                         }

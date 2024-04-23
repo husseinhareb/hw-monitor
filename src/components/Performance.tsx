@@ -4,7 +4,8 @@ import { invoke } from "@tauri-apps/api/tauri";
 import Cpu from './Cpu';
 import Memory from './Memory';
 import Graph from './Graph';
-
+import Network from './Network';
+import Disks from './Disks';
 interface TotalUsages {
   cpu: number | null;
   memory: number | null;
@@ -58,7 +59,9 @@ const Performance: React.FC = () => {
       case 'Memory':
         return <Memory memoryUsage={memoryUsage} />;
       case 'DISK':
-        return <div><p>DISK Component</p></div>;
+        return <Disks />;
+      case 'Network':
+        return <Network />
       default:
         return null;
     }
@@ -72,6 +75,8 @@ const Performance: React.FC = () => {
           <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph graphValue={cpuUsage} /></ListItem>
           <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph graphValue={memoryUsage} /></ListItem>
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
+          <ListItem onClick={() => handleItemClick("Network")}>Wi-Fi</ListItem>
+
         </List>
       </SidebarContainer>
       <div>{renderComponent()}</div>
