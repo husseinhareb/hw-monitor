@@ -3,6 +3,7 @@ import { List, ListItem, SidebarContainer, Title } from '../styled-components/si
 import { invoke } from "@tauri-apps/api/tauri";
 import Cpu from './Cpu';
 import Memory from './Memory';
+import Graph from './Graph';
 
 interface TotalUsages {
   cpu: number | null;
@@ -68,8 +69,8 @@ const Performance: React.FC = () => {
       <SidebarContainer>
         <Title>Performance</Title>
         <List>
-          <ListItem onClick={() => handleItemClick("CPU")}>CPU</ListItem>
-          <ListItem onClick={() => handleItemClick("Memory")}>Memory</ListItem>
+          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph graphValue={cpuUsage} /></ListItem>
+          <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph graphValue={memoryUsage} /></ListItem>
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
         </List>
       </SidebarContainer>
