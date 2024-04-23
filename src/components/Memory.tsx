@@ -14,7 +14,7 @@ const Memory: React.FC<MemoryProps> = ({ memoryUsage }) => {
 
     return (
         <div>
-            <Graph graphValue={memoryUsage} />
+            <Graph currentValue={memoryUsage} maxValue={100} />
         </div>
     );
 }

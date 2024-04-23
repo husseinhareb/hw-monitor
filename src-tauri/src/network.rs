@@ -15,8 +15,11 @@ pub fn get_network() -> Option<Network> {
     sys.refresh_all();
     let networks = Networks::new_with_refreshed_list();
 
-    // Assuming you want information for the first network interface
-    if let Some((interface_name, data)) = networks.iter().next() {
+    // Assuming you want information for the Wi-Fi interface
+    let wifi_network = networks.iter()
+        .find(|(interface_name, _)| interface_name.starts_with("wl"));
+
+    if let Some((interface_name, data)) = wifi_network {
         let network = Network {
             interface: Some(interface_name.clone()),
             upload: Some(data.total_received().to_string()),

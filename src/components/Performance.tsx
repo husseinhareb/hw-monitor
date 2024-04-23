@@ -72,8 +72,8 @@ const Performance: React.FC = () => {
       <SidebarContainer>
         <Title>Performance</Title>
         <List>
-          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph graphValue={cpuUsage} /></ListItem>
-          <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph graphValue={memoryUsage} /></ListItem>
+          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph currentValue={cpuUsage} /></ListItem>
+          <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph currentValue={memoryUsage} /></ListItem>
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
           <ListItem onClick={() => handleItemClick("Network")}>Wi-Fi</ListItem>
 

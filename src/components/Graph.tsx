@@ -2,12 +2,13 @@ import React, { useEffect, useRef } from "react";
 import Chart from 'chart.js/auto';
 
 interface MemoryProps {
-    graphValue: number[];
+    currentValue: number[];
+    maxValue: number;
 }
 
 
 
-const Graph: React.FC<MemoryProps> = ({ graphValue }) => {
+const Graph: React.FC<MemoryProps> = ({ currentValue,maxValue }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
 
@@ -23,7 +24,7 @@ const Graph: React.FC<MemoryProps> = ({ graphValue }) => {
                     data: {
                         labels: [],
                         datasets: [{
-                            data: graphValue,
+                            data: currentValue,
                             borderColor: 'rgb(75, 192, 192)',
                             tension: 0.1,
                             fill: true,
@@ -36,7 +37,7 @@ const Graph: React.FC<MemoryProps> = ({ graphValue }) => {
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                max: 100
+                                max: maxValue
                             }
                         }
                     }
@@ -57,12 +58,12 @@ const Graph: React.FC<MemoryProps> = ({ graphValue }) => {
         if (chartInstance.current !== null) {
             updateChartData();
         }
-    }, [graphValue]);
+    }, [currentValue]);
 
     const updateChartData = () => {
         if (chartInstance.current !== null) {
             chartInstance.current.data.labels?.push(((chartInstance.current.data.labels?.length ?? 0) + 1) + "s");
-            chartInstance.current.data.datasets[0].data = graphValue;
+            chartInstance.current.data.datasets[0].data = currentValue;
             chartInstance.current.update();
         }
     };

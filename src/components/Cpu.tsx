@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import Chart from 'chart.js/auto';
 import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
 
@@ -24,7 +23,6 @@ interface CpuData {
 }
 
 const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
-    const chartInstance = useRef<Chart<"line"> | null>(null);
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null); // Initialize as null
     useEffect(() => {
@@ -47,24 +45,10 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
         return () => clearInterval(intervalId);
     }, []);
 
-    useEffect(() => {
-        // Update chart data when cpuUsage prop changes
-        if (chartInstance.current !== null) {
-            updateChartData();
-        }
-    }, [cpuUsage]);
-
-    const updateChartData = () => {
-        if (chartInstance.current !== null) {
-            chartInstance.current.data.labels?.push(((chartInstance.current.data.labels?.length ?? 0) + 1) + "s");
-            chartInstance.current.data.datasets[0].data = cpuUsage;
-            chartInstance.current.update();
-        }
-    };
 
     return (
         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-            <Graph graphValue={cpuUsage}/>
+            <Graph currentValue={cpuUsage} maxValue={100}/>
             <p className="text-lg font-semibold">{cpuData.name}</p>
             <p>Cpu usage: {totalUsages ? totalUsages.cpu ?? 'N/a' : 'N/a'}%</p>
             <p>Cores: {cpuData.cores}</p>
