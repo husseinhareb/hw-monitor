@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 use std::fs;
 use std::process::Command;
 
+
 #[derive(Serialize, Deserialize)]
 pub struct CpuInformations {
     name: Option<String>,
@@ -12,7 +13,7 @@ pub struct CpuInformations {
     base_speed: Option<String>,
     max_speed: Option<String>,
     virtualization: Option<String>,
-    
+    uptime: Option<String>, // Tuple to store uptime in (hours, minutes, seconds) format
 }
 
 fn get_base_speed_from_file() -> Option<String> {
@@ -63,6 +64,13 @@ fn get_base_speed_from_lscpu() -> Option<String> {
     }
 
     None
+}
+
+fn uptime_to_hms(uptime_seconds: f64) -> String {
+    let hours = (uptime_seconds / 3600.0) as u64;
+    let minutes = ((uptime_seconds % 3600.0) / 60.0) as u64;
+    let seconds = (uptime_seconds % 60.0) as u64;
+    format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
 }
 
 
@@ -129,21 +137,29 @@ fn get_cpu_info() -> Option<CpuInformations> {
             let average_cpu_speed_ghz = average_cpu_speed_mhz / 1000.0; // Convert to GHz
             let formatted_speed = format!("{:.2}", average_cpu_speed_ghz); // Format with two digits precision
 
+            let uptime_seconds = fs::read_to_string("/proc/uptime")
+            .ok()?
+            .split_whitespace()
+            .next()?
+            .parse::<f64>()
+            .ok()?;
+            let uptime_tuple = uptime_to_hms(uptime_seconds);
+
             return Some(CpuInformations {
                 name: Some(cpu_name),
                 cores: Some(cores),
                 threads: Some(threads),
-                base_speed, // Assign the base speed to the struct field
-                cpu_speed: Some(formatted_speed), // Store the formatted CPU speed
+                base_speed,
+                cpu_speed: Some(formatted_speed),
                 max_speed,
                 virtualization,
-                socket: Some(num_sockets.to_string()), // Store the number of sockets
+                socket: Some(num_sockets.to_string()),
+                uptime: Some(uptime_tuple),
             });
         }
     }
     None
 }
-
 
 #[tauri::command]
 pub fn get_cpu_informations() -> Option<CpuInformations> {

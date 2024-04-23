@@ -15,6 +15,7 @@ pub struct Process {
     user: Option<String>,
     memory: Option<String>,
     cpu: Option<String>,
+
 }
 
 #[derive(Serialize, Deserialize)]

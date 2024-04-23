@@ -19,14 +19,14 @@ interface CpuData {
     max_speed: number;
     virtualization: string;
     socket: number;
+    uptime: string;
 }
 
 const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0,base_speed: 0.0, max_speed: 0.0,virtualization: "enabled",socket: 0});
-    const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
-
+    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
+    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null); // Initialize as null
     useEffect(() => {
         const fetchCpuData = async () => {
             try {
@@ -39,7 +39,7 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
                 console.error("Error fetching data:", error);
             }
 
-        };           
+        };
 
         fetchCpuData();
         const intervalId = setInterval(fetchCpuData, 1000);
@@ -108,15 +108,16 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
             <p>{cpuData.name}</p>
-            <p>Cpu usage: {}%</p>
+            <p>Cpu usage: {totalUsages ? totalUsages.cpu ?? 'N/a' : 'N/a'}%</p> {/* Check if totalUsages is not null */}
             <p> cores: {cpuData.cores}</p>
             <p>threads: {cpuData.threads}</p>
             <p>socket: {cpuData.socket}</p>
             <p>Cpu Speed: {cpuData.cpu_speed} GHz</p>
-            <p>Base Speed: {cpuData.base_speed/1000000} GHz</p>
-            <p>Base Speed: {cpuData.max_speed/1000000} GHz</p>
+            <p>Base Speed: {cpuData.base_speed / 1000000} GHz</p>
+            <p>Base Speed: {cpuData.max_speed / 1000000} GHz</p>
             <p>virtualization: {cpuData.virtualization}</p>
-            <p>{totalUsages.processes}</p>
+            <p>{totalUsages ? totalUsages.processes : 'N/a'}</p> {/* Check if totalUsages is not null */}
+            <p>{cpuData.uptime}</p>
         </div>
     );
 }
