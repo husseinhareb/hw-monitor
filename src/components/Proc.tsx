@@ -115,7 +115,7 @@ const Proc: React.FC = () => {
                                 N/A <br /> memory
                             </th>
                         )}
-
+    
                         {totalUsages && totalUsages.cpu !== null ? (
                             <th onClick={() => sortProcesses('cpu')}>
                                 {totalUsages.cpu}% <br /> CPU usage
@@ -125,7 +125,10 @@ const Proc: React.FC = () => {
                                 N/A <br /> CPU usage
                             </th>
                         )}
-
+    
+                        {/* Add a column to count the processes */}
+                        <th>Processes Count</th>
+    
                     </tr>
                 </thead>
                 <tbody>
@@ -138,13 +141,16 @@ const Proc: React.FC = () => {
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
                             <td>{process.cpu}</td>
-
+                            {/* Add a cell to display the index plus one (to start from 1) */}
+                            <td>{index + 1}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     );
+    
+    
 }
 
 export default Proc;

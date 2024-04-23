@@ -44,11 +44,15 @@ fn list_proc_pid() -> Vec<String> {
     folders
 }
 
+
 fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
         for line in status.lines() {
             if line.starts_with(keyword) {
-                if let Some(value) = line.split_whitespace().nth(1) {
+                let mut parts = line.split_whitespace();
+                // Skip the keyword itself
+                parts.next();
+                if let Some(value) = parts.next() {
                     return Some(value.to_string());
                 }
             }
@@ -75,7 +79,6 @@ fn get_running_processes_count() -> Option<usize> {
                 })
             })
             .count();
-
         Some(count)
     } else {
         None // Return None if reading the directory fails
@@ -106,7 +109,7 @@ fn get_proc_state(pid: &str) -> Option<String> {
                 "K" => Some("Wakekill".to_string()),
                 "P" => Some("Parked".to_string()),
                 "I" => Some("Idle".to_string()),
-                _ => None,
+                _ => Some("N/A".to_string()),
             }
         } else {
             None
@@ -115,6 +118,7 @@ fn get_proc_state(pid: &str) -> Option<String> {
         None
     }
 }
+
 
 fn get_proc_mem(pid: &str) -> Option<String> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/statm", pid)) {
@@ -327,12 +331,25 @@ pub fn get_processes() -> Vec<Process> {
                                     cpu: Some(cpu_usage.to_string()),
                                 };
                                 processes.push(process);
+                            } else {
+                                println!("Failed to calculate CPU usage for process {}", pid);
                             }
+                        } else {
+                            println!("Failed to retrieve memory info for process {}", pid);
                         }
+                    } else {
+                        println!("Failed to retrieve user info for process {}", pid);
                     }
+                } else {
+                    println!("Failed to retrieve state info for process {}", pid);
                 }
+            } else {
+                println!("Failed to retrieve PPID info for process {}", pid);
             }
+        } else {
+            println!("Failed to retrieve name info for process {}", pid);
         }
     }
     processes
 }
+
