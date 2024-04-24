@@ -19,7 +19,7 @@ pub async fn get_network() -> Option<Network> {
 
     networks.refresh();
     let wifi_network = networks.iter()
-        .find(|(interface_name, _)| interface_name.starts_with("wl"));
+    .find(|(interface_name, _)| interface_name.starts_with("wl") || interface_name.starts_with("en"));
 
     if let Some((interface_name, data)) = wifi_network {
         // Convert bytes to kilobytes

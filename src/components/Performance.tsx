@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
 import { invoke } from "@tauri-apps/api/tauri";
-import Cpu from './Cpu';
-import Memory from './Memory';
-import Graph from './Graph';
-import Network from './Network';
-import Disks from './Disks';
-import NetworkGraph from './NetworkGraph';
+
+import Sidebar from './Sidebar';
 interface TotalUsages {
   cpu: number | null;
   memory: number | null;
@@ -18,8 +13,6 @@ interface NetworkUsages {
 }
 
 const Performance: React.FC = () => {
-  const [activeItem, setActiveItem] = useState<string>("Memory");
-
   const [totalUsages, setTotalUsages] = useState<TotalUsages>({ cpu: null, memory: null });
   const [cpuUsage, setcpuUsage] = useState<number[]>([]);
   const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
@@ -52,9 +45,7 @@ const Performance: React.FC = () => {
   }, []);
 
 
-  const handleItemClick = (itemName: string) => {
-    setActiveItem(itemName);
-  };
+
 
   useEffect(() => {
     if (networkUsages.download !== null) {
@@ -81,44 +72,12 @@ const Performance: React.FC = () => {
     }
   }, [totalUsages]);
 
-  useEffect(() => {
-    // Reset CPU and memory usage data when switching between components
-    setcpuUsage([]);
-    setMemoryUsage([]);
-    setDownload([]);
-    setupload([]);
-  }, [activeItem]);
 
-  const renderComponent = () => {
-    switch (activeItem) {
-      case 'CPU':
-        return <Cpu cpuUsage={cpuUsage} />;
-      case 'Memory':
-        return <Memory memoryUsage={memoryUsage} />;
-      case 'DISK':
-        return <Disks />;
-      case 'Network':
-        return <Network download={download} upload={upload} />
-      default:
-        return null;
-    }
-  };
 
   return (
-    <div style={{ display: 'flex' }}>
-      <SidebarContainer>
-        <Title>Performance</Title>
-        <List>
-          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph currentValue={cpuUsage} maxValue={100} /></ListItem>
-          <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph currentValue={memoryUsage} maxValue={100} /></ListItem>
-          <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
-          <ListItem onClick={() => handleItemClick("Network")}>Wi-Fi<NetworkGraph download={download} upload={upload} /></ListItem>
-
-        </List>
-      </SidebarContainer>
-      <div>{renderComponent()}</div>
-    </div>
+    <Sidebar cpuUsage={cpuUsage} memoryUsage={memoryUsage} download={download} upload={upload} />
   );
+
 };
 
 export default Performance;
