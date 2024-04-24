@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
 
@@ -24,7 +24,7 @@ interface CpuData {
 
 const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
-    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null); // Initialize as null
+    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null); 
     useEffect(() => {
         const fetchCpuData = async () => {
             try {

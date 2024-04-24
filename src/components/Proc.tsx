@@ -130,7 +130,6 @@ const Proc: React.FC = () => {
                             </th>
                         )}
     
-                        {/* Add a column to count the processes */}
                         <th>Processes Count</th>
     
                     </tr>
@@ -145,7 +144,6 @@ const Proc: React.FC = () => {
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
                             <td>{process.cpu}</td>
-                            {/* Add a cell to display the index plus one (to start from 1) */}
                             <td>{index + 1}</td>
                         </tr>
                     ))}

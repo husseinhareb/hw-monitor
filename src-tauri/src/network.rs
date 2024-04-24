@@ -31,7 +31,6 @@ pub async fn get_network() -> Option<Network> {
             upload: Some(upload_kb),
             download: Some(download_kb),
         };
-        println!("{:?}", network.download);
         Some(network)
     } else {
         None

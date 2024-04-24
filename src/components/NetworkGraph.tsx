@@ -1,18 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
 interface GraphProps {
-    currentValue: number[];
-    maxValue: number;
+    download: number[];
+    upload: number[];
 }
 
-
-
-const Graph: React.FC<GraphProps> = ({ currentValue,maxValue }) => {
+const NetworkGraph: React.FC<GraphProps> = ({download,upload}) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
-
-
 
     useEffect(() => {
         if (chartRef.current !== null) {
@@ -23,28 +19,40 @@ const Graph: React.FC<GraphProps> = ({ currentValue,maxValue }) => {
                     type: 'line',
                     data: {
                         labels: [],
-                        datasets: [{
-                            data: currentValue,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1,
-                            fill: true,
-                            borderWidth: 1,
-                            pointRadius: 0,
-                            pointHoverRadius: 0
-                        }]
+                        datasets: [
+                            {
+                                label: 'Download',
+                                data: download,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.1,
+                                fill: true,
+                                borderWidth: 1,
+                                pointRadius: 0,
+                                pointHoverRadius: 0
+                            },
+                            {
+                                label: 'Upload',
+                                data: upload,
+                                borderColor: 'rgb(255, 99, 132)',
+                                tension: 0.1,
+                                fill: true,
+                                borderWidth: 1,
+                                pointRadius: 0,
+                                pointHoverRadius: 0
+                            }
+                        ]
                     },
                     options: {
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                max: maxValue
                             }
                         }
                     }
                 });
             }
         }
-
+    
         return () => {
             // Cleanup chart instance
             if (chartInstance.current !== null) {
@@ -52,28 +60,28 @@ const Graph: React.FC<GraphProps> = ({ currentValue,maxValue }) => {
             }
         };
     }, []);
+    
 
     useEffect(() => {
         // Update chart data when graphValue prop changes
         if (chartInstance.current !== null) {
             updateChartData();
         }
-    }, [currentValue]);
+    }, [download,upload]);
 
     const updateChartData = () => {
         if (chartInstance.current !== null) {
             chartInstance.current.data.labels?.push(((chartInstance.current.data.labels?.length ?? 0) + 1) + "s");
-            chartInstance.current.data.datasets[0].data = currentValue;
+            chartInstance.current.data.datasets[0].data = download;
+            chartInstance.current.data.datasets[1].data = upload;
             chartInstance.current.update();
         }
     };
-
     return (
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
-
         </div>
     );
-}
+};
 
-export default Graph;
+export default NetworkGraph;

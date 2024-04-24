@@ -6,9 +6,15 @@ import Memory from './Memory';
 import Graph from './Graph';
 import Network from './Network';
 import Disks from './Disks';
+import NetworkGraph from './NetworkGraph';
 interface TotalUsages {
   cpu: number | null;
   memory: number | null;
+}
+
+interface NetworkUsages {
+  download: number | null;
+  upload: number | null;
 }
 
 const Performance: React.FC = () => {
@@ -16,6 +22,40 @@ const Performance: React.FC = () => {
   const [totalUsages, setTotalUsages] = useState<TotalUsages>({ cpu: null, memory: null });
   const [cpuUsage, setcpuUsage] = useState<number[]>([]);
   const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
+  const [networkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null });
+  const [download, setDownload] = useState<number[]>([]);
+  const [upload, setupload] = useState<number[]>([]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedNetworkUsages: NetworkUsages = await invoke("get_network");
+        setNetworkUsages(fetchedNetworkUsages);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+  useEffect(() => {
+    if (networkUsages.download !== null) {
+      setDownload(prevDownload => {
+        const newDownload = [...prevDownload, networkUsages.download as number];
+        return newDownload;
+      });
+    }
+    if (networkUsages.upload !== null) {
+      setupload(prevupload => [...prevupload, networkUsages.upload as number]);
+    }
+  }, [networkUsages]);
+
 
   const handleItemClick = (itemName: string) => {
     setActiveItem(itemName);
@@ -36,6 +76,7 @@ const Performance: React.FC = () => {
 
     return () => clearInterval(intervalId);
   }, []);
+
 
   useEffect(() => {
     if (totalUsages.cpu !== null) {
@@ -61,7 +102,7 @@ const Performance: React.FC = () => {
       case 'DISK':
         return <Disks />;
       case 'Network':
-        return <Network />
+        return <Network download={download} upload={upload} />
       default:
         return null;
     }
@@ -72,10 +113,10 @@ const Performance: React.FC = () => {
       <SidebarContainer>
         <Title>Performance</Title>
         <List>
-          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph currentValue={cpuUsage} /></ListItem>
-          <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph currentValue={memoryUsage} /></ListItem>
+          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph currentValue={cpuUsage} maxValue={100}/></ListItem>
+          <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph currentValue={memoryUsage} maxValue={100} /></ListItem>
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
-          <ListItem onClick={() => handleItemClick("Network")}>Wi-Fi</ListItem>
+          <ListItem onClick={() => handleItemClick("Network")}>Wi-Fi<NetworkGraph download={download} upload={upload} /></ListItem>
 
         </List>
       </SidebarContainer>
