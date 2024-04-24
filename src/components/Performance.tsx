@@ -19,9 +19,11 @@ interface NetworkUsages {
 
 const Performance: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string>("Memory");
+
   const [totalUsages, setTotalUsages] = useState<TotalUsages>({ cpu: null, memory: null });
   const [cpuUsage, setcpuUsage] = useState<number[]>([]);
   const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
+
   const [networkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null });
   const [download, setDownload] = useState<number[]>([]);
   const [upload, setupload] = useState<number[]>([]);
@@ -35,34 +37,6 @@ const Performance: React.FC = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
-
-    fetchData();
-    const intervalId = setInterval(fetchData, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-
-  useEffect(() => {
-    if (networkUsages.download !== null) {
-      setDownload(prevDownload => {
-        const newDownload = [...prevDownload, networkUsages.download as number];
-        return newDownload;
-      });
-    }
-    if (networkUsages.upload !== null) {
-      setupload(prevupload => [...prevupload, networkUsages.upload as number]);
-    }
-  }, [networkUsages]);
-
-
-  const handleItemClick = (itemName: string) => {
-    setActiveItem(itemName);
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
       try {
         const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
         setTotalUsages(fetchedTotalUsages);
@@ -78,6 +52,26 @@ const Performance: React.FC = () => {
   }, []);
 
 
+  const handleItemClick = (itemName: string) => {
+    setActiveItem(itemName);
+  };
+
+  useEffect(() => {
+    if (networkUsages.download !== null) {
+      setDownload(prevDownload => {
+        const newDownload = [...prevDownload, networkUsages.download as number];
+        return newDownload;
+      });
+    }
+    if (networkUsages.upload !== null) {
+      setupload(prevupload => [...prevupload, networkUsages.upload as number]);
+    }
+  }, [networkUsages]);
+
+
+
+
+
   useEffect(() => {
     if (totalUsages.cpu !== null) {
       setcpuUsage(prevcpuUsage => [...prevcpuUsage, totalUsages.cpu as number]);
@@ -91,6 +85,8 @@ const Performance: React.FC = () => {
     // Reset CPU and memory usage data when switching between components
     setcpuUsage([]);
     setMemoryUsage([]);
+    setDownload([]);
+    setupload([]);
   }, [activeItem]);
 
   const renderComponent = () => {
@@ -113,7 +109,7 @@ const Performance: React.FC = () => {
       <SidebarContainer>
         <Title>Performance</Title>
         <List>
-          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph currentValue={cpuUsage} maxValue={100}/></ListItem>
+          <ListItem onClick={() => handleItemClick("CPU")}>CPU<Graph currentValue={cpuUsage} maxValue={100} /></ListItem>
           <ListItem onClick={() => handleItemClick("Memory")}>Memory<Graph currentValue={memoryUsage} maxValue={100} /></ListItem>
           <ListItem onClick={() => handleItemClick("DISK")}>DISK</ListItem>
           <ListItem onClick={() => handleItemClick("Network")}>Wi-Fi<NetworkGraph download={download} upload={upload} /></ListItem>
