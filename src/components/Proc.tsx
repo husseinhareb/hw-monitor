@@ -33,8 +33,11 @@ const Proc: React.FC = () => {
                 setProcesses(sortedProcesses);
 
                 // Fetch total usages
-                const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
+                const fetchedTotalUsages: TotalUsages = await invoke("get_cpu_usage_proccess");
                 setTotalUsages(fetchedTotalUsages); 
+
+                const fetchedTotals: TotalUsages = await invoke("get_cpu_usage_proccess");
+                console.log(fetchedTotals);
 
             } catch (error) {
                 console.error("Error fetching data:", error);

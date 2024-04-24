@@ -1,13 +1,13 @@
-use serde::{Serialize, Deserialize}; // Import serde macros
+use serde::{Serialize, Deserialize};
 use tokio::time::sleep;
-use std::time::Duration;
+use tokio::time::Duration;
 use sysinfo::Networks;
 
 #[derive(Serialize, Deserialize)]
 pub struct Network {
     interface: Option<String>,
-    upload: Option<String>,
-    download: Option<String>,
+    upload: Option<f64>, // Changed type to f64 for kilobytes
+    download: Option<f64>, // Changed type to f64 for kilobytes
 }
 
 #[tauri::command]
@@ -22,10 +22,14 @@ pub async fn get_network() -> Option<Network> {
         .find(|(interface_name, _)| interface_name.starts_with("wl"));
 
     if let Some((interface_name, data)) = wifi_network {
+        // Convert bytes to kilobytes
+        let upload_kb = data.transmitted() as f64 / 1024.0;
+        let download_kb = data.received() as f64 / 1024.0;
+
         let network = Network {
             interface: Some(interface_name.clone()),
-            upload: Some(data.received().to_string()),
-            download: Some(data.transmitted().to_string()),
+            upload: Some(upload_kb),
+            download: Some(download_kb),
         };
         println!("{:?}", network.download);
         Some(network)

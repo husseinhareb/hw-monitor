@@ -33,6 +33,7 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
 
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
                 setTotalUsages(fetchedTotalUsages);
+                
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
