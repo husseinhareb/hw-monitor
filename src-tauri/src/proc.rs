@@ -1,56 +1,6 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
-use std::io::{BufReader,BufRead};
-use std::fs::File;
-
-use sysinfo::Pid;
-
-static mut PREVIOUS_IDLE_TIME: usize = 0;
-static mut PREVIOUS_TOTAL_TIME: usize = 0;
-
-#[derive(Serialize, Deserialize)]
-pub struct ProcessCpu {
-    pid: Option<String>,
-    cpu_usage: Option<String>,
-}
-
-fn calculate_cpu_usage(pid: usize) -> Result<f32, std::io::Error> {
-    let mut sys = sysinfo::System::new_all();
-    sys.refresh_all();
-
-    if let Some(process) = sys.process(Pid::from(pid)) {
-        println!("Process CPU Usage: {}%", process.cpu_usage());
-        Ok(process.cpu_usage())
-    } else {
-        // Handle the case when the process is not found
-        Err(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "Process not found",
-        ))
-    }
-}
-
-#[tauri::command]
-pub fn get_cpu_usage_proccess() -> Vec<ProcessCpu> {
-    let mut processes = Vec::new();
-    let pids = list_proc_pid();
-    for pid in pids {
-        if let Ok(pid_num) = pid.parse::<usize>() {
-            if let Ok(cpu_usage) = calculate_cpu_usage(pid_num) {
-                let process = ProcessCpu {
-                    pid: Some(pid.clone()),
-                    cpu_usage: Some(cpu_usage.to_string()),
-                };
-                processes.push(process);
-            } else {
-                println!("Failed to retrieve CPU usage for process {}", pid);
-            }
-        } else {
-            println!("Failed to parse PID: {}", pid);
-        }
-    }
-    processes
-}
+use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
 
 
 #[derive(Serialize, Deserialize)]
@@ -63,6 +13,7 @@ pub struct Process {
     memory: Option<String>,
 }
 
+
 #[derive(Serialize, Deserialize)]
 pub struct TotalUsage {
     memory: Option<String>,
@@ -70,6 +21,46 @@ pub struct TotalUsage {
     processes: Option<String>
 }
 
+
+
+#[tauri::command]
+pub  fn get_processes() -> Vec<Process> {
+    let mut processes = Vec::new();
+    let pids = list_proc_pid();
+    for pid in pids {
+        if let Some(name) = get_name(&pid) {
+            if let Some(ppid) = get_ppid(&pid) {
+                if let Some(state) = get_proc_state(&pid) {
+                    if let Some(user) = get_proc_user(&pid) {
+                        if let Some(memory) = get_proc_mem(&pid) {
+
+                                let process = Process {
+                                    pid: pid.clone(),
+                                    name: Some(name),
+                                    ppid: Some(ppid),
+                                    state: Some(state),
+                                    user: Some(user),
+                                    memory: Some(memory),
+                                };
+                                processes.push(process);
+                        } else {
+                            println!("Failed to retrieve memory info for process {}", pid);
+                        }
+                    } else {
+                        println!("Failed to retrieve user info for process {}", pid);
+                    }
+                } else {
+                    println!("Failed to retrieve state info for process {}", pid);
+                }
+            } else {
+                println!("Failed to retrieve PPID info for process {}", pid);
+            }
+        } else {
+            println!("Failed to retrieve name info for process {}", pid);
+        }
+    }
+    processes
+}
 
 
 fn list_proc_pid() -> Vec<String> {
@@ -248,58 +239,40 @@ fn get_memory_usage_percentage() -> Option<u64> {
 }
 
 
-fn get_cpu_times() -> Vec<usize> {
-    let file = File::open("/proc/stat").expect("Failed to open /proc/stat");
-    let mut buf_reader = BufReader::new(file);
-    let mut line = String::new();
-    buf_reader.read_line(&mut line).expect("Failed to read /proc/stat");
+async fn get_cpu_usage_percentage() -> Option<u64> {
+    let mut s = System::new_with_specifics(
+        RefreshKind::new().with_cpu(CpuRefreshKind::everything()),
+    );
+    
+    // Wait a bit because CPU usage is based on diff.
+    std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+    // Refresh CPUs again.
+    s.refresh_cpu();
 
-    line.split_whitespace()
-        .skip(1)
-        .filter_map(|x| x.parse().ok())
-        .collect()
-}
+    let mut total_usage = 0.0;
+    let mut num_cpus = 0;
 
-fn get_cpu_times_diff(idle_time: &mut usize, total_time: &mut usize) -> bool {
-    let cpu_times = get_cpu_times();
-    if cpu_times.len() < 4 {
-        return false;
+    for cpu in s.cpus() {
+        total_usage += cpu.cpu_usage() as f64;
+        num_cpus += 1;
     }
 
-    *idle_time = cpu_times[3];
-    *total_time = cpu_times.iter().sum();
-    true
-}
-
-
-
-fn get_cpu_usage_percentage() -> Option<u64> {
-    let mut idle_time = 0;
-    let mut total_time = 0;
-
-    unsafe {
-        if get_cpu_times_diff(&mut idle_time, &mut total_time) {
-            let idle_time_delta = idle_time as isize - PREVIOUS_IDLE_TIME as isize;
-            let total_time_delta = total_time as isize - PREVIOUS_TOTAL_TIME as isize;
-            if total_time_delta != 0 {
-                let utilization = 100 - ((100 * idle_time_delta) / total_time_delta);
-                PREVIOUS_IDLE_TIME = idle_time;
-                PREVIOUS_TOTAL_TIME = total_time;
-                Some(utilization as u64)
-            } else {
-                None
-            }
-        } else {
-            None
-        }
+    if num_cpus > 0 {
+        let average_usage = (total_usage / num_cpus as f64) as u64;
+        Some(average_usage)
+    } else {
+        None
     }
 }
+
+
+
 
 
 #[tauri::command]
-pub fn get_total_usages() -> Option<TotalUsage> {
+pub async fn get_total_usages() -> Option<TotalUsage> {
     if let Some(memory) = get_memory_usage_percentage() {
-        if let Some(cpu) = get_cpu_usage_percentage() {
+        if let Some(cpu) = get_cpu_usage_percentage().await {
             if let Some(processes) = get_running_processes_count() {
 
             let total_usage = TotalUsage {
@@ -316,40 +289,3 @@ pub fn get_total_usages() -> Option<TotalUsage> {
 
 
 
-#[tauri::command]
-pub fn get_processes() -> Vec<Process> {
-    let mut processes = Vec::new();
-    let pids = list_proc_pid();
-    for pid in pids {
-        if let Some(name) = get_name(&pid) {
-            if let Some(ppid) = get_ppid(&pid) {
-                if let Some(state) = get_proc_state(&pid) {
-                    if let Some(user) = get_proc_user(&pid) {
-                        if let Some(memory) = get_proc_mem(&pid) {
-                                let process = Process {
-                                    pid: pid.clone(),
-                                    name: Some(name),
-                                    ppid: Some(ppid),
-                                    state: Some(state),
-                                    user: Some(user),
-                                    memory: Some(memory),
-                                };
-                                processes.push(process);
-                        } else {
-                            println!("Failed to retrieve memory info for process {}", pid);
-                        }
-                    } else {
-                        println!("Failed to retrieve user info for process {}", pid);
-                    }
-                } else {
-                    println!("Failed to retrieve state info for process {}", pid);
-                }
-            } else {
-                println!("Failed to retrieve PPID info for process {}", pid);
-            }
-        } else {
-            println!("Failed to retrieve name info for process {}", pid);
-        }
-    }
-    processes
-}

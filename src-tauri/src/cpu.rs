@@ -13,7 +13,7 @@ pub struct CpuInformations {
     base_speed: Option<String>,
     max_speed: Option<String>,
     virtualization: Option<String>,
-    uptime: Option<String>, // Tuple to store uptime in (hours, minutes, seconds) format
+    uptime: Option<String>,
 }
 
 fn get_base_speed_from_file() -> Option<String> {

@@ -48,10 +48,10 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
 
 
     return (
-        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+        <div>
             <Graph currentValue={cpuUsage} maxValue={100}/>
             <p className="text-lg font-semibold">{cpuData.name}</p>
-            <p>Cpu usage: {totalUsages ? totalUsages.cpu ?? 'N/a' : 'N/a'}%</p>
+            <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
             <p>Cores: {cpuData.cores}</p>
             <p>Threads: {cpuData.threads}</p>
             <p>Socket: {cpuData.socket}</p>

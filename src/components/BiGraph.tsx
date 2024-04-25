@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
-interface GraphProps {
-    download: number[];
-    upload: number[];
+interface BiGraphProps {
+    firstGraphValue: number[];
+    secondGraphValue: number[];
 }
 
-const NetworkGraph: React.FC<GraphProps> = ({download,upload}) => {
+const BiGraph: React.FC<BiGraphProps> = ({firstGraphValue,secondGraphValue}) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
 
@@ -21,8 +21,8 @@ const NetworkGraph: React.FC<GraphProps> = ({download,upload}) => {
                         labels: [],
                         datasets: [
                             {
-                                label: 'Download',
-                                data: download,
+                                label: 'firstGraphValue',
+                                data: firstGraphValue,
                                 borderColor: 'rgb(75, 192, 192)',
                                 tension: 0.1,
                                 fill: true,
@@ -31,8 +31,8 @@ const NetworkGraph: React.FC<GraphProps> = ({download,upload}) => {
                                 pointHoverRadius: 0
                             },
                             {
-                                label: 'Upload',
-                                data: upload,
+                                label: 'secondGraphValue',
+                                data: secondGraphValue,
                                 borderColor: 'rgb(255, 99, 132)',
                                 tension: 0.1,
                                 fill: true,
@@ -67,13 +67,13 @@ const NetworkGraph: React.FC<GraphProps> = ({download,upload}) => {
         if (chartInstance.current !== null) {
             updateChartData();
         }
-    }, [download,upload]);
+    }, [firstGraphValue,secondGraphValue]);
 
     const updateChartData = () => {
         if (chartInstance.current !== null) {
             chartInstance.current.data.labels?.push(((chartInstance.current.data.labels?.length ?? 0) + 1) + "s");
-            chartInstance.current.data.datasets[0].data = download;
-            chartInstance.current.data.datasets[1].data = upload;
+            chartInstance.current.data.datasets[0].data = firstGraphValue;
+            chartInstance.current.data.datasets[1].data = secondGraphValue;
             chartInstance.current.update();
         }
     };
@@ -84,4 +84,4 @@ const NetworkGraph: React.FC<GraphProps> = ({download,upload}) => {
     );
 };
 
-export default NetworkGraph;
+export default BiGraph;
