@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 import Sidebar from './Sidebar';
 import Network from './Network';
+import Cpu from './Cpu';
 
 interface TotalUsages {
   cpu: number | null;
@@ -27,7 +28,7 @@ const Performance: React.FC = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 1000);
+    const intervalId = setInterval(fetchData, 1);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -47,7 +48,7 @@ const Performance: React.FC = () => {
   return (
     <div>
     <Sidebar/>
-    <Network />
+    <Cpu cpuUsage={cpuUsage}/>
     </div>
 
   );
