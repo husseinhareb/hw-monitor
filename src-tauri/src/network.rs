@@ -1,8 +1,7 @@
 use serde::{Serialize, Deserialize};
-use tokio::time::sleep;
-use tokio::time::Duration;
+use std::thread::sleep;
 use sysinfo::Networks;
-
+use std::time::Duration;
 #[derive(Serialize, Deserialize)]
 pub struct Network {
     interface: Option<String>,
@@ -17,27 +16,25 @@ pub struct Network {
 pub async fn get_network() -> Option<Network>
 {
     let mut networks = Networks::new_with_refreshed_list();
-
     // Use tokio's sleep function
-    sleep(Duration::from_secs(1)).await;
-
+    sleep(Duration::from_millis(1000));
     networks.refresh();
     let wifi_network = networks.iter()
-        .find(|(interface_name, _)| interface_name.starts_with("wl") || interface_name.starts_with("en"));
+        .find(|(interface_name, _)| interface_name.starts_with("wl"));
 
     if let Some((interface_name, data)) = wifi_network {
         // Convert bytes to kilobytes
-        let upload_kb = data.transmitted() as f64 / 1024.0;
-        let download_kb = data.received() as f64 / 1024.0;
-
+        let upload_kb = data.transmitted();
+        let download_kb = data.received();
+        println!("{} {}",download_kb,upload_kb);
         // Calculate total network usages
         let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
         let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();
 
         let network = Network {
             interface: Some(interface_name.clone()),
-            upload: Some(upload_kb),
-            download: Some(download_kb),
+            upload: Some(upload_kb as f64),
+            download: Some(download_kb as f64),
             total_upload: Some(total_transmitted), // Swapped total_transmitted and total_received according to your naming
             total_download: Some(total_received),
         };

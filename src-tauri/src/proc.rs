@@ -1,6 +1,6 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
-use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
+use sysinfo::{System, RefreshKind, CpuRefreshKind};
 
 
 #[derive(Serialize, Deserialize)]

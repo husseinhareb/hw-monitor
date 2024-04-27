@@ -71,7 +71,6 @@ const Graph: React.FC<GraphProps> = ({ currentValue,maxValue }) => {
     return (
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
-
         </div>
     );
 }

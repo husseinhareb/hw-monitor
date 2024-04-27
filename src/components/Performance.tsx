@@ -28,7 +28,7 @@ const Performance: React.FC = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 1);
+    const intervalId = setInterval(fetchData, 1000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -48,8 +48,9 @@ const Performance: React.FC = () => {
   return (
     <div>
     <Sidebar/>
-    <Cpu cpuUsage={cpuUsage}/>
+    <Network/>
     </div>
+
 
   );
 

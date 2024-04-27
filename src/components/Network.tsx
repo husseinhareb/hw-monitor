@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-import Chart from 'chart.js/auto';
+import BiGraph from './BiGraph';
 
 interface NetworkUsages {
     download: number | null;
     upload: number | null;
+    total_download: number | null;
+    total_upload: number | null;
 }
 
 const Network: React.FC = () => {
-    const [NetworkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null });
+    const [NetworkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null, total_download: null, total_upload: null });
     const [download, setdownload] = useState<number[]>([]);
     const [upload, setupload] = useState<number[]>([]);
-    const chartRef = useRef<HTMLCanvasElement | null>(null);
-    const chartInstance = useRef<Chart<"line"> | null>(null);
-
+    const [totalDownload, setTotalDownload] = useState<string[]>([]);
+    const [totalUpload, setTotalUpload] = useState<string[]>([]);
 
 
     useEffect(() => {
@@ -32,6 +33,7 @@ const Network: React.FC = () => {
         return () => clearInterval(intervalId);
     }, []);
 
+
     useEffect(() => {
         if (NetworkUsages.download !== null) {
             setdownload(prevdownload => [...prevdownload, NetworkUsages.download as number]);
@@ -40,63 +42,54 @@ const Network: React.FC = () => {
             setupload(prevupload => [...prevupload, NetworkUsages.upload as number]);
         }
     }, [NetworkUsages]);
-
-
+    
+    
     useEffect(() => {
-        if (chartRef.current !== null) {
-            // Create chart instance
-            const ctx = chartRef.current.getContext('2d');
-            if (ctx !== null) { // Check if ctx is not null before creating the chart
-                chartInstance.current = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            data: download,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1,
-                            fill: true,
-                            borderWidth: 1,
-                            pointRadius: 0,
-                            pointHoverRadius: 0
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                            }
-                        }
-                    }
-                });
+        if (NetworkUsages.total_download !== null) {
+            let totalDownloadValue = NetworkUsages.total_download as number;
+            let downloadUnit = "KB";
+    
+            if (totalDownloadValue > 1000000000) { // If greater than 1 GB
+                totalDownloadValue /= 1000000000;
+                downloadUnit = "GB";
+            } else if (totalDownloadValue > 1000000) { // If greater than 1 MB
+                totalDownloadValue /= 1000000;
+                downloadUnit = "MB";
+            } else if (totalDownloadValue > 1000) { // If greater than 1 KB
+                totalDownloadValue /= 1000;
+                downloadUnit = "KB";
             }
+    
+            setTotalDownload([parseFloat(totalDownloadValue.toFixed(1)) + " " + downloadUnit]); // Format number with unit
         }
-
-        return () => {
-            // Cleanup chart instance
-            if (chartInstance.current !== null) {
-                chartInstance.current.destroy();
-            }
-        };
-    }, []);
-
+    }, [NetworkUsages.total_download]);
+    
     useEffect(() => {
-        // Update chart data when graphValue prop changes
-        if (chartInstance.current !== null) {
-            updateChartData();
+        if (NetworkUsages.total_upload !== null) {
+            let totalUploadValue = NetworkUsages.total_upload as number;
+            let uploadUnit = "KB";
+    
+            if (totalUploadValue > 1000000000) { // If greater than 1 GB
+                totalUploadValue /= 1000000000;
+                uploadUnit = "GB";
+            } else if (totalUploadValue > 1000000) { // If greater than 1 MB
+                totalUploadValue /= 1000000;
+                uploadUnit = "MB";
+            } else if (totalUploadValue > 1000) { // If greater than 1 KB
+                totalUploadValue /= 1000;
+                uploadUnit = "KB";
+            }
+    
+            setTotalUpload([parseFloat(totalUploadValue.toFixed(1)) + " " + uploadUnit]); // Format number with unit
         }
-    }, [download]);
+    }, [NetworkUsages.total_upload]);
+    
 
-    const updateChartData = () => {
-        if (chartInstance.current !== null) {
-            chartInstance.current.data.labels?.push(((chartInstance.current.data.labels?.length ?? 0) + 1) + "s");
-            chartInstance.current.data.datasets[0].data = download;
-            chartInstance.current.update();
-        }
-    };
     return (
         <div>
-            <canvas ref={chartRef} width={500} height={300}></canvas>
+            <p>Total Download:{totalDownload}</p>
+            <p>Total Upload:{totalUpload}</p>
+            <BiGraph firstGraphValue={download} secondGraphValue={upload} />
         </div>
     );
 };
