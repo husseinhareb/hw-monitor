@@ -26,7 +26,6 @@ pub async fn get_network() -> Option<Network>
         // Convert bytes to kilobytes
         let upload_kb = data.transmitted();
         let download_kb = data.received();
-        println!("{} {}",download_kb,upload_kb);
         // Calculate total network usages
         let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
         let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();
@@ -35,7 +34,7 @@ pub async fn get_network() -> Option<Network>
             interface: Some(interface_name.clone()),
             upload: Some(upload_kb as f64),
             download: Some(download_kb as f64),
-            total_upload: Some(total_transmitted), // Swapped total_transmitted and total_received according to your naming
+            total_upload: Some(total_transmitted), 
             total_download: Some(total_received),
         };
         Some(network)

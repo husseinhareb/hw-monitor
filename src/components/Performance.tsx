@@ -12,37 +12,6 @@ interface TotalUsages {
 
 
 const Performance: React.FC = () => {
-  const [totalUsages, setTotalUsages] = useState<TotalUsages>({ cpu: 0, memory: 0 });
-  const [cpuUsage, setcpuUsage] = useState<number[]>([]);
-  const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-        setTotalUsages(fetchedTotalUsages);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-    const intervalId = setInterval(fetchData, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-
-  useEffect(() => {
-    if (totalUsages.cpu !== null) {
-      setcpuUsage(prevcpuUsage => [...prevcpuUsage, totalUsages.cpu as number]);
-    }
-    if (totalUsages.memory !== null) {
-      setMemoryUsage(prevMemoryUsage => [...prevMemoryUsage, totalUsages.memory as number]);
-    }
-  }, [totalUsages]);
-
 
 
   return (

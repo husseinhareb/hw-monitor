@@ -34,7 +34,7 @@ const Proc: React.FC = () => {
 
                 // Fetch total usages
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-                setTotalUsages(fetchedTotalUsages); 
+                setTotalUsages(fetchedTotalUsages);
 
 
             } catch (error) {
@@ -103,6 +103,7 @@ const Proc: React.FC = () => {
             <table>
                 <thead>
                     <tr>
+                        <th onClick={() => sortProcesses('count')}>count</th>
                         <th onClick={() => sortProcesses('user')}>user</th>
                         <th onClick={() => sortProcesses('pid')}>pid</th>
                         <th onClick={() => sortProcesses('ppid')}>ppid</th>
@@ -117,7 +118,7 @@ const Proc: React.FC = () => {
                                 N/A <br /> memory
                             </th>
                         )}
-    
+
                         {totalUsages && totalUsages.cpu !== null ? (
                             <th onClick={() => sortProcesses('cpu')}>
                                 {totalUsages.cpu}% <br /> CPU usage
@@ -127,14 +128,14 @@ const Proc: React.FC = () => {
                                 N/A <br /> CPU usage
                             </th>
                         )}
-    
-                        <th>Processes Count</th>
-    
+
+
                     </tr>
                 </thead>
                 <tbody>
                     {processes.map((process, index) => (
                         <tr key={index}>
+                            <td>{index + 1}</td>
                             <td>{process.user}</td>
                             <td>{process.pid}</td>
                             <td>{process.ppid}</td>
@@ -142,15 +143,14 @@ const Proc: React.FC = () => {
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
                             <td>{process.cpu}</td>
-                            <td>{index + 1}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     );
-    
-    
+
+
 }
 
 export default Proc;

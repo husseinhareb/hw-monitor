@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 import BiGraph from './BiGraph';
 
+
+interface NetworkProps {
+    activeItem: string | null;
+}
 interface NetworkUsages {
     download: number | null;
     upload: number | null;
@@ -9,14 +13,13 @@ interface NetworkUsages {
     total_upload: number | null;
 }
 
-const Network: React.FC = () => {
+const Network: React.FC<NetworkProps> = ({ activeItem }) => {
     const [NetworkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null, total_download: null, total_upload: null });
     const [download, setdownload] = useState<number[]>([]);
     const [upload, setupload] = useState<number[]>([]);
     const [totalDownload, setTotalDownload] = useState<string[]>([]);
     const [totalUpload, setTotalUpload] = useState<string[]>([]);
-
-
+    const [render, setRender] = useState<boolean>(false);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -42,56 +45,63 @@ const Network: React.FC = () => {
             setupload(prevupload => [...prevupload, NetworkUsages.upload as number]);
         }
     }, [NetworkUsages]);
-    
-    
+
+
     useEffect(() => {
         if (NetworkUsages.total_download !== null) {
             let totalDownloadValue = NetworkUsages.total_download as number;
             let downloadUnit = "KB";
-    
-            if (totalDownloadValue > 1000000000) { // If greater than 1 GB
+
+            if (totalDownloadValue > 1000000000) {
                 totalDownloadValue /= 1000000000;
                 downloadUnit = "GB";
-            } else if (totalDownloadValue > 1000000) { // If greater than 1 MB
+            } else if (totalDownloadValue > 1000000) {
                 totalDownloadValue /= 1000000;
                 downloadUnit = "MB";
-            } else if (totalDownloadValue > 1000) { // If greater than 1 KB
+            } else if (totalDownloadValue > 1000) {
                 totalDownloadValue /= 1000;
                 downloadUnit = "KB";
             }
-    
+
             setTotalDownload([parseFloat(totalDownloadValue.toFixed(1)) + " " + downloadUnit]); // Format number with unit
         }
     }, [NetworkUsages.total_download]);
-    
+
     useEffect(() => {
         if (NetworkUsages.total_upload !== null) {
             let totalUploadValue = NetworkUsages.total_upload as number;
             let uploadUnit = "KB";
-    
-            if (totalUploadValue > 1000000000) { // If greater than 1 GB
+
+            if (totalUploadValue > 1000000000) {
                 totalUploadValue /= 1000000000;
                 uploadUnit = "GB";
-            } else if (totalUploadValue > 1000000) { // If greater than 1 MB
+            } else if (totalUploadValue > 1000000) {
                 totalUploadValue /= 1000000;
                 uploadUnit = "MB";
-            } else if (totalUploadValue > 1000) { // If greater than 1 KB
+            } else if (totalUploadValue > 1000) {
                 totalUploadValue /= 1000;
                 uploadUnit = "KB";
             }
-    
             setTotalUpload([parseFloat(totalUploadValue.toFixed(1)) + " " + uploadUnit]); // Format number with unit
         }
     }, [NetworkUsages.total_upload]);
-    
+
+    useEffect(() => {
+        if (activeItem == "Network") {
+            setRender(true);
+        }
+    }, [activeItem])
 
     return (
-        <div>
-            <p>Total Download:{totalDownload}</p>
-            <p>Total Upload:{totalUpload}</p>
-            <BiGraph firstGraphValue={download} secondGraphValue={upload} />
-        </div>
+        render && (
+            <div>
+                <p>Total Download: {totalDownload}</p>
+                <p>Total Upload: {totalUpload}</p>
+                <BiGraph firstGraphValue={download} secondGraphValue={upload} />
+            </div>
+        )
     );
+
 };
 
 export default Network;

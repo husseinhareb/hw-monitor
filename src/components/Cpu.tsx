@@ -4,6 +4,7 @@ import Graph from "./Graph";
 
 interface CpuProps {
     cpuUsage: number[];
+    activeItem: string;
 }
 interface TotalUsages {
     memory: number | null;
@@ -22,9 +23,11 @@ interface CpuData {
     uptime: string;
 }
 
-const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
+const Cpu: React.FC<CpuProps> = ({ cpuUsage, activeItem }) => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
-    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null); 
+    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
+    const [render, setRender] = useState<boolean>(false);
+
     useEffect(() => {
         const fetchCpuData = async () => {
             try {
@@ -33,7 +36,7 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
 
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
                 setTotalUsages(fetchedTotalUsages);
-                
+
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -46,10 +49,16 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
         return () => clearInterval(intervalId);
     }, []);
 
+    useEffect(() => {
+        if (activeItem == "CPU") {
+            setRender(true);
+        }
+        console.log("cpu",render)
+    }, [activeItem])
 
     return (
-        <div>
-            <Graph currentValue={cpuUsage} maxValue={100}/>
+        render && (<div>
+            <Graph currentValue={cpuUsage} maxValue={100} />
             <p className="text-lg font-semibold">{cpuData.name}</p>
             <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
             <p>Cores: {cpuData.cores}</p>
@@ -61,7 +70,7 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
             <p>Virtualization: {cpuData.virtualization}</p>
             <p>{totalUsages ? totalUsages.processes : 'N/a'}</p>
             <p>{cpuData.uptime}</p>
-        </div>
+        </div>)
     );
 }
 
