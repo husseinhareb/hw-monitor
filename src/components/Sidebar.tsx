@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
 
-import Cpu from './Cpu';
-import Memory from './Memory';
+
 import Graph from './Graph';
 import Network from './Network';
 

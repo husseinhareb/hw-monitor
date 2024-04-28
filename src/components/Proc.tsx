@@ -11,14 +11,12 @@ interface Process {
     cpu: string;
     read_disk_usage: string;
     write_disk_usage: string;
-    "cpu usage": string;
 }
 
 interface TotalUsages {
     memory: number | null;
     cpu: number | null;
 }
-
 
 const Proc: React.FC = () => {
     const [processes, setProcesses] = useState<Process[]>([]);
@@ -37,8 +35,6 @@ const Proc: React.FC = () => {
                 // Fetch total usages
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
                 setTotalUsages(fetchedTotalUsages);
-
-
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -56,7 +52,6 @@ const Proc: React.FC = () => {
         setSortOrder(newSortOrder);
     };
 
-
     const sortProcessesByColumn = (processes: Process[], column: string | null, order: string) => {
         if (!column) return processes;
 
@@ -65,32 +60,26 @@ const Proc: React.FC = () => {
             let valueB: any;
 
             if (column === "memory") {
-                const parseMemoryValue = (memoryStr: string) => {
-                    const match = memoryStr.match(/([\d.]+)\s*(\w+)/);
-                    if (match) {
-                        const value = parseFloat(match[1]);
-                        const unit = match[2].toLowerCase();
-                        if (unit === "gb") return value * 1024;
-                        if (unit === "kb") return value / 1024;
-                        if (unit === "mb") return value;
-                    }
-                    return parseFloat(memoryStr);
-                };
-
-                valueA = parseMemoryValue(a[column]);
-                valueB = parseMemoryValue(b[column]);
+                valueA = parseInt(a[column]);
+                valueB = parseInt(b[column]);
             }
-            else if (column === "pid" || column === "ppid" || column ==="read_disk_usage" || column ==="write_disk_usage") {
+            else if (column === "pid" || column === "ppid") {
                 valueA = parseInt(String(a[column]), 10);
                 valueB = parseInt(String(b[column]), 10);
-            } else if (column === "cpu usage") {
+            } else if (column === "cpu") {
                 valueA = parseFloat(a[column]);
                 valueB = parseFloat(b[column]);
-            } else {
-                // Type assertion here
+            }
+            else if (column === "read_disk_usage" || column === "write_disk_usage") {
+                valueA = parseInt(a[column].toString());
+                valueB = parseInt(b[column].toString());
+            }
+            else {
                 valueA = (a[column as keyof Process] as string).toLowerCase();
                 valueB = (b[column as keyof Process] as string).toLowerCase();
             }
+
+
 
             if (order === 'asc') {
                 return valueA < valueB ? -1 : 1;
@@ -130,10 +119,8 @@ const Proc: React.FC = () => {
                                 N/A <br /> CPU usage
                             </th>
                         )}
-                        <th onClick={() => sortProcesses('read_disk_usage')}>read_disk_usage</th>
-                        <th onClick={() => sortProcesses('write_disk_usage')}>write_disk_usage</th>
-
-
+                        <th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total</th>
+                        <th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,8 +142,6 @@ const Proc: React.FC = () => {
             </table>
         </div>
     );
-
-
 }
 
 export default Proc;
