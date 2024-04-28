@@ -3,9 +3,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import BiGraph from './BiGraph';
 
 
-interface NetworkProps {
-    activeItem: string | null;
-}
+
 interface NetworkUsages {
     download: number | null;
     upload: number | null;
@@ -13,13 +11,13 @@ interface NetworkUsages {
     total_upload: number | null;
 }
 
-const Network: React.FC<NetworkProps> = ({ activeItem }) => {
+const Network: React.FC = () => {
     const [NetworkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null, total_download: null, total_upload: null });
     const [download, setdownload] = useState<number[]>([]);
     const [upload, setupload] = useState<number[]>([]);
     const [totalDownload, setTotalDownload] = useState<string[]>([]);
     const [totalUpload, setTotalUpload] = useState<string[]>([]);
-    const [render, setRender] = useState<boolean>(false);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -86,20 +84,13 @@ const Network: React.FC<NetworkProps> = ({ activeItem }) => {
         }
     }, [NetworkUsages.total_upload]);
 
-    useEffect(() => {
-        if (activeItem == "Network") {
-            setRender(true);
-        }
-    }, [activeItem])
 
     return (
-        render && (
             <div>
                 <p>Total Download: {totalDownload}</p>
                 <p>Total Upload: {totalUpload}</p>
                 <BiGraph firstGraphValue={download} secondGraphValue={upload} />
             </div>
-        )
     );
 
 };

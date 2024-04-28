@@ -1,7 +1,6 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
-use sysinfo::{System, RefreshKind, CpuRefreshKind};
-
+use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -11,6 +10,7 @@ pub struct Process {
     state: Option<String>,
     user: Option<String>,
     memory: Option<String>,
+    read_disk_usage: Option<i64>,
 }
 
 
@@ -23,44 +23,6 @@ pub struct TotalUsage {
 
 
 
-#[tauri::command]
-pub  fn get_processes() -> Vec<Process> {
-    let mut processes = Vec::new();
-    let pids = list_proc_pid();
-    for pid in pids {
-        if let Some(name) = get_name(&pid) {
-            if let Some(ppid) = get_ppid(&pid) {
-                if let Some(state) = get_proc_state(&pid) {
-                    if let Some(user) = get_proc_user(&pid) {
-                        if let Some(memory) = get_proc_mem(&pid) {
-
-                                let process = Process {
-                                    pid: pid.clone(),
-                                    name: Some(name),
-                                    ppid: Some(ppid),
-                                    state: Some(state),
-                                    user: Some(user),
-                                    memory: Some(memory),
-                                };
-                                processes.push(process);
-                        } else {
-                            println!("Failed to retrieve memory info for process {}", pid);
-                        }
-                    } else {
-                        println!("Failed to retrieve user info for process {}", pid);
-                    }
-                } else {
-                    println!("Failed to retrieve state info for process {}", pid);
-                }
-            } else {
-                println!("Failed to retrieve PPID info for process {}", pid);
-            }
-        } else {
-            println!("Failed to retrieve name info for process {}", pid);
-        }
-    }
-    processes
-}
 
 
 fn list_proc_pid() -> Vec<String> {
@@ -265,7 +227,22 @@ async fn get_cpu_usage_percentage() -> Option<u64> {
     }
 }
 
-
+fn get_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
+    if let Ok(pid_usize) = pid_str.parse::<usize>() {
+        let pid = Pid::from(pid_usize);
+        if let Some(process) = s.process(pid) {
+            let disk_usage = process.disk_usage();
+            println!("{} read bytes: {} B", pid, disk_usage.read_bytes);
+            return Some(disk_usage.read_bytes as i64);
+        } else {
+            println!("Process with PID {} not found", pid);
+        }
+    } else {
+        println!("Invalid PID: {}", pid_str);
+    }
+    // Return a default value in case of error
+    None
+}
 
 
 
@@ -289,3 +266,47 @@ pub async fn get_total_usages() -> Option<TotalUsage> {
 
 
 
+
+#[tauri::command]
+pub  fn get_processes() -> Vec<Process> {
+    let mut processes = Vec::new();
+    let s = System::new_all();
+    let pids = list_proc_pid();
+    for pid in pids {
+        if let Some(name) = get_name(&pid) {
+            if let Some(ppid) = get_ppid(&pid) {
+                if let Some(state) = get_proc_state(&pid) {
+                    if let Some(user) = get_proc_user(&pid) {
+                        if let Some(memory) = get_proc_mem(&pid) {
+                            if let Some(read_disk_usage) = get_read_disk_usage(&pid, &s) {
+                                let process = Process {
+                                    pid: pid.clone(),
+                                    name: Some(name),
+                                    ppid: Some(ppid),
+                                    state: Some(state),
+                                    user: Some(user),
+                                    memory: Some(memory),
+                                    read_disk_usage: Some(read_disk_usage),
+                                };
+                                processes.push(process);
+                            } else{
+                                println!("Failed to retrieve disk info for process {}", pid);
+                            }
+                        } else {
+                            println!("Failed to retrieve memory info for process {}", pid);
+                        }
+                    } else {
+                        println!("Failed to retrieve user info for process {}", pid);
+                    }
+                } else {
+                    println!("Failed to retrieve state info for process {}", pid);
+                }
+            } else {
+                println!("Failed to retrieve PPID info for process {}", pid);
+            }
+        } else {
+            println!("Failed to retrieve name info for process {}", pid);
+        }
+    }
+    processes
+}

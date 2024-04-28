@@ -11,8 +11,7 @@ interface TotalUsages {
     memory: number | null;
 }
 
-const Memory: React.FC<MemoryProps> = ({ activeItem }) => {
-    const [render, setRender] = useState<boolean>(false);
+const Memory: React.FC<MemoryProps> = () => {
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: 0 });
     const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
 
@@ -40,18 +39,13 @@ const Memory: React.FC<MemoryProps> = ({ activeItem }) => {
     }, [totalUsages]);
 
 
-    useEffect(() => {
-        if (activeItem == "Memory") {
-            setRender(true);
-        }
-    }, [activeItem])
 
 
     return (
-        render && (<div>
+        <div>
             <Graph currentValue={memoryUsage} maxValue={100} />
         </div>)
-    );
+    ;
 }
 
 export default Memory;

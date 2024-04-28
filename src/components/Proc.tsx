@@ -9,6 +9,7 @@ interface Process {
     state: string;
     memory: string;
     cpu: string;
+    read_disk_usage: string;
     "cpu usage": string;
 }
 
@@ -128,6 +129,7 @@ const Proc: React.FC = () => {
                                 N/A <br /> CPU usage
                             </th>
                         )}
+                        <th>Disk Usage</th>
 
 
                     </tr>
@@ -143,6 +145,7 @@ const Proc: React.FC = () => {
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
                             <td>{process.cpu}</td>
+                            <td>{process.read_disk_usage}</td>
                         </tr>
                     ))}
                 </tbody>
