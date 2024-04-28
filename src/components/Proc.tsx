@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
+import { process } from '@tauri-apps/api';
 
 interface Process {
     user: string;
@@ -49,7 +50,6 @@ const Proc: React.FC = () => {
         return () => clearInterval(intervalId);
     }, [sortBy, sortOrder]);
 
-
     const sortProcesses = (column: string) => {
         const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
         setSortBy(column);
@@ -79,7 +79,8 @@ const Proc: React.FC = () => {
 
                 valueA = parseMemoryValue(a[column]);
                 valueB = parseMemoryValue(b[column]);
-            } else if (column === "pid" || column === "ppid") {
+            }
+            else if (column === "pid" || column === "ppid" || column ==="read_disk_usage") {
                 valueA = parseInt(String(a[column]), 10);
                 valueB = parseInt(String(b[column]), 10);
             } else if (column === "cpu usage") {
@@ -129,7 +130,7 @@ const Proc: React.FC = () => {
                                 N/A <br /> CPU usage
                             </th>
                         )}
-                        <th>Disk Usage</th>
+                        <th onClick={() => sortProcesses('read_disk_usage')}>read_disk_usage</th>
 
 
                     </tr>
