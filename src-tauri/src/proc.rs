@@ -2,7 +2,7 @@ use std::fs;
 use serde::{Serialize, Deserialize};
 use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
 use std::io;
-use std::thread;
+use tokio::time::Duration;
 use tokio::time;
 
 #[derive(Serialize, Deserialize)]
@@ -14,6 +14,7 @@ pub struct Process {
     user: Option<String>,
     memory: Option<String>,
     read_disk_usage: Option<i64>,
+    write_disk_usage: Option<i64>,
 }
 
 
@@ -230,7 +231,7 @@ async fn get_cpu_usage_percentage() -> Option<u64> {
     }
 }
 
-fn get_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
+fn get_proc_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
     if let Ok(pid_usize) = pid_str.parse::<usize>() {
         let pid = Pid::from(pid_usize);
         if let Some(process) = s.process(pid) {
@@ -246,8 +247,23 @@ fn get_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
     None
 }
 
+fn get_proc_write_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
+    if let Ok(pid_usize) = pid_str.parse::<usize>() {
+        let pid = Pid::from(pid_usize);
+        if let Some(process) = s.process(pid) {
+            let disk_usage = process.disk_usage();
+            return Some(disk_usage.written_bytes as i64);
+        } else {
+            println!("Process with PID {} not found", pid);
+        }
+    } else {
+        println!("Invalid PID: {}", pid_str);
+    }
+    // Return a default value in case of error
+    None
+}
 
-use tokio::time::Duration;
+
 async fn get_total_cpu_time() -> Result<u64, io::Error> {
     let stat_file = "/proc/stat";
     let stat_content = fs::read_to_string(stat_file)?;
@@ -345,7 +361,9 @@ pub async fn get_processes() -> Vec<Process> {
                 if let Some(state) = get_proc_state(&pid) {
                     if let Some(user) = get_proc_user(&pid) {
                         if let Some(memory) = get_proc_mem(&pid) {
-                            if let Some(read_disk_usage) = get_read_disk_usage(&pid, &s) {
+                            if let Some(read_disk_usage) = get_proc_read_disk_usage(&pid, &s) {
+                                if let Some(write_disk_usage) = get_proc_write_disk_usage(&pid, &s) {
+
                                     let process = Process {
                                         pid: pid.clone(),
                                         name: Some(name),
@@ -354,9 +372,13 @@ pub async fn get_processes() -> Vec<Process> {
                                         user: Some(user),
                                         memory: Some(memory),
                                         read_disk_usage: Some(read_disk_usage),
+                                        write_disk_usage: Some(write_disk_usage),
                                     };
                                     processes.push(process);
-                              
+                                }else{
+                                    println!("Failed to retrieve disk info for process {}", pid);
+
+                                }
                             } else {
                                 println!("Failed to retrieve disk info for process {}", pid);
                             }

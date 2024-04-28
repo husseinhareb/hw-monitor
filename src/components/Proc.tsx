@@ -10,6 +10,7 @@ interface Process {
     memory: string;
     cpu: string;
     read_disk_usage: string;
+    write_disk_usage: string;
     "cpu usage": string;
 }
 
@@ -79,7 +80,7 @@ const Proc: React.FC = () => {
                 valueA = parseMemoryValue(a[column]);
                 valueB = parseMemoryValue(b[column]);
             }
-            else if (column === "pid" || column === "ppid" || column ==="read_disk_usage") {
+            else if (column === "pid" || column === "ppid" || column ==="read_disk_usage" || column ==="write_disk_usage") {
                 valueA = parseInt(String(a[column]), 10);
                 valueB = parseInt(String(b[column]), 10);
             } else if (column === "cpu usage") {
@@ -130,6 +131,7 @@ const Proc: React.FC = () => {
                             </th>
                         )}
                         <th onClick={() => sortProcesses('read_disk_usage')}>read_disk_usage</th>
+                        <th onClick={() => sortProcesses('write_disk_usage')}>write_disk_usage</th>
 
 
                     </tr>
@@ -146,6 +148,7 @@ const Proc: React.FC = () => {
                             <td>{process.memory}</td>
                             <td>{process.cpu}</td>
                             <td>{process.read_disk_usage}</td>
+                            <td>{process.write_disk_usage}</td>
                         </tr>
                     ))}
                 </tbody>
