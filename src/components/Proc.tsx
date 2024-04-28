@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-import { process } from '@tauri-apps/api';
 
 interface Process {
     user: string;

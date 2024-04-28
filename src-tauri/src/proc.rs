@@ -1,6 +1,9 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
 use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
+use std::io;
+use std::thread;
+use tokio::time;
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -232,7 +235,6 @@ fn get_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
         let pid = Pid::from(pid_usize);
         if let Some(process) = s.process(pid) {
             let disk_usage = process.disk_usage();
-            println!("{} read bytes: {} B", pid, disk_usage.read_bytes);
             return Some(disk_usage.read_bytes as i64);
         } else {
             println!("Process with PID {} not found", pid);
@@ -243,6 +245,71 @@ fn get_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
     // Return a default value in case of error
     None
 }
+
+
+use tokio::time::Duration;
+async fn get_total_cpu_time() -> Result<u64, io::Error> {
+    let stat_file = "/proc/stat";
+    let stat_content = fs::read_to_string(stat_file)?;
+
+    for line in stat_content.lines() {
+        if line.starts_with("cpu ") {
+            let fields: Vec<&str> = line.split_whitespace().collect();
+            // Skip the "cpu" prefix and sum up the values
+            let total_cpu_time: u64 = fields[1..].iter().map(|&x| x.parse::<u64>().unwrap_or(0)).sum();
+            return Ok(total_cpu_time);
+        }
+    }
+
+    Err(io::Error::new(
+        io::ErrorKind::NotFound,
+        "Total CPU time not found in /proc/stat",
+    ))
+}
+
+async fn get_process_cpu_time(pid: i32) -> Result<(u64, u64), io::Error> {
+    let stat_file = format!("/proc/{}/stat", pid);
+    let stat_content = fs::read_to_string(&stat_file)?;
+
+    let fields: Vec<&str> = stat_content.split_whitespace().collect();
+
+    if fields.len() < 17 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "Invalid stat file format",
+        ));
+    }
+
+    let utime: u64 = fields[13].parse().unwrap_or(0);
+    let stime: u64 = fields[14].parse().unwrap_or(0);
+
+    Ok((utime, stime))
+}
+
+
+async fn calculate_cpu_percentage(pid_str: &str, duration_secs: u64) -> Result<String, io::Error> {
+    let pid = pid_str.parse::<i32>().map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+    let total_cpu_time_start = get_total_cpu_time().await?;
+    let (utime_start, stime_start) = get_process_cpu_time(pid).await?;
+    
+    // Use tokio::time::sleep for waiting
+    time::sleep(Duration::from_secs(duration_secs)).await;
+    
+    let total_cpu_time_end = get_total_cpu_time().await?;
+    let (utime_end, stime_end) = get_process_cpu_time(pid).await?;
+
+    let total_cpu_time_diff = total_cpu_time_end as f64 - total_cpu_time_start as f64;
+    let cpu_time_start = utime_start + stime_start;
+    let cpu_time_end = utime_end + stime_end;
+
+    let cpu_time_diff = cpu_time_end as f64 - cpu_time_start as f64;
+    let duration_secs_f64 = duration_secs as f64;
+
+    let max_cpu_usage = 100.0 * (cpu_time_diff / duration_secs_f64) / total_cpu_time_diff;
+
+    Ok(format!("{:.2}%", max_cpu_usage))
+}
+
 
 
 
@@ -268,7 +335,7 @@ pub async fn get_total_usages() -> Option<TotalUsage> {
 
 
 #[tauri::command]
-pub  fn get_processes() -> Vec<Process> {
+pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
     let s = System::new_all();
     let pids = list_proc_pid();
@@ -279,17 +346,18 @@ pub  fn get_processes() -> Vec<Process> {
                     if let Some(user) = get_proc_user(&pid) {
                         if let Some(memory) = get_proc_mem(&pid) {
                             if let Some(read_disk_usage) = get_read_disk_usage(&pid, &s) {
-                                let process = Process {
-                                    pid: pid.clone(),
-                                    name: Some(name),
-                                    ppid: Some(ppid),
-                                    state: Some(state),
-                                    user: Some(user),
-                                    memory: Some(memory),
-                                    read_disk_usage: Some(read_disk_usage),
-                                };
-                                processes.push(process);
-                            } else{
+                                    let process = Process {
+                                        pid: pid.clone(),
+                                        name: Some(name),
+                                        ppid: Some(ppid),
+                                        state: Some(state),
+                                        user: Some(user),
+                                        memory: Some(memory),
+                                        read_disk_usage: Some(read_disk_usage),
+                                    };
+                                    processes.push(process);
+                              
+                            } else {
                                 println!("Failed to retrieve disk info for process {}", pid);
                             }
                         } else {
