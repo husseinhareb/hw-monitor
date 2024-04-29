@@ -3,7 +3,6 @@ use serde::{Serialize, Deserialize};
 use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
 use std::io;
 
-use tokio::time::{self, Duration}; // Add import for time
 #[derive(Serialize, Deserialize)]
 pub struct Process {
     pid: String,
@@ -14,8 +13,7 @@ pub struct Process {
     memory: Option<String>,
     read_disk_usage: Option<String>,
     write_disk_usage: Option<String>,
-    read_disk_speed: Option<String>,
-    write_disk_speed: Option<String>,
+
 }
 
 
@@ -261,6 +259,8 @@ fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> 
     None
 }
 
+use std::thread;
+use std::time::Duration;
 
 async fn get_proc_disk_usage_speed(pid_str: &str, s: &mut  sysinfo::System, read: bool) -> Option<String> {
     if let Ok(pid_usize) = pid_str.parse::<usize>() {
@@ -268,18 +268,14 @@ async fn get_proc_disk_usage_speed(pid_str: &str, s: &mut  sysinfo::System, read
         if let Some(process) = s.process(pid) {
             let disk_usage = process.disk_usage();
             let speed_bytes = if read {
-                let read_start: f64 = disk_usage.read_bytes as f64;
                 s.refresh_all();
-                time::sleep(Duration::from_secs(1)).await;
-                let read_end: f64 = disk_usage.read_bytes as f64;
-                println!("diskusagespeedread:{}",read_end-read_start);
-                read_end - read_start 
+                thread::sleep(Duration::from_secs(1));
+                println!("diskusagespeedread:{}",disk_usage.read_bytes);
+                disk_usage.read_bytes as f64
             } else {
-                let write_start: f64 = disk_usage.written_bytes as f64;
                 s.refresh_all();
-                time::sleep(Duration::from_secs(1)).await;
-                let write_end: f64 = disk_usage.written_bytes as f64; 
-                write_end - write_start 
+                thread::sleep(Duration::from_secs(1));
+                disk_usage.written_bytes as f64
                 
             };
             let usage_str = if speed_bytes > 1024.0 * 1024.0 * 1024.0 {
@@ -349,7 +345,7 @@ async fn calculate_cpu_percentage(pid_str: &str, duration_secs: u64) -> Result<S
     let (utime_start, stime_start) = get_process_cpu_time(pid).await?;
     
     // Use tokio::time::sleep for waiting
-    time::sleep(Duration::from_secs(duration_secs)).await;
+    //time::sleep(Duration::from_secs(duration_secs)).await;
     
     let total_cpu_time_end = get_total_cpu_time().await?;
     let (utime_end, stime_end) = get_process_cpu_time(pid).await?;
@@ -453,21 +449,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let read_disk_speed = match get_proc_disk_usage_speed(&pid, &mut s, true).await {
-            Some(speed) => speed,
-            None => {
-                println!("Failed to retrieve disk speed for process {}", pid);
-                continue;
-            }
-        };
 
-        let write_disk_speed = match get_proc_disk_usage_speed(&pid, &mut s, false).await {
-            Some(speed) => speed,
-            None => {
-                println!("Failed to retrieve disk speed for process {}", pid);
-                continue;
-            }
-        };
 
         let process = Process {
             pid: pid.clone(),
@@ -478,8 +460,7 @@ pub async fn get_processes() -> Vec<Process> {
             memory: Some(memory),
             read_disk_usage: Some(read_disk_usage),
             write_disk_usage: Some(write_disk_usage),
-            read_disk_speed: Some(read_disk_speed),
-            write_disk_speed: Some(write_disk_speed),
+
         };
         processes.push(process);
     }

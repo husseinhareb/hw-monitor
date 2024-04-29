@@ -86,11 +86,11 @@ const Network: React.FC = () => {
 
 
     return (
-            <div>
-                <p>Total Download: {totalDownload}</p>
-                <p>Total Upload: {totalUpload}</p>
-                <BiGraph firstGraphValue={download} secondGraphValue={upload} />
-            </div>
+        <div>
+            <p>Total Download: {totalDownload}</p>
+            <p>Total Upload: {totalUpload}</p>
+            <BiGraph firstGraphValue={download} secondGraphValue={upload} />
+        </div>
     );
 
 };

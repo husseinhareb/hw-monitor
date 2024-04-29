@@ -1,16 +1,14 @@
+//Cpu.tsx
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import Graph from "./Graph";
 
-interface CpuProps {
-    cpuUsage: number[];
-    activeItem: string;
-}
+
 interface TotalUsages {
     memory: number | null;
     cpu: number | null;
     processes: number | null;
 }
+
 interface CpuData {
     name: string;
     cores: number;
@@ -23,9 +21,10 @@ interface CpuData {
     uptime: string;
 }
 
-const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
+const Cpu: React.FC = () => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
+    
 
     useEffect(() => {
         const fetchCpuData = async () => {
@@ -35,6 +34,14 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
 
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
                 setTotalUsages(fetchedTotalUsages);
+
+                // Dispatch CPU usage only if it's not null
+                if (fetchedTotalUsages.cpu !== null) {
+                    console.log("hey",fetchedTotalUsages.cpu)
+                }
+
+                
+                
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -51,8 +58,7 @@ const Cpu: React.FC<CpuProps> = ({ cpuUsage }) => {
 
     return (
         <div>
-            <Graph currentValue={cpuUsage} maxValue={100} />
-            <p className="text-lg font-semibold">{cpuData.name}</p>
+            <p>{cpuData.name}</p>
             <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
             <p>Cores: {cpuData.cores}</p>
             <p>Threads: {cpuData.threads}</p>

@@ -1,33 +1,27 @@
+//sidebar.tsx
 import React from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
 
 
-import Graph from './Graph';
 import Network from './Network';
 
+import Cpu from './Cpu';
 
-interface PerformanceProps {
-    cpuUsage: number[];
-    memoryUsage: number[];
-    download: number[];
-    upload: number;
-  }
-  
-    const Sidebar: React.FC<PerformanceProps> = ({cpuUsage,memoryUsage}) => {
-
+const Sidebar: React.FC = () => {
 
     return (
         <div style={{ display: 'flex' }}>
             <SidebarContainer>
                 <Title>Performance</Title>
                 <List>
-                    <ListItem>CPU<Graph currentValue={cpuUsage} maxValue={100} /></ListItem>
-                    <ListItem>Memory<Graph currentValue={memoryUsage} maxValue={100} /></ListItem>
+                    <ListItem>CPU</ListItem>
+                    <ListItem>Memory</ListItem>
                     <ListItem>DISK</ListItem>
-                    <ListItem>Wi-Fi<Network/></ListItem>
+                    <ListItem>Wi-Fi<Network /></ListItem>
 
                 </List>
             </SidebarContainer>
+            <Cpu/>
         </div>
     );
 }
