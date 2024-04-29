@@ -24,6 +24,7 @@ const Proc: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<string>('asc'); // Default sort order is ascending
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
 
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -46,6 +47,26 @@ const Proc: React.FC = () => {
         return () => clearInterval(intervalId);
     }, [sortBy, sortOrder]);
 
+
+    const convertDataValue = (usageStr: string) => {
+        if (typeof usageStr !== 'string') {
+            return 0;
+        }
+
+        const match = usageStr.match(/([\d.]+)\s*(\w+)/);
+        if (match) {
+            const value = parseFloat(match[1]);
+            const unit = match[2].toLowerCase();
+            if (unit === "gb") return value * 1024 * 1024; // Convert to MB
+            if (unit === "mb") return value * 1024; // Convert to KB
+            if (unit === "kb") return value; // Already in KB
+            if (unit === "b") return value / 1024; // Convert to KB
+        }
+        return parseFloat(usageStr);
+    };
+
+
+
     const sortProcesses = (column: string) => {
         const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
         setSortBy(column);
@@ -59,9 +80,9 @@ const Proc: React.FC = () => {
             let valueA: any;
             let valueB: any;
 
-            if (column === "memory") {
-                valueA = parseInt(a[column]);
-                valueB = parseInt(b[column]);
+            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage") {
+                valueA = convertDataValue(a[column]);
+                valueB = convertDataValue(b[column]);
             }
             else if (column === "pid" || column === "ppid") {
                 valueA = parseInt(String(a[column]), 10);
@@ -69,10 +90,6 @@ const Proc: React.FC = () => {
             } else if (column === "cpu") {
                 valueA = parseFloat(a[column]);
                 valueB = parseFloat(b[column]);
-            }
-            else if (column === "read_disk_usage" || column === "write_disk_usage") {
-                valueA = parseInt(a[column].toString());
-                valueB = parseInt(b[column].toString());
             }
             else {
                 valueA = (a[column as keyof Process] as string).toLowerCase();

@@ -13,8 +13,8 @@ pub struct Process {
     state: Option<String>,
     user: Option<String>,
     memory: Option<String>,
-    read_disk_usage: Option<i64>,
-    write_disk_usage: Option<i64>,
+    read_disk_usage: Option<String>,
+    write_disk_usage: Option<String>,
 }
 
 
@@ -123,9 +123,9 @@ fn get_proc_mem(pid: &str) -> Option<String> {
         if let Some(resident_str) = status.split_whitespace().nth(1) {
             if let Ok(resident) = resident_str.parse::<u64>() {
                 let mem = resident * 4;
-                let mem_str = if mem > 1024 * 1024 {
+                let mem_str = if mem > 1000 * 1000 {
                     format!("{:.2} Gb", mem as f64 / (1024.0 * 1024.0))
-                } else if mem > 1024 {
+                } else if mem > 1000 {
                     format!("{:.2} Mb", mem as f64 / 1024.0)
                 } else {
                     format!("{:.2} Kb", mem)
@@ -231,35 +231,33 @@ async fn get_cpu_usage_percentage() -> Option<u64> {
     }
 }
 
-fn get_proc_read_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
+fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> Option<String> {
     if let Ok(pid_usize) = pid_str.parse::<usize>() {
         let pid = Pid::from(pid_usize);
         if let Some(process) = s.process(pid) {
             let disk_usage = process.disk_usage();
-            return Some(disk_usage.read_bytes as i64);
+            let usage_bytes = if read {
+                disk_usage.total_read_bytes as f64
+            } else {
+                disk_usage.total_written_bytes as f64
+            };
+            let usage_str = if usage_bytes > 1024.0 * 1024.0 * 1024.0 {
+                format!("{:.2} Gb", usage_bytes / (1024.0 * 1024.0 * 1024.0))
+            } else if usage_bytes > 1024.0 * 1024.0 {
+                format!("{:.2} Mb", usage_bytes / (1024.0 * 1024.0))
+            } else if usage_bytes > 1024.0 {
+                format!("{:.2} Kb", usage_bytes / 1024.0)
+            } else {
+                format!("{:.2} B", usage_bytes)
+            };
+            return Some(usage_str);
         } else {
             println!("Process with PID {} not found", pid);
         }
     } else {
         println!("Invalid PID: {}", pid_str);
     }
-    // Return a default value in case of error
-    None
-}
-
-fn get_proc_write_disk_usage(pid_str: &str,s: &sysinfo::System) -> Option<i64> {
-    if let Ok(pid_usize) = pid_str.parse::<usize>() {
-        let pid = Pid::from(pid_usize);
-        if let Some(process) = s.process(pid) {
-            let disk_usage = process.disk_usage();
-            return Some(disk_usage.written_bytes as i64);
-        } else {
-            println!("Process with PID {} not found", pid);
-        }
-    } else {
-        println!("Invalid PID: {}", pid_str);
-    }
-    // Return a default value in case of error
+    // Return None in case of error
     None
 }
 
@@ -361,8 +359,8 @@ pub async fn get_processes() -> Vec<Process> {
                 if let Some(state) = get_proc_state(&pid) {
                     if let Some(user) = get_proc_user(&pid) {
                         if let Some(memory) = get_proc_mem(&pid) {
-                            if let Some(read_disk_usage) = get_proc_read_disk_usage(&pid, &s) {
-                                if let Some(write_disk_usage) = get_proc_write_disk_usage(&pid, &s) {
+                            if let Some(read_disk_usage) = get_total_proc_disk_usage(&pid, &s,true) {
+                                if let Some(write_disk_usage) = get_total_proc_disk_usage(&pid, &s,false) {
 
                                     let process = Process {
                                         pid: pid.clone(),
