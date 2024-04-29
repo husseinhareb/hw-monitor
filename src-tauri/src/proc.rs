@@ -2,9 +2,8 @@ use std::fs;
 use serde::{Serialize, Deserialize};
 use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
 use std::io;
-use tokio::time::Duration;
-use tokio::time;
 
+use tokio::time::{self, Duration}; // Add import for time
 #[derive(Serialize, Deserialize)]
 pub struct Process {
     pid: String,
@@ -15,6 +14,8 @@ pub struct Process {
     memory: Option<String>,
     read_disk_usage: Option<String>,
     write_disk_usage: Option<String>,
+    read_disk_speed: Option<String>,
+    write_disk_speed: Option<String>,
 }
 
 
@@ -24,8 +25,6 @@ pub struct TotalUsage {
     cpu: Option<String>,
     processes: Option<String>
 }
-
-
 
 
 
@@ -240,6 +239,7 @@ fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> 
                 disk_usage.total_read_bytes as f64
             } else {
                 disk_usage.total_written_bytes as f64
+                
             };
             let usage_str = if usage_bytes > 1024.0 * 1024.0 * 1024.0 {
                 format!("{:.2} Gb", usage_bytes / (1024.0 * 1024.0 * 1024.0))
@@ -260,6 +260,48 @@ fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> 
     // Return None in case of error
     None
 }
+
+
+async fn get_proc_disk_usage_speed(pid_str: &str, s: &mut  sysinfo::System, read: bool) -> Option<String> {
+    if let Ok(pid_usize) = pid_str.parse::<usize>() {
+        let pid = Pid::from(pid_usize);
+        if let Some(process) = s.process(pid) {
+            let disk_usage = process.disk_usage();
+            let speed_bytes = if read {
+                let read_start: f64 = disk_usage.read_bytes as f64;
+                s.refresh_all();
+                time::sleep(Duration::from_secs(1)).await;
+                let read_end: f64 = disk_usage.read_bytes as f64;
+                println!("diskusagespeedread:{}",read_end-read_start);
+                read_end - read_start 
+            } else {
+                let write_start: f64 = disk_usage.written_bytes as f64;
+                s.refresh_all();
+                time::sleep(Duration::from_secs(1)).await;
+                let write_end: f64 = disk_usage.written_bytes as f64; 
+                write_end - write_start 
+                
+            };
+            let usage_str = if speed_bytes > 1024.0 * 1024.0 * 1024.0 {
+                format!("{:.2} Gb/s", speed_bytes / (1024.0 * 1024.0 * 1024.0)) 
+            } else if speed_bytes > 1024.0 * 1024.0 {
+                format!("{:.2} Mb/s", speed_bytes / (1024.0 * 1024.0))
+            } else if speed_bytes > 1024.0 {
+                format!("{:.2} Kb/s", speed_bytes / 1024.0)
+            } else {
+                format!("{:.2} B/s", speed_bytes)
+            };
+            return Some(usage_str);
+        } else {
+            println!("Process with PID {} not found", pid);
+        }
+    } else {
+        println!("Invalid PID: {}", pid_str);
+    }
+    // Return None in case of error
+    None
+}
+
 
 
 async fn get_total_cpu_time() -> Result<u64, io::Error> {
@@ -351,50 +393,96 @@ pub async fn get_total_usages() -> Option<TotalUsage> {
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
-    let s = System::new_all();
+    let mut s = System::new_all();
     let pids = list_proc_pid();
+
     for pid in pids {
-        if let Some(name) = get_name(&pid) {
-            if let Some(ppid) = get_ppid(&pid) {
-                if let Some(state) = get_proc_state(&pid) {
-                    if let Some(user) = get_proc_user(&pid) {
-                        if let Some(memory) = get_proc_mem(&pid) {
-                            if let Some(read_disk_usage) = get_total_proc_disk_usage(&pid, &s,true) {
-                                if let Some(write_disk_usage) = get_total_proc_disk_usage(&pid, &s,false) {
-
-                                    let process = Process {
-                                        pid: pid.clone(),
-                                        name: Some(name),
-                                        ppid: Some(ppid),
-                                        state: Some(state),
-                                        user: Some(user),
-                                        memory: Some(memory),
-                                        read_disk_usage: Some(read_disk_usage),
-                                        write_disk_usage: Some(write_disk_usage),
-                                    };
-                                    processes.push(process);
-                                }else{
-                                    println!("Failed to retrieve disk info for process {}", pid);
-
-                                }
-                            } else {
-                                println!("Failed to retrieve disk info for process {}", pid);
-                            }
-                        } else {
-                            println!("Failed to retrieve memory info for process {}", pid);
-                        }
-                    } else {
-                        println!("Failed to retrieve user info for process {}", pid);
-                    }
-                } else {
-                    println!("Failed to retrieve state info for process {}", pid);
-                }
-            } else {
-                println!("Failed to retrieve PPID info for process {}", pid);
+        let name = match get_name(&pid) {
+            Some(name) => name,
+            None => {
+                println!("Failed to retrieve name info for process {}", pid);
+                continue;
             }
-        } else {
-            println!("Failed to retrieve name info for process {}", pid);
-        }
+        };
+
+        let ppid = match get_ppid(&pid) {
+            Some(ppid) => ppid,
+            None => {
+                println!("Failed to retrieve PPID info for process {}", pid);
+                continue;
+            }
+        };
+
+        let state = match get_proc_state(&pid) {
+            Some(state) => state,
+            None => {
+                println!("Failed to retrieve state info for process {}", pid);
+                continue;
+            }
+        };
+
+        let user = match get_proc_user(&pid) {
+            Some(user) => user,
+            None => {
+                println!("Failed to retrieve user info for process {}", pid);
+                continue;
+            }
+        };
+
+        let memory = match get_proc_mem(&pid) {
+            Some(memory) => memory,
+            None => {
+                println!("Failed to retrieve memory info for process {}", pid);
+                continue;
+            }
+        };
+
+        let read_disk_usage = match get_total_proc_disk_usage(&pid, &s, true) {
+            Some(usage) => usage,
+            None => {
+                println!("Failed to retrieve disk info for process {}", pid);
+                continue;
+            }
+        };
+
+        let write_disk_usage = match get_total_proc_disk_usage(&pid, &s, false) {
+            Some(usage) => usage,
+            None => {
+                println!("Failed to retrieve disk info for process {}", pid);
+                continue;
+            }
+        };
+
+        let read_disk_speed = match get_proc_disk_usage_speed(&pid, &mut s, true).await {
+            Some(speed) => speed,
+            None => {
+                println!("Failed to retrieve disk speed for process {}", pid);
+                continue;
+            }
+        };
+
+        let write_disk_speed = match get_proc_disk_usage_speed(&pid, &mut s, false).await {
+            Some(speed) => speed,
+            None => {
+                println!("Failed to retrieve disk speed for process {}", pid);
+                continue;
+            }
+        };
+
+        let process = Process {
+            pid: pid.clone(),
+            name: Some(name),
+            ppid: Some(ppid),
+            state: Some(state),
+            user: Some(user),
+            memory: Some(memory),
+            read_disk_usage: Some(read_disk_usage),
+            write_disk_usage: Some(write_disk_usage),
+            read_disk_speed: Some(read_disk_speed),
+            write_disk_speed: Some(write_disk_speed),
+        };
+        processes.push(process);
     }
+
     processes
 }
