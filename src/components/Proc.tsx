@@ -8,7 +8,7 @@ interface Process {
     name: string;
     state: string;
     memory: string;
-    cpu: string;
+    cpu_percentage: string;
     read_disk_usage: string;
     write_disk_usage: string;
 }
@@ -87,9 +87,6 @@ const Proc: React.FC = () => {
             else if (column === "pid" || column === "ppid") {
                 valueA = parseInt(String(a[column]), 10);
                 valueB = parseInt(String(b[column]), 10);
-            } else if (column === "cpu") {
-                valueA = parseFloat(a[column]);
-                valueB = parseFloat(b[column]);
             }
             else {
                 valueA = (a[column as keyof Process] as string).toLowerCase();
@@ -150,7 +147,7 @@ const Proc: React.FC = () => {
                             <td>{process.name}</td>
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
-                            <td>{process.cpu}</td>
+                            <td>{process.cpu_percentage}</td>
                             <td>{process.read_disk_usage}</td>
                             <td>{process.write_disk_usage}</td>
                         </tr>

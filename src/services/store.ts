@@ -1,4 +1,4 @@
-//store.ts
+// store.ts
 import create from "zustand";
 
 interface CpuUsageStore {
@@ -8,7 +8,8 @@ interface CpuUsageStore {
 
 interface NetworkSpeedStore {
   download: number[];
-  setNetworkUsage: (download: number[]) => void;
+  networkInterface: string;
+  setNetworkUsage: (download: number[], networkInterface: string) => void;
 }
 
 interface MemoryUsageStore {
@@ -16,18 +17,18 @@ interface MemoryUsageStore {
   setMemoryUsage: (memory: number[]) => void;
 }
 
-
 export const useCpuUsageStore = create<CpuUsageStore>((set) => ({
-  cpu: null,
+  cpu: [],
   setTotalCpu: (cpu) => set({ cpu }),
 }));
 
 export const useMemoryUsageStore = create<MemoryUsageStore>((set) => ({
-  memory: null,
+  memory: [],
   setMemoryUsage: (memory) => set({ memory }),
 }));
 
 export const useNetworkSpeedStore = create<NetworkSpeedStore>((set) => ({
-  download: null,
-  setNetworkUsage: (download) => set({ download }),
+  download: [],
+  networkInterface: "",
+  setNetworkUsage: (download, networkInterface) => set({ download, networkInterface }),
 }));

@@ -1,32 +1,31 @@
-//Network.tsx
 import React, { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 import BiGraph from './BiGraph';
-import { useNetworkSpeedStore  } from "../services/store";
 
-
-
-interface NetworkUsages {
-    download: number | null;
-    upload: number | null;
-    total_download: number | null;
-    total_upload: number | null;
-}
-
-interface NetworkProps{
+interface NetworkProps {
     hidden: boolean;
+    interfaceName: string;
 }
-const Network: React.FC<NetworkProps> = ({hidden}) => {
-    const [NetworkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null, total_download: null, total_upload: null });
-    const [download, setdownload] = useState<number[]>([]);
-    const [upload, setupload] = useState<number[]>([]);
-    const [totalDownload, setTotalDownload] = useState<string[]>([]);
-    const [totalUpload, setTotalUpload] = useState<string[]>([]);
+
+interface NetworkUsage {
+    download: number;
+    upload: number;
+    total_download: string;
+    total_upload: string;
+    interface: string;
+}
+
+const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
+    const [networkUsages, setNetworkUsages] = useState<NetworkUsage[]>([]);
+    const [download, setDownload] = useState<number[]>([]);
+    const [upload, setUpload] = useState<number[]>([]);
+    const [totalDownload, setTotalDownload] = useState<string>("");
+    const [totalUpload, setTotalUpload] = useState<string>("");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const fetchedNetworkUsages: NetworkUsages = await invoke("get_network");
+                const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network");
                 setNetworkUsages(fetchedNetworkUsages);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -39,68 +38,27 @@ const Network: React.FC<NetworkProps> = ({hidden}) => {
         return () => clearInterval(intervalId);
     }, []);
 
+    const interfaceData = networkUsages.find(data => data.interface === interfaceName);
 
     useEffect(() => {
-        if (NetworkUsages !== null) {
-            setdownload(prevdownload => [...prevdownload, NetworkUsages.download as number]);
+        if (interfaceData) {
+            setDownload(prevDownload => [...prevDownload, interfaceData.download]);
+            setUpload(prevUpload => [...prevUpload, interfaceData.upload]);
+            setTotalDownload(interfaceData.total_download);
+            setTotalUpload(interfaceData.total_upload);
         }
-
-    }, [NetworkUsages]);
-
-    useEffect(() => {
-        if (NetworkUsages !== null ) {
-            useNetworkSpeedStore.getState().setNetworkUsage(download);
-        }
-    }, [download]);
-
-
-    useEffect(() => {
-        if (NetworkUsages.total_download !== null) {
-            let totalDownloadValue = NetworkUsages.total_download as number;
-            let downloadUnit = "KB";
-
-            if (totalDownloadValue > 1000000000) {
-                totalDownloadValue /= 1000000000;
-                downloadUnit = "GB";
-            } else if (totalDownloadValue > 1000000) {
-                totalDownloadValue /= 1000000;
-                downloadUnit = "MB";
-            } else if (totalDownloadValue > 1000) {
-                totalDownloadValue /= 1000;
-                downloadUnit = "KB";
-            }
-
-            setTotalDownload([parseFloat(totalDownloadValue.toFixed(1)) + " " + downloadUnit]); // Format number with unit
-        }
-    }, [NetworkUsages.total_download]);
-
-    useEffect(() => {
-        if (NetworkUsages.total_upload !== null) {
-            let totalUploadValue = NetworkUsages.total_upload as number;
-            let uploadUnit = "KB";
-
-            if (totalUploadValue > 1000000000) {
-                totalUploadValue /= 1000000000;
-                uploadUnit = "GB";
-            } else if (totalUploadValue > 1000000) {
-                totalUploadValue /= 1000000;
-                uploadUnit = "MB";
-            } else if (totalUploadValue > 1000) {
-                totalUploadValue /= 1000;
-                uploadUnit = "KB";
-            }
-            setTotalUpload([parseFloat(totalUploadValue.toFixed(1)) + " " + uploadUnit]); // Format number with unit
-        }
-    }, [NetworkUsages.total_upload]);
-
+    }, [interfaceData, networkUsages]);
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>            <p>Total Download: {totalDownload}</p>
+        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
+            <p>Total Download: {totalDownload}</p>
             <p>Total Upload: {totalUpload}</p>
+            <p>Interface: {interfaceName}</p>
+            <p>Download: {download.length > 0 ? download[download.length - 1] : 0}</p>
+            <p>Upload: {upload.length > 0 ? upload[upload.length - 1] : 0}</p>
             <BiGraph firstGraphValue={download} secondGraphValue={upload} />
         </div>
     );
-
 };
 
 export default Network;

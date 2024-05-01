@@ -2,43 +2,48 @@ use serde::{Serialize, Deserialize};
 use std::thread::sleep;
 use sysinfo::Networks;
 use std::time::Duration;
+
 #[derive(Serialize, Deserialize)]
 pub struct Network {
-    interface: Option<String>,
-    upload: Option<f64>, 
-    download: Option<f64>,
-    total_upload: Option<u64>,
-    total_download: Option<u64>,
+    interface: String,
+    upload: String, 
+    download: String,
+    total_upload: u64,
+    total_download: u64,
 }
 
-
 #[tauri::command]
-pub async fn get_network() -> Option<Network>
-{
+pub async fn get_network() -> Vec<Network> {
     let mut networks = Networks::new_with_refreshed_list();
     // Use tokio's sleep function
     sleep(Duration::from_millis(1000));
     networks.refresh();
-    let wifi_network = networks.iter()
-        .find(|(interface_name, _)| interface_name.starts_with("wl"));
+    let mut result: Vec<Network> = Vec::new();
 
-    if let Some((interface_name, data)) = wifi_network {
-        // Convert bytes to kilobytes
-        let upload_kb = data.transmitted();
-        let download_kb = data.received();
-        // Calculate total network usages
-        let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
-        let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();
+    // Sort the network interfaces by name
+    let mut sorted_networks: Vec<_> = networks.iter().collect();
+    sorted_networks.sort_by(|(name1, _), (name2, _)| name1.cmp(name2));
 
-        let network = Network {
-            interface: Some(interface_name.clone()),
-            upload: Some(upload_kb as f64),
-            download: Some(download_kb as f64),
-            total_upload: Some(total_transmitted), 
-            total_download: Some(total_received),
-        };
-        Some(network)
-    } else {
-        None
+    for (interface_name, data) in sorted_networks {
+        // Only consider interfaces starting with "wl" or "en"
+        if interface_name.starts_with("wl") || interface_name.starts_with("en") {
+            // Convert bytes to kilobytes
+            let upload_kb = (data.transmitted() as f64 / 1024.0);
+            let download_kb = (data.received() as f64 / 1024.0);
+            // Calculate total network usages
+            let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
+            let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();
+
+            let network = Network {
+                interface: interface_name.clone(),
+                upload: format!("{:.1}", upload_kb),
+                download: format!("{:.1}", download_kb),
+                total_upload: total_transmitted, 
+                total_download: total_received,
+            };
+            result.push(network);
+        }
     }
+
+    result
 }
