@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
-import Graph from "./Graph";
 import { invoke } from "@tauri-apps/api/tauri";
-
-interface MemoryProps {
-    activeItem: string;
-}
+import { useMemoryUsageStore } from "../services/store";
+import Graph from "./Graph";
 
 
 interface TotalUsages {
     memory: number | null;
 }
 
-const Memory: React.FC<MemoryProps> = () => {
-    const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: 0 });
+const Memory: React.FC = () => {
+    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
 
     useEffect(() => {
@@ -33,19 +30,23 @@ const Memory: React.FC<MemoryProps> = () => {
 
 
     useEffect(() => {
-        if (totalUsages.memory !== null) {
+        if (totalUsages !== null) {
             setMemoryUsage(prevMemoryUsage => [...prevMemoryUsage, totalUsages.memory as number]);
         }
     }, [totalUsages]);
 
 
-
+    useEffect(() => {
+        if (totalUsages !== null) {
+            useMemoryUsageStore.getState().setMemoryUsage(memoryUsage);
+        }
+    }, [memoryUsage]);
 
     return (
         <div>
-            <Graph currentValue={memoryUsage} maxValue={100} />
-        </div>)
-    ;
+            <Graph currentValue={memoryUsage} />
+        </div>
+        );
 }
 
 export default Memory;

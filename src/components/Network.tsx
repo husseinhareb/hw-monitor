@@ -1,6 +1,8 @@
+//Network.tsx
 import React, { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 import BiGraph from './BiGraph';
+import { useNetworkSpeedStore  } from "../services/store";
 
 
 
@@ -36,13 +38,17 @@ const Network: React.FC = () => {
 
 
     useEffect(() => {
-        if (NetworkUsages.download !== null) {
+        if (NetworkUsages !== null) {
             setdownload(prevdownload => [...prevdownload, NetworkUsages.download as number]);
         }
-        if (NetworkUsages.upload !== null) {
-            setupload(prevupload => [...prevupload, NetworkUsages.upload as number]);
-        }
+
     }, [NetworkUsages]);
+
+    useEffect(() => {
+        if (NetworkUsages !== null ) {
+            useNetworkSpeedStore.getState().setNetworkUsage(download);
+        }
+    }, [download]);
 
 
     useEffect(() => {

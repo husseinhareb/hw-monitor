@@ -3,12 +3,11 @@ import Chart from 'chart.js/auto';
 
 interface GraphProps {
     currentValue: number[];
-    maxValue: number;
 }
 
 
 
-const Graph: React.FC<GraphProps> = ({ currentValue,maxValue }) => {
+const Graph: React.FC<GraphProps> = ({ currentValue }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
 
@@ -37,7 +36,7 @@ const Graph: React.FC<GraphProps> = ({ currentValue,maxValue }) => {
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                max: maxValue
+                                max: 100
                             }
                         }
                     }

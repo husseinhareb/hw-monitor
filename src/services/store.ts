@@ -1,17 +1,33 @@
-// store.ts
+//store.ts
 import create from "zustand";
 
-interface TotalUsagesStore {
-  cpu: number[] | null;
-  setTotalCpu: (cpu: number[] | null) => void;
+interface CpuUsageStore {
+  cpu: number[];
+  setTotalCpu: (cpu: number[]) => void;
 }
 
-interface NetworkUsages {
-  download: number[] | null;
-  upload: number[] | null;
-  setNe
+interface NetworkSpeedStore {
+  download: number[];
+  setNetworkUsage: (download: number[]) => void;
 }
-export const useTotalUsagesStore = create<TotalUsagesStore>((set) => ({
+
+interface MemoryUsageStore {
+  memory: number[];
+  setMemoryUsage: (memory: number[]) => void;
+}
+
+
+export const useCpuUsageStore = create<CpuUsageStore>((set) => ({
   cpu: null,
   setTotalCpu: (cpu) => set({ cpu }),
+}));
+
+export const useMemoryUsageStore = create<MemoryUsageStore>((set) => ({
+  memory: null,
+  setMemoryUsage: (memory) => set({ memory }),
+}));
+
+export const useNetworkSpeedStore = create<NetworkSpeedStore>((set) => ({
+  download: null,
+  setNetworkUsage: (download) => set({ download }),
 }));

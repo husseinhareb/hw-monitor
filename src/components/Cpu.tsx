@@ -1,11 +1,9 @@
-//Cpu.tsx
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useTotalUsagesStore } from "../services/store";
+import { useCpuUsageStore } from "../services/store";
 import Graph from "./Graph";
 
 interface TotalUsages {
-    memory: number | null;
     cpu: number | null;
     processes: number | null;
 }
@@ -26,8 +24,7 @@ const Cpu: React.FC = () => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
-    const totalCpu = useTotalUsagesStore((state) => state.cpu);
-
+    const totalCpu = useCpuUsageStore((state) => state.cpu);
 
     useEffect(() => {
         const fetchCpuData = async () => {
@@ -47,7 +44,7 @@ const Cpu: React.FC = () => {
         const intervalId = setInterval(fetchCpuData, 1000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, []); 
 
     useEffect(() => {
         if (totalUsages !== null) {
@@ -57,14 +54,15 @@ const Cpu: React.FC = () => {
     }, [totalUsages]);
 
     useEffect(() => {
-        if (cpuUsage !== null) {
-            useTotalUsagesStore.getState().setTotalCpu(cpuUsage);
+        if (totalUsages !== null) {
+            useCpuUsageStore.getState().setTotalCpu(cpuUsage);
         }
-    },[cpuUsage])
+    }, [cpuUsage]);
+
     return (
         <div>
             <p>{cpuData.name}</p>
-            <Graph currentValue={totalCpu} maxValue={100} />
+            <Graph currentValue={totalCpu} />
             <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
             <p>Cores: {cpuData.cores}</p>
             <p>Threads: {cpuData.threads}</p>

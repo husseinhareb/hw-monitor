@@ -11,7 +11,6 @@ const Performance: React.FC = () => {
   return (
     <div>
       <Sidebar />
-      <Network />
     </div>
 
 
