@@ -20,7 +20,11 @@ interface CpuData {
     uptime: string;
 }
 
-const Cpu: React.FC = () => {
+interface CpuProps {
+    hidden: boolean;
+}
+
+const Cpu: React.FC<CpuProps> = ({hidden}) => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
@@ -60,8 +64,7 @@ const Cpu: React.FC = () => {
     }, [cpuUsage]);
 
     return (
-        <div>
-            <p>{cpuData.name}</p>
+        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>            <p>{cpuData.name}</p>
             <Graph currentValue={totalCpu} />
             <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
             <p>Cores: {cpuData.cores}</p>

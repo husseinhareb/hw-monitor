@@ -3,12 +3,15 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { useMemoryUsageStore } from "../services/store";
 import Graph from "./Graph";
 
-
 interface TotalUsages {
     memory: number | null;
 }
 
-const Memory: React.FC = () => {
+interface MemoryProps {
+    hidden: boolean;
+}
+
+const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [memoryUsage, setMemoryUsage] = useState<number[]>([]);
 
@@ -28,13 +31,11 @@ const Memory: React.FC = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-
     useEffect(() => {
         if (totalUsages !== null) {
             setMemoryUsage(prevMemoryUsage => [...prevMemoryUsage, totalUsages.memory as number]);
         }
     }, [totalUsages]);
-
 
     useEffect(() => {
         if (totalUsages !== null) {
@@ -43,10 +44,9 @@ const Memory: React.FC = () => {
     }, [memoryUsage]);
 
     return (
-        <div>
-            <Graph currentValue={memoryUsage} />
+        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>            <Graph currentValue={memoryUsage} />
         </div>
-        );
+    );
 }
 
 export default Memory;

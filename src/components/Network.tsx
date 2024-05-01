@@ -13,7 +13,10 @@ interface NetworkUsages {
     total_upload: number | null;
 }
 
-const Network: React.FC = () => {
+interface NetworkProps{
+    hidden: boolean;
+}
+const Network: React.FC<NetworkProps> = ({hidden}) => {
     const [NetworkUsages, setNetworkUsages] = useState<NetworkUsages>({ download: null, upload: null, total_download: null, total_upload: null });
     const [download, setdownload] = useState<number[]>([]);
     const [upload, setupload] = useState<number[]>([]);
@@ -92,8 +95,7 @@ const Network: React.FC = () => {
 
 
     return (
-        <div>
-            <p>Total Download: {totalDownload}</p>
+        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>            <p>Total Download: {totalDownload}</p>
             <p>Total Upload: {totalUpload}</p>
             <BiGraph firstGraphValue={download} secondGraphValue={upload} />
         </div>

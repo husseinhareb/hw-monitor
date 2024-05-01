@@ -1,9 +1,11 @@
 import React from "react";
 
-const Disks: React.FC = () => {
+interface DisksProps{
+    hidden: boolean;
+}
+const Disks: React.FC<DisksProps> = ({hidden}) => {
     return (
-        <div>
-            Disks
+        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>            Disks
         </div>
     );
 }

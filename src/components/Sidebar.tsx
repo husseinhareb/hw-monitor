@@ -20,10 +20,10 @@ const Sidebar: React.FC = () => {
 
     const handleItemClick = (itemName: string) => {
         // Toggle the clicked item and set others to false
-        setShowCpu(itemName === 'CPU' ? true : false);
-        setShowMemory(itemName === 'Memory' ? true : false);
-        setShowDisk(itemName === 'DISK' ? true : false);
-        setShowNetwork(itemName === 'Wi-Fi' ? true : false);
+        setShowCpu(itemName === 'CPU' ? !showCpu : false);
+        setShowMemory(itemName === 'Memory' ? !showMemory : false);
+        setShowDisk(itemName === 'DISK' ? !showDisk : false);
+        setShowNetwork(itemName === 'Wi-Fi' ? !showNetwork : false);
     };
 
     return (
@@ -33,26 +33,26 @@ const Sidebar: React.FC = () => {
                 <List>
                     <ListItem onClick={() => handleItemClick('CPU')}>
                         CPU
-                        <Graph currentValue={cpuUsage} />
+                        {showCpu && <Graph currentValue={cpuUsage} />}
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('Memory')}>
                         Memory
-                        <Graph currentValue={memoryUsage} />
+                        {showMemory && <Graph currentValue={memoryUsage} />}
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('DISK')}>
                         DISK
-                       <Disks/> 
+                        {showDisk && <Disks/>} 
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                         Wi-Fi
-                        <Graph currentValue={downloadSpeed} />
+                        {showNetwork && <Graph currentValue={downloadSpeed} />}
                     </ListItem>
                 </List>
             </SidebarContainer>
-            {showCpu && <Cpu />}
-            {showMemory && <Memory />}
-            {showDisk && <Disks/>}
-            {showNetwork && <Network/>}
+            <Cpu hidden={!showCpu} />
+            <Memory hidden={!showMemory} />
+            <Disks hidden={!showDisk} />
+            <Network hidden={!showNetwork} />
         </div>
     );
 }
