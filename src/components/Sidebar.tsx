@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
-import { useCpuUsageStore, useMemoryUsageStore, useNetworkSpeedStore } from "../services/store";
+import { useCpuUsageStore, useMemoryUsageStore, useNetworkUsageStore } from "../services/store";
 
 import Network from './Network';
 import Graph from './Graph';
 import Cpu from './Cpu';
 import Disks from './Disks';
 import Memory from './Memory';
+import BiGraph from './BiGraph';
 
 interface SidebarProps {
     interfaceNames: string[];
 }
+
 const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showCpu, setShowCpu] = useState(true);
     const [showMemory, setShowMemory] = useState(false);
@@ -22,8 +24,11 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
     const cpuUsage = useCpuUsageStore((state) => state.cpu);
     const memoryUsage = useMemoryUsageStore((state) => state.memory);
-    const downloadSpeed = useNetworkSpeedStore((state) => state.download);
 
+    // Get network usage data for Wi-Fi and Ethernet from the store
+    const wifiData = useNetworkUsageStore((state) => state.interfaces['Wi-Fi']);
+    const ethernetData = useNetworkUsageStore((state) => state.interfaces['Ethernet']);
+    console.log(wifiData)
     const handleItemClick = (itemName: string) => {
         setShowCpu(itemName === 'CPU' ? !showCpu : false);
         setShowMemory(itemName === 'Memory' ? !showMemory : false);
@@ -33,13 +38,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     };
     
     useEffect(() => {
-        if (interfaceNames.find(name => name.includes("wl"))) {
-            setWifi(true);
-        }
-        if (interfaceNames.find(name => name.includes("en"))){
-            setEthernet(true);
+        if (interfaceNames && interfaceNames.length > 0) {
+            setWifi(interfaceNames.some(name => name.includes("wl")));
+            setEthernet(interfaceNames.some(name => name.includes("en")));
         }
     }, [interfaceNames]);
+    
 
     return (
         <div style={{ display: 'flex' }}>
@@ -60,22 +64,26 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {wifi &&
                     <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                         Wi-Fi
-                        <Graph currentValue={downloadSpeed} />
+                        <BiGraph
+                            firstGraphValue={wifiData ? wifiData.download : []}
+                            secondGraphValue={wifiData ? wifiData.upload : []}
+                        />
                     </ListItem>}
                     {ethernet &&
                     <ListItem onClick={() => handleItemClick('Ethernet')}>
                         Ethernet
-                        <Graph currentValue={downloadSpeed} />
+                        <BiGraph
+                            firstGraphValue={ethernetData ? ethernetData.download : []}
+                            secondGraphValue={ethernetData ? ethernetData.upload : []}
+                        />
                     </ListItem>}
                 </List>
             </SidebarContainer>
             <Cpu hidden={!showCpu} />
             <Memory hidden={!showMemory} />
             <Disks hidden={!showDisk} />
-            {showWifi && 
-            <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl"))} />}
-            {showEthernet && 
-            <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en"))} />}
+            <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />
+            <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en")) || ''} />
         </div>
     );
 }

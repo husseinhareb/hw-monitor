@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 
 import Sidebar from './Sidebar';
-import Network from './Network';
 
 const Performance: React.FC = () => {
   const [networkUsages, setNetworkUsages] = useState<any>(null);

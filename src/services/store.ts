@@ -6,16 +6,11 @@ interface CpuUsageStore {
   setTotalCpu: (cpu: number[]) => void;
 }
 
-interface NetworkSpeedStore {
-  download: number[];
-  networkInterface: string;
-  setNetworkUsage: (download: number[], networkInterface: string) => void;
-}
-
 interface MemoryUsageStore {
   memory: number[];
   setMemoryUsage: (memory: number[]) => void;
 }
+
 
 export const useCpuUsageStore = create<CpuUsageStore>((set) => ({
   cpu: [],
@@ -27,8 +22,24 @@ export const useMemoryUsageStore = create<MemoryUsageStore>((set) => ({
   setMemoryUsage: (memory) => set({ memory }),
 }));
 
-export const useNetworkSpeedStore = create<NetworkSpeedStore>((set) => ({
-  download: [],
-  networkInterface: "",
-  setNetworkUsage: (download, networkInterface) => set({ download, networkInterface }),
+
+interface NetworkUsageStore {
+  interfaces: {
+    [interfaceName: string]: {
+      download: number[];
+      upload: number[];
+    };
+  };
+  setNetworkUsage: (interfaceName: string, download: number[], upload: number[]) => void;
+}
+
+export const useNetworkUsageStore = create<NetworkUsageStore>((set) => ({
+  interfaces: {},
+  setNetworkUsage: (interfaceName, download, upload) =>
+    set((state) => ({
+      interfaces: {
+        ...state.interfaces,
+        [interfaceName]: { download, upload },
+      },
+    })),
 }));

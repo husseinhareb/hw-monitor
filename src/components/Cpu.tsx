@@ -24,7 +24,7 @@ interface CpuProps {
     hidden: boolean;
 }
 
-const Cpu: React.FC<CpuProps> = ({hidden}) => {
+const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
@@ -35,25 +35,25 @@ const Cpu: React.FC<CpuProps> = ({hidden}) => {
             try {
                 const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
                 setCpuData(fetchedCpuData);
-        
+
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
                 setTotalUsages(fetchedTotalUsages);
-        
+
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
-        
+
         fetchCpuData();
         const intervalId = setInterval(fetchCpuData, 1000);
 
         return () => clearInterval(intervalId);
-    }, []); 
+    }, []);
 
     useEffect(() => {
         if (totalUsages !== null) {
             setCpuUsage(prevCpuUsage => [...prevCpuUsage, totalUsages.cpu as number]);
-            
+
         }
     }, [totalUsages]);
 
@@ -64,7 +64,8 @@ const Cpu: React.FC<CpuProps> = ({hidden}) => {
     }, [cpuUsage]);
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>            <p>{cpuData.name}</p>
+        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
+            <h2>{cpuData.name}</h2>
             <Graph currentValue={totalCpu} />
             <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
             <p>Cores: {cpuData.cores}</p>
