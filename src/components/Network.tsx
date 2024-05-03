@@ -1,5 +1,5 @@
 import React from 'react';
-import BiGraph from './BiGraph';
+import BiGraph from './Graph';
 import useNetworkData from '../hooks/useNetworkData';
 
 interface NetworkProps {

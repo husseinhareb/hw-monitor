@@ -7,7 +7,6 @@ import Graph from './Graph';
 import Cpu from './Cpu';
 import Disks from './Disks';
 import Memory from './Memory';
-import BiGraph from './BiGraph';
 
 interface SidebarProps {
     interfaceNames: string[];
@@ -56,11 +55,11 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 <List>
                     <ListItem onClick={() => handleItemClick('CPU')}>
                         CPU
-                        <Graph currentValue={cpuUsage} />
+                        <Graph firstGraphValue={cpuUsage} />
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('Memory')}>
                         Memory
-                        <Graph currentValue={memoryUsage} />
+                        <Graph firstGraphValue={memoryUsage} />
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('DISK')}>
                         DISK
@@ -68,12 +67,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {wifi &&
                     <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                         Wi-Fi
-                        <BiGraph firstGraphValue={wifiDownload} secondGraphValue={wifiUpload} />
+                        <Graph firstGraphValue={wifiDownload} secondGraphValue={wifiUpload} />
                     </ListItem>}
                     {ethernet &&
                     <ListItem onClick={() => handleItemClick('Ethernet')}>
                         Ethernet
-                        <BiGraph firstGraphValue={ethernetDownload} secondGraphValue={ethernetUpload} />
+                        <Graph firstGraphValue={ethernetDownload} secondGraphValue={ethernetUpload} />
                     </ListItem>}
                 </List>
             </SidebarContainer>
