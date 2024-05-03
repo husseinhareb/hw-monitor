@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
-import { useCpuUsageStore, useMemoryUsageStore, useNetworkUsageStore } from "../services/store";
-
+import { useCpuUsageStore, useMemoryUsageStore } from "../services/store";
+import useNetworkData from '../hooks/useNetworkData';
 import Network from './Network';
 import Graph from './Graph';
 import Cpu from './Cpu';
@@ -25,10 +25,14 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const cpuUsage = useCpuUsageStore((state) => state.cpu);
     const memoryUsage = useMemoryUsageStore((state) => state.memory);
 
-    // Get network usage data for Wi-Fi and Ethernet from the store
-    const wifiData = useNetworkUsageStore((state) => state.interfaces['Wi-Fi']);
-    const ethernetData = useNetworkUsageStore((state) => state.interfaces['Ethernet']);
-    console.log(wifiData)
+
+    // Find the Wi-Fi and Ethernet interfaces
+    const wifiInterface = interfaceNames.find(name => name.includes("wl"));
+    const ethernetInterface = interfaceNames.find(name => name.includes("enp"));
+
+    const { download: wifiDownload, upload: wifiUpload} = useNetworkData(wifiInterface || '');
+    const { download: ethernetDownload, upload: ethernetUpload } = useNetworkData(ethernetInterface || '');
+
     const handleItemClick = (itemName: string) => {
         setShowCpu(itemName === 'CPU' ? !showCpu : false);
         setShowMemory(itemName === 'Memory' ? !showMemory : false);
@@ -64,18 +68,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {wifi &&
                     <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                         Wi-Fi
-                        <BiGraph
-                            firstGraphValue={wifiData ? wifiData.download : []}
-                            secondGraphValue={wifiData ? wifiData.upload : []}
-                        />
+                        <BiGraph firstGraphValue={wifiDownload} secondGraphValue={wifiUpload} />
                     </ListItem>}
                     {ethernet &&
                     <ListItem onClick={() => handleItemClick('Ethernet')}>
                         Ethernet
-                        <BiGraph
-                            firstGraphValue={ethernetData ? ethernetData.download : []}
-                            secondGraphValue={ethernetData ? ethernetData.upload : []}
-                        />
+                        <BiGraph firstGraphValue={ethernetDownload} secondGraphValue={ethernetUpload} />
                     </ListItem>}
                 </List>
             </SidebarContainer>
