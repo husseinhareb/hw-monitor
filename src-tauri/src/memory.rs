@@ -7,6 +7,7 @@ pub struct Memory {
     free: Option<i64>,
     available: Option<i64>,
     cached: Option<i64>,
+    active: Option<i64>,
 }
 
 
@@ -17,6 +18,7 @@ impl Memory {
             free: None,
             available: None,
             cached: None,
+            active: None,
         }
     }
 }
@@ -47,7 +49,10 @@ fn read_meminfo() -> io::Result<Memory> {
             memory.available = Some(value);
         } else if let Some(value) = parse_meminfo_line(line, "Cached:") {
             memory.cached = Some(value);
+        } else if let Some(value) = parse_meminfo_line(line, "Active:") {
+            memory.active = Some(value);
         }
+
     }
 
     Ok(memory)

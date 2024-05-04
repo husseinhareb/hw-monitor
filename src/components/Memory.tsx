@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useMemoryUsageStore } from "../services/store";
 import Graph from "./Graph";
+import { formatNumber } from "chart.js/helpers";
 
 interface TotalUsages {
     memory: number | null;
@@ -12,6 +13,7 @@ interface Memory {
     free: number | null;
     available: number | null;
     cached: number | null;
+    active: number | null;
 }
 
 interface MemoryProps {
@@ -21,7 +23,7 @@ interface MemoryProps {
 const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
-
+    const [activeMem,setActiveMem] = useState<number[]>([]); 
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -45,11 +47,21 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         return () => clearInterval(intervalId);
     }, []);
 
+
     useEffect(() => {
-        if (totalUsages !== null && memoryUsage !== null) {
-            useMemoryUsageStore.getState().setMemoryUsage(memoryUsage?.total); // Assuming you only want to update total memory usage
+        if (memoryUsage !== null) {
+            setActiveMem(prevActiveMem => {
+                const newActiveMem = [...prevActiveMem, memoryUsage.active as number];
+                // Trim the array to keep only the last 20 elements
+                if (newActiveMem.length > 20) {
+                    return newActiveMem.slice(newActiveMem.length - 20);
+                } else {
+                    return newActiveMem;
+                }
+            });
         }
-    }, [totalUsages, memoryUsage]);
+    }, [memoryUsage]);
+    
 
     const formatMemory = (memory: number): string => {
         if (memory >= 1000 * 1000) {
@@ -65,13 +77,22 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
 
     return (
         <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
-            <Graph currentValue={memoryUsage?.total ?? 0} maxValue={memoryUsage?.total} />
-            <p>Total Memory: {memoryUsage?.total !== null ? formatMemory(memoryUsage.total) : "N/A"}</p>
-            <p>Free: {memoryUsage?.free !== null ? formatMemory(memoryUsage.free) : "N/A"}</p>
-            <p>Available: {memoryUsage?.available !== null ? formatMemory(memoryUsage.available) : "N/A"}</p>
-            <p>Cached: {memoryUsage?.cached !== null ? formatMemory(memoryUsage.cached) : "N/A"}</p>
+            {memoryUsage && (
+                <>
+                    <Graph
+                        firstGraphValue={activeMem}
+                        maxValue={memoryUsage.total ?? 0}
+                    />
+                    <p>Total Memory: {memoryUsage.total !== null ? formatMemory(memoryUsage.total) : "N/A"}</p>
+                    <p>Free: {memoryUsage.free !== null ? formatMemory(memoryUsage.free) : "N/A"}</p>
+                    <p>Available: {memoryUsage.available !== null ? formatMemory(memoryUsage.available) : "N/A"}</p>
+                    <p>Cached: {memoryUsage.cached !== null ? formatMemory(memoryUsage.cached) : "N/A"}</p>
+                    <p>Active: {memoryUsage.active !== null ? formatMemory(memoryUsage.active) : "N/A"}</p>
+                </>
+            )}
         </div>
     );
+
 }
 
 export default Memory;

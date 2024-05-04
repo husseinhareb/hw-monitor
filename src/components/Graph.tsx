@@ -1,16 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
 interface GraphProps {
     firstGraphValue: number[];
-    secondGraphValue?: number[];
+    secondGraphValue: number[];
     maxValue: number;
 }
-
-const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxValue }) => {
+const Graph: React.FC<GraphProps> = ({firstGraphValue,secondGraphValue,maxValue}) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
-
+    const [timeCounter, setTimeCounter] = useState(0);
     useEffect(() => {
         if (chartRef.current !== null) {
             // Create chart instance
@@ -22,7 +21,6 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                         labels: [],
                         datasets: [
                             {
-                                label: 'firstGraphValue',
                                 data: firstGraphValue,
                                 borderColor: 'rgb(75, 192, 192)',
                                 tension: 0.1,
@@ -32,7 +30,6 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                                 pointHoverRadius: 0
                             },
                             {
-                                label: 'secondGraphValue',
                                 data: secondGraphValue,
                                 borderColor: 'rgb(255, 99, 132)',
                                 tension: 0.1,
@@ -52,14 +49,14 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                         },
                         plugins: {
                             legend: {
-                                display: false // Hide the legend
+                                display: false
                             }
                         }
                     }
                 });
             }
         }
-
+    
         return () => {
             // Cleanup chart instance
             if (chartInstance.current !== null) {
@@ -67,53 +64,42 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
             }
         };
     }, []);
+    
 
     useEffect(() => {
         // Update chart data when graphValue prop changes
         if (chartInstance.current !== null) {
             updateChartData();
         }
-    }, [firstGraphValue, secondGraphValue]);
+    }, [firstGraphValue,secondGraphValue]);
+
+    useEffect(() => {
+        // Increment time counter only when there's a new value received in firstGraphValue
+        setTimeCounter(prevCounter => prevCounter + 1);
+    }, [firstGraphValue]);
+
 
     const updateChartData = () => {
-        if (chartInstance.current !== null) {
-            const maxDataPoints = 20; // Maximum number of data points to display
-    
-            // Ensure firstGraphValue is defined and an array before proceeding
-            if (Array.isArray(firstGraphValue)) {
-                // Calculate the start time based on the current length of labels array
-                let startTime = chartInstance.current.data.labels?.length ?? 0;
-    
-                // Add new data points
-                chartInstance.current.data.labels?.push(((startTime + 1) + "s"));
-                chartInstance.current.data.datasets[0].data = firstGraphValue.slice(-maxDataPoints);
-            }
-            
-            // Ensure secondGraphValue is defined and an array before proceeding
-            if (Array.isArray(secondGraphValue)) {
-                chartInstance.current.data.datasets[1].data = secondGraphValue.slice(-maxDataPoints);
-            }
-    
-            // Remove excess data points if necessary
-            if (chartInstance.current.data.labels?.length > maxDataPoints) {
-                chartInstance.current.data.labels.shift();
-                chartInstance.current.data.datasets.forEach(dataset => {
-                    dataset.data.shift();
-                });
-            }
-    
-            // Update time labels
-            chartInstance.current.data.labels = chartInstance.current.data.labels.map((label, index) => {
-                return ((index + 1) + "s");
-            });
-    
+        if (chartInstance.current !== null && secondGraphValue !== undefined) {
+            const labels = chartInstance.current.data.labels;
+            const firstValues = firstGraphValue.slice(-20); // Take only the last 20 elements
+            const secondValues = secondGraphValue.slice(-20); // Take only the last 20 elements
+
+            // Update labels and dataset values
+            labels?.push(timeCounter + "s"); // Use time counter instead of length
+            chartInstance.current.data.labels = labels?.slice(-20); // Take only the last 20 labels
+            chartInstance.current.data.datasets[0].data = firstValues;
+            chartInstance.current.data.datasets[1].data = secondValues;
+
+            // Update chart
             chartInstance.current.update();
         }
     };
-    
-    
 
 
+    
+    
+    
     return (
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
