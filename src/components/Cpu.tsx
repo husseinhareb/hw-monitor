@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useCpuUsageStore } from "../services/store";
 import Graph from "./Graph";
+import { useSetCpu } from "../services/store";
 
 interface TotalUsages {
     cpu: number | null;
@@ -28,7 +28,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
-    const totalCpu = useCpuUsageStore((state) => state.cpu);
+    const setCpu = useSetCpu();
 
     useEffect(() => {
         const fetchCpuData = async () => {
@@ -59,18 +59,19 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
 
     useEffect(() => {
         if (totalUsages !== null) {
-            useCpuUsageStore.getState().setTotalCpu(cpuUsage);
+            setCpu(cpuUsage)
         }
     }, [cpuUsage]);
+
 
     return (
         <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
             <h2>{cpuData.name}</h2>
-            <Graph firstGraphValue={totalCpu} maxValue={100} />
+            <Graph firstGraphValue={cpuUsage} maxValue={100} />
             <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
+            <p>Socket: {cpuData.socket}</p>
             <p>Cores: {cpuData.cores}</p>
             <p>Threads: {cpuData.threads}</p>
-            <p>Socket: {cpuData.socket}</p>
             <p>CPU Speed: {cpuData.cpu_speed} GHz</p>
             <p>Base Speed: {cpuData.base_speed / 1000000} GHz</p>
             <p>Max Speed: {cpuData.max_speed / 1000000} GHz</p>

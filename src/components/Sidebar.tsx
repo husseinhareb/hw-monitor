@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
-import { useCpuUsageStore, useMemoryUsageStore } from "../services/store";
+import { useCpu } from "../services/store";
 import useNetworkData from '../hooks/useNetworkData';
 import Network from './Network';
 import Graph from './Graph';
@@ -21,9 +21,8 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showWifi, setShowWifi] = useState(false);
     const [showEthernet, setShowEthernet] = useState(false);
 
-    const cpuUsage = useCpuUsageStore((state) => state.cpu);
-    const memoryUsage = useMemoryUsageStore((state) => state.memory);
-
+    const cpuUsage = useCpu();
+    const memoryUsage = [1,2,4,5];
 
     // Find the Wi-Fi and Ethernet interfaces
     const wifiInterface = interfaceNames.find(name => name.includes("wl"));
