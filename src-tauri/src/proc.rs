@@ -389,7 +389,7 @@ pub async fn get_total_usages() -> Option<TotalUsage> {
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
-    let mut s = System::new_all();
+    let s = System::new_all();
     let pids = list_proc_pid();
 
     for pid in pids {

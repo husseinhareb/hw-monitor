@@ -55,11 +55,11 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 <List>
                     <ListItem onClick={() => handleItemClick('CPU')}>
                         CPU
-                        <Graph firstGraphValue={cpuUsage} />
+                        <Graph firstGraphValue={cpuUsage} maxValue={100}/>
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('Memory')}>
                         Memory
-                        <Graph firstGraphValue={memoryUsage} />
+                        <Graph firstGraphValue={memoryUsage} maxValue={100}/>
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('DISK')}>
                         DISK
