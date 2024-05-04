@@ -3,20 +3,17 @@ import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
 import { useSetCpu } from "../services/store";
 
-interface TotalUsages {
-    cpu: number | null;
-    processes: number | null;
-}
 
 interface CpuData {
     name: string;
+    socket: number;
     cores: number;
     threads: number;
-    cpu_speed: number;
+    usage: number;
+    current_speed: number;
     base_speed: number;
     max_speed: number;
     virtualization: string;
-    socket: number;
     uptime: string;
 }
 
@@ -25,8 +22,7 @@ interface CpuProps {
 }
 
 const Cpu: React.FC<CpuProps> = ({ hidden }) => {
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, cpu_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
-    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
+    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
     const setCpu = useSetCpu();
 
@@ -35,10 +31,6 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
             try {
                 const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
                 setCpuData(fetchedCpuData);
-
-                const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-                setTotalUsages(fetchedTotalUsages);
-
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -51,14 +43,14 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     }, []);
 
     useEffect(() => {
-        if (totalUsages !== null) {
-            setCpuUsage(prevCpuUsage => [...prevCpuUsage, totalUsages.cpu as number]);
+        if (cpuData !== null) {
+            setCpuUsage(prevCpuUsage => [...prevCpuUsage, cpuData.usage as number]);
 
         }
-    }, [totalUsages]);
+    }, [cpuData]);
 
     useEffect(() => {
-        if (totalUsages !== null) {
+        if (cpuData !== null) {
             setCpu(cpuUsage)
         }
     }, [cpuUsage]);
@@ -68,15 +60,14 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
         <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
             <h2>{cpuData.name}</h2>
             <Graph firstGraphValue={cpuUsage} maxValue={100} />
-            <p>Cpu usage: {totalUsages ? totalUsages.cpu : '0'}%</p>
+            <p>Cpu usage: {cpuData.usage}%</p>
             <p>Socket: {cpuData.socket}</p>
             <p>Cores: {cpuData.cores}</p>
             <p>Threads: {cpuData.threads}</p>
-            <p>CPU Speed: {cpuData.cpu_speed} GHz</p>
+            <p>CPU Speed: {cpuData.current_speed} GHz</p>
             <p>Base Speed: {cpuData.base_speed / 1000000} GHz</p>
             <p>Max Speed: {cpuData.max_speed / 1000000} GHz</p>
             <p>Virtualization: {cpuData.virtualization}</p>
-            <p>{totalUsages ? totalUsages.processes : 'N/a'}</p>
             <p>{cpuData.uptime}</p>
         </div>
     );

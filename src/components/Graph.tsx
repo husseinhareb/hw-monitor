@@ -44,7 +44,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                     },
                     options: {
                         animation: {
-                            duration: 150
+                            duration: 120
                         },
                         scales: {
                             y: {

@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useMemoryUsageStore } from "../services/store";
 import Graph from "./Graph";
-import { formatNumber } from "chart.js/helpers";
 
-interface TotalUsages {
-    memory: number | null;
-}
 
 interface Memory {
     total: number | null;
@@ -21,18 +16,10 @@ interface MemoryProps {
 }
 
 const Memory: React.FC<MemoryProps> = ({ hidden }) => {
-    const [totalUsages, setTotalUsages] = useState<TotalUsages | null>(null);
     const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
-    const [activeMem,setActiveMem] = useState<number[]>([]); 
+    const [activeMem, setActiveMem] = useState<number[]>([]);
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-                setTotalUsages(fetchedTotalUsages);
-            } catch (error) {
-                console.error("Error fetching total usages:", error);
-            }
-
             try {
                 const fetchedMemory: Memory = await invoke("get_mem_info");
                 setMemoryUsage(fetchedMemory);
@@ -61,7 +48,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
             });
         }
     }, [memoryUsage]);
-    
+
 
     const formatMemory = (memory: number): string => {
         if (memory >= 1000 * 1000) {
