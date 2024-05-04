@@ -3,13 +3,15 @@ import Chart from 'chart.js/auto';
 
 interface GraphProps {
     firstGraphValue: number[];
-    secondGraphValue: number[];
-    maxValue: number;
+    secondGraphValue?: number[]; //Optional
+    maxValue?: number; //Optional
 }
-const Graph: React.FC<GraphProps> = ({firstGraphValue,secondGraphValue,maxValue}) => {
+
+const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxValue }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstance = useRef<Chart<"line"> | null>(null);
     const [timeCounter, setTimeCounter] = useState(0);
+
     useEffect(() => {
         if (chartRef.current !== null) {
             // Create chart instance
@@ -23,16 +25,16 @@ const Graph: React.FC<GraphProps> = ({firstGraphValue,secondGraphValue,maxValue}
                             {
                                 data: firstGraphValue,
                                 borderColor: 'rgb(75, 192, 192)',
-                                tension: 0.1,
+                                tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
                                 pointRadius: 0,
                                 pointHoverRadius: 0
                             },
                             {
-                                data: secondGraphValue,
+                                data: secondGraphValue || [], // Handle undefined secondGraphValue
                                 borderColor: 'rgb(255, 99, 132)',
-                                tension: 0.1,
+                                tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
                                 pointRadius: 0,
@@ -41,6 +43,9 @@ const Graph: React.FC<GraphProps> = ({firstGraphValue,secondGraphValue,maxValue}
                         ]
                     },
                     options: {
+                        animation: {
+                            duration: 150
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
@@ -56,7 +61,7 @@ const Graph: React.FC<GraphProps> = ({firstGraphValue,secondGraphValue,maxValue}
                 });
             }
         }
-    
+
         return () => {
             // Cleanup chart instance
             if (chartInstance.current !== null) {
@@ -64,42 +69,30 @@ const Graph: React.FC<GraphProps> = ({firstGraphValue,secondGraphValue,maxValue}
             }
         };
     }, []);
-    
 
     useEffect(() => {
         // Update chart data when graphValue prop changes
         if (chartInstance.current !== null) {
             updateChartData();
         }
-    }, [firstGraphValue,secondGraphValue]);
-
-    useEffect(() => {
-        // Increment time counter only when there's a new value received in firstGraphValue
         setTimeCounter(prevCounter => prevCounter + 1);
-    }, [firstGraphValue]);
-
+    }, [firstGraphValue, secondGraphValue]);
 
     const updateChartData = () => {
-        if (chartInstance.current !== null && secondGraphValue !== undefined) {
+        if (chartInstance.current !== null) {
             const labels = chartInstance.current.data.labels;
-            const firstValues = firstGraphValue.slice(-20); // Take only the last 20 elements
-            const secondValues = secondGraphValue.slice(-20); // Take only the last 20 elements
+            const firstValues = firstGraphValue.slice(-20);
+            const secondValues = (secondGraphValue || []).slice(-20); // Handle undefined secondGraphValue
 
-            // Update labels and dataset values
-            labels?.push(timeCounter + "s"); // Use time counter instead of length
-            chartInstance.current.data.labels = labels?.slice(-20); // Take only the last 20 labels
+            labels?.push(timeCounter + "s");
+            chartInstance.current.data.labels = labels?.slice(-20);
             chartInstance.current.data.datasets[0].data = firstValues;
             chartInstance.current.data.datasets[1].data = secondValues;
 
-            // Update chart
             chartInstance.current.update();
         }
     };
 
-
-    
-    
-    
     return (
         <div>
             <canvas ref={chartRef} width={500} height={300}></canvas>
