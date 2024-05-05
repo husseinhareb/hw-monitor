@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
-import { useCpu } from "../services/store";
+import { useCpu, useMemory } from "../services/store";
 import useNetworkData from '../hooks/useNetworkData';
 import Network from './Network';
 import Graph from './Graph';
@@ -22,8 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showEthernet, setShowEthernet] = useState(false);
 
     const cpuUsage = useCpu();
-    const memoryUsage = [1,2,4,5];
-
+    const { memory, maxMemory } = useMemory(); //
     // Find the Wi-Fi and Ethernet interfaces
     const wifiInterface = interfaceNames.find(name => name.includes("wl"));
     const ethernetInterface = interfaceNames.find(name => name.includes("enp"));
@@ -58,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('Memory')}>
                         Memory
-                        <Graph firstGraphValue={memoryUsage} maxValue={100}/>
+                        <Graph firstGraphValue={memory} maxValue={maxMemory}/>
                     </ListItem>
                     <ListItem onClick={() => handleItemClick('DISK')}>
                         DISK

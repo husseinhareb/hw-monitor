@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
+import { useSetMemory } from "../services/store";
 
 
 interface Memory {
-    total: number | null;
+    total: number;
     free: number | null;
     available: number | null;
     cached: number | null;
@@ -18,6 +19,8 @@ interface MemoryProps {
 const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
     const [activeMem, setActiveMem] = useState<number[]>([]);
+    const setMemory = useSetMemory();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -49,6 +52,12 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         }
     }, [memoryUsage]);
 
+        
+    useEffect(() => {
+        if (memoryUsage !== null) {
+            setMemory(activeMem,memoryUsage.total)
+        }
+    }, [activeMem]);
 
     const formatMemory = (memory: number): string => {
         if (memory >= 1000 * 1000) {
