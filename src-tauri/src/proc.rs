@@ -1,7 +1,6 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
 use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
-use std::io;
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -259,46 +258,27 @@ fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> 
     None
 }
 
-use std::thread;
-use std::time::Duration;
 
-async fn get_proc_disk_usage_speed(pid_str: &str, s: &mut  sysinfo::System, read: bool) -> Option<String> {
-    if let Ok(pid_usize) = pid_str.parse::<usize>() {
-        let pid = Pid::from(pid_usize);
-        if let Some(process) = s.process(pid) {
-            let disk_usage = process.disk_usage();
-            let speed_bytes = if read {
-                s.refresh_all();
-                thread::sleep(Duration::from_secs(1));
-                println!("diskusagespeedread:{}",disk_usage.read_bytes);
-                disk_usage.read_bytes as f64
-            } else {
-                s.refresh_all();
-                thread::sleep(Duration::from_secs(1));
-                disk_usage.written_bytes as f64
-                
-            };
-            let usage_str = if speed_bytes > 1024.0 * 1024.0 * 1024.0 {
-                format!("{:.2} Gb/s", speed_bytes / (1024.0 * 1024.0 * 1024.0)) 
-            } else if speed_bytes > 1024.0 * 1024.0 {
-                format!("{:.2} Mb/s", speed_bytes / (1024.0 * 1024.0))
-            } else if speed_bytes > 1024.0 {
-                format!("{:.2} Kb/s", speed_bytes / 1024.0)
-            } else {
-                format!("{:.2} B/s", speed_bytes)
-            };
-            return Some(usage_str);
-        } else {
-            println!("Process with PID {} not found", pid);
+use std::io;
+use std::fs;
+use tokio::time::{sleep, Duration}; // Import sleep and Duration from Tokio
+
+fn list_proc_pid() -> Vec<String> {
+    let entries = fs::read_dir("/proc").unwrap();
+
+    let mut folders = Vec::new();
+    for entry in entries {
+        let entry = entry.unwrap();
+        if entry.file_type().unwrap().is_dir() {
+            if let Some(folder_name) = entry.file_name().to_str() {
+                if folder_name.chars().all(|c| c.is_ascii_digit()) {
+                    folders.push(folder_name.to_owned());
+                }
+            }
         }
-    } else {
-        println!("Invalid PID: {}", pid_str);
     }
-    // Return None in case of error
-    None
+    folders
 }
-
-
 
 async fn get_total_cpu_time() -> Result<u64, io::Error> {
     let stat_file = "/proc/stat";
@@ -323,8 +303,28 @@ async fn get_process_cpu_time(pid: i32) -> Result<(u64, u64), io::Error> {
     let stat_file = format!("/proc/{}/stat", pid);
     let stat_content = fs::read_to_string(&stat_file)?;
 
-    let fields: Vec<&str> = stat_content.split_whitespace().collect();
+    // Split the string while considering parentheses
+    let mut fields = Vec::new();
+    let mut inside_parentheses = false;
+    let mut current_field = String::new();
 
+    for ch in stat_content.chars() {
+        match ch {
+            '(' => inside_parentheses = true,
+            ')' => inside_parentheses = false,
+            ' ' if !inside_parentheses => {
+                fields.push(current_field.clone());
+                current_field.clear();
+            }
+            _ => current_field.push(ch),
+        }
+    }
+    if !current_field.is_empty() {
+        fields.push(current_field);
+    }
+
+    println!("{:?}", fields);
+    
     if fields.len() < 17 {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
@@ -332,38 +332,55 @@ async fn get_process_cpu_time(pid: i32) -> Result<(u64, u64), io::Error> {
         ));
     }
 
-    let utime: u64 = fields[13].parse().unwrap_or(0);
-    let stime: u64 = fields[14].parse().unwrap_or(0);
+    // Indices for utime and stime fields
+    let utime_index = 13;
+    let stime_index = 14;
 
+    let utime: u64 = fields[utime_index].parse().unwrap_or(0);
+    let stime: u64 = fields[stime_index].parse().unwrap_or(0);
+    println!("{} {} {}",pid,utime,stime);
     Ok((utime, stime))
 }
 
 
-async fn calculate_cpu_percentage(pid_str: &str, duration_secs: u64) -> Result<String, io::Error> {
-    let pid = pid_str.parse::<i32>().map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+
+async fn calculate_cpu_percentage(duration_secs: u64) -> Result<(), io::Error> {
     let total_cpu_time_start = get_total_cpu_time().await?;
-    let (utime_start, stime_start) = get_process_cpu_time(pid).await?;
-    
-    // Use tokio::time::sleep for waiting
-    //time::sleep(Duration::from_secs(duration_secs)).await;
-    
+    let pids = list_proc_pid();
+
+    // Collect CPU times for all processes
+    let mut process_cpu_times = Vec::new();
+    for pid_str in pids {
+        if let Ok(pid) = pid_str.parse::<i32>() {
+            if let Ok(cpu_time) = get_process_cpu_time(pid).await {
+                process_cpu_times.push((pid, cpu_time));
+            }
+        }
+    }
+
+    // Wait for the specified duration
+    sleep(Duration::from_secs(duration_secs)).await;
+
     let total_cpu_time_end = get_total_cpu_time().await?;
-    let (utime_end, stime_end) = get_process_cpu_time(pid).await?;
 
-    let total_cpu_time_diff = total_cpu_time_end as f64 - total_cpu_time_start as f64;
-    let cpu_time_start = utime_start + stime_start;
-    let cpu_time_end = utime_end + stime_end;
+    // Calculate and print CPU usage for each process
+    for (pid, (utime_start, stime_start)) in process_cpu_times {
+        if let Ok((utime_end, stime_end)) = get_process_cpu_time(pid).await {
+            let total_cpu_time_diff = total_cpu_time_end as f64 - total_cpu_time_start as f64;
+            let cpu_time_start = utime_start + stime_start;
+            let cpu_time_end = utime_end + stime_end;
 
-    let cpu_time_diff = cpu_time_end as f64 - cpu_time_start as f64;
-    let duration_secs_f64 = duration_secs as f64;
+            let cpu_time_diff = cpu_time_end as f64 - cpu_time_start as f64;
+            let duration_secs_f64 = duration_secs as f64;
 
-    let max_cpu_usage = 100.0 * (cpu_time_diff / duration_secs_f64) / total_cpu_time_diff;
+            let max_cpu_usage = 100.0 * (cpu_time_diff / duration_secs_f64) / total_cpu_time_diff;
 
-    Ok(format!("{:.2}%", max_cpu_usage))
+            println!("PID: {}, CPU Usage: {:.2}%", pid, max_cpu_usage);
+        }
+    }
+
+    Ok(())
 }
-
-
-
 
 #[tauri::command]
 pub async fn get_total_usages() -> Option<TotalUsage> {
@@ -467,3 +484,5 @@ pub async fn get_processes() -> Vec<Process> {
 
     processes
 }
+
+

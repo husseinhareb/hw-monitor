@@ -36,6 +36,7 @@ fn parse_meminfo_line(line: &str, keyword: &str) -> Option<i64> {
     }
 }
 
+
 fn read_meminfo() -> io::Result<Memory> {
     let mut memory = Memory::new();
 
