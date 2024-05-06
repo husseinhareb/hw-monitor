@@ -8,7 +8,7 @@ interface Process {
     name: string;
     state: string;
     memory: string;
-    cpu_percentage: string;
+    cpu_usage: number;
     read_disk_usage: string;
     write_disk_usage: string;
 }
@@ -24,7 +24,7 @@ const Proc: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<string>('asc'); // Default sort order is ascending
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
 
-    
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -88,6 +88,11 @@ const Proc: React.FC = () => {
                 valueA = parseInt(String(a[column]), 10);
                 valueB = parseInt(String(b[column]), 10);
             }
+            else if (column === "cpu_usage") {
+                valueA = parseFloat(String(a[column]) || '0');
+                valueB = parseFloat(String(b[column]) || '0');
+
+            }
             else {
                 valueA = (a[column as keyof Process] as string).toLowerCase();
                 valueB = (b[column as keyof Process] as string).toLowerCase();
@@ -125,11 +130,11 @@ const Proc: React.FC = () => {
                         )}
 
                         {totalUsages && totalUsages.cpu !== null ? (
-                            <th onClick={() => sortProcesses('cpu')}>
+                            <th onClick={() => sortProcesses('cpu_usage')}>
                                 {totalUsages.cpu}% <br /> CPU usage
                             </th>
                         ) : (
-                            <th onClick={() => sortProcesses('cpu')}>
+                            <th onClick={() => sortProcesses('cpu_usage')}>
                                 N/A <br /> CPU usage
                             </th>
                         )}
@@ -147,7 +152,7 @@ const Proc: React.FC = () => {
                             <td>{process.name}</td>
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
-                            <td>{process.cpu_percentage}</td>
+                            <td>{process.cpu_usage.toString()}</td>
                             <td>{process.read_disk_usage}</td>
                             <td>{process.write_disk_usage}</td>
                         </tr>

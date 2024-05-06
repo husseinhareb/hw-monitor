@@ -12,7 +12,7 @@ pub struct Process {
     memory: Option<String>,
     read_disk_usage: Option<String>,
     write_disk_usage: Option<String>,
-
+    cpu_usage: Option<String>,
 }
 
 
@@ -260,25 +260,7 @@ fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> 
 
 
 use std::io;
-use std::fs;
 use tokio::time::{sleep, Duration}; // Import sleep and Duration from Tokio
-
-fn list_proc_pid() -> Vec<String> {
-    let entries = fs::read_dir("/proc").unwrap();
-
-    let mut folders = Vec::new();
-    for entry in entries {
-        let entry = entry.unwrap();
-        if entry.file_type().unwrap().is_dir() {
-            if let Some(folder_name) = entry.file_name().to_str() {
-                if folder_name.chars().all(|c| c.is_ascii_digit()) {
-                    folders.push(folder_name.to_owned());
-                }
-            }
-        }
-    }
-    folders
-}
 
 async fn get_total_cpu_time() -> Result<u64, io::Error> {
     let stat_file = "/proc/stat";
@@ -323,8 +305,6 @@ async fn get_process_cpu_time(pid: i32) -> Result<(u64, u64), io::Error> {
         fields.push(current_field);
     }
 
-    println!("{:?}", fields);
-    
     if fields.len() < 17 {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
@@ -338,13 +318,11 @@ async fn get_process_cpu_time(pid: i32) -> Result<(u64, u64), io::Error> {
 
     let utime: u64 = fields[utime_index].parse().unwrap_or(0);
     let stime: u64 = fields[stime_index].parse().unwrap_or(0);
-    println!("{} {} {}",pid,utime,stime);
+
     Ok((utime, stime))
 }
 
-
-
-async fn calculate_cpu_percentage(duration_secs: u64) -> Result<(), io::Error> {
+async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>, io::Error> {
     let total_cpu_time_start = get_total_cpu_time().await?;
     let pids = list_proc_pid();
 
@@ -363,7 +341,8 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<(), io::Error> {
 
     let total_cpu_time_end = get_total_cpu_time().await?;
 
-    // Calculate and print CPU usage for each process
+    // Calculate and store CPU usage for each process
+    let mut cpu_usage_results = Vec::new();
     for (pid, (utime_start, stime_start)) in process_cpu_times {
         if let Ok((utime_end, stime_end)) = get_process_cpu_time(pid).await {
             let total_cpu_time_diff = total_cpu_time_end as f64 - total_cpu_time_start as f64;
@@ -375,12 +354,17 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<(), io::Error> {
 
             let max_cpu_usage = 100.0 * (cpu_time_diff / duration_secs_f64) / total_cpu_time_diff;
 
-            println!("PID: {}, CPU Usage: {:.2}%", pid, max_cpu_usage);
+            // Format the CPU usage to have only two digits after the decimal point
+            let formatted_cpu_usage = format!("{:.2}", max_cpu_usage);
+
+            cpu_usage_results.push((pid, formatted_cpu_usage.parse().unwrap_or(0.0)));
         }
     }
 
-    Ok(())
+    Ok(cpu_usage_results)
 }
+
+
 
 #[tauri::command]
 pub async fn get_total_usages() -> Option<TotalUsage> {
@@ -402,14 +386,23 @@ pub async fn get_total_usages() -> Option<TotalUsage> {
 
 
 
-
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
     let s = System::new_all();
     let pids = list_proc_pid();
 
+    // Calculate CPU usage percentages for processes
+    let cpu_usage_results = match calculate_cpu_percentage(1).await {
+        Ok(results) => results,
+        Err(e) => {
+            eprintln!("Error calculating CPU usage: {}", e);
+            Vec::new()
+        }
+    };
+
     for pid in pids {
+        // Fetch process information
         let name = match get_name(&pid) {
             Some(name) => name,
             None => {
@@ -466,23 +459,28 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-
+        // Match CPU usage result with PID
+        let cpu_usage = cpu_usage_results.iter().find_map(|(pid_check, usage)| {
+            if *pid_check == pid.parse::<i32>().unwrap_or_default() {
+                Some(usage.clone())
+            } else {
+                None
+            }
+        });
 
         let process = Process {
             pid: pid.clone(),
             name: Some(name),
-            ppid: Some(ppid),
+            ppid: Some(ppid.clone()),
             state: Some(state),
             user: Some(user),
             memory: Some(memory),
             read_disk_usage: Some(read_disk_usage),
             write_disk_usage: Some(write_disk_usage),
-
+            cpu_usage: cpu_usage.map(|usage| usage.to_string()),
         };
         processes.push(process);
     }
 
     processes
 }
-
-
