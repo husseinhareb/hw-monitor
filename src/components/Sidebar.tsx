@@ -22,7 +22,8 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showEthernet, setShowEthernet] = useState(false);
 
     const cpuUsage = useCpu();
-    const { memory, maxMemory } = useMemory(); //
+    const { memory, maxMemory } = useMemory(); 
+
     // Find the Wi-Fi and Ethernet interfaces
     const wifiInterface = interfaceNames.find(name => name.includes("wl"));
     const ethernetInterface = interfaceNames.find(name => name.includes("enp"));

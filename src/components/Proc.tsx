@@ -23,15 +23,14 @@ const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<string>('asc'); // Default sort order is ascending
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
-
+    const [sortedProcesses, setSortedProcesses] = useState<Process[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 // Fetch processes
                 const fetchedProcesses: Process[] = await invoke("get_processes");
-                const sortedProcesses = sortProcessesByColumn(fetchedProcesses, sortBy, sortOrder);
-                setProcesses(sortedProcesses);
+                setProcesses(fetchedProcesses);
 
                 // Fetch total usages
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
@@ -45,8 +44,51 @@ const Proc: React.FC = () => {
         const intervalId = setInterval(fetchData, 1000);
 
         return () => clearInterval(intervalId);
-    }, [sortBy, sortOrder]);
+    }, []);
 
+    useEffect(() => {
+        if (sortBy) {
+            const sortedProcesses = sortProcessesByColumn(processes, sortBy, sortOrder);
+            setSortedProcesses(sortedProcesses);
+        } else {
+            setSortedProcesses([...processes]);
+        }
+    }, [sortBy, sortOrder, processes]);
+
+    const sortProcesses = (column: string) => {
+        const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortBy(column);
+        setSortOrder(newSortOrder);
+    };
+
+    const sortProcessesByColumn = (processes: Process[], column: string, order: string) => {
+        if (!column) return processes;
+
+        return [...processes].sort((a, b) => {
+            let valueA: any;
+            let valueB: any;
+
+            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage") {
+                valueA = convertDataValue(a[column]);
+                valueB = convertDataValue(b[column]);
+            } else if (column === "pid" || column === "ppid") {
+                valueA = parseInt(String(a[column]), 10);
+                valueB = parseInt(String(b[column]), 10);
+            } else if (column === "cpu_usage") {
+                valueA = parseFloat(String(a[column]) || '0');
+                valueB = parseFloat(String(b[column]) || '0');
+            } else {
+                valueA = (a[column as keyof Process] as string).toLowerCase();
+                valueB = (b[column as keyof Process] as string).toLowerCase();
+            }
+
+            if (order === 'asc') {
+                return valueA < valueB ? -1 : 1;
+            } else {
+                return valueA > valueB ? -1 : 1;
+            }
+        });
+    };
 
     const convertDataValue = (usageStr: string) => {
         if (typeof usageStr !== 'string') {
@@ -65,55 +107,12 @@ const Proc: React.FC = () => {
         return parseFloat(usageStr);
     };
 
-
-
-    const sortProcesses = (column: string) => {
-        const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
-        setSortBy(column);
-        setSortOrder(newSortOrder);
-    };
-
-    const sortProcessesByColumn = (processes: Process[], column: string | null, order: string) => {
-        if (!column) return processes;
-
-        return [...processes].sort((a, b) => {
-            let valueA: any;
-            let valueB: any;
-
-            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage") {
-                valueA = convertDataValue(a[column]);
-                valueB = convertDataValue(b[column]);
-            }
-            else if (column === "pid" || column === "ppid") {
-                valueA = parseInt(String(a[column]), 10);
-                valueB = parseInt(String(b[column]), 10);
-            }
-            else if (column === "cpu_usage") {
-                valueA = parseFloat(String(a[column]) || '0');
-                valueB = parseFloat(String(b[column]) || '0');
-
-            }
-            else {
-                valueA = (a[column as keyof Process] as string).toLowerCase();
-                valueB = (b[column as keyof Process] as string).toLowerCase();
-            }
-
-
-
-            if (order === 'asc') {
-                return valueA < valueB ? -1 : 1;
-            } else {
-                return valueA > valueB ? -1 : 1;
-            }
-        });
-    };
-
     return (
         <div>
             <table>
                 <thead>
                     <tr>
-                        <th onClick={() => sortProcesses('count')}>count</th>
+                        <th>count</th>
                         <th onClick={() => sortProcesses('user')}>user</th>
                         <th onClick={() => sortProcesses('pid')}>pid</th>
                         <th onClick={() => sortProcesses('ppid')}>ppid</th>
@@ -143,7 +142,7 @@ const Proc: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {processes.map((process, index) => (
+                    {sortedProcesses.map((process, index) => (
                         <tr key={index}>
                             <td>{index + 1}</td>
                             <td>{process.user}</td>
