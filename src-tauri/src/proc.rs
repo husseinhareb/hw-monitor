@@ -1,6 +1,8 @@
 use std::fs;
 use serde::{Serialize, Deserialize};
 use sysinfo::{System, RefreshKind, CpuRefreshKind,Pid};
+use std::io;
+use tokio::time::{sleep, Duration};
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -259,9 +261,6 @@ fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> 
 }
 
 
-use std::io;
-use tokio::time::{sleep, Duration}; // Import sleep and Duration from Tokio
-
 async fn get_total_cpu_time() -> Result<u64, io::Error> {
     let stat_file = "/proc/stat";
     let stat_content = fs::read_to_string(stat_file)?;
@@ -364,7 +363,41 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     Ok(cpu_usage_results)
 }
 
-
+async fn get_proc_disk_usage_speed(pid_str: &str, s: &mut  sysinfo::System, read: bool) -> Option<String> {
+    if let Ok(pid_usize) = pid_str.parse::<usize>() {
+        let pid = Pid::from(pid_usize);
+        if let Some(process) = s.process(pid) {
+            let disk_usage = process.disk_usage();
+            let speed_bytes = if read {
+                s.refresh_all();
+                sleep(Duration::from_secs(1));
+                println!("diskusagespeedread:{}",disk_usage.read_bytes);
+                disk_usage.read_bytes as f64
+            } else {
+                s.refresh_all();
+                sleep(Duration::from_secs(1));
+                disk_usage.written_bytes as f64
+                
+            };
+            let usage_str = if speed_bytes > 1024.0 * 1024.0 * 1024.0 {
+                format!("{:.2} Gb/s", speed_bytes / (1024.0 * 1024.0 * 1024.0)) 
+            } else if speed_bytes > 1024.0 * 1024.0 {
+                format!("{:.2} Mb/s", speed_bytes / (1024.0 * 1024.0))
+            } else if speed_bytes > 1024.0 {
+                format!("{:.2} Kb/s", speed_bytes / 1024.0)
+            } else {
+                format!("{:.2} B/s", speed_bytes)
+            };
+            return Some(usage_str);
+        } else {
+            println!("Process with PID {} not found", pid);
+        }
+    } else {
+        println!("Invalid PID: {}", pid_str);
+    }
+    // Return None in case of error
+    None
+}
 
 #[tauri::command]
 pub async fn get_total_usages() -> Option<TotalUsage> {
