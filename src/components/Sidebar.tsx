@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
-import { useCpu, useMemory } from "../services/store";
+import { useCpu, useMaxMemory, useMemory } from "../services/store";
 import useNetworkData from '../hooks/useNetworkData';
 import Network from './Network';
 import Graph from './Graph';
@@ -22,7 +22,11 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showEthernet, setShowEthernet] = useState(false);
 
     const cpuUsage = useCpu();
-    const { memory, maxMemory } = useMemory(); 
+    const memory  = useMemory();
+    const maxMemory = useMaxMemory(); 
+
+    // Check if maxMemory has been set
+    const isMaxMemorySet = maxMemory !== 0;
 
     // Find the Wi-Fi and Ethernet interfaces
     const wifiInterface = interfaceNames.find(name => name.includes("wl"));
@@ -56,10 +60,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         CPU
                         <Graph firstGraphValue={cpuUsage} maxValue={100}/>
                     </ListItem>
-                    <ListItem onClick={() => handleItemClick('Memory')}>
-                        Memory
-                        <Graph firstGraphValue={memory} maxValue={maxMemory}/>
-                    </ListItem>
+                    {isMaxMemorySet && (
+                        <ListItem onClick={() => handleItemClick('Memory')}>
+                            Memory
+                            <Graph firstGraphValue={memory} maxValue={maxMemory}/>
+                        </ListItem>
+                    )}
                     <ListItem onClick={() => handleItemClick('DISK')}>
                         DISK
                     </ListItem>

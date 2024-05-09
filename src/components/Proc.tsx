@@ -151,7 +151,7 @@ const Proc: React.FC = () => {
                             <td>{process.name}</td>
                             <td>{process.state}</td>
                             <td>{process.memory}</td>
-                            <td>{process.cpu_usage.toString()}</td>
+                            <td>{process.cpu_usage.toString()}%</td>
                             <td>{process.read_disk_usage}</td>
                             <td>{process.write_disk_usage}</td>
                         </tr>

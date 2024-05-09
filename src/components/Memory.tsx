@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
-import { useSetMemory } from "../services/store";
-
+import { useSetMemory, useSetMaxMemory } from "../services/store";
 
 interface Memory {
     total: number;
@@ -19,13 +18,20 @@ interface MemoryProps {
 const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
     const [activeMem, setActiveMem] = useState<number[]>([]);
+
     const setMemory = useSetMemory();
+    const setMaxMemory = useSetMaxMemory();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const fetchedMemory: Memory = await invoke("get_mem_info");
                 setMemoryUsage(fetchedMemory);
+
+                // Set max memory when new memory data is received
+                if (fetchedMemory.total !== null) {
+                    setMaxMemory(fetchedMemory.total);
+                }
             } catch (error) {
                 console.error("Error fetching memory data:", error);
             }
@@ -35,7 +41,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         const intervalId = setInterval(fetchData, 1000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [setMaxMemory, setMemory]);
 
 
     useEffect(() => {
@@ -52,12 +58,13 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         }
     }, [memoryUsage]);
 
-        
+
     useEffect(() => {
         if (memoryUsage !== null) {
-            setMemory(activeMem,memoryUsage.total)
+            setMemory(activeMem);
         }
-    }, [activeMem]);
+    }, [activeMem, setMemory]);
+
 
     const formatMemory = (memory: number): string => {
         if (memory >= 1000 * 1000) {
