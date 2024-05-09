@@ -36,11 +36,11 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const { download: ethernetDownload, upload: ethernetUpload } = useNetworkData(ethernetInterface || '');
 
     const handleItemClick = (itemName: string) => {
-        setShowCpu(itemName === 'CPU' ? !showCpu : false);
-        setShowMemory(itemName === 'Memory' ? !showMemory : false);
-        setShowDisk(itemName === 'DISK' ? !showDisk : false);
-        setShowWifi(itemName === 'Wi-Fi' ? !showWifi: false);
-        setShowEthernet(itemName === 'Ethernet' ? !showEthernet: false);
+        setShowCpu(itemName === 'CPU' ? true : false);
+        setShowMemory(itemName === 'Memory' ? true : false); 
+        setShowDisk(itemName === 'DISK' ? true : false);
+        setShowWifi(itemName === 'Wi-Fi' ? true : false);
+        setShowEthernet(itemName === 'Ethernet' ? true : false); 
     };
     
     useEffect(() => {

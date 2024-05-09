@@ -4,7 +4,7 @@ import Graph from "./Graph";
 import { useSetMemory, useSetMaxMemory } from "../services/store";
 
 interface Memory {
-    total: number;
+    total: number | null;
     free: number | null;
     available: number | null;
     cached: number | null;
@@ -30,7 +30,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
 
                 // Set max memory when new memory data is received
                 if (fetchedMemory.total !== null) {
-                    setMaxMemory(fetchedMemory.total);
+                    setMaxMemory(Math.floor(formatMemory(fetchedMemory.total)));
                 }
             } catch (error) {
                 console.error("Error fetching memory data:", error);
@@ -45,9 +45,9 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
 
 
     useEffect(() => {
-        if (memoryUsage !== null) {
+        if (memoryUsage !== null && memoryUsage.active !== null) {
             setActiveMem(prevActiveMem => {
-                const newActiveMem = [...prevActiveMem, memoryUsage.active as number];
+                const newActiveMem = [...prevActiveMem, formatMemory(memoryUsage.active) as number];
                 // Trim the array to keep only the last 20 elements
                 if (newActiveMem.length > 20) {
                     return newActiveMem.slice(newActiveMem.length - 20);
@@ -66,15 +66,16 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     }, [activeMem, setMemory]);
 
 
-    const formatMemory = (memory: number): string => {
+    const formatMemory = (memory: number | null): number => {
+        if (memory === null) {
+            return 0;
+        }
         if (memory >= 1000 * 1000) {
-            return (memory / (1000 * 1000)).toFixed(2) + " GB";
-        }
-        else if (memory >= 1000) {
-            return (memory / 1000).toFixed(2) + " MB";
-        }
-        else {
-            return memory.toFixed(2) + " KB";
+            return parseFloat((memory / (1000 * 1000)).toFixed(2));
+        } else if (memory >= 1000) {
+            return parseFloat((memory / 1000).toFixed(2));
+        } else {
+            return parseFloat(memory.toFixed(2));
         }
     };
 
@@ -83,9 +84,10 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
             {memoryUsage && (
                 <>
                     <Graph
-                        firstGraphValue={activeMem}
-                        maxValue={memoryUsage.total ?? 0}
+                        firstGraphValue={activeMem as number[]}
+                        maxValue={memoryUsage.total !== null ? Math.floor(formatMemory(memoryUsage.total)) : 0}
                     />
+
                     <p>Total Memory: {memoryUsage.total !== null ? formatMemory(memoryUsage.total) : "N/A"}</p>
                     <p>Free: {memoryUsage.free !== null ? formatMemory(memoryUsage.free) : "N/A"}</p>
                     <p>Available: {memoryUsage.available !== null ? formatMemory(memoryUsage.available) : "N/A"}</p>
