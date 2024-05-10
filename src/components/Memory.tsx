@@ -18,7 +18,7 @@ interface MemoryProps {
 const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
     const [activeMem, setActiveMem] = useState<number[]>([]);
-
+    const [dataUnit, setDataUnit] = useState<string>("KB");
     const setMemory = useSetMemory();
     const setMaxMemory = useSetMaxMemory();
 
@@ -28,8 +28,17 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                 const fetchedMemory: Memory = await invoke("get_mem_info");
                 setMemoryUsage(fetchedMemory);
 
-                // Set max memory when new memory data is received
+                // Determine data unit based on total memory
                 if (fetchedMemory.total !== null) {
+                    if (fetchedMemory.total >= 1000 * 1000) {
+                        setDataUnit("GB");
+                    } else if (fetchedMemory.total >= 1000) {
+                        setDataUnit("MB");
+                    } else {
+                        setDataUnit("KB");
+                    }
+
+                    // Set max memory
                     setMaxMemory(Math.floor(formatMemory(fetchedMemory.total)));
                 }
             } catch (error) {
@@ -42,7 +51,6 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
 
         return () => clearInterval(intervalId);
     }, [setMaxMemory, setMemory]);
-
 
     useEffect(() => {
         if (memoryUsage !== null && memoryUsage.active !== null) {
@@ -58,13 +66,11 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         }
     }, [memoryUsage]);
 
-
     useEffect(() => {
         if (memoryUsage !== null) {
             setMemory(activeMem);
         }
     }, [activeMem, setMemory]);
-
 
     const formatMemory = (memory: number | null): number => {
         if (memory === null) {
@@ -88,16 +94,15 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                         maxValue={memoryUsage.total !== null ? Math.floor(formatMemory(memoryUsage.total)) : 0}
                     />
 
-                    <p>Total Memory: {memoryUsage.total !== null ? formatMemory(memoryUsage.total) : "N/A"}</p>
-                    <p>Free: {memoryUsage.free !== null ? formatMemory(memoryUsage.free) : "N/A"}</p>
-                    <p>Available: {memoryUsage.available !== null ? formatMemory(memoryUsage.available) : "N/A"}</p>
-                    <p>Cached: {memoryUsage.cached !== null ? formatMemory(memoryUsage.cached) : "N/A"}</p>
-                    <p>Active: {memoryUsage.active !== null ? formatMemory(memoryUsage.active) : "N/A"}</p>
+                    <p>Total Memory: {memoryUsage.total !== null ? formatMemory(memoryUsage.total) : "N/A"} {dataUnit}</p>
+                    <p>Free: {memoryUsage.free !== null ? formatMemory(memoryUsage.free) : "N/A"} {dataUnit}</p>
+                    <p>Available: {memoryUsage.available !== null ? formatMemory(memoryUsage.available) : "N/A"} {dataUnit}</p>
+                    <p>Cached: {memoryUsage.cached !== null ? formatMemory(memoryUsage.cached) : "N/A"} {dataUnit}</p>
+                    <p>Active: {memoryUsage.active !== null ? formatMemory(memoryUsage.active) : "N/A"} {dataUnit}</p>
                 </>
             )}
         </div>
     );
-
-}
+};
 
 export default Memory;
