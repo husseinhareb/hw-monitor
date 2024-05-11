@@ -2,6 +2,7 @@ mod proc;
 mod cpu;
 mod network;
 mod memory;
+mod disk;
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -10,6 +11,7 @@ fn main() {
             cpu::get_cpu_informations,
             network::get_network,
             memory::get_mem_info,
+            disk::get_disks,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

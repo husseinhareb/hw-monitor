@@ -15,6 +15,7 @@ pub struct Process {
     read_disk_usage: Option<String>,
     write_disk_usage: Option<String>,
     cpu_usage: Option<String>,
+
 }
 
 
