@@ -2,43 +2,67 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct Disks {
+const KILO_BYTE: u64 = 1024;
+const BYTES_IN_GB: u64 = 1024 * 1024 * 1024;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Partition {
     name: String,
-    partitions: Vec<String>,
+    size_gb: u64,
 }
 
-fn read_diskstats() -> Vec<Disks> {
-    let file = File::open("/proc/diskstats").expect("Failed to open diskstats file");
-    let reader = BufReader::new(file);
-    let mut disks = Vec::new();
-    let mut current_disk = String::new();
-    let mut partitions = Vec::new();
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Disk {
+    name: String,
+    partitions: Vec<Partition>,
+    size_gb: u64,
+}
 
-    for line in reader.lines() {
-        if let Ok(line) = line {
-            let fields: Vec<&str> = line.split_whitespace().collect();
-            if fields.len() >= 3 {
-                let disk_name = fields[2].to_string();
-                let partition_name = fields[3].to_string();
-                if current_disk.is_empty() || disk_name != current_disk {
-                    if !current_disk.is_empty() {
-                        disks.push(Disks { name: current_disk, partitions: partitions.clone() });
-                        partitions.clear();
+fn get_disk_partition_info() -> Vec<Disk> {
+    let mut disks: Vec<Disk> = Vec::new();
+    
+    if let Ok(file) = File::open("/proc/partitions") {
+        let reader = BufReader::new(file);
+        
+        let mut current_disk: Option<String> = None;
+        
+        for line in reader.lines().skip(2) {
+            if let Ok(line) = line {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if parts.len() >= 4 {
+                    let disk_name = parts[3].to_string();
+                    let partition_name = parts[3].to_string();
+                    if current_disk.is_none() || !partition_name.contains(current_disk.as_ref().unwrap()) {
+                        current_disk = Some(disk_name.clone());
+                        let disk_size: u64 = parts[2].parse().unwrap_or(0) * KILO_BYTE;
+                        let disk_size_gb = disk_size / BYTES_IN_GB;
+                        disks.push(Disk {
+                            name: disk_name,
+                            partitions: Vec::new(),
+                            size_gb: disk_size_gb,
+                        });
                     }
-                    current_disk = disk_name.clone();
+                    if let Some(disk) = disks.last_mut() {
+                        let partition_size: u64 = parts[2].parse().unwrap_or(0) * KILO_BYTE;
+                        let partition_size_gb = partition_size / BYTES_IN_GB;
+                        disk.partitions.push(Partition {
+                            name: partition_name,
+                            size_gb: partition_size_gb,
+                        });
+                    }
                 }
-                partitions.push(partition_name);
             }
         }
+    } else {
+        eprintln!("Failed to open /proc/partitions.");
     }
-    if !current_disk.is_empty() {
-        disks.push(Disks { name: current_disk, partitions });
-    }
+    
     disks
 }
 
 #[tauri::command]
-pub fn get_disks() -> Vec<Disks> {
-    read_diskstats()
+pub fn get_disks() -> Result<Vec<Disk>, String> {
+    let disks = get_disk_partition_info();
+    
+    Ok(disks)
 }
