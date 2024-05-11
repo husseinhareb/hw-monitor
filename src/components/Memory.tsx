@@ -9,6 +9,8 @@ interface Memory {
     available: number | null;
     cached: number | null;
     active: number | null;
+    swap_total: number | null;
+    swap_cache: number | null;
 }
 
 interface MemoryProps {
@@ -99,6 +101,9 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                     <p>Available: {memoryUsage.available !== null ? formatMemory(memoryUsage.available) : "N/A"} {dataUnit}</p>
                     <p>Cached: {memoryUsage.cached !== null ? formatMemory(memoryUsage.cached) : "N/A"} {dataUnit}</p>
                     <p>Active: {memoryUsage.active !== null ? formatMemory(memoryUsage.active) : "N/A"} {dataUnit}</p>
+                    <p>Swap Total: {memoryUsage.active !== null ? formatMemory(memoryUsage.swap_total) : "N/A"} {dataUnit}</p>
+                    <p>Swap Cache: {memoryUsage.active !== null ? formatMemory(memoryUsage.swap_cache) : "N/A"} {dataUnit}</p>
+
                 </>
             )}
         </div>
