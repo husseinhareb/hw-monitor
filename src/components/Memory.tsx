@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
 import { useSetMemory, useSetMaxMemory } from "../services/store";
+import useDataConverter from "../hooks/useDataConverter";
 
 interface Memory {
     total: number | null;
@@ -20,29 +21,16 @@ interface MemoryProps {
 const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
     const [activeMem, setActiveMem] = useState<number[]>([]);
-    const [dataUnit, setDataUnit] = useState<string>("KB");
+   
     const setMemory = useSetMemory();
     const setMaxMemory = useSetMaxMemory();
-
+    const convertData = useDataConverter();
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const fetchedMemory: Memory = await invoke("get_mem_info");
                 setMemoryUsage(fetchedMemory);
 
-                // Determine data unit based on total memory
-                if (fetchedMemory.total !== null) {
-                    if (fetchedMemory.total >= 1000 * 1000) {
-                        setDataUnit("GB");
-                    } else if (fetchedMemory.total >= 1000) {
-                        setDataUnit("MB");
-                    } else {
-                        setDataUnit("KB");
-                    }
-
-                    // Set max memory
-                    setMaxMemory(Math.floor(formatMemory(fetchedMemory.total)));
-                }
             } catch (error) {
                 console.error("Error fetching memory data:", error);
             }
@@ -54,19 +42,20 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         return () => clearInterval(intervalId);
     }, [setMaxMemory, setMemory]);
 
-    useEffect(() => {
-        if (memoryUsage !== null && memoryUsage.active !== null) {
-            setActiveMem(prevActiveMem => {
-                const newActiveMem = [...prevActiveMem, formatMemory(memoryUsage.active) as number];
-                // Trim the array to keep only the last 20 elements
-                if (newActiveMem.length > 20) {
-                    return newActiveMem.slice(newActiveMem.length - 20);
-                } else {
-                    return newActiveMem;
-                }
-            });
-        }
-    }, [memoryUsage]);
+useEffect(() => {
+    if (memoryUsage !== null && memoryUsage.active !== null) {
+        setActiveMem(prevActiveMem => {
+            const newActiveMem = [...prevActiveMem, convertData(memoryUsage.active).value as number];
+            // Trim the array to keep only the last 20 elements
+            if (newActiveMem.length > 20) {
+                return newActiveMem.slice(newActiveMem.length - 20);
+            } else {
+                return newActiveMem;
+            }
+        });
+    }
+}, [memoryUsage]);
+
 
     useEffect(() => {
         if (memoryUsage !== null) {
@@ -74,18 +63,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
         }
     }, [activeMem, setMemory]);
 
-    const formatMemory = (memory: number | null): number => {
-        if (memory === null) {
-            return 0;
-        }
-        if (memory >= 1000 * 1000) {
-            return parseFloat((memory / (1000 * 1000)).toFixed(2));
-        } else if (memory >= 1000) {
-            return parseFloat((memory / 1000).toFixed(2));
-        } else {
-            return parseFloat(memory.toFixed(2));
-        }
-    };
+
 
     return (
         <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
@@ -93,16 +71,16 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                 <>
                     <Graph
                         firstGraphValue={activeMem as number[]}
-                        maxValue={memoryUsage.total !== null ? Math.floor(formatMemory(memoryUsage.total)) : 0}
+                        maxValue={memoryUsage.total !== null ? Math.floor(convertData(memoryUsage.total).value) : 0}
                     />
 
-                    <p>Total Memory: {memoryUsage.total !== null ? formatMemory(memoryUsage.total) : "N/A"} {dataUnit}</p>
-                    <p>Free: {memoryUsage.free !== null ? formatMemory(memoryUsage.free) : "N/A"} {dataUnit}</p>
-                    <p>Available: {memoryUsage.available !== null ? formatMemory(memoryUsage.available) : "N/A"} {dataUnit}</p>
-                    <p>Cached: {memoryUsage.cached !== null ? formatMemory(memoryUsage.cached) : "N/A"} {dataUnit}</p>
-                    <p>Active: {memoryUsage.active !== null ? formatMemory(memoryUsage.active) : "N/A"} {dataUnit}</p>
-                    <p>Swap Total: {memoryUsage.active !== null ? formatMemory(memoryUsage.swap_total) : "N/A"} {dataUnit}</p>
-                    <p>Swap Cache: {memoryUsage.active !== null ? formatMemory(memoryUsage.swap_cache) : "N/A"} {dataUnit}</p>
+                    <p>Total Memory: {memoryUsage.total !== null ? convertData(memoryUsage.total).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Free: {memoryUsage.free !== null ? convertData(memoryUsage.free).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Available: {memoryUsage.available !== null ? convertData(memoryUsage.available).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Cached: {memoryUsage.cached !== null ? convertData(memoryUsage.cached).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Active: {memoryUsage.active !== null ? convertData(memoryUsage.active).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Swap Total: {memoryUsage.active !== null ? convertData(memoryUsage.swap_total).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Swap Cache: {memoryUsage.active !== null ? convertData(memoryUsage.swap_cache).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
 
                 </>
             )}

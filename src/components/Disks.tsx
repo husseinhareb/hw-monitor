@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import useDataConverter from "../hooks/useDataConverter";
 
 interface DisksProps {
     hidden: boolean;
@@ -7,18 +8,18 @@ interface DisksProps {
 
 interface PartitionData {
     name: string;
-    size_gb: number;
+    size: number;
 }
 
 interface DiskData {
     name: string;
     partitions: PartitionData[];
-    size_gb: number;
+    size: number;
 }
 
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
     const [diskData, setDiskData] = useState<DiskData[]>([]);
-
+    const convertData = useDataConverter();
     useEffect(() => {
         fetchDiskData();
     }, []); // Fetch data when component mounts
@@ -42,11 +43,11 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                 diskData.map((disk, index) => (
                     <div key={index}>
                         <h3>{disk.name}</h3>
-                        <p>Size: {disk.size_gb} GB</p>
+                        <p>Size: {convertData(disk.size).value} {convertData(disk.size).unit}</p>
                         <ul>
                             {disk.partitions.map((partition, partitionIndex) => (
                                 <li key={partitionIndex}>
-                                    {partition.name} (Size: {partition.size_gb} GB)
+                                    {partition.name} (Size: {convertData(partition.size).value} {convertData(partition.size).unit} )
                                 </li>
                             ))}
                         </ul>
