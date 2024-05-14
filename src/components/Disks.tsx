@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import useDataConverter from "../hooks/useDataConverter";
+import useDataConverter from "../helper/useDataConverter";
 
 interface DisksProps {
     hidden: boolean;
@@ -28,7 +28,6 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
         try {
             const fetchedDiskData: DiskData[] = await invoke("get_disks");
             setDiskData(fetchedDiskData);
-            console.log(fetchedDiskData);
         } catch (error) {
             console.error("Error fetching data:", error);
             setDiskData([]); // Clear data if error occurs

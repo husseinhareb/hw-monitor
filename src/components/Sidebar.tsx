@@ -21,27 +21,27 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showEthernet, setShowEthernet] = useState(false);
 
     const cpuUsage = useCpu();
-    const memory  = useMemory();
-    const maxMemory = useMaxMemory(); 
+    const memory = useMemory();
+    const maxMemory = useMaxMemory();
+
     const [wifiDownloadSpeed, wifiUploadSpeed] = useWifiSpeed();
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
     const handleItemClick = (itemName: string) => {
         setShowCpu(itemName === 'CPU' ? true : false);
-        setShowMemory(itemName === 'Memory' ? true : false); 
+        setShowMemory(itemName === 'Memory' ? true : false);
         setShowDisk(itemName === 'DISK' ? true : false);
         setShowWifi(itemName === 'Wi-Fi' ? true : false);
-        setShowEthernet(itemName === 'Ethernet' ? true : false); 
+        setShowEthernet(itemName === 'Ethernet' ? true : false);
     };
-    
+
     useEffect(() => {
         if (interfaceNames && interfaceNames.length > 0) {
             setWifi(interfaceNames.some(name => name.includes("wl")));
             setEthernet(interfaceNames.some(name => name.includes("en")));
         }
     }, [interfaceNames]);
-    
 
     return (
         <div style={{ display: 'flex' }}>
@@ -50,27 +50,27 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 <List>
                     <ListItem onClick={() => handleItemClick('CPU')}>
                         CPU
-                        <Graph firstGraphValue={cpuUsage} maxValue={100}/>
+                        <Graph firstGraphValue={cpuUsage} maxValue={100} />
                     </ListItem>
                     {isMaxMemorySet && (
                         <ListItem onClick={() => handleItemClick('Memory')}>
-                            Memory
-                            <Graph firstGraphValue={memory} maxValue={maxMemory}/>
+                            Memory{memory}
+                            <Graph firstGraphValue={memory} maxValue={maxMemory} />
                         </ListItem>
                     )}
                     <ListItem onClick={() => handleItemClick('DISK')}>
                         DISK
                     </ListItem>
                     {wifi &&
-                    <ListItem onClick={() => handleItemClick('Wi-Fi')}>
-                        Wi-Fi
-                        <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed}  />
-                    </ListItem>}
+                        <ListItem onClick={() => handleItemClick('Wi-Fi')}>
+                            Wi-Fi
+                            <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} />
+                        </ListItem>}
                     {ethernet &&
-                    <ListItem onClick={() => handleItemClick('Ethernet')}>
-                        Ethernet
-                        <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} />
-                    </ListItem>}
+                        <ListItem onClick={() => handleItemClick('Ethernet')}>
+                            Ethernet
+                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} />
+                        </ListItem>}
                 </List>
             </SidebarContainer>
             <Cpu hidden={!showCpu} />
