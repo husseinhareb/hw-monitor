@@ -1,38 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-import useDataConverter from "../helper/useDataConverter";
+import React from "react";
+import useDiskData from "../hooks/useDisksData";
 
 interface DisksProps {
     hidden: boolean;
 }
 
-interface PartitionData {
-    name: string;
-    size: number;
-}
-
-interface DiskData {
-    name: string;
-    partitions: PartitionData[];
-    size: number;
-}
-
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
-    const [diskData, setDiskData] = useState<DiskData[]>([]);
-    const convertData = useDataConverter();
-    useEffect(() => {
-        fetchDiskData();
-    }, []); // Fetch data when component mounts
-
-    const fetchDiskData = async () => {
-        try {
-            const fetchedDiskData: DiskData[] = await invoke("get_disks");
-            setDiskData(fetchedDiskData);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            setDiskData([]); // Clear data if error occurs
-        }
-    };
+    const { diskData, convertData } = useDiskData();
 
     return (
         <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>

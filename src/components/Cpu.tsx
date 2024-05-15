@@ -1,46 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
 import Graph from "./Graph";
 import { useSetCpu } from "../services/store";
+import useCpuData from "../hooks/useCpuData";
 
-
-interface CpuData {
-    name: string;
-    socket: number;
-    cores: number;
-    threads: number;
-    usage: number;
-    current_speed: number;
-    base_speed: number;
-    max_speed: number;
-    virtualization: string;
-    uptime: string;
-}
 
 interface CpuProps {
     hidden: boolean;
 }
 
 const Cpu: React.FC<CpuProps> = ({ hidden }) => {
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
+    const {cpuData} = useCpuData();
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
     const setCpu = useSetCpu();
 
-    useEffect(() => {
-        const fetchCpuData = async () => {
-            try {
-                const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
-                setCpuData(fetchedCpuData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-
-        fetchCpuData();
-        const intervalId = setInterval(fetchCpuData, 1000);
-
-        return () => clearInterval(intervalId);
-    }, []);
 
     useEffect(() => {
         if (cpuUsage !== null) {

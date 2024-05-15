@@ -26,8 +26,8 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
             });
         }
     }, [memoryUsage]);
-    
-    
+
+
 
     useEffect(() => {
         if (memoryUsage !== null) {
@@ -41,20 +41,22 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
             {memoryUsage && (
                 <>
                     <Graph
-                        firstGraphValue={activeMem}
-                        maxValue={memoryUsage.total !== null ? memoryUsage.total : 0}
+                        firstGraphValue={activeMem as number[]}
+                        maxValue={memoryUsage.total !== null ? Math.floor(convertData(memoryUsage.total).value) : 0}
                     />
-                    <p>Total Memory: {memoryUsage.total !== null ? memoryUsage.total : "N/A"}</p>
-                    <p>Free: {memoryUsage.free !== null ? memoryUsage.free : "N/A"}</p>
-                    <p>Available: {memoryUsage.available !== null ? memoryUsage.available : "N/A"}</p>
-                    <p>Cached: {memoryUsage.cached !== null ? memoryUsage.cached : "N/A"}</p>
-                    <p>Active: {memoryUsage.active !== null ? memoryUsage.active : "N/A"}</p>
-                    <p>Swap Total: {memoryUsage.swap_total !== null ? memoryUsage.swap_total : "N/A"}</p>
-                    <p>Swap Cache: {memoryUsage.swap_cache !== null ? memoryUsage.swap_cache : "N/A"}</p>
+
+                    <p>Total Memory: {memoryUsage.total !== null ? convertData(memoryUsage.total).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Free: {memoryUsage.free !== null ? convertData(memoryUsage.free).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Available: {memoryUsage.available !== null ? convertData(memoryUsage.available).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Cached: {memoryUsage.cached !== null ? convertData(memoryUsage.cached).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Active: {memoryUsage.active !== null ? convertData(memoryUsage.active).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Swap Total: {memoryUsage.active !== null ? convertData(memoryUsage.swap_total).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+                    <p>Swap Cache: {memoryUsage.active !== null ? convertData(memoryUsage.swap_cache).value : "N/A"} {convertData(memoryUsage.total).unit}</p>
+
                 </>
             )}
         </div>
     );
-};
 
+};
 export default Memory;

@@ -54,7 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     </ListItem>
                     {isMaxMemorySet && (
                         <ListItem onClick={() => handleItemClick('Memory')}>
-                            Memory{memory}
+                            Memory
                             <Graph firstGraphValue={memory} maxValue={maxMemory} />
                         </ListItem>
                     )}
