@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 import useProcessData, { Process } from '../hooks/useProcessData'; // Import Process interface from the hook
 
@@ -11,9 +11,8 @@ const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<string>('asc'); // Default sort order is ascending
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
-    const [sortedProcesses, setSortedProcesses] = useState<Process[]>([]);
-
     const { processes } = useProcessData();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -31,22 +30,7 @@ const Proc: React.FC = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    useEffect(() => {
-        if (sortBy) {
-            const sortedProcesses = sortProcessesByColumn(processes, sortBy, sortOrder);
-            setSortedProcesses(sortedProcesses);
-        } else {
-            setSortedProcesses([...processes]);
-        }
-    }, [sortBy, sortOrder, processes]);
-
-    const sortProcesses = (column: string) => {
-        const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
-        setSortBy(column);
-        setSortOrder(newSortOrder);
-    };
-
-    const sortProcessesByColumn = (processes: Process[], column: string, order: string) => {
+    const sortProcessesByColumn = (processes: Process[], column: string, order: string): Process[] => {
         if (!column) return processes;
 
         return [...processes].sort((a, b) => {
@@ -75,7 +59,7 @@ const Proc: React.FC = () => {
         });
     };
 
-    const convertDataValue = (usageStr: string) => {
+    const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') {
             return 0;
         }
@@ -84,12 +68,26 @@ const Proc: React.FC = () => {
         if (match) {
             const value = parseFloat(match[1]);
             const unit = match[2].toLowerCase();
-            if (unit === "gb") return value * 1024 * 1024; // Convert to MB
+            if (unit === "gb") return value * 1024 * 1024; // Convert to KB
             if (unit === "mb") return value * 1024; // Convert to KB
             if (unit === "kb") return value; // Already in KB
             if (unit === "b") return value / 1024; // Convert to KB
         }
         return parseFloat(usageStr);
+    };
+
+    const sortedProcesses = useMemo(() => {
+        if (sortBy) {
+            return sortProcessesByColumn(processes, sortBy, sortOrder);
+        } else {
+            return [...processes];
+        }
+    }, [sortBy, sortOrder, processes]);
+
+    const sortProcesses = (column: string) => {
+        const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortBy(column);
+        setSortOrder(newSortOrder);
     };
 
     return (
@@ -103,7 +101,7 @@ const Proc: React.FC = () => {
                         <th onClick={() => sortProcesses('ppid')}>ppid</th>
                         <th onClick={() => sortProcesses('name')}>name</th>
                         <th onClick={() => sortProcesses('state')}>state</th>
-                        {totalUsages && totalUsages.memory !== null ? (
+                        {totalUsages.memory !== null ? (
                             <th onClick={() => sortProcesses('memory')}>
                                 {totalUsages.memory}% <br /> memory
                             </th>
@@ -112,8 +110,7 @@ const Proc: React.FC = () => {
                                 N/A <br /> memory
                             </th>
                         )}
-
-                        {totalUsages && totalUsages.cpu !== null ? (
+                        {totalUsages.cpu !== null ? (
                             <th onClick={() => sortProcesses('cpu_usage')}>
                                 {totalUsages.cpu}% <br /> CPU usage
                             </th>
@@ -124,8 +121,8 @@ const Proc: React.FC = () => {
                         )}
                         <th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total</th>
                         <th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total</th>
-                        <th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Speed</th>
-                        <th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Speed</th>
+                        <th onClick={() => sortProcesses('read_disk_speed')}>Disk Read Speed</th>
+                        <th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed</th>
                     </tr>
                 </thead>
                 <tbody>
