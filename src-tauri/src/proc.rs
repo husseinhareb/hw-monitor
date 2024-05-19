@@ -373,9 +373,9 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
             if let Some(process) = s.process(Pid::from(pid_usize as usize)) {
                 let disk_usage = process.disk_usage();
                 let initial_bytes = if read {
-                    disk_usage.read_bytes as f64
+                    disk_usage.total_read_bytes as f64
                 } else {
-                    disk_usage.written_bytes as f64
+                    disk_usage.total_written_bytes as f64
                 };
                 initial_disk_usages.push((pid_usize, initial_bytes));
             }
@@ -394,18 +394,28 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
         if let Some(process) = s.process(Pid::from(pid as usize)) {
             let disk_usage = process.disk_usage();
             let final_bytes = if read {
-                disk_usage.read_bytes as f64
+                disk_usage.total_read_bytes as f64
             } else {
-                disk_usage.written_bytes as f64
+                disk_usage.total_written_bytes as f64
             };
 
             let speed_bytes = final_bytes - initial_bytes;
-            speeds.push((pid, speed_bytes));
+
+            // Ensure speed_bytes is not negative
+            if speed_bytes < 0.0 {
+                speeds.push((pid, 0.0));
+            } else {
+                speeds.push((pid, speed_bytes));
+            }
+        } else {
+            // If the process is no longer available, push a speed of 0.0
+            speeds.push((pid, 0.0));
         }
     }
 
     speeds
 }
+
 
 
 #[tauri::command]
