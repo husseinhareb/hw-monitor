@@ -291,15 +291,15 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
     // Capture initial disk usage for all processes
     let mut initial_disk_usages = Vec::new();
     for pid_str in &pids {
-        if let Ok(pid_usize) = pid_str.parse::<i32>() {
-            if let Some(process) = s.process(Pid::from(pid_usize as usize)) {
+        if let Ok(pid_usize) = pid_str.parse::<usize>() {
+            if let Some(process) = s.process(Pid::from(pid_usize)) {
                 let disk_usage = process.disk_usage();
                 let initial_bytes = if read {
                     disk_usage.total_read_bytes as f64
                 } else {
                     disk_usage.total_written_bytes as f64
                 };
-                initial_disk_usages.push((pid_usize, initial_bytes));
+                initial_disk_usages.push((pid_usize as i32, initial_bytes));
             }
         }
     }
@@ -307,8 +307,8 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
     // Sleep for a specified duration
     sleep(Duration::from_secs(1)).await;
 
-    // Refresh system to get new disk usage
-    s.refresh_all();
+    // Refresh processes information to get updated disk usage
+    s.refresh_processes();
 
     // Capture final disk usage and calculate speeds
     let mut speeds = Vec::new();
@@ -324,11 +324,7 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
             let speed_bytes = final_bytes - initial_bytes;
 
             // Ensure speed_bytes is not negative
-            if speed_bytes < 0.0 {
-                speeds.push((pid, 0.0));
-            } else {
-                speeds.push((pid, speed_bytes));
-            }
+            speeds.push((pid, speed_bytes.max(0.0)));
         } else {
             // If the process is no longer available, push a speed of 0.0
             speeds.push((pid, 0.0));
@@ -337,6 +333,7 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
 
     speeds
 }
+
 
 
 #[tauri::command]

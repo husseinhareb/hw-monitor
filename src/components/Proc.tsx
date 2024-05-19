@@ -1,44 +1,41 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { invoke } from "@tauri-apps/api/tauri";
-import useProcessData, { Process } from '../hooks/useProcessData'; // Import Process interface from the hook
-import { Table, Tbody, Td, Th, Thead, Tr } from '../styled-components/proc-style';
-
-interface TotalUsages {
-    memory: number | null;
-    cpu: number | null;
-}
+import React, { useState, useMemo } from 'react';
+import useProcessData, { Process } from '../hooks/useProcessData';
+import useTotalUsagesData from '../hooks/useTotalUsagesData';
+import { TableContainer, Table, Tbody, Td, Th, Thead, Tr } from '../styles/proc-style';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
-    const [sortOrder, setSortOrder] = useState<string>('asc'); // Default sort order is ascending
-    const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
+    const [sortOrder, setSortOrder] = useState<string>('asc');
+    const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch total usages
-                const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-                setTotalUsages(fetchedTotalUsages);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
+    const convertDataValue = (usageStr: string): number => {
+        if (typeof usageStr !== 'string') return 0;
+
+        const units: { [key: string]: number } = {
+            b: 1 / 1024,
+            kb: 1,
+            mb: 1024,
+            gb: 1024 * 1024,
         };
 
-        fetchData();
-        const intervalId = setInterval(fetchData, 1000);
+        const match = usageStr.match(/([\d.]+)\s*(\w+)/);
+        if (match) {
+            const value = parseFloat(match[1]);
+            const unit = match[2].toLowerCase();
+            return value * (units[unit] || 1);
+        }
+        return parseFloat(usageStr);
+    };
 
-        return () => clearInterval(intervalId);
-    }, []);
-
-    const sortProcessesByColumn = (processes: Process[], column: string, order: string): Process[] => {
+    const sortProcessesByColumn = useMemo(() => (processes: Process[], column: string, order: string): Process[] => {
         if (!column) return processes;
 
         return [...processes].sort((a, b) => {
             let valueA: any;
             let valueB: any;
 
-            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage") {
+            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed")  {
                 valueA = convertDataValue(a[column]);
                 valueB = convertDataValue(b[column]);
             } else if (column === "pid" || column === "ppid") {
@@ -53,99 +50,80 @@ const Proc: React.FC = () => {
             }
 
             if (order === 'asc') {
-                return valueA < valueB ? -1 : 1;
+                return valueA > valueB ? 1 : -1;
             } else {
-                return valueA > valueB ? -1 : 1;
+                return valueA < valueB ? 1 : -1;
             }
         });
-    };
-
-    const convertDataValue = (usageStr: string): number => {
-        if (typeof usageStr !== 'string') {
-            return 0;
-        }
-
-        const match = usageStr.match(/([\d.]+)\s*(\w+)/);
-        if (match) {
-            const value = parseFloat(match[1]);
-            const unit = match[2].toLowerCase();
-            if (unit === "gb") return value * 1024 * 1024; // Convert to KB
-            if (unit === "mb") return value * 1024; // Convert to KB
-            if (unit === "kb") return value; // Already in KB
-            if (unit === "b") return value / 1024; // Convert to KB
-        }
-        return parseFloat(usageStr);
-    };
+    }, []);
 
     const sortedProcesses = useMemo(() => {
-        if (sortBy) {
-            return sortProcessesByColumn(processes, sortBy, sortOrder);
-        } else {
-            return [...processes];
-        }
+        return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
     }, [sortBy, sortOrder, processes]);
 
     const sortProcesses = (column: string) => {
-        const newSortOrder = column === sortBy && sortOrder === 'asc' ? 'desc' : 'asc';
         setSortBy(column);
-        setSortOrder(newSortOrder);
+        setSortOrder(prevOrder => (column === sortBy && prevOrder === 'asc' ? 'desc' : 'asc'));
     };
 
+    const getSortIndicator = (column: string) => {
+        if (sortBy === column) {
+            return sortOrder === 'asc' ? ' ▲' : ' ▼';
+        }
+        return '';
+    };
+
+    const getIntensityColor = (value: number): string => {
+        const baseColor = [45, 45, 45]; // Base color (#2d2d2d in RGB)
+        const maxIntensity = 50; // Maximum value for intensity
+        const intensity = Math.max(0, Math.min(Math.round(value * 25 / maxIntensity), 25));
+    
+        // Calculate color with decreasing intensity
+        return `rgb(${baseColor.map(channel => Math.min(255, channel + intensity)).join(', ')})`;
+    };
+    
+
     return (
-        <div>
+        <TableContainer>
             <Table>
-                <Thead>
-                    <tr>
-                        <Th>count</Th>
-                        <Th onClick={() => sortProcesses('user')}>user</Th>
-                        <Th onClick={() => sortProcesses('pid')}>pid</Th>
-                        <Th onClick={() => sortProcesses('ppid')}>ppid</Th>
-                        <Th onClick={() => sortProcesses('name')}>name</Th>
-                        <Th onClick={() => sortProcesses('state')}>state</Th>
-                        {totalUsages.memory !== null ? (
-                            <Th onClick={() => sortProcesses('memory')}>
-                                {totalUsages.memory}% <br /> memory
-                            </Th>
-                        ) : (
-                            <Th onClick={() => sortProcesses('memory')}>
-                                N/A <br /> memory
-                            </Th>
-                        )}
-                        {totalUsages.cpu !== null ? (
-                            <Th onClick={() => sortProcesses('cpu_usage')}>
-                                {totalUsages.cpu}% <br /> CPU usage
-                            </Th>
-                        ) : (
-                            <Th onClick={() => sortProcesses('cpu_usage')}>
-                                N/A <br /> CPU usage
-                            </Th>
-                        )}
-                        <Th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total</Th>
-                        <Th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total</Th>
-                        <Th onClick={() => sortProcesses('read_disk_speed')}>Disk Read Speed</Th>
-                        <Th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed</Th>
-                    </tr>
+            <Thead>
+                    <Tr>
+                        <Th onClick={() => sortProcesses('user')}>user{getSortIndicator('user')}</Th>
+                        <Th onClick={() => sortProcesses('pid')}>pid{getSortIndicator('pid')}</Th>
+                        <Th onClick={() => sortProcesses('ppid')}>ppid{getSortIndicator('ppid')}</Th>
+                        <Th onClick={() => sortProcesses('name')}>name{getSortIndicator('name')}</Th>
+                        <Th onClick={() => sortProcesses('state')}>state{getSortIndicator('state')}</Th>
+                        <Th onClick={() => sortProcesses('memory')}>
+                            {totalUsages.memory !== null ? `${totalUsages.memory}%` : 'N/A'} <br /> memory{getSortIndicator('memory')}
+                        </Th>
+                        <Th onClick={() => sortProcesses('cpu_usage')}>
+                            {totalUsages.cpu !== null ? `${totalUsages.cpu}%` : 'N/A'} <br /> CPU usage{getSortIndicator('cpu_usage')}
+                        </Th>
+                        <Th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total{getSortIndicator('read_disk_usage')}</Th>
+                        <Th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total{getSortIndicator('write_disk_usage')}</Th>
+                        <Th onClick={() => sortProcesses('read_disk_speed')}>Disk Read Speed{getSortIndicator('read_disk_speed')}</Th>
+                        <Th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed{getSortIndicator('write_disk_speed')}</Th>
+                    </Tr>
                 </Thead>
                 <Tbody>
                     {sortedProcesses.map((process, index) => (
                         <Tr key={index}>
-                            <Td>{index + 1}</Td>
                             <Td>{process.user}</Td>
                             <Td>{process.pid}</Td>
                             <Td>{process.ppid}</Td>
                             <Td>{process.name}</Td>
                             <Td>{process.state}</Td>
-                            <Td>{process.memory}</Td>
-                            <Td>{process.cpu_usage.toString()}%</Td>
-                            <Td>{process.read_disk_usage}</Td>
-                            <Td>{process.write_disk_usage}</Td>
-                            <Td>{process.read_disk_speed}</Td>
-                            <Td>{process.write_disk_speed}</Td>
+                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.memory)) }}>{process.memory}</Td>
+                            <Td style={{ backgroundColor: getIntensityColor(parseFloat(process.cpu_usage || '0')) }}>{process.cpu_usage.toString()}%</Td>
+                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.read_disk_usage)) }}>{process.read_disk_usage}</Td>
+                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.write_disk_usage)) }}>{process.write_disk_usage}</Td>
+                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.read_disk_speed)) }}>{process.read_disk_speed}</Td>
+                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.write_disk_speed)) }}>{process.write_disk_speed}</Td>
                         </Tr>
                     ))}
                 </Tbody>
             </Table>
-        </div>
+        </TableContainer>
     );
 }
 

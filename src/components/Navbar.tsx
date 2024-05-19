@@ -1,5 +1,5 @@
 import React, { useState, FunctionComponent } from "react";
-import { StyledButton, StyledNav, StyledUl } from "../styled-components/navbar-style";
+import { StyledButton, StyledNav, StyledUl } from "../styles/navbar-style";
 import Proc from "./Proc";
 import Performance from "./Performance";
 import Sensors from "./Sensors";

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { List, ListItem, SidebarContainer, Title } from '../styled-components/sidebar-style';
+import { List, ListItem, SidebarContainer, Title } from '../styles/sidebar-style';
 import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../services/store";
 import Network from './Network';
 import Graph from './Graph';
