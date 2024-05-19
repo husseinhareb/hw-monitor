@@ -15,7 +15,8 @@ pub struct Process {
     read_disk_usage: Option<String>,
     write_disk_usage: Option<String>,
     cpu_usage: Option<String>,
-
+    read_disk_speed: Option<String>,
+    write_disk_speed:Option<String>,
 }
 
 
@@ -364,41 +365,48 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     Ok(cpu_usage_results)
 }
 
-async fn get_proc_disk_usage_speed(pid_str: &str, s: &mut  sysinfo::System, read: bool) -> Option<String> {
-    if let Ok(pid_usize) = pid_str.parse::<usize>() {
-        let pid = Pid::from(pid_usize);
-        if let Some(process) = s.process(pid) {
+async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool) -> Vec<(i32, f64)> {
+    // Capture initial disk usage for all processes
+    let mut initial_disk_usages = Vec::new();
+    for pid_str in &pids {
+        if let Ok(pid_usize) = pid_str.parse::<i32>() {
+            if let Some(process) = s.process(Pid::from(pid_usize as usize)) {
+                let disk_usage = process.disk_usage();
+                let initial_bytes = if read {
+                    disk_usage.read_bytes as f64
+                } else {
+                    disk_usage.written_bytes as f64
+                };
+                initial_disk_usages.push((pid_usize, initial_bytes));
+            }
+        }
+    }
+
+    // Sleep for a specified duration
+    sleep(Duration::from_secs(1)).await;
+
+    // Refresh system to get new disk usage
+    s.refresh_all();
+
+    // Capture final disk usage and calculate speeds
+    let mut speeds = Vec::new();
+    for (pid, initial_bytes) in initial_disk_usages {
+        if let Some(process) = s.process(Pid::from(pid as usize)) {
             let disk_usage = process.disk_usage();
-            let speed_bytes = if read {
-                s.refresh_all();
-                sleep(Duration::from_secs(1));
-                println!("diskusagespeedread:{}",disk_usage.read_bytes);
+            let final_bytes = if read {
                 disk_usage.read_bytes as f64
             } else {
-                s.refresh_all();
-                sleep(Duration::from_secs(1));
                 disk_usage.written_bytes as f64
-                
             };
-            let usage_str = if speed_bytes > 1024.0 * 1024.0 * 1024.0 {
-                format!("{:.2} Gb/s", speed_bytes / (1024.0 * 1024.0 * 1024.0)) 
-            } else if speed_bytes > 1024.0 * 1024.0 {
-                format!("{:.2} Mb/s", speed_bytes / (1024.0 * 1024.0))
-            } else if speed_bytes > 1024.0 {
-                format!("{:.2} Kb/s", speed_bytes / 1024.0)
-            } else {
-                format!("{:.2} B/s", speed_bytes)
-            };
-            return Some(usage_str);
-        } else {
-            println!("Process with PID {} not found", pid);
+
+            let speed_bytes = final_bytes - initial_bytes;
+            speeds.push((pid, speed_bytes));
         }
-    } else {
-        println!("Invalid PID: {}", pid_str);
     }
-    // Return None in case of error
-    None
+
+    speeds
 }
+
 
 #[tauri::command]
 pub async fn get_total_usages() -> Option<TotalUsage> {
@@ -423,7 +431,7 @@ pub async fn get_total_usages() -> Option<TotalUsage> {
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
-    let s = System::new_all();
+    let mut s = System::new_all();
     let pids = list_proc_pid();
 
     // Calculate CPU usage percentages for processes
@@ -435,9 +443,13 @@ pub async fn get_processes() -> Vec<Process> {
         }
     };
 
-    for pid in pids {
+    // Calculate disk usage speed for all processes
+    let read_disk_speeds = get_proc_disk_usage_speed(pids.clone(), &mut s, true).await;
+    let write_disk_speeds = get_proc_disk_usage_speed(pids.clone(), &mut s, false).await;
+
+    for pid in pids.iter() {
         // Fetch process information
-        let name = match get_name(&pid) {
+        let name = match get_name(pid) {
             Some(name) => name,
             None => {
                 println!("Failed to retrieve name info for process {}", pid);
@@ -445,7 +457,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let ppid = match get_ppid(&pid) {
+        let ppid = match get_ppid(pid) {
             Some(ppid) => ppid,
             None => {
                 println!("Failed to retrieve PPID info for process {}", pid);
@@ -453,7 +465,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let state = match get_proc_state(&pid) {
+        let state = match get_proc_state(pid) {
             Some(state) => state,
             None => {
                 println!("Failed to retrieve state info for process {}", pid);
@@ -461,7 +473,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let user = match get_proc_user(&pid) {
+        let user = match get_proc_user(pid) {
             Some(user) => user,
             None => {
                 println!("Failed to retrieve user info for process {}", pid);
@@ -469,7 +481,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let memory = match get_proc_mem(&pid) {
+        let memory = match get_proc_mem(pid) {
             Some(memory) => memory,
             None => {
                 println!("Failed to retrieve memory info for process {}", pid);
@@ -477,7 +489,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let read_disk_usage = match get_total_proc_disk_usage(&pid, &s, true) {
+        let read_disk_usage = match get_total_proc_disk_usage(pid, &s, true) {
             Some(usage) => usage,
             None => {
                 println!("Failed to retrieve disk info for process {}", pid);
@@ -485,7 +497,7 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let write_disk_usage = match get_total_proc_disk_usage(&pid, &s, false) {
+        let write_disk_usage = match get_total_proc_disk_usage(pid, &s, false) {
             Some(usage) => usage,
             None => {
                 println!("Failed to retrieve disk info for process {}", pid);
@@ -512,6 +524,8 @@ pub async fn get_processes() -> Vec<Process> {
             read_disk_usage: Some(read_disk_usage),
             write_disk_usage: Some(write_disk_usage),
             cpu_usage: cpu_usage.map(|usage| usage.to_string()),
+            read_disk_speed: read_disk_speeds.iter().find(|(id, _)| *id == pid.parse::<i32>().unwrap_or_default()).map(|(_, speed)| speed.to_string()),
+            write_disk_speed: write_disk_speeds.iter().find(|(id, _)| *id == pid.parse::<i32>().unwrap_or_default()).map(|(_, speed)| speed.to_string()),
         };
         processes.push(process);
     }

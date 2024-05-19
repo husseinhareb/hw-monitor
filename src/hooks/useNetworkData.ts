@@ -14,7 +14,6 @@ const useNetworkData = (interfaceName: string) => {
     const [upload, setUpload] = useState<number[]>([]);
     const [totalDownload, setTotalDownload] = useState<number>();
     const [totalUpload, setTotalUpload] = useState<number>();
-
     useEffect(() => {
         const fetchData = async () => {
             try {

@@ -25,8 +25,8 @@ pub async fn get_network() -> Vec<Network> {
     sorted_networks.sort_by(|(name1, _), (name2, _)| name1.cmp(name2));
 
     for (interface_name, data) in sorted_networks {
-        // Only consider interfaces starting with "wl" or "en"
-        if interface_name.starts_with("wl") || interface_name.starts_with("en") {
+        // Only consider interfaces starting with "wl" or "en" or "eth"
+        if interface_name.starts_with("wl") || interface_name.starts_with("en") || interface_name.starts_with("eth") {
             // Convert bytes to kilobytes
             let upload_kb = data.transmitted() as f64 / 1024.0;
             let download_kb = data.received() as f64 / 1024.0;

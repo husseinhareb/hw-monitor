@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-
-interface Process {
-    user: string;
-    pid: number;
-    ppid: number;
-    name: string;
-    state: string;
-    memory: string;
-    cpu_usage: number;
-    read_disk_usage: string;
-    write_disk_usage: string;
-}
+import useProcessData, { Process } from '../hooks/useProcessData'; // Import Process interface from the hook
 
 interface TotalUsages {
     memory: number | null;
@@ -19,19 +8,15 @@ interface TotalUsages {
 }
 
 const Proc: React.FC = () => {
-    const [processes, setProcesses] = useState<Process[]>([]);
     const [sortBy, setSortBy] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<string>('asc'); // Default sort order is ascending
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
     const [sortedProcesses, setSortedProcesses] = useState<Process[]>([]);
 
+    const { processes } = useProcessData();
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch processes
-                const fetchedProcesses: Process[] = await invoke("get_processes");
-                setProcesses(fetchedProcesses);
-
                 // Fetch total usages
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
                 setTotalUsages(fetchedTotalUsages);
@@ -139,6 +124,8 @@ const Proc: React.FC = () => {
                         )}
                         <th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total</th>
                         <th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total</th>
+                        <th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Speed</th>
+                        <th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Speed</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -154,6 +141,8 @@ const Proc: React.FC = () => {
                             <td>{process.cpu_usage.toString()}%</td>
                             <td>{process.read_disk_usage}</td>
                             <td>{process.write_disk_usage}</td>
+                            <td>{process.read_disk_speed}</td>
+                            <td>{process.write_disk_speed}</td>
                         </tr>
                     ))}
                 </tbody>
