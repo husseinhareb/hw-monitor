@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 import useProcessData, { Process } from '../hooks/useProcessData'; // Import Process interface from the hook
+import { Table, Tbody, Td, Th, Thead, Tr } from '../styled-components/proc-style';
 
 interface TotalUsages {
     memory: number | null;
@@ -92,58 +93,58 @@ const Proc: React.FC = () => {
 
     return (
         <div>
-            <table>
-                <thead>
+            <Table>
+                <Thead>
                     <tr>
-                        <th>count</th>
-                        <th onClick={() => sortProcesses('user')}>user</th>
-                        <th onClick={() => sortProcesses('pid')}>pid</th>
-                        <th onClick={() => sortProcesses('ppid')}>ppid</th>
-                        <th onClick={() => sortProcesses('name')}>name</th>
-                        <th onClick={() => sortProcesses('state')}>state</th>
+                        <Th>count</Th>
+                        <Th onClick={() => sortProcesses('user')}>user</Th>
+                        <Th onClick={() => sortProcesses('pid')}>pid</Th>
+                        <Th onClick={() => sortProcesses('ppid')}>ppid</Th>
+                        <Th onClick={() => sortProcesses('name')}>name</Th>
+                        <Th onClick={() => sortProcesses('state')}>state</Th>
                         {totalUsages.memory !== null ? (
-                            <th onClick={() => sortProcesses('memory')}>
+                            <Th onClick={() => sortProcesses('memory')}>
                                 {totalUsages.memory}% <br /> memory
-                            </th>
+                            </Th>
                         ) : (
-                            <th onClick={() => sortProcesses('memory')}>
+                            <Th onClick={() => sortProcesses('memory')}>
                                 N/A <br /> memory
-                            </th>
+                            </Th>
                         )}
                         {totalUsages.cpu !== null ? (
-                            <th onClick={() => sortProcesses('cpu_usage')}>
+                            <Th onClick={() => sortProcesses('cpu_usage')}>
                                 {totalUsages.cpu}% <br /> CPU usage
-                            </th>
+                            </Th>
                         ) : (
-                            <th onClick={() => sortProcesses('cpu_usage')}>
+                            <Th onClick={() => sortProcesses('cpu_usage')}>
                                 N/A <br /> CPU usage
-                            </th>
+                            </Th>
                         )}
-                        <th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total</th>
-                        <th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total</th>
-                        <th onClick={() => sortProcesses('read_disk_speed')}>Disk Read Speed</th>
-                        <th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed</th>
+                        <Th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total</Th>
+                        <Th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total</Th>
+                        <Th onClick={() => sortProcesses('read_disk_speed')}>Disk Read Speed</Th>
+                        <Th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed</Th>
                     </tr>
-                </thead>
-                <tbody>
+                </Thead>
+                <Tbody>
                     {sortedProcesses.map((process, index) => (
-                        <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{process.user}</td>
-                            <td>{process.pid}</td>
-                            <td>{process.ppid}</td>
-                            <td>{process.name}</td>
-                            <td>{process.state}</td>
-                            <td>{process.memory}</td>
-                            <td>{process.cpu_usage.toString()}%</td>
-                            <td>{process.read_disk_usage}</td>
-                            <td>{process.write_disk_usage}</td>
-                            <td>{process.read_disk_speed}</td>
-                            <td>{process.write_disk_speed}</td>
-                        </tr>
+                        <Tr key={index}>
+                            <Td>{index + 1}</Td>
+                            <Td>{process.user}</Td>
+                            <Td>{process.pid}</Td>
+                            <Td>{process.ppid}</Td>
+                            <Td>{process.name}</Td>
+                            <Td>{process.state}</Td>
+                            <Td>{process.memory}</Td>
+                            <Td>{process.cpu_usage.toString()}%</Td>
+                            <Td>{process.read_disk_usage}</Td>
+                            <Td>{process.write_disk_usage}</Td>
+                            <Td>{process.read_disk_speed}</Td>
+                            <Td>{process.write_disk_speed}</Td>
+                        </Tr>
                     ))}
-                </tbody>
-            </table>
+                </Tbody>
+            </Table>
         </div>
     );
 }
