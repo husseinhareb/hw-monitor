@@ -24,7 +24,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
     }, [interfaceName, download, upload, setWifiSpeed, setEthernetSpeed]);
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
+        <div style={{ display: hidden ? 'none' : 'block'}}>
             <h2>{interfaceName}</h2>
             <Graph firstGraphValue={download} secondGraphValue={upload} />
             {totalDownload !== undefined && (

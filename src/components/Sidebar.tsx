@@ -58,9 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             <Graph firstGraphValue={memory} maxValue={maxMemory} />
                         </ListItem>
                     )}
-                    <ListItem onClick={() => handleItemClick('DISK')}>
-                        DISK
-                    </ListItem>
+
                     {wifi &&
                         <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                             Wi-Fi

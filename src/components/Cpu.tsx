@@ -36,7 +36,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
 
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
+        <div style={{ display: hidden ? 'none' : 'block'}}>
             <h2>{cpuData.name}</h2>
             <Graph firstGraphValue={cpuUsage} maxValue={100} />
             <p>Cpu usage: {cpuData.usage}%</p>

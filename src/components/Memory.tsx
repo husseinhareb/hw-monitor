@@ -59,7 +59,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     }, [activeMem, setMemory]);
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block', width: '100%' }}>
+        <div style={{ display: hidden ? 'none' : 'block'}}>
             {memoryData && (
                 <>
                     <Graph

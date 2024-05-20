@@ -1,35 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-
-interface SensorData {
-  name: String;
-  value: number;
-}
-
-interface HwMonData {
-  index: number;
-  name: String;
-  sensors: SensorData[];
-}
+import React from "react";
+import useSensorsData from "../hooks/useSensorsData";
 
 const Sensors: React.FC = () => {
-  const [sensors, setSensors] = useState<HwMonData[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedSensorsData: HwMonData[] = await invoke("get_sensors");
-        setSensors(fetchedSensorsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-    const intervalId = setInterval(fetchData, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
+  const sensors = useSensorsData();
 
   return (
     <div>
