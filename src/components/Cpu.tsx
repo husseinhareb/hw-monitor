@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import Graph from "./Graph";
 import { useSetCpu } from "../services/store";
 import useCpuData from "../hooks/useCpuData";
-
+import { CPU, Label, Value, NameContainer, NameLabel, NameValue, RealTimeValues, FixedValues } from "../styles/cpu-style";
+import useTotalUsagesData from "../hooks/useTotalUsagesData";
 
 interface CpuProps {
     hidden: boolean;
 }
 
 const Cpu: React.FC<CpuProps> = ({ hidden }) => {
-    const {cpuData} = useCpuData();
+    const { cpuData } = useCpuData();
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
+    const totalUsages = useTotalUsagesData();
     const setCpu = useSetCpu();
-
 
     useEffect(() => {
         if (cpuUsage !== null) {
@@ -27,28 +28,47 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
             });
         }
     }, [cpuData]);
-    
+
     useEffect(() => {
         if (cpuData !== null) {
-            setCpu(cpuUsage)
+            setCpu(cpuUsage);
         }
     }, [cpuUsage]);
 
-
     return (
-        <div style={{ display: hidden ? 'none' : 'block'}}>
-            <h2>{cpuData.name}</h2>
+        <CPU style={{ display: hidden ? 'none' : 'block' }}>
+            <NameContainer>
+                <NameLabel>CPU</NameLabel>
+                <NameValue>{cpuData.name}</NameValue>
+            </NameContainer>
             <Graph firstGraphValue={cpuUsage} maxValue={100} />
-            <p>Cpu usage: {cpuData.usage}%</p>
-            <p>Socket: {cpuData.socket}</p>
-            <p>Cores: {cpuData.cores}</p>
-            <p>Threads: {cpuData.threads}</p>
-            <p>CPU Speed: {cpuData.current_speed} GHz</p>
-            <p>Base Speed: {cpuData.base_speed / 1000000} GHz</p>
-            <p>Max Speed: {cpuData.max_speed / 1000000} GHz</p>
-            <p>Virtualization: {cpuData.virtualization}</p>
-            <p>{cpuData.uptime}</p>
-        </div>
+            <div style={{ display: 'flex' }}>
+                <RealTimeValues>
+                    <Label>Speed</Label>
+                    <Value>{cpuData.current_speed}GHz</Value>
+                    <Label>Usage</Label>
+                    <Value>{cpuData.usage}%</Value>
+                    <Label>Processes</Label>
+                    <Value>{totalUsages.processes}</Value>
+                    <Label>Uptime</Label>
+                    <Value>{cpuData.uptime}</Value>
+                </RealTimeValues>
+                <FixedValues>
+                    <Label>Socket</Label>
+                    <Value>{cpuData.socket}</Value>
+                    <Label>Cores</Label>
+                    <Value>{cpuData.cores}</Value>
+                    <Label>Threads</Label>
+                    <Value>{cpuData.threads}</Value>
+                    <Label>Base Speed</Label>
+                    <Value>{cpuData.base_speed / 1000000} GHz</Value>
+                    <Label>Max Speed</Label>
+                    <Value> {cpuData.max_speed / 1000000} GHz</Value>
+                    <Label>Virtualization</Label>
+                    <Value> {cpuData.virtualization}</Value>
+                </FixedValues>
+            </div>
+        </CPU>
     );
 }
 

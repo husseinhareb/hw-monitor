@@ -25,6 +25,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             {
                                 data: firstGraphValue,
                                 borderColor: 'rgb(75, 192, 192)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Set background color
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -34,6 +35,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             {
                                 data: secondGraphValue || [], // Handle undefined secondGraphValue
                                 borderColor: 'rgb(255, 99, 132)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Set background color
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -44,7 +46,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                     },
                     options: {
                         animation: {
-                            duration: 120
+                            duration: 0
                         },
                         scales: {
                             y: {
@@ -55,6 +57,9 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)', // Default to black background
                             }
                         }
                     }
@@ -96,7 +101,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
 
     return (
         <div>
-            <canvas ref={chartRef} width={500} height={300}></canvas>
+            <canvas  ref={chartRef} width={500} height={300}></canvas>
         </div>
     );
 };
