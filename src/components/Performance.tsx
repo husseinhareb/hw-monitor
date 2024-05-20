@@ -6,6 +6,8 @@ import Sidebar from './Sidebar';
 const Performance: React.FC = () => {
   const [networkUsages, setNetworkUsages] = useState<any>(null);
 
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {

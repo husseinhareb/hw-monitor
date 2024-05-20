@@ -1190,6 +1190,7 @@ checksum = "21dec9db110f5f872ed9699c3ecf50cf16f423502706ba5c72462e28d3157573"
 name = "hw-monitor"
 version = "0.0.0"
 dependencies = [
+ "libmedium",
  "serde",
  "serde_json",
  "sysinfo",
@@ -1415,6 +1416,12 @@ name = "libc"
 version = "0.2.153"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
+
+[[package]]
+name = "libmedium"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "911378ee4bec1bd03ce7978009a52c26e84b43dff1da8b8495265f59c6f9cb0e"
 
 [[package]]
 name = "libredox"

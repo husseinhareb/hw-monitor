@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../hooks/useProcessData';
 import useTotalUsagesData from '../hooks/useTotalUsagesData';
-import { TableContainer, Table, Tbody, Td, Th, Thead, Tr } from '../styles/proc-style';
+import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../styles/proc-style';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
@@ -73,28 +73,19 @@ const Proc: React.FC = () => {
         return '';
     };
 
-    const getIntensityColor = (value: number): string => {
-        const baseColor = [45, 45, 45]; // Base color (#2d2d2d in RGB)
-        const maxIntensity = 50; // Maximum value for intensity
-        const intensity = Math.max(0, Math.min(Math.round(value * 25 / maxIntensity), 25));
     
-        // Calculate color with decreasing intensity
-        return `rgb(${baseColor.map(channel => Math.min(255, channel + intensity)).join(', ')})`;
-    };
-    
-
     return (
         <TableContainer>
             <Table>
             <Thead>
                     <Tr>
-                        <Th onClick={() => sortProcesses('user')}>user{getSortIndicator('user')}</Th>
-                        <Th onClick={() => sortProcesses('pid')}>pid{getSortIndicator('pid')}</Th>
-                        <Th onClick={() => sortProcesses('ppid')}>ppid{getSortIndicator('ppid')}</Th>
-                        <Th onClick={() => sortProcesses('name')}>name{getSortIndicator('name')}</Th>
-                        <Th onClick={() => sortProcesses('state')}>state{getSortIndicator('state')}</Th>
+                        <Th onClick={() => sortProcesses('user')}>User{getSortIndicator('user')}</Th>
+                        <Th onClick={() => sortProcesses('pid')}>Pid{getSortIndicator('pid')}</Th>
+                        <Th onClick={() => sortProcesses('ppid')}>Ppid{getSortIndicator('ppid')}</Th>
+                        <Th onClick={() => sortProcesses('name')}>Name{getSortIndicator('name')}</Th>
+                        <Th onClick={() => sortProcesses('state')}>State{getSortIndicator('state')}</Th>
                         <Th onClick={() => sortProcesses('memory')}>
-                            {totalUsages.memory !== null ? `${totalUsages.memory}%` : 'N/A'} <br /> memory{getSortIndicator('memory')}
+                            {totalUsages.memory !== null ? `${totalUsages.memory}%` : 'N/A'} <br />Memory{getSortIndicator('memory')}
                         </Th>
                         <Th onClick={() => sortProcesses('cpu_usage')}>
                             {totalUsages.cpu !== null ? `${totalUsages.cpu}%` : 'N/A'} <br /> CPU usage{getSortIndicator('cpu_usage')}
@@ -113,12 +104,12 @@ const Proc: React.FC = () => {
                             <Td>{process.ppid}</Td>
                             <Td>{process.name}</Td>
                             <Td>{process.state}</Td>
-                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.memory)) }}>{process.memory}</Td>
-                            <Td style={{ backgroundColor: getIntensityColor(parseFloat(process.cpu_usage || '0')) }}>{process.cpu_usage.toString()}%</Td>
-                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.read_disk_usage)) }}>{process.read_disk_usage}</Td>
-                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.write_disk_usage)) }}>{process.write_disk_usage}</Td>
-                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.read_disk_speed)) }}>{process.read_disk_speed}</Td>
-                            <Td style={{ backgroundColor: getIntensityColor(convertDataValue(process.write_disk_speed)) }}>{process.write_disk_speed}</Td>
+                            <Td>{process.memory}</Td>
+                            <Td>{process.cpu_usage.toString()}%</Td>
+                            <Td>{process.read_disk_usage}</Td>
+                            <Td>{process.write_disk_usage}</Td>
+                            <Td>{process.read_disk_speed}</Td>
+                            <Td>{process.write_disk_speed}</Td>
                         </Tr>
                     ))}
                 </Tbody>

@@ -21,6 +21,7 @@ export const Thead = styled.thead`
 
 export const Th = styled.th`
     padding: 8px;
+    border: 1px solid #2d2d2d;
     cursor: pointer;
     font-weight: bold;
     white-space: nowrap;

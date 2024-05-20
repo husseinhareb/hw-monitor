@@ -4,6 +4,9 @@ import Proc from "./Proc";
 import Performance from "./Performance";
 import Sensors from "./Sensors";
 import Disks from "./Disks";
+import { GiProcessor } from "react-icons/gi";
+import { MdSpeed } from "react-icons/md";
+import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks";
 
@@ -28,20 +31,20 @@ const Navbar: React.FC = () => {
             <StyledNav>
                 <StyledUl>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Proc")}>Processes</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Proc")}><GiProcessor /> Processes</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Performance")}>Performance</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Performance")}><MdSpeed /> Performance</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Sensors")}>Sensors</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Sensors")}><FaTemperatureHalf /> Sensors</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Disks")}>Disks</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Disks")}><FaFloppyDisk /> Disks</StyledButton>
                     </li>
                 </StyledUl>
             </StyledNav>
-            <div>
+            <div style={{ marginTop: '4rem' }}>
                 {DynamicComponent && <DynamicComponent />}
             </div>
         </div>
