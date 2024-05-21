@@ -4,10 +4,11 @@ import { invoke } from "@tauri-apps/api/tauri";
 interface TotalUsages {
     memory: number | null;
     cpu: number | null;
+    processes: number | null
 }
 
 const useTotalUsagesData = (): TotalUsages => {
-    const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null });
+    const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null, processes: null });
 
     useEffect(() => {
         const fetchData = async () => {

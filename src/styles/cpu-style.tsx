@@ -12,7 +12,6 @@ export const NameContainer = styled.div`
     padding: 10px 0;
 `;
 
-
 export const NameLabel = styled.p`
     color: rgb(255, 255, 255);
     font-size: 40px;
@@ -37,27 +36,32 @@ export const Value = styled.p`
     font-size: 20px;
 `;
 
-
 export const RealTimeValues = styled.div`
-
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 `;
 
 export const FixedValues = styled.div`
     flex: 1;
     padding: 10px;
-    text-align: left; 
-    border-left:2px solid white;
+    text-align: left;
+    border-left: 2px solid white;
 `;
 
 export const SpeedUsageContainer = styled.div`
     display: flex;
+    justify-content: space-between;
+`;
+
+export const SpeedUsageItem = styled.div`
+    display: flex;
     flex-direction: column;
+    align-items: center;
 `;
 
-export const SpeedUsageLabel = styled(Label)`
-    margin-bottom: 5px;
-`;
-
-export const SpeedUsageValue = styled(Value)`
-    margin-bottom: 10px;
+export const FixedValueItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 `;
