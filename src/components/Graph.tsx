@@ -101,7 +101,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
 
     return (
         <div>
-            <canvas  ref={chartRef} width={500} height={300}></canvas>
+            <canvas  ref={chartRef} width={'60%'} height={'40%'}></canvas>
         </div>
     );
 };

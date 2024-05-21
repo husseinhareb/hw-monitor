@@ -1,3 +1,4 @@
+//cpu-style.tsx
 import styled from 'styled-components';
 
 export const CPU = styled.nav`
@@ -24,17 +25,38 @@ export const NameValue = styled.p`
     font-size: 20px;
 `;
 
-export const Label = styled.p`
+//Label Style
+const Label = styled.p`
     color: rgb(255, 255, 255);
-    font-size: 20px;
     margin: 5px;
+    margin-right:20px;
+    margin-left:20px;
 `;
 
-export const Value = styled.p`
+export const RightLabel = styled(Label)`
+    font-size:18px;
+`;
+
+export const LeftLabel = styled(Label)`
+    font-size:14px;
+`;
+
+//Value Style
+const Value = styled.p`
     color: #575050;
     margin: 5px;
+    margin-left:20px;
+    margin-right:20px;
+
+`;
+
+export const RightValue = styled(Value)`
+    font-size: 18px;
+`;
+export const LeftValue = styled(Value)`
     font-size: 20px;
 `;
+
 
 export const RealTimeValues = styled.div`
     display: flex;
@@ -57,7 +79,6 @@ export const SpeedUsageContainer = styled.div`
 export const SpeedUsageItem = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
 `;
 
 export const FixedValueItem = styled.div`

@@ -1,3 +1,4 @@
+//Navbar.tsx
 import React, { useState, FunctionComponent } from "react";
 import { StyledButton, StyledNav, StyledUl } from "../styles/navbar-style";
 import Proc from "./Proc";
@@ -44,7 +45,7 @@ const Navbar: React.FC = () => {
                     </li>
                 </StyledUl>
             </StyledNav>
-            <div style={{ marginTop: '4rem' }}>
+            <div>
                 {DynamicComponent && <DynamicComponent />}
             </div>
         </div>

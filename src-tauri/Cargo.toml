@@ -1,8 +1,8 @@
 [package]
 name = "hw-monitor"
-version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+version = "1.0.0"
+description = "Hardware Monitor"
+authors = ["husseinhareb"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -13,11 +13,11 @@ tauri-build = { version = "1", features = [] }
 [dependencies]
 tauri = { version = "1", features = ["shell-open"] }
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-sysinfo = "0.30.11"
 tokio = { version = "1.37.0", features = ["full"] }
+sysinfo = "0.30.11"
 libmedium = "0.8.1"
-futures = "0.3.30"
+serde_json = "1"
+
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]

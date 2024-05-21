@@ -1,8 +1,9 @@
+//Cpu.tsx
 import React, { useState, useEffect } from "react";
 import Graph from "./Graph";
 import { useSetCpu } from "../services/store";
 import useCpuData from "../hooks/useCpuData";
-import { CPU, Label, Value, NameContainer, NameLabel, NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "../styles/cpu-style";
+import { CPU, LeftLabel, RightLabel,RightValue,LeftValue, NameContainer, NameLabel, NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "../styles/cpu-style";
 import useTotalUsagesData from "../hooks/useTotalUsagesData";
 
 interface CpuProps {
@@ -42,47 +43,47 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
                 <NameValue>{cpuData.name}</NameValue>
             </NameContainer>
             <Graph firstGraphValue={cpuUsage} maxValue={100} />
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', marginTop: '100px' }}>
                 <RealTimeValues>
                     <SpeedUsageContainer>
                         <SpeedUsageItem>
-                            <Label>Speed</Label>
-                            <Value>{cpuData.current_speed}GHz</Value>
+                            <LeftLabel>Speed</LeftLabel>
+                            <LeftValue>{cpuData.current_speed}GHz</LeftValue>
                         </SpeedUsageItem>
                         <SpeedUsageItem>
-                            <Label>Usage</Label>
-                            <Value>{cpuData.usage}%</Value>
+                            <LeftLabel>Usage</LeftLabel>
+                            <LeftValue>{cpuData.usage}%</LeftValue>
                         </SpeedUsageItem>
                     </SpeedUsageContainer>
-                    <Label>Processes</Label>
-                    <Value>{totalUsages.processes}</Value>
-                    <Label>Uptime</Label>
-                    <Value>{cpuData.uptime}</Value>
+                    <LeftLabel>Processes</LeftLabel>
+                    <LeftValue>{totalUsages.processes}</LeftValue>
+                    <LeftLabel>Uptime</LeftLabel>
+                    <LeftValue>{cpuData.uptime}</LeftValue>
                 </RealTimeValues>
                 <FixedValues>
                     <FixedValueItem>
-                        <Label>Socket</Label>
-                        <Value>{cpuData.socket}</Value>
+                        <RightLabel>Socket</RightLabel>
+                        <RightValue>{cpuData.socket}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <Label>Cores</Label>
-                        <Value>{cpuData.cores}</Value>
+                        <RightLabel>Cores</RightLabel>
+                        <RightValue>{cpuData.cores}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <Label>Threads</Label>
-                        <Value>{cpuData.threads}</Value>
+                        <RightLabel>Threads</RightLabel>
+                        <RightValue>{cpuData.threads}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <Label>Base Speed</Label>
-                        <Value>{cpuData.base_speed / 1000000} GHz</Value>
+                        <RightLabel>Base Speed</RightLabel>
+                        <RightValue>{cpuData.base_speed / 1000000} GHz</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <Label>Max Speed</Label>
-                        <Value>{cpuData.max_speed / 1000000} GHz</Value>
+                        <RightLabel>Max Speed</RightLabel>
+                        <RightValue>{cpuData.max_speed / 1000000} GHz</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <Label>Virtualization</Label>
-                        <Value>{cpuData.virtualization}</Value>
+                        <RightLabel>Virtualization</RightLabel>
+                        <RightValue>{cpuData.virtualization}</RightValue>
                     </FixedValueItem>
                 </FixedValues>
             </div>
