@@ -16,12 +16,12 @@ export const NameContainer = styled.div`
 export const NameLabel = styled.p`
     color: rgb(255, 255, 255);
     font-size: 40px;
-    margin: 5px;
+    margin: 7px;
 `;
 
 export const NameValue = styled.p`
     color: white;
-    margin: 5px;
+    margin: 7px;
     font-size: 20px;
 `;
 

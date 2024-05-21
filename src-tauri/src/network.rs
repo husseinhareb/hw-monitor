@@ -28,8 +28,8 @@ pub async fn get_network() -> Vec<Network> {
         // Only consider interfaces starting with "wl" or "en" or "eth"
         if interface_name.starts_with("wl") || interface_name.starts_with("en") || interface_name.starts_with("eth") {
             // Convert bytes to kilobytes
-            let upload_kb = data.transmitted() as f64 / 1024.0;
-            let download_kb = data.received() as f64 / 1024.0;
+            let upload_kb = data.transmitted();
+            let download_kb = data.received();
             // Calculate total network usages
             let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
             let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();

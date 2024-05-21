@@ -18,7 +18,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
     useEffect(() => {
         if (interfaceName.includes("wl")) {
             setWifiSpeed(download, upload);
-        } else if (interfaceName.includes("en")) {
+        } else if (interfaceName.includes("en") || interfaceName.includes("eth")) {
             setEthernetSpeed(download, upload);
         }
     }, [interfaceName, download, upload, setWifiSpeed, setEthernetSpeed]);
@@ -33,8 +33,8 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
             {totalUpload !== undefined && (
                 <p>Total Upload: {convertData(totalUpload).value} {convertData(totalUpload).unit}</p>
             )}
-            <p>Download: {download.length > 0 ? download[download.length - 1] : 0}</p>
-            <p>Upload: {upload.length > 0 ? upload[upload.length - 1] : 0}</p>
+            <p>Download: {download.length > 0 ?  convertData(download[download.length - 1]).value : 0} {convertData(download[download.length - 1]).unit}</p>
+            <p>Upload: {upload.length > 0 ? convertData(upload[upload.length - 1]).value : 0} {convertData(upload[upload.length - 1]).unit}</p>
         </div>
     );
 };

@@ -20,7 +20,7 @@ const useNetworkData = (interfaceName: string) => {
                 const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network");
                 const interfaceData = fetchedNetworkUsages.find(data => data.interface === interfaceName);
                 if (interfaceData) {
-                    setDownload(prevDownload => [...prevDownload, interfaceData.download]);
+                    setDownload(prevDownload => [...prevDownload,  interfaceData.download]);
                     setUpload(prevUpload => [...prevUpload, interfaceData.upload]);
                     setTotalDownload(interfaceData.total_download);
                     setTotalUpload(interfaceData.total_upload);
