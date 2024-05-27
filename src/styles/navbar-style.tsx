@@ -1,11 +1,15 @@
-//navbar-style.tsx
+// navbar-style.tsx
 import styled from 'styled-components';
 
 export const StyledNav = styled.nav`
     background-color: #222222;
-
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 30px;
 `;
-
 
 export const StyledButton = styled.button`
     display: flex;
@@ -35,4 +39,17 @@ export const StyledUl = styled.ul`
     list-style: none;
     padding: 0;
     margin: 0;
+    height: 100%; 
 `;
+
+// Additional styles for main content
+export const MainContent = styled.main`
+    margin-top: 60px; /* Adjust this to match the height of your navbar */
+    padding: 1rem;
+`;
+
+// You can export a wrapper component to use in your main layout
+export const Wrapper = styled.div`
+    overflow-x: hidden; /* Prevent horizontal scroll */
+`;
+

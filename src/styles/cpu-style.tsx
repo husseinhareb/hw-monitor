@@ -1,7 +1,7 @@
 //cpu-style.tsx
 import styled from 'styled-components';
 
-export const CPU = styled.nav`
+export const CPU = styled.div`
     background-color: #2B2B2B;
     width: 100%;
 `;

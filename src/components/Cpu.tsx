@@ -3,8 +3,9 @@ import React, { useState, useEffect } from "react";
 import Graph from "./Graph";
 import { useSetCpu } from "../services/store";
 import useCpuData from "../hooks/useCpuData";
-import { CPU, LeftLabel, RightLabel,RightValue,LeftValue, NameContainer, NameLabel, NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "../styles/cpu-style";
+import { CPU, LeftLabel, RightLabel,RightValue,LeftValue,  NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "../styles/cpu-style";
 import useTotalUsagesData from "../hooks/useTotalUsagesData";
+import { NameContainer, NameLabel } from "../styles/general-style";
 
 interface CpuProps {
     hidden: boolean;
@@ -37,13 +38,13 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     }, [cpuUsage]);
 
     return (
-        <CPU style={{ display: hidden ? 'none' : 'block' }}>
+        <CPU style={{ display: hidden ? 'none' : 'block'}}>
             <NameContainer>
                 <NameLabel>CPU</NameLabel>
                 <NameValue>{cpuData.name}</NameValue>
             </NameContainer>
             <Graph firstGraphValue={cpuUsage} maxValue={100} />
-            <div style={{ display: 'flex', marginTop: '100px' }}>
+            <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                 <RealTimeValues>
                     <SpeedUsageContainer>
                         <SpeedUsageItem>

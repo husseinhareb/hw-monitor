@@ -25,7 +25,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             {
                                 data: firstGraphValue,
                                 borderColor: 'rgb(75, 192, 192)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Set background color
+                                backgroundColor: 'rgba(9, 255, 255, 0.2)', // Set background color
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -101,7 +101,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
 
     return (
         <div>
-            <canvas  ref={chartRef} width={'60%'} height={'40%'}></canvas>
+            <canvas  ref={chartRef} width={'60%'} height={'40%1231212341'}></canvas>
         </div>
     );
 };

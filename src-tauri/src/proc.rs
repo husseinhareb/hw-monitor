@@ -260,7 +260,7 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     }
 
     // Wait for the specified duration
-    sleep(Duration::from_secs(duration_secs)).await;
+    //sleep(Duration::from_secs(duration_secs)).await;
 
     let total_cpu_time_end = get_total_cpu_time().await?;
 
@@ -305,7 +305,7 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
     }
 
     // Sleep for a specified duration
-    sleep(Duration::from_secs(1)).await;
+    //sleep(Duration::from_secs(1)).await;
 
     // Refresh processes information to get updated disk usage
     s.refresh_processes();

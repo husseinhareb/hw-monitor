@@ -3,6 +3,9 @@ import Graph from "./Graph";
 import useMemoryData from "../hooks/useMemoryData";
 import { useSetMemory } from "../services/store";
 import useDataConverter from "../helper/useDataConverter";
+import { MemoryContainer, MemoryInfo, MemoryInfoItem } from "../styles/memory-style";
+import { NameContainer, NameLabel } from "../styles/general-style";
+import { NameValue } from "../styles/cpu-style";
 
 interface MemoryProps {
     hidden: boolean;
@@ -59,25 +62,30 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
     }, [activeMem, setMemory]);
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block'}}>
+        <MemoryContainer hidden={hidden}>
             {memoryData && (
                 <>
+                    <NameContainer>
+                        <NameLabel>Memory</NameLabel>
+                        <NameValue>{Math.floor(memoryData.total.value)} {memoryData.total.unit}</NameValue>
+                    </NameContainer>
                     <Graph
                         firstGraphValue={activeMem}
                         maxValue={Math.floor(memoryData.total.value)}
                     />
 
-                    <p>Total Memory: {memoryData.total.value} {memoryData.total.unit}</p>
-                    <p>Free: {memoryData.free.value} {memoryData.free.unit}</p>
-                    <p>Available: {memoryData.available.value} {memoryData.available.unit}</p>
-                    <p>Cached: {memoryData.cached.value} {memoryData.cached.unit}</p>
-                    <p>Active: {memoryData.active.value} {memoryData.active.unit}</p>
-                    <p>Swap Total: {memoryData.swapTotal.value} {memoryData.swapTotal.unit}</p>
-                    <p>Swap Cache: {memoryData.swapCache.value} {memoryData.swapCache.unit}</p>
+                    <MemoryInfo>
+                        <MemoryInfoItem>Total Memory: {memoryData.total.value} {memoryData.total.unit}</MemoryInfoItem>
+                        <MemoryInfoItem>Free: {memoryData.free.value} {memoryData.free.unit}</MemoryInfoItem>
+                        <MemoryInfoItem>Available: {memoryData.available.value} {memoryData.available.unit}</MemoryInfoItem>
+                        <MemoryInfoItem>Cached: {memoryData.cached.value} {memoryData.cached.unit}</MemoryInfoItem>
+                        <MemoryInfoItem>Active: {memoryData.active.value} {memoryData.active.unit}</MemoryInfoItem>
+                        <MemoryInfoItem>Swap Total: {memoryData.swapTotal.value} {memoryData.swapTotal.unit}</MemoryInfoItem>
+                        <MemoryInfoItem>Swap Cache: {memoryData.swapCache.value} {memoryData.swapCache.unit}</MemoryInfoItem>
+                    </MemoryInfo>
                 </>
             )}
-        </div>
+        </MemoryContainer>
     );
 };
-
 export default Memory;
