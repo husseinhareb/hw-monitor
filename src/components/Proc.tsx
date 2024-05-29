@@ -28,6 +28,14 @@ const Proc: React.FC = () => {
         return parseFloat(usageStr);
     };
 
+    const calculateTotalUsage = (processes: Process[], key: string): number => {
+        return processes.reduce((total, process) => total + convertDataValue(process[key]), 0);
+    };
+
+    const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
+    const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
+    const totalWriteDiskUsage = calculateTotalUsage(processes, 'write_disk_usage');
+
     const sortProcessesByColumn = useMemo(() => (processes: Process[], column: string, order: string): Process[] => {
         if (!column) return processes;
 
@@ -35,7 +43,7 @@ const Proc: React.FC = () => {
             let valueA: any;
             let valueB: any;
 
-            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed")  {
+            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed") {
                 valueA = convertDataValue(a[column]);
                 valueB = convertDataValue(b[column]);
             } else if (column === "pid" || column === "ppid") {
@@ -73,11 +81,15 @@ const Proc: React.FC = () => {
         return '';
     };
 
-    
+    const getCellStyle = (value: string, total: number): React.CSSProperties => {
+        const percentage = (convertDataValue(value) / total) * 100;
+        return percentage > 5 ? { backgroundColor: '#3e3e3e', color: 'white' } : {};
+    };
+
     return (
         <TableContainer>
             <Table>
-            <Thead>
+                <Thead>
                     <Tr>
                         <Th onClick={() => sortProcesses('user')}>User{getSortIndicator('user')}</Th>
                         <Th onClick={() => sortProcesses('pid')}>Pid{getSortIndicator('pid')}</Th>
@@ -104,18 +116,30 @@ const Proc: React.FC = () => {
                             <Td>{process.ppid}</Td>
                             <Td>{process.name}</Td>
                             <Td>{process.state}</Td>
-                            <Td>{process.memory}</Td>
-                            <Td>{process.cpu_usage.toString()}%</Td>
-                            <Td>{process.read_disk_usage}</Td>
-                            <Td>{process.write_disk_usage}</Td>
-                            <Td>{process.read_disk_speed}</Td>
-                            <Td>{process.write_disk_speed}</Td>
+                            <Td style={getCellStyle(process.memory, totalMemoryUsage)}>
+                                {process.memory}
+                            </Td>
+                            <Td style={getCellStyle(process.cpu_usage.toString(), totalUsages.cpu)}>
+                                {process.cpu_usage.toString()}%
+                            </Td>
+                            <Td style={getCellStyle(process.read_disk_usage, totalReadDiskUsage)}>
+                                {process.read_disk_usage}
+                            </Td>
+                            <Td style={getCellStyle(process.write_disk_usage, totalWriteDiskUsage)}>
+                                {process.write_disk_usage}
+                            </Td>
+                            <Td style={getCellStyle(process.read_disk_speed, totalReadDiskUsage)}>
+                                {process.read_disk_speed}
+                            </Td>
+                            <Td style={getCellStyle(process.write_disk_speed, totalWriteDiskUsage)}>
+                                {process.write_disk_speed}
+                            </Td>
                         </Tr>
                     ))}
                 </Tbody>
             </Table>
         </TableContainer>
     );
-}
+};
 
 export default Proc;
