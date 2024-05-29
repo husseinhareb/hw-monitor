@@ -1,5 +1,4 @@
-//Navbar.tsx
-import React, { useState, FunctionComponent } from "react";
+import React, { useState, useEffect, FunctionComponent } from "react";
 import { StyledButton, StyledNav, StyledUl } from "../styles/navbar-style";
 import Proc from "./Proc";
 import Performance from "./Performance";
@@ -24,6 +23,34 @@ const Navbar: React.FC = () => {
     const handleButtonClick = (componentName: ComponentName) => {
         setActiveComponent(componentName);
     };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.altKey) {
+            switch (event.key) {
+                case '1':
+                    setActiveComponent("Proc");
+                    break;
+                case '2':
+                    setActiveComponent("Performance");
+                    break;
+                case '3':
+                    setActiveComponent("Sensors");
+                    break;
+                case '4':
+                    setActiveComponent("Disks");
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
