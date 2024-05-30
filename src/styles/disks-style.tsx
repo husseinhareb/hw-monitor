@@ -54,3 +54,15 @@ export const PartitionName = styled.span`
 export const PartitionSize = styled.span`
   color: #ff6b6b;
 `;
+
+export const FileSystem = styled.span`
+  color: #a3be8c;
+`;
+
+export const AvailableSpace = styled.span`
+  color: #ffcb6b;
+`;
+
+export const TotalSpace = styled.span`
+  color: #ff5370;
+`;

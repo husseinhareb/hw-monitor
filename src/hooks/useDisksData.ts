@@ -5,6 +5,9 @@ import useDataConverter from "../helper/useDataConverter";
 interface PartitionData {
     name: string;
     size: number;
+    file_system?: string;
+    available_space?: number;
+    total_space?: number;
 }
 
 interface DiskData {

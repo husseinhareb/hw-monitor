@@ -1,6 +1,6 @@
 import React from "react";
 import useDiskData from "../hooks/useDisksData";
-import { Container, DiskCard, DiskTitle, PartitionList, PartitionName, DiskSize, PartitionSize, PartitionItem } from "../styles/disks-style";
+import { Container, DiskCard, DiskTitle, PartitionList, PartitionName, DiskSize, PartitionSize, PartitionItem, FileSystem, AvailableSpace, TotalSpace } from "../styles/disks-style";
 
 interface DisksProps {
     hidden: boolean;
@@ -8,7 +8,7 @@ interface DisksProps {
 
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
     const { diskData, convertData } = useDiskData();
-
+    console.log(diskData)
     return (
         <Container hidden={hidden}>
             {diskData.length === 0 ? (
@@ -25,6 +25,9 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                                     <PartitionSize>
                                         Size: {convertData(partition.size).value} {convertData(partition.size).unit}
                                     </PartitionSize>
+                                    <FileSystem>File System: {partition.file_system}</FileSystem>
+                                    <AvailableSpace>Available Space: {convertData(partition.available_space).value} {convertData(partition.available_space).unit}</AvailableSpace>
+                                    <TotalSpace>Total Space: {convertData(partition.total_space).value} {convertData(partition.total_space).unit}</TotalSpace>
                                 </PartitionItem>
                             ))}
                         </PartitionList>
