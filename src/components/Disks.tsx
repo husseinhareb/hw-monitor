@@ -10,7 +10,7 @@ import {
     PartitionSize,
     PartitionItem,
     FileSystem,
-    AvailableSpace,
+    Space,
     PartitionContainer,
     PartitionBar
 } from "../styles/disks-style";
@@ -41,20 +41,20 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                                     <PartitionBar style={{ width: `${usagePercentage(partition.used_space, partition.total_space)}%` }}>
                                     </PartitionBar>
                                     <PartitionItem>
-                                            <PartitionName>{partition.name}</PartitionName>
-                                            {!partition.total_space && (
-                                                <PartitionSize>
-                                                    Size: {convertData(partition.size).value} {convertData(partition.size).unit}
-                                                </PartitionSize>
-                                            )}
-                                            {partition.mount_point && <FileSystem>{partition.mount_point}</FileSystem>}
-                                            {partition.file_system && <FileSystem>{partition.file_system}</FileSystem>}
-                                            {partition.used_space && partition.total_space && (
-                                                <AvailableSpace>
-                                                    {convertData(partition.used_space).value} {convertData(partition.used_space).unit} / {convertData(partition.total_space).value} {convertData(partition.total_space).unit}
-                                                </AvailableSpace>
-                                            )}
-                                        </PartitionItem>
+                                        <PartitionName>{partition.name}</PartitionName>
+                                        {!partition.total_space && (
+                                            <Space>
+                                                {convertData(partition.size).value} {convertData(partition.size).unit}
+                                            </Space>
+                                        )}
+                                        {partition.mount_point && <FileSystem>{partition.mount_point}</FileSystem>}
+                                        {partition.file_system && <FileSystem>{partition.file_system}</FileSystem>}
+                                        {partition.used_space && partition.total_space && (
+                                            <Space>
+                                                {convertData(partition.used_space).value} {convertData(partition.used_space).unit} / {convertData(partition.total_space).value} {convertData(partition.total_space).unit}
+                                            </Space>
+                                        )}
+                                    </PartitionItem>
                                 </PartitionContainer>
                             ))}
                         </PartitionList>

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import {styled,keyframes} from "styled-components";
 
 export const Container = styled.div`
   display: ${props => (props.hidden ? 'none' : 'flex')};
@@ -16,7 +16,7 @@ export const DiskCard = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   padding: 20px;
   margin-bottom: 20px;
-  flex-grow: 1; /* Allows the DiskCard to grow and fill available space */
+  flex-grow: 1;
 `;
 
 export const DiskTitle = styled.h3`
@@ -55,6 +55,15 @@ export const PartitionItem = styled.li`
     z-index: 1; 
 `;
 
+const progressAnimation = keyframes`
+  from {
+    width: 0%;
+  }
+  to {
+    width: ${props => props.progress}%;
+  }
+`;
+
 export const PartitionBar = styled.div`
     height: 100%;
     background-color: #2b2b2b;
@@ -63,6 +72,7 @@ export const PartitionBar = styled.div`
     top: 0;
     left: 0;
     z-index: 0;
+    animation: ${progressAnimation} 1s ease-in-out; 
 `;
 
 
@@ -79,10 +89,6 @@ export const FileSystem = styled.span`
   color: #a3be8c;
 `;
 
-export const AvailableSpace = styled.span`
+export const Space = styled.span`
   color: #ffcb6b;
-`;
-
-export const TotalSpace = styled.span`
-  color: #ff5370;
 `;
