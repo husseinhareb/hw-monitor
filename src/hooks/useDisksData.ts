@@ -9,6 +9,7 @@ interface PartitionData {
     available_space?: number;
     total_space?: number;
     used_space?: number;
+    mount_point?: string;
 }
 
 interface DiskData {

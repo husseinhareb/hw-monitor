@@ -2,14 +2,18 @@ import styled from "styled-components";
 
 // Styled Components
 export const Container = styled.div`
+  display: ${props => (props.hidden ? 'none' : 'flex')};
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
   padding: 20px;
-  background-color: #2B2B2B;
-  margin: 0 auto;
+  background-color: #2b2b2b;
+  overflow-y: auto; 
 `;
 
 export const Title = styled.h1`
   text-align: center;
-  color: #333;
+  color: #fff;
 `;
 
 export const SensorGrid = styled.div`
@@ -19,10 +23,12 @@ export const SensorGrid = styled.div`
 `;
 
 export const SensorGroup = styled.div`
-  background-color: #fff;
+  background-color: #3a3a3a;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
 `;
 
 export const SensorGroupName = styled.h2`
@@ -38,7 +44,7 @@ export const SensorList = styled.ul`
 export const SensorItem = styled.li`
   margin: 5px 0;
   padding: 10px;
-  background-color: #e6f7ff;
+  background-color: #4a4a4a;
   border-radius: 4px;
   font-weight: bold;
   display: flex;

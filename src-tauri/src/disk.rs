@@ -13,6 +13,7 @@ pub struct Partition {
     pub total_space: Option<u64>,
     pub used_space: Option<u64>,
     pub file_system: Option<String>,
+    pub mount_point: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -55,6 +56,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
                                 total_space: None,
                                 used_space: None,
                                 file_system: None,
+                                mount_point: None,
                             });
                         }
                     }
@@ -85,7 +87,7 @@ pub fn get_disks() -> Result<Vec<Disk>, String> {
                     partition.total_space = Some(disk.total_space());
                     partition.file_system = Some(disk.file_system().to_string_lossy().to_string());
                     partition.used_space = Some(partition_used_space);
-                
+                    partition.mount_point = Some(disk.mount_point().to_string_lossy().to_string());
             }
         }
         }

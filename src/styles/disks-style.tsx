@@ -7,7 +7,7 @@ export const Container = styled.div`
   height: 100vh;
   padding: 20px;
   background-color: #2b2b2b;
-  overflow-y: auto; /* Allows scrolling if content overflows */
+  overflow-y: auto; 
 `;
 
 export const DiskCard = styled.div`
@@ -35,16 +35,36 @@ export const PartitionList = styled.ul`
   margin: 0;
 `;
 
-export const PartitionItem = styled.li`
-  background-color: #4a4a4a;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  padding: 10px;
-  font-size: 0.95em;
-  color: #ccc;
-  display: flex;
-  justify-content: space-between;
+
+
+export const PartitionContainer = styled.div`
+    width: 100%;
+    height: 40px;
+    background-color: #4a4a4a;
+    border-radius: 8px;
+    margin: 20px 0;
+    position: relative;
 `;
+
+export const PartitionItem = styled.li`
+    font-size: 0.95em;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    position: relative; 
+    z-index: 1; 
+`;
+
+export const PartitionBar = styled.div`
+    height: 100%;
+    background-color: #2b2b2b;
+    border-radius: 8px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+`;
+
 
 export const PartitionName = styled.span`
   font-weight: bold;
