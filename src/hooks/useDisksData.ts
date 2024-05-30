@@ -8,6 +8,7 @@ interface PartitionData {
     file_system?: string;
     available_space?: number;
     total_space?: number;
+    used_space?: number;
 }
 
 interface DiskData {
@@ -32,11 +33,9 @@ const useDiskData = () => {
         };
 
         fetchDiskData();
+        const intervalId = setInterval(fetchDiskData, 5000);
+        return () => clearInterval(intervalId);
 
-        // Clean up function
-        return () => {
-            // You might want to cancel any ongoing requests or clear any timers here if needed
-        };
     }, []);
 
     return { diskData, convertData };

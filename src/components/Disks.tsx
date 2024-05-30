@@ -1,6 +1,6 @@
 import React from "react";
 import useDiskData from "../hooks/useDisksData";
-import { Container, DiskCard, DiskTitle, PartitionList, PartitionName, DiskSize, PartitionSize, PartitionItem, FileSystem, AvailableSpace, TotalSpace } from "../styles/disks-style";
+import { Container, DiskCard, DiskTitle, PartitionList, PartitionName, DiskSize, PartitionSize, PartitionItem, FileSystem, AvailableSpace } from "../styles/disks-style";
 
 interface DisksProps {
     hidden: boolean;
@@ -22,12 +22,14 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                             {disk.partitions.map((partition, partitionIndex) => (
                                 <PartitionItem key={partitionIndex}>
                                     <PartitionName>{partition.name}</PartitionName>
-                                    <PartitionSize>
+                                    {!partition.total_space && <PartitionSize>
                                         Size: {convertData(partition.size).value} {convertData(partition.size).unit}
-                                    </PartitionSize>
-                                    <FileSystem>File System: {partition.file_system}</FileSystem>
-                                    <AvailableSpace>Available Space: {convertData(partition.available_space).value} {convertData(partition.available_space).unit}</AvailableSpace>
-                                    <TotalSpace>Total Space: {convertData(partition.total_space).value} {convertData(partition.total_space).unit}</TotalSpace>
+                                    </PartitionSize>}
+                                    {partition.file_system && 
+                                    <FileSystem>File System: {partition.file_system}</FileSystem>}
+                                    {partition.used_space  &&  
+                                    partition.total_space &&
+                                    <AvailableSpace> {convertData(partition.used_space).value} {convertData(partition.used_space).unit} / {convertData(partition.total_space).value} {convertData(partition.total_space).unit}</AvailableSpace>}
                                 </PartitionItem>
                             ))}
                         </PartitionList>

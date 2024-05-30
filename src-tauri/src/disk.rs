@@ -11,13 +11,14 @@ pub struct Partition {
     pub size: u64,
     pub available_space: Option<u64>,
     pub total_space: Option<u64>,
+    pub used_space: Option<u64>,
     pub file_system: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Disk {
     pub name: String,
-    pub kind: Option<String>,
+    pub size: u64,
     pub partitions: Vec<Partition>,
 }
 
@@ -39,8 +40,8 @@ fn get_disk_partition_info() -> Vec<Disk> {
                         current_disk = Some(name.clone());
                         disks.push(Disk {
                             name: name.clone(),
-                            kind: None,
                             partitions: Vec::new(),
+                            size: size,
                         });
                     }
 
@@ -52,6 +53,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
                                 size,
                                 available_space: None,
                                 total_space: None,
+                                used_space: None,
                                 file_system: None,
                             });
                         }
@@ -76,14 +78,13 @@ pub fn get_disks() -> Result<Vec<Disk>, String> {
         for disk in sys_disks.list() {
             let sys_disk_base_name = disk.name().to_string_lossy().to_string();
             let disk_info_base_name = "/dev/".to_owned() + &partition.name;
-            println!("{:?}", sys_disk_base_name);
-            println!("{:?}",disk_info.name);
-            // Check if the base name from sys_disks is contained in the name from disks_info
+            let partition_used_space = disk.total_space() - disk.available_space();
             if disk_info_base_name.contains(&sys_disk_base_name) {
                 // Match found, update disk information
                     partition.available_space = Some(disk.available_space());
                     partition.total_space = Some(disk.total_space());
                     partition.file_system = Some(disk.file_system().to_string_lossy().to_string());
+                    partition.used_space = Some(partition_used_space);
                 
             }
         }
