@@ -1,25 +1,29 @@
 import React from "react";
 import useSensorsData from "../hooks/useSensorsData";
+import { Container, Title, SensorGrid, SensorGroup, SensorGroupName,SensorName,SensorList,SensorValue,SensorItem} from "../styles/sensors-style";
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();
 
   return (
-    <div>
-      <h1>Sensors</h1>
-      {sensors.map((hwmon) => (
-        <div key={hwmon.index}>
-          <h2>{hwmon.name}</h2>
-          <ul>
-            {hwmon.sensors.map((sensor, idx) => (
-              <li key={idx}>
-                {sensor.name}: {sensor.value.toFixed(2)}°C
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
+    <Container>
+      <Title>Sensors</Title>
+      <SensorGrid>
+        {sensors.map((hwmon) => (
+          <SensorGroup key={hwmon.index}>
+            <SensorGroupName>{hwmon.name}</SensorGroupName>
+            <SensorList>
+              {hwmon.sensors.map((sensor, idx) => (
+                <SensorItem key={idx}>
+                  <SensorName>{sensor.name}</SensorName>
+                  <SensorValue>{sensor.value.toFixed(2)}°C</SensorValue>
+                </SensorItem>
+              ))}
+            </SensorList>
+          </SensorGroup>
+        ))}
+      </SensorGrid>
+    </Container>
   );
 };
 

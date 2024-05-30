@@ -29,23 +29,26 @@ fn get_disk_partition_info() -> Vec<Disk> {
             if let Ok(line) = line {
                 let parts: Vec<&str> = line.split_whitespace().collect();
                 if parts.len() >= 4 {
-                    let disk_name = parts[3].to_string();
-                    let partition_name = parts[3].to_string();
-                    if current_disk.is_none() || !partition_name.contains(current_disk.as_ref().unwrap()) {
-                        current_disk = Some(disk_name.clone());
-                        let disk_size: u64 = parts[2].parse().unwrap_or(0) * KILO_BYTE;
+                    let name = parts[3].to_string();
+                    let size: u64 = parts[2].parse().unwrap_or(0) * KILO_BYTE;
+
+                    if current_disk.is_none() || !name.contains(current_disk.as_ref().unwrap()) {
+                        current_disk = Some(name.clone());
                         disks.push(Disk {
-                            name: disk_name,
+                            name: name.clone(),
                             partitions: Vec::new(),
-                            size: disk_size,
+                            size,
                         });
                     }
+                    
                     if let Some(disk) = disks.last_mut() {
-                        let partition_size: u64 = parts[2].parse().unwrap_or(0) * KILO_BYTE;
-                        disk.partitions.push(Partition {
-                            name: partition_name,
-                            size: partition_size,
-                        });
+                        // Only add the partition if its name is not the same as the disk name
+                        if name != disk.name {
+                            disk.partitions.push(Partition {
+                                name,
+                                size,
+                            });
+                        }
                     }
                 }
             }
