@@ -13,7 +13,9 @@ export interface Process {
     write_disk_usage: string;
     read_disk_speed: string;
     write_disk_speed: string;
+    [key: string]: string | number; // Index signature
 }
+
 
 const useProcessData = () => {
     const [processes, setProcesses] = useState<Process[]>([]);

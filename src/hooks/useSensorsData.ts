@@ -4,10 +4,11 @@ import { invoke } from "@tauri-apps/api/tauri";
 interface SensorData {
   name: string;
   value: number;
+  max: number;
+  critical: number | null;
 }
 
 interface HwMonData {
-  index: number;
   name: string;
   sensors: SensorData[];
 }

@@ -7,7 +7,6 @@ export const Container = styled.div`
   height: 100vh;
   padding: 20px;
   background-color: #2b2b2b;
-  overflow-y: auto; 
 `;
 
 export const DiskCard = styled.div`
@@ -55,7 +54,7 @@ export const PartitionItem = styled.li`
     z-index: 1; 
 `;
 
-const progressAnimation = keyframes`
+const progressAnimation = keyframes<{ progress: number }>`
   from {
     width: 0%;
   }
@@ -63,6 +62,7 @@ const progressAnimation = keyframes`
     width: ${props => props.progress}%;
   }
 `;
+
 
 export const PartitionBar = styled.div`
     height: 100%;

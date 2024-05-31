@@ -38,14 +38,7 @@ export const StyledUl = styled.ul`
     height: 100%; 
 `;
 
-// Additional styles for main content
 export const MainContent = styled.main`
-    margin-top: 60px; /* Adjust this to match the height of your navbar */
+    margin-top: 60px;
     padding: 1rem;
 `;
-
-// You can export a wrapper component to use in your main layout
-export const Wrapper = styled.div`
-    overflow-x: hidden; /* Prevent horizontal scroll */
-`;
-

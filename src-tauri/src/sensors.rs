@@ -5,6 +5,8 @@ use sysinfo::{System, Components};
 pub struct SensorData {
     name: String,
     value: f32,
+    max: f32,
+    critical: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -20,11 +22,12 @@ fn get_hwmon_data() -> Vec<HwMonData> {
 
     let mut components_data: Vec<SensorData> = Vec::new();
     let components = Components::new_with_refreshed_list();
-
     for component in &components {
         components_data.push(SensorData {
             name: component.label().to_string(),
             value: component.temperature(),
+            max: component.max(),
+            critical: component.critical(),
         });
     }
 

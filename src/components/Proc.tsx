@@ -27,10 +27,10 @@ const Proc: React.FC = () => {
         }
         return parseFloat(usageStr);
     };
-
     const calculateTotalUsage = (processes: Process[], key: string): number => {
-        return processes.reduce((total, process) => total + convertDataValue(process[key]), 0);
+        return processes.reduce((total, process) => total + convertDataValue(String(process[key])), 0);
     };
+    
 
     const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
     const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
@@ -81,10 +81,11 @@ const Proc: React.FC = () => {
         return '';
     };
 
-    const getCellStyle = (value: string, total: number): React.CSSProperties => {
-        const percentage = (convertDataValue(value) / total) * 100;
+    const getCellStyle = (value: string, total: number | null): React.CSSProperties => {
+        const percentage = (convertDataValue(value) / (total || 1)) * 100;
         return percentage > 5 ? { backgroundColor: '#3e3e3e', color: 'white' } : {};
     };
+
 
     return (
         <TableContainer>

@@ -7,7 +7,6 @@ import {
     PartitionList,
     PartitionName,
     DiskSize,
-    PartitionSize,
     PartitionItem,
     FileSystem,
     Space,
@@ -38,8 +37,7 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                         <PartitionList>
                             {disk.partitions.map((partition, partitionIndex) => (
                                 <PartitionContainer key={partitionIndex}>
-                                    <PartitionBar style={{ width: `${usagePercentage(partition.used_space, partition.total_space)}%` }}>
-                                    </PartitionBar>
+                                   { partition.used_space && partition.total_space && <PartitionBar style={{ width: `${usagePercentage(partition.used_space, partition.total_space)}%` }}></PartitionBar> }
                                     <PartitionItem>
                                         <PartitionName>{partition.name}</PartitionName>
                                         {!partition.total_space && (
