@@ -1,9 +1,5 @@
 use serde::{Serialize, Deserialize};
-use libmedium::{
-    parse_hwmons,
-    sensors::sync_sensors::{Sensor, temp::TempSensor},
-    units::Temperature,
-};
+use sysinfo::{System, Components};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SensorData {
@@ -13,30 +9,30 @@ pub struct SensorData {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HwMonData {
-    index: u32,
     name: String,
     sensors: Vec<SensorData>,
 }
 
 fn get_hwmon_data() -> Vec<HwMonData> {
-    let hwmons = parse_hwmons().unwrap();
+    let mut sys = System::new_all();
+    sys.refresh_all();
     let mut hwmon_data = Vec::new();
 
-    for hwmon in &hwmons {
-        let mut sensors = Vec::new();
-        for (_, temp_sensor) in hwmon.temps() {
-            let temperature: Temperature = temp_sensor.read_input().unwrap();
-            sensors.push(SensorData {
-                name: temp_sensor.name().to_string(),
-                value: temperature.as_degrees_celsius() as f32, // Converting to Celsius
-            });
-        }
-        hwmon_data.push(HwMonData {
-            index: hwmon.index() as u32, // Convert u16 to u32
-            name: hwmon.name().to_string(),
-            sensors,
+    let mut components_data: Vec<SensorData> = Vec::new();
+    let components = Components::new_with_refreshed_list();
+
+    for component in &components {
+        components_data.push(SensorData {
+            name: component.label().to_string(),
+            value: component.temperature(),
         });
     }
+
+    hwmon_data.push(HwMonData {
+        name: "Components".to_string(),
+        sensors: components_data,
+    });
+
     hwmon_data
 }
 

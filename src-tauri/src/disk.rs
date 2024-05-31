@@ -73,7 +73,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
 #[tauri::command]
 pub fn get_disks() -> Result<Vec<Disk>, String> {
     let mut disks_info = get_disk_partition_info();
-    let mut sys_disks = Disks::new_with_refreshed_list();
+    let sys_disks = Disks::new_with_refreshed_list();
 
     for disk_info in &mut disks_info {
         for partition in &mut disk_info.partitions {
