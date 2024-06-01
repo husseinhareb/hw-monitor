@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSetEthernetSpeed, useSetWifiSpeed } from '../services/store';
-import useDataConverter from '../helper/useDataConverter';
+import useDataConverter from '../helpers/useDataConverter';
 import Graph from './Graph';
 import useNetworkData from '../hooks/useNetworkData';
 

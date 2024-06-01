@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Graph from "./Graph";
 import useMemoryData from "../hooks/useMemoryData";
 import { useSetMemory } from "../services/store";
-import useDataConverter from "../helper/useDataConverter";
+import useDataConverter from "../helpers/useDataConverter";
 import { MemoryContainer, MemoryInfo, MemoryInfoItem } from "../styles/memory-style";
 import { NameContainer, NameLabel } from "../styles/general-style";
 import { NameValue } from "../styles/cpu-style";

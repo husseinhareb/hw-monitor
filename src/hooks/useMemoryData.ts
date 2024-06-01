@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useSetMemory, useSetMaxMemory } from "../services/store";
-import useDataConverter from "../helper/useDataConverter";
+import useDataConverter from "../helpers/useDataConverter";
 
 interface Memory {
     total: number | null;
