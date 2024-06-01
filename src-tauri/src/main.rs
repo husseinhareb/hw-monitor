@@ -5,6 +5,7 @@ mod memory;
 mod disk;
 mod total_usages;
 mod sensors;
+mod battery;
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -15,6 +16,7 @@ fn main() {
             memory::get_mem_info,
             disk::get_disks,
             sensors::get_sensors,
+            battery::get_batteries,
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
