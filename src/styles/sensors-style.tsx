@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -14,13 +13,13 @@ export const Container = styled.div`
 export const Title = styled.h1`
   text-align: center;
   color: #fff;
-  margin-bottom:10px
+  margin-bottom: 10px;
 `;
 
 export const SensorGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 60px;
 `;
 
 export const SensorGroup = styled.div`
@@ -30,6 +29,8 @@ export const SensorGroup = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
+  height: 330px; 
+  overflow: hidden;
 `;
 
 export const SensorGroupName = styled.h2`
@@ -37,12 +38,18 @@ export const SensorGroupName = styled.h2`
   color: #006eb8;
 `;
 
-export const SensorList = styled.ul`
+export const SensorList = styled.div`
   list-style: none;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;  
+  overflow: hidden;
 `;
 
-export const SensorItem = styled.li`
+export const SensorItem = styled.div`
   margin: 5px 0;
   padding: 10px;
   background-color: #4a4a4a;
@@ -50,6 +57,7 @@ export const SensorItem = styled.li`
   font-weight: bold;
   display: flex;
   justify-content: space-between;
+  width: 100%;  /* Ensure full width within the list */
 `;
 
 export const SensorName = styled.h3`

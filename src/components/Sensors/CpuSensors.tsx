@@ -1,6 +1,7 @@
 import React from 'react';
 import useCpuSensorsData from '../../hooks/useCpuSensorsData';
-import { SensorGroup, SensorName, BatteryItem } from '../../styles/sensors-style';
+import { SensorGroup, SensorName } from '../../styles/sensors-style';
+import { BatteryItem } from '../../styles/battery-style';
 import HeatBar from '../HeatBar';
 
 const CpuSensors: React.FC = () => {
@@ -27,8 +28,12 @@ const CpuSensors: React.FC = () => {
                     <div>
                         {flattenedAndSortedSensors.map((sensor, index) => (
                             <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
-                                <BatteryItem>{sensor.name}: {sensor.value}°C</BatteryItem>
-                                <HeatBar value={sensor.value} critical={sensor.critical} />
+                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {sensor.name && sensor.value && <BatteryItem>{sensor.name}: {sensor.value}°C</BatteryItem>}
+                                </div>
+                                <div style={{ marginLeft: '10px' }}>
+                                    {sensor.critical && <HeatBar value={sensor.value} critical={sensor.critical} />}
+                                </div>
                             </div>
                         ))}
                     </div>

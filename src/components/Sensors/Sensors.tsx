@@ -1,18 +1,14 @@
-import React from "react";
-//import useSensorsData from "../hooks/useSensorsData";
+import React from 'react';
 import {
   Container,
   Title,
   SensorGrid,
   SensorList,
-
-} from "../../styles/sensors-style";
-import Battery from "../Sensors/Battery";
-import CpuSensors from "../Sensors/CpuSensors";
+} from '../../styles/sensors-style';
+import Battery from '../Sensors/BatterySensors';
+import CpuSensors from '../Sensors/CpuSensors';
 
 const Sensors: React.FC = () => {
-  //const sensors = useSensorsData();
-
   return (
     <Container>
       <Title>Sensors</Title>
