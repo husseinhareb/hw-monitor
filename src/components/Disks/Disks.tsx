@@ -1,5 +1,5 @@
 import React from "react";
-import useDiskData from "../hooks/useDisksData";
+import useDiskData from "../../hooks/useDisksData";
 import {
     Container,
     DiskCard,
@@ -12,7 +12,7 @@ import {
     Space,
     PartitionContainer,
     PartitionBar
-} from "../styles/disks-style";
+} from "../../styles/disks-style";
 
 interface DisksProps {
     hidden: boolean;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // Styled SidebarContainer component
 export const SidebarContainer = styled.div`
   width: 200px;
-  height: 100vh; /* Use 100vh for 100% of the viewport height */
+  height: 100vh;
   background-color: #333;
   color: #fff;
   padding: 20px;
@@ -26,6 +26,6 @@ export const ListItem = styled.li`
   margin-bottom: 10px;
   cursor: pointer;
   &:hover {
-    color: #ffd700; /* Change color on hover */
+    color: #ffd700;
   }
 `;

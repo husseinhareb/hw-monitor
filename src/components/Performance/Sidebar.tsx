@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { List, ListItem, SidebarContainer, Title } from '../styles/sidebar-style';
-import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../services/store";
+import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
+import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
 import Network from './Network';
-import Graph from './Graph';
+import Graph from '../Graph';
 import Cpu from './Cpu';
-import Disks from './Disks';
+import Disks from '../Disks/Disks';
 import Memory from './Memory';
 
 interface SidebarProps {

@@ -6,8 +6,9 @@ import {
   SensorGrid,
   SensorList,
 
-} from "../styles/sensors-style";
-import Battery from "./Battery";
+} from "../../styles/sensors-style";
+import Battery from "../Sensors/Battery";
+import CpuSensors from "../Sensors/CpuSensors";
 
 const Sensors: React.FC = () => {
   //const sensors = useSensorsData();
@@ -18,6 +19,9 @@ const Sensors: React.FC = () => {
       <SensorGrid>
         <SensorList>
           <Battery />
+        </SensorList>
+        <SensorList>
+          <CpuSensors />
         </SensorList>
       </SensorGrid>
     </Container>

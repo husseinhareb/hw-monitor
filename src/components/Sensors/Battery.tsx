@@ -1,6 +1,7 @@
 import React from 'react';
-import useBatteryData from '../hooks/useBatteryData';
-import { SensorGroup, SensorName, Design, DesignDiv, ContentDiv,BatteryItem } from '../styles/sensors-style';
+import useBatteryData from '../../hooks/useBatteryData';
+import {  Design, DesignDiv, ContentDiv,BatteryItem } from '../../styles/battery-style';
+import { SensorGroup, SensorName} from '../../styles/sensors-style';
 
 const Battery: React.FC = () => {
     const batteries = useBatteryData();

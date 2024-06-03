@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import useProcessData, { Process } from '../hooks/useProcessData';
-import useTotalUsagesData from '../hooks/useTotalUsagesData';
-import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../styles/proc-style';
+import useProcessData, { Process } from '../../hooks/useProcessData';
+import useTotalUsagesData from '../../hooks/useTotalUsagesData';
+import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
