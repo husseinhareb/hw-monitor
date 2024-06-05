@@ -1,7 +1,4 @@
-// battery-style.ts
-
-
-// battery-component.tsx
+// BatterySensors.ts
 import React from 'react';
 import useBatteryData from '../../hooks/useBatteryData';
 import { Design, DesignDiv, ContentDiv, BatteryItem, Frame } from '../../styles/battery-style';
