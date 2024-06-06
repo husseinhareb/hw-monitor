@@ -15,7 +15,7 @@ interface DataWithUnit {
     unit: string;
 }
 
-const useNetworkData = (interfaceName: string, maxDataPoints = 60) => {
+const useNetworkData = (interfaceName: string) => {
     const [download, setDownload] = useState<DataWithUnit[]>([]);
     const [upload, setUpload] = useState<DataWithUnit[]>([]);
     const [totalDownload, setTotalDownload] = useState<number>();
@@ -28,28 +28,16 @@ const useNetworkData = (interfaceName: string, maxDataPoints = 60) => {
                 const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network");
                 const interfaceData = fetchedNetworkUsages.find(data => data.interface === interfaceName);
                 if (interfaceData) {
-                    setDownload(prevDownload => {
-                        const newDownload = [...prevDownload, convertData(interfaceData.download)];
-                        return newDownload.length > maxDataPoints ? newDownload.slice(newDownload.length - maxDataPoints) : newDownload;
-                    });
-                    setUpload(prevUpload => {
-                        const newUpload = [...prevUpload, convertData(interfaceData.upload)];
-                        return newUpload.length > maxDataPoints ? newUpload.slice(newUpload.length - maxDataPoints) : newUpload;
-                    });
+                    setDownload(prevDownload => [...prevDownload, convertData(interfaceData.download)]);
+                    setUpload(prevUpload => [...prevUpload, convertData(interfaceData.upload)]);
                     setTotalDownload(interfaceData.total_download);
                     setTotalUpload(interfaceData.total_upload);
                 } else {
-                    setDownload(prevDownload => {
-                        const newDownload = [...prevDownload, { value: 0, unit: 'B' }];
-                        return newDownload.length > maxDataPoints ? newDownload.slice(newDownload.length - maxDataPoints) : newDownload;
-                    });
-                    setUpload(prevUpload => {
-                        const newUpload = [...prevUpload, { value: 0, unit: 'B' }];
-                        return newUpload.length > maxDataPoints ? newUpload.slice(newUpload.length - maxDataPoints) : newUpload;
-                    });
+                    setDownload(prevDownload => [...prevDownload, { value: 0, unit: 'B' }]);
+                    setUpload(prevUpload => [...prevUpload, { value: 0, unit: 'B' }]);
                     setTotalDownload(0);
                     setTotalUpload(0);
-                }
+                }   
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -59,7 +47,7 @@ const useNetworkData = (interfaceName: string, maxDataPoints = 60) => {
         const intervalId = setInterval(fetchData, 1000); // Fetch every second
 
         return () => clearInterval(intervalId);
-    }, [interfaceName, maxDataPoints]);
+    }, [interfaceName]);
 
     return { download, upload, totalDownload, totalUpload };
 };

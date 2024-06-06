@@ -3,10 +3,10 @@ import Graph from "../Graph";
 import useMemoryData from "../../hooks/useMemoryData";
 import { useSetMemory } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
-import { MemoryContainer, MemoryInfo, MemoryInfoItem } from "../../styles/memory-style";
-import { NameContainer, NameLabel } from "../../styles/general-style";
-import { NameValue } from "../../styles/cpu-style";
-
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "../../styles/memory-style";
+import { NameContainer } from "../../styles/general-style";
+import { FaMemory } from "react-icons/fa";
+import { IoMdSwap } from "react-icons/io";
 interface MemoryProps {
     hidden: boolean;
 }
@@ -73,16 +73,49 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                         firstGraphValue={activeMem}
                         maxValue={Math.floor(memoryData.total.value)}
                     />
+                    <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
+                        <RealTimeValues>
+                            <MemoryTypes>Ram <FaMemory style={{ marginLeft: '0.5em' }}  /></MemoryTypes>
+                            <FixedValueItem>
+                                <LeftLabel>Total</LeftLabel>
+                                <LeftValue>{memoryData.total.value} {memoryData.total.unit}</LeftValue>
+                            </FixedValueItem>
+                            <FixedValueItem>
 
-                    <MemoryInfo>
-                        <MemoryInfoItem>Total Memory: {memoryData.total.value} {memoryData.total.unit}</MemoryInfoItem>
-                        <MemoryInfoItem>Free: {memoryData.free.value} {memoryData.free.unit}</MemoryInfoItem>
-                        <MemoryInfoItem>Available: {memoryData.available.value} {memoryData.available.unit}</MemoryInfoItem>
-                        <MemoryInfoItem>Cached: {memoryData.cached.value} {memoryData.cached.unit}</MemoryInfoItem>
-                        <MemoryInfoItem>Active: {memoryData.active.value} {memoryData.active.unit}</MemoryInfoItem>
-                        <MemoryInfoItem>Swap Total: {memoryData.swapTotal.value} {memoryData.swapTotal.unit}</MemoryInfoItem>
-                        <MemoryInfoItem>Swap Cache: {memoryData.swapCache.value} {memoryData.swapCache.unit}</MemoryInfoItem>
-                    </MemoryInfo>
+                                <LeftLabel>Free</LeftLabel>
+                                <LeftValue>{memoryData.free.value} {memoryData.free.unit}</LeftValue>
+                            </FixedValueItem>
+                            <FixedValueItem>
+
+                                <LeftLabel>Available</LeftLabel>
+                                <LeftValue>{memoryData.available.value} {memoryData.available.unit}</LeftValue>
+                            </FixedValueItem>
+
+                            <FixedValueItem>
+
+                                <LeftLabel>Cached</LeftLabel>
+                                <LeftValue>{memoryData.cached.value} {memoryData.cached.unit}</LeftValue>
+                            </FixedValueItem>
+
+                            <FixedValueItem>
+                                <LeftLabel>Active</LeftLabel>
+                                <LeftValue> {memoryData.active.value} {memoryData.active.unit}</LeftValue>
+                            </FixedValueItem>
+                        </RealTimeValues>
+
+                        <FixedValues>
+                            <MemoryTypes>Swap<IoMdSwap style={{ marginLeft: '0.5em' }}/></MemoryTypes>
+
+                            <FixedValueItem>
+                                <RightLabel>Total</RightLabel>
+                                <RightValue>{memoryData.swapTotal.value} {memoryData.swapTotal.unit}</RightValue>
+                            </FixedValueItem>
+                            <FixedValueItem>
+                                <RightLabel>Swap Cache</RightLabel>
+                                <RightValue>{memoryData.swapCache.value} {memoryData.swapCache.unit}</RightValue>
+                            </FixedValueItem>
+                        </FixedValues>
+                    </div>
                 </>
             )}
         </MemoryContainer>

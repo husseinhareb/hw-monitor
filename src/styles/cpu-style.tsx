@@ -27,7 +27,7 @@ export const NameValue = styled.p`
 
 //Label Style
 const Label = styled.p`
-    color: #575050;
+    color: #6d6d6d;
     margin: 5px;
     margin-right:20px;
     margin-left:20px;
