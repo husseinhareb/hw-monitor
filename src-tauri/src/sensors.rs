@@ -17,11 +17,10 @@ pub struct HwMonData {
 fn get_hwmon_data() -> Vec<HwMonData> {
     let mut sys = System::new_all();
     sys.refresh_all();
-    let mut hwmon_data = Vec::new();
-
-    // Collect component data
     let components = Components::new_with_refreshed_list();
-    for component in &components {          let sensor_data = SensorData {
+    let mut hwmon_data = Vec::new();
+    for component in &components {
+        let sensor_data = SensorData {
             name: component.label().to_string(),
             value: component.temperature(),
             critical: component.critical(),
@@ -35,12 +34,25 @@ fn get_hwmon_data() -> Vec<HwMonData> {
     hwmon_data
 }
 
+fn filter_hwmon_data_by_name(hwmon_data: Vec<HwMonData>, name_filter: &str) -> Vec<HwMonData> {
+    hwmon_data.into_iter()
+        .filter(|data| data.name.to_lowercase().contains(name_filter))
+        .collect()
+}
+
 fn get_cpu_temperature_data() -> Vec<HwMonData> {
     let hwmon_data = get_hwmon_data();
-    let cpu_data: Vec<HwMonData> = hwmon_data.into_iter()
-        .filter(|data| data.name.to_lowercase().contains("coretemp"))
-        .collect();
-    cpu_data
+    filter_hwmon_data_by_name(hwmon_data, "cpu")
+}
+
+fn get_disks_temperature_data() -> Vec<HwMonData> {
+    let hwmon_data = get_hwmon_data();
+    filter_hwmon_data_by_name(hwmon_data, "nvme")
+}
+
+fn get_gpu_temperature_data() -> Vec<HwMonData> {
+    let hwmon_data = get_hwmon_data();
+    filter_hwmon_data_by_name(hwmon_data, "gpu")
 }
 
 #[tauri::command]
@@ -51,4 +63,14 @@ pub fn get_sensors() -> Result<Vec<HwMonData>, String> {
 #[tauri::command]
 pub fn get_cpu_sensors() -> Result<Vec<HwMonData>, String> {
     Ok(get_cpu_temperature_data())
+}
+
+#[tauri::command]
+pub fn get_disk_sensors() -> Result<Vec<HwMonData>, String> {
+    Ok(get_disks_temperature_data())
+}
+
+#[tauri::command]
+pub fn get_gpu_sensors() -> Result<Vec<HwMonData>, String> {
+    Ok(get_gpu_temperature_data())
 }
