@@ -1,10 +1,10 @@
-// performance-style.js
+// sidebar-style.js
 import styled from 'styled-components';
 
 // Styled SidebarContainer component
 export const SidebarContainer = styled.div`
   width: 200px;
-  height: 100%;
+  height: 100vh;
   background-color: #333;
   color: #fff;
   padding: 20px;

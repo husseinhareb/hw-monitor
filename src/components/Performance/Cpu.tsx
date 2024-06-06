@@ -43,7 +43,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
                 <NameLabel>CPU</NameLabel>
                 <NameValue>{cpuData.name}</NameValue>
             </NameContainer>
-            <div style={{width: '700px'}}>
+            <div> 
                 <Graph firstGraphValue={cpuUsage} maxValue={100} />
             </div>
             <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>

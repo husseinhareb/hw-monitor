@@ -44,30 +44,30 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     }, [interfaceNames]);
 
     return (
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex'  }}>
             <SidebarContainer>
                 <Title>Performance</Title>
                 <List>
                     <ListItem onClick={() => handleItemClick('CPU')}>
                         CPU
-                        <Graph firstGraphValue={cpuUsage} maxValue={100} />
+                        <Graph firstGraphValue={cpuUsage} maxValue={100} height="50px" width="90px" />
                     </ListItem>
                     {isMaxMemorySet && (
                         <ListItem onClick={() => handleItemClick('Memory')}>
                             Memory
-                            <Graph firstGraphValue={memory} maxValue={maxMemory} />
+                            <Graph firstGraphValue={memory} maxValue={maxMemory}  height="50px" width="90px"/>
                         </ListItem>
                     )}
 
                     {wifi &&
                         <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                             Wi-Fi
-                            <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} />
+                            <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="50px" width="90px" />
                         </ListItem>}
                     {ethernet &&
                         <ListItem onClick={() => handleItemClick('Ethernet')}>
                             Ethernet
-                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} />
+                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed}  height="50px" width="90px" />
                         </ListItem>}
                 </List>
             </SidebarContainer>
