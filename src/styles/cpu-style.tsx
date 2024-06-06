@@ -27,7 +27,7 @@ export const NameValue = styled.p`
 
 //Label Style
 const Label = styled.p`
-    color: rgb(255, 255, 255);
+    color: #575050;
     margin: 5px;
     margin-right:20px;
     margin-left:20px;
@@ -43,7 +43,7 @@ export const LeftLabel = styled(Label)`
 
 //Value Style
 const Value = styled.p`
-    color: #575050;
+    color: white;
     margin: 5px;
     margin-left:20px;
     margin-right:20px;

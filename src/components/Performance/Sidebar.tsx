@@ -1,3 +1,4 @@
+//sidebar.tsx
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
@@ -50,24 +51,24 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 <List>
                     <ListItem onClick={() => handleItemClick('CPU')}>
                         CPU
-                        <Graph firstGraphValue={cpuUsage} maxValue={100} height="50px" width="90px" />
+                        <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
                     {isMaxMemorySet && (
                         <ListItem onClick={() => handleItemClick('Memory')}>
                             Memory
-                            <Graph firstGraphValue={memory} maxValue={maxMemory}  height="50px" width="90px"/>
+                            <Graph firstGraphValue={memory} maxValue={maxMemory}  height="120px" width="100%"/>
                         </ListItem>
                     )}
 
                     {wifi &&
                         <ListItem onClick={() => handleItemClick('Wi-Fi')}>
                             Wi-Fi
-                            <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="50px" width="90px" />
+                            <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                     {ethernet &&
                         <ListItem onClick={() => handleItemClick('Ethernet')}>
                             Ethernet
-                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed}  height="50px" width="90px" />
+                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed}  height="120px" width="100%" />
                         </ListItem>}
                 </List>
             </SidebarContainer>

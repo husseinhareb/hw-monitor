@@ -42,7 +42,7 @@ fn filter_hwmon_data_by_name(hwmon_data: Vec<HwMonData>, name_filter: &str) -> V
 
 fn get_cpu_temperature_data() -> Vec<HwMonData> {
     let hwmon_data = get_hwmon_data();
-    filter_hwmon_data_by_name(hwmon_data, "cpu")
+    filter_hwmon_data_by_name(hwmon_data, "coretemp")
 }
 
 fn get_disks_temperature_data() -> Vec<HwMonData> {
@@ -52,7 +52,7 @@ fn get_disks_temperature_data() -> Vec<HwMonData> {
 
 fn get_gpu_temperature_data() -> Vec<HwMonData> {
     let hwmon_data = get_hwmon_data();
-    filter_hwmon_data_by_name(hwmon_data, "gpu")
+    filter_hwmon_data_by_name(hwmon_data, "")
 }
 
 #[tauri::command]
@@ -71,6 +71,6 @@ pub fn get_disk_sensors() -> Result<Vec<HwMonData>, String> {
 }
 
 #[tauri::command]
-pub fn get_gpu_sensors() -> Result<Vec<HwMonData>, String> {
+pub  fn get_gpu_sensors() -> Result<Vec<HwMonData>, String> {
     Ok(get_gpu_temperature_data())
 }
