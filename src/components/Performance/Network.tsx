@@ -3,6 +3,7 @@ import { useSetEthernetSpeed, useSetWifiSpeed } from '../../services/store';
 import Graph from '../Graph';
 import useNetworkData from '../../hooks/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 
 interface NetworkProps {
     hidden: boolean;
@@ -28,30 +29,59 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
 
 
     return (
-        <div style={{ display: hidden ? 'none' : 'block' }}>
-            <h2>{interfaceName}</h2>
-            <Graph firstGraphValue={downloadValues} secondGraphValue={uploadValues} />
-            {totalDownload !== undefined && (
-                <p>
-                    Total Download: {convertData(totalDownload).value}{' '}
-                    {convertData(totalDownload).unit}
-                </p>
-            )}
-            {totalUpload !== undefined && (
-                <p>
-                    Total Upload: {convertData(totalUpload).value}{' '}
-                    {convertData(totalUpload).unit}
-                </p>
-            )}
-            <p>
-                Download: {download.length > 0 ? download[download.length - 1].value : 0}
-                {download.length > 0 ? download[download.length - 1].unit : 'B'}
-            </p>
-            <p>
-                Upload: {upload.length > 0 ? upload[upload.length - 1].value : 0}
-                {upload.length > 0 ? upload[upload.length - 1].unit : 'B'}
-            </p>
-        </div>
+
+        <MemoryContainer hidden={hidden}>
+
+            <>
+                <NameContainer>
+                    <NameLabel>Network</NameLabel>
+                    <NameValue>{interfaceName}</NameValue>
+                </NameContainer>
+                <Graph firstGraphValue={downloadValues} secondGraphValue={uploadValues} />
+
+                <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
+                    <RealTimeValues>
+                        <MemoryTypes>Usage</MemoryTypes>
+                        <FixedValueItem>
+                            <LeftLabel>Download</LeftLabel>
+                            {totalDownload !== undefined && (
+                                <LeftValue> {convertData(totalDownload).value}{' '}
+                                    {convertData(totalDownload).unit}</LeftValue>
+                            )}
+
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <LeftLabel>Upload</LeftLabel>
+                            {totalUpload !== undefined && (
+                                <LeftValue> {convertData(totalUpload).value}{' '}
+                                    {convertData(totalUpload).unit}</LeftValue>
+                            )}
+
+                        </FixedValueItem>
+                    </RealTimeValues>
+
+                    <FixedValues>
+                        <MemoryTypes>Speed</MemoryTypes>
+
+                        <FixedValueItem>
+                            <RightLabel>Download</RightLabel>
+                            <RightValue>
+                                {download.length > 0 ? download[download.length - 1].value : 0}
+                                {download.length > 0 ? download[download.length - 1].unit : 'B'}
+                            </RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel>Upload</RightLabel>
+                            <RightValue>
+                                {upload.length > 0 ? upload[upload.length - 1].value : 0}
+                                {upload.length > 0 ? upload[upload.length - 1].unit : 'B'}
+                            </RightValue>
+                        </FixedValueItem>
+                    </FixedValues>
+                </div>
+            </>
+            
+        </MemoryContainer>
     );
 };
 

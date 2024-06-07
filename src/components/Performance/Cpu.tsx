@@ -43,10 +43,10 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
                 <NameLabel>CPU</NameLabel>
                 <NameValue>{cpuData.name}</NameValue>
             </NameContainer>
-            <div> 
+            <div>
                 <Graph firstGraphValue={cpuUsage} maxValue={100} />
             </div>
-            <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
+            <div style={{ display: 'flex', marginTop: '100px', width: '70%', flexWrap: 'wrap' }}>
                 <RealTimeValues>
                     <SpeedUsageContainer>
                         <SpeedUsageItem>
@@ -91,6 +91,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
                 </FixedValues>
             </div>
         </CPU>
+
     );
 }
 

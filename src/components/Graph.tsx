@@ -6,8 +6,8 @@ interface GraphProps {
     firstGraphValue: number[];
     secondGraphValue?: number[];
     maxValue?: number;
-    height?: string; // Optional height prop
-    width?: string;  // Optional width prop
+    height?: string; // Optional 
+    width?: string;  // Optional 
 }
 
 const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxValue, height = '40vh', width = '80vw' }) => {
@@ -101,7 +101,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
     };
 
     return (
-        <div style={{ position: 'relative', height, width }}>
+        <div style={{ position: 'relative', height, width,}}>
             <canvas ref={chartRef}></canvas>
         </div>
     );
