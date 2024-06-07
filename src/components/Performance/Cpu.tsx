@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Graph from "../Graph";
 import { useSetCpu } from "../../services/store";
 import useCpuData from "../../hooks/useCpuData";
-import { CPU, LeftLabel, RightLabel, RightValue, LeftValue, NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "../../styles/cpu-style";
+import { CPU, LeftLabel, RightLabel, RightValue, LeftValue, NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "./Styles/style";
 import useTotalUsagesData from "../../hooks/useTotalUsagesData";
 import { NameContainer, NameLabel } from "../../styles/general-style";
 

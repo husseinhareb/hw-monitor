@@ -3,7 +3,7 @@ import Graph from "../Graph";
 import useMemoryData from "../../hooks/useMemoryData";
 import { useSetMemory } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
-import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "../../styles/memory-style";
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "./Styles/style";
 import { NameContainer } from "../../styles/general-style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
