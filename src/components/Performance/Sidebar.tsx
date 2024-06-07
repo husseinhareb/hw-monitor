@@ -24,7 +24,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const cpuUsage = useCpu();
     const memory = useMemory();
     const maxMemory = useMaxMemory();
-
     const [wifiDownloadSpeed, wifiUploadSpeed] = useWifiSpeed();
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
     // Check if maxMemory has been set
@@ -40,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     useEffect(() => {
         if (interfaceNames && interfaceNames.length > 0) {
             setWifi(interfaceNames.some(name => name.includes("wl")));
-            setEthernet(interfaceNames.some(name => name.includes("en")));
+            setEthernet(interfaceNames.some(name => name.includes("en") || name.includes("eth")));
         }
     }, [interfaceNames]);
 
@@ -76,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             <Memory hidden={!showMemory} />
             <Disks hidden={!showDisk} />
             <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />
-            <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en")) || ''} />
+            <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''} />
         </div>
     );
 }
