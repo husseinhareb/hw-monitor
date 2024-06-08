@@ -2,7 +2,7 @@ use std::fs;
 use serde::{Serialize, Deserialize};
 use sysinfo::{System,Pid};
 use std::io;
-//use tokio::time::{sleep, Duration};
+use tokio::time::{sleep, Duration};
 
 #[derive(Serialize, Deserialize)]
 pub struct Process {
@@ -12,9 +12,9 @@ pub struct Process {
     state: Option<String>,
     user: Option<String>,
     memory: Option<String>,
+    cpu_usage: Option<String>,
     read_disk_usage: Option<String>,
     write_disk_usage: Option<String>,
-    cpu_usage: Option<String>,
     read_disk_speed: Option<String>,
     write_disk_speed:Option<String>,
 }
@@ -39,15 +39,39 @@ fn list_proc_pid() -> Vec<String> {
 }
 
 
-fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
+
+fn read_proc_status_file(pid: &str) -> Option<(String, String, String)> {
     if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
+        let mut name = None;
+        let mut ppid = None;
+        let mut uid = None;
+
         for line in status.lines() {
-            if line.starts_with(keyword) {
+            if line.starts_with("Name:") {
                 let mut parts = line.split_whitespace();
                 parts.next();
                 if let Some(value) = parts.next() {
-                    return Some(value.to_string());
+                    name = Some(value.to_string());
                 }
+            } else if line.starts_with("PPid:") {
+                let mut parts = line.split_whitespace();
+                parts.next();
+                if let Some(value) = parts.next() {
+                    ppid = Some(value.to_string());
+                }
+            } else if line.starts_with("Uid:") {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if let Some(uid_str) = parts.get(1) {
+                    if let Ok(parsed_uid) = uid_str.parse::<u32>() {
+                        if let Some(username) = get_username(parsed_uid) {
+                            uid = Some(username);
+                        }
+                    }
+                }
+            }
+
+            if name.is_some() && ppid.is_some() && uid.is_some() {
+                return Some((name.unwrap(), ppid.unwrap(), uid.unwrap()));
             }
         }
     }
@@ -55,14 +79,6 @@ fn read_proc_status_file(pid: &str, keyword: &str) -> Option<String> {
 }
 
 
-
-fn get_name(pid: &str) -> Option<String> {
-    read_proc_status_file(pid, "Name:").map(|name| name.to_string())
-}
-
-fn get_ppid(pid: &str) -> Option<String> {
-    read_proc_status_file(pid, "PPid:").map(|name| name.to_string())
-}
 
 fn get_proc_state(pid: &str) -> Option<String> {
     if let Ok(file_content) = fs::read_to_string(format!("/proc/{}/stat", pid)) {
@@ -115,23 +131,7 @@ fn get_proc_mem(pid: &str) -> Option<String> {
     }
 }
 
-fn get_proc_user(pid: &str) -> Option<String> {
-    if let Ok(status) = fs::read_to_string(format!("/proc/{}/status", pid)) {
-        for line in status.lines() {
-            if line.starts_with("Uid:") {
-                let parts: Vec<&str> = line.split_whitespace().collect();
-                if let Some(uid_str) = parts.get(1) {
-                    if let Ok(uid) = uid_str.parse::<u32>() {
-                        if let Some(username) = get_username(uid) {
-                            return Some(username);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    None
-}
+
 
 fn get_username(uid: u32) -> Option<String> {
     if let Ok(passwd_content) = fs::read_to_string("/etc/passwd") {
@@ -260,7 +260,7 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     }
 
     // Wait for the specified duration
-    //sleep(Duration::from_secs(duration_secs)).await;
+    sleep(Duration::from_secs(duration_secs)).await;
 
     let total_cpu_time_end = get_total_cpu_time().await?;
 
@@ -305,7 +305,7 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
     }
 
     // Sleep for a specified duration
-    //sleep(Duration::from_secs(1)).await;
+    sleep(Duration::from_secs(1)).await;
 
     // Refresh processes information to get updated disk usage
     s.refresh_processes();
@@ -356,23 +356,15 @@ pub async fn get_processes() -> Vec<Process> {
     let write_disk_speeds = get_proc_disk_usage_speed(pids.clone(), &mut s, false).await;
 
     for pid in pids.iter() {
-        // Fetch process information
-        let name = match get_name(pid) {
-            Some(name) => name,
+
+        let (name, ppid, user) = match read_proc_status_file(pid) {
+            Some(state) => state,
             None => {
-                println!("Failed to retrieve name info for process {}", pid);
+                println!("Failed to retrieve name,ppid or user info for process {}", pid);
                 continue;
             }
         };
-
-        let ppid = match get_ppid(pid) {
-            Some(ppid) => ppid,
-            None => {
-                println!("Failed to retrieve PPID info for process {}", pid);
-                continue;
-            }
-        };
-
+        
         let state = match get_proc_state(pid) {
             Some(state) => state,
             None => {
@@ -381,13 +373,6 @@ pub async fn get_processes() -> Vec<Process> {
             }
         };
 
-        let user = match get_proc_user(pid) {
-            Some(user) => user,
-            None => {
-                println!("Failed to retrieve user info for process {}", pid);
-                continue;
-            }
-        };
 
         let memory = match get_proc_mem(pid) {
             Some(memory) => memory,
@@ -437,6 +422,5 @@ pub async fn get_processes() -> Vec<Process> {
         };
         processes.push(process);
     }
-
     processes
 }

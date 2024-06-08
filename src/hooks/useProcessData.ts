@@ -8,7 +8,7 @@ export interface Process {
     name: string;
     state: string;
     memory: string;
-    cpu_usage: number;
+   // cpu_usage: number;
     read_disk_usage: string;
     write_disk_usage: string;
     read_disk_speed: string;
