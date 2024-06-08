@@ -186,13 +186,14 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     Ok(cpu_usage_results)
 }
 
-async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool) -> Vec<(i32, f64)> {
+async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool) -> Vec<(i32, String)> {
     let mut initial_disk_usages = Vec::new();
+
+    // Collect initial disk usage for each process
     for pid_str in &pids {
         if let Ok(pid_usize) = pid_str.parse::<usize>() {
             if let Some(process) = s.process(Pid::from(pid_usize)) {
                 let initial_bytes = if read {
-                    
                     process.disk_usage().total_read_bytes as f64
                 } else {
                     process.disk_usage().total_written_bytes as f64
@@ -202,9 +203,11 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
         }
     }
 
+    // Wait for 1 second to measure usage over time
     sleep(Duration::from_secs(1)).await;
     s.refresh_processes();
 
+    // Calculate and format disk usage speed for each process
     initial_disk_usages.into_iter().filter_map(|(pid, initial_bytes)| {
         s.process(Pid::from(pid as usize)).map(|process| {
             let final_bytes = if read {
@@ -212,10 +215,25 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
             } else {
                 process.disk_usage().total_written_bytes as f64
             };
-            (pid, (final_bytes - initial_bytes).max(0.0))
+            let usage_bytes = (final_bytes - initial_bytes).max(0.0);
+            
+            // Format the disk usage into human-readable form
+            let usage_str = if usage_bytes > 1_024.0 * 1_024.0 * 1_024.0 {
+                format!("{} Gb/s", usage_bytes / 1_024.0 / 1_024.0 / 1_024.0)
+            } else if usage_bytes > 1_024.0 * 1_024.0 {
+                format!("{} Mb/s", usage_bytes / 1_024.0 / 1_024.0)
+            } else if usage_bytes > 1_024.0 {
+                format!("{} Kb/s", usage_bytes / 1_024.0)
+            } else {
+                format!("{} B/s", usage_bytes)
+            };
+            
+            (pid, usage_str)
         })
     }).collect()
 }
+
+
 
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {

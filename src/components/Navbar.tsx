@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FunctionComponent } from "react";
+import React, { useState, useEffect, FunctionComponent, ChangeEvent } from "react";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput } from "../styles/navbar-style";
 import Proc from "./Processes/Proc";
 import Performance from "./Performance/Performance";
@@ -8,6 +8,7 @@ import { GiProcessor } from "react-icons/gi";
 import { MdSpeed } from "react-icons/md";
 import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa"; 
+import { useSetProcessSearch } from "../services/store";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks";
 
@@ -21,6 +22,7 @@ const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
 const Navbar: React.FC = () => {
     const [activeComponent, setActiveComponent] = useState<ComponentName>("Proc");
     const [showSearchInput, setShowSearchInput] = useState(false);
+    const setProcessSearch = useSetProcessSearch();
 
     const handleButtonClick = (componentName: ComponentName) => {
         setActiveComponent(componentName);
@@ -28,6 +30,10 @@ const Navbar: React.FC = () => {
 
     const handleSearchButtonClick = () => {
         setShowSearchInput(!showSearchInput);
+    };
+
+    const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setProcessSearch(event.target.value);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -79,7 +85,7 @@ const Navbar: React.FC = () => {
                 </StyledUl>
                 {activeComponent === "Proc" && (
                     <>
-                        {showSearchInput && <SearchInput type="text" placeholder="Search..." />}
+                        {showSearchInput && <SearchInput type="text" placeholder="Search..." onChange={handleSearchInputChange} />}
                         <StyledSearchButton onClick={handleSearchButtonClick}>
                             <FaSearch style={{ marginLeft: '0.5em' }} />
                         </StyledSearchButton>

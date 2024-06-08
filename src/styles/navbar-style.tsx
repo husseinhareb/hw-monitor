@@ -39,8 +39,8 @@ export const StyledSearchButton = styled(StyledButton)`
 export const SearchInput = styled.input`
     position: absolute;
     right: 5em;
-    padding: 4px 4px;
-    border-radius: 6px;
+    padding: 2px 4px;
+    border-radius: 2px;
     border: none;
     outline: none;
 `;

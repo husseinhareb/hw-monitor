@@ -2,12 +2,14 @@ import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../../hooks/useProcessData';
 import useTotalUsagesData from '../../hooks/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
+import { usePorcessSearch } from '../../services/store';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<string>('asc');
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
+    const processSearch = usePorcessSearch();
 
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
@@ -86,9 +88,19 @@ const Proc: React.FC = () => {
         return percentage > 5 ? { backgroundColor: '#3e3e3e', color: 'white' } : {};
     };
 
+    // Filter processes based on search term
+    const filteredProcesses = useMemo(() => {
+        if (!processSearch) return sortedProcesses;
+        return sortedProcesses.filter(process => {
+            // Check if any column value includes the search term
+            return Object.values(process).some(value => {
+                return String(value).toLowerCase().includes(processSearch.toLowerCase());
+            });
+        });
+    }, [processSearch, sortedProcesses]);
 
     return (
-        <TableContainer>
+        <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
             <Table>
                 <Thead>
                     <Tr>
@@ -110,7 +122,7 @@ const Proc: React.FC = () => {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {sortedProcesses.map((process, index) => (
+                    {filteredProcesses.map((process, index) => (
                         <Tr key={index}>
                             <Td>{process.user}</Td>
                             <Td>{process.pid}</Td>
