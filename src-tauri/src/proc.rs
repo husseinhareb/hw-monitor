@@ -192,6 +192,7 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
         if let Ok(pid_usize) = pid_str.parse::<usize>() {
             if let Some(process) = s.process(Pid::from(pid_usize)) {
                 let initial_bytes = if read {
+                    
                     process.disk_usage().total_read_bytes as f64
                 } else {
                     process.disk_usage().total_written_bytes as f64

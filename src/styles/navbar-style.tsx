@@ -1,10 +1,13 @@
-// navbar-style.tsx
 import styled from 'styled-components';
 
 export const StyledNav = styled.nav`
     background-color: #222222;
     width: 100%;
     height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 `;
 
 export const StyledButton = styled.button`
@@ -28,6 +31,20 @@ export const StyledButton = styled.button`
     }
 `;
 
+export const StyledSearchButton = styled(StyledButton)`
+    position: absolute;
+    right: 1em;
+`;
+
+export const SearchInput = styled.input`
+    position: absolute;
+    right: 5em;
+    padding: 4px 4px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+`;
+
 export const StyledUl = styled.ul`
     display: flex;
     justify-content: center;
@@ -35,7 +52,7 @@ export const StyledUl = styled.ul`
     list-style: none;
     padding: 0;
     margin: 0;
-    height: 100%; 
+    height: 100%;
 `;
 
 export const MainContent = styled.main`
