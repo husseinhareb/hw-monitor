@@ -83,16 +83,24 @@ const Navbar: React.FC = () => {
             <StyledNav>
                 <StyledUl>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}><GiProcessor /> Processes</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}>
+                            <GiProcessor /> Processes
+                        </StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Performance")} active={activeComponent === "Performance"}><MdSpeed /> Performance</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Performance")} active={activeComponent === "Performance"}>
+                            <MdSpeed /> Performance
+                        </StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Sensors")} active={activeComponent === "Sensors"}><FaTemperatureHalf /> Sensors</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Sensors")} active={activeComponent === "Sensors"}>
+                            <FaTemperatureHalf /> Sensors
+                        </StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}><FaFloppyDisk /> Disks</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}>
+                            <FaFloppyDisk /> Disks
+                        </StyledButton>
                     </li>
                 </StyledUl>
                 {activeComponent === "Proc" && (
@@ -104,7 +112,7 @@ const Navbar: React.FC = () => {
                     </>
                 )}
             </StyledNav>
-            <div>
+            <div style={{ marginTop: '30px' }}>
                 {DynamicComponent && <DynamicComponent />}
             </div>
         </div>

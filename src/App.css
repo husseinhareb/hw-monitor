@@ -8,3 +8,12 @@
     font-style: normal;
     box-sizing: border-box;
 }
+
+
+.container {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}

@@ -7,34 +7,49 @@ export const StyledNav = styled.nav`
     display: flex;
     justify-content: center;
     align-items: center;
+    position:fixed;
 `;
 
 export const StyledButton = styled.button<{ active: boolean }>`
   background-color: ${({ active }) => (active ? "#f3eae8" : "transparent")};
   color: ${({ active }) => (active ? "#212830" : "#f3eae8")};
   display: flex;
-    align-items: center;
-    border-radius: 4px;
-    border: none;
-    font-size: 12px;
-    cursor: pointer;
-    outline: none;
-    padding: 4px 8px;
-    margin: 0 5px;
-    &:hover {
-        color: #212830;
-        background-color: #f3eae8;
-    }
-    svg {
-        margin-right: 8px;
-    }
-
+  align-items: center;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 8px;
+  margin: 0 5px;
+  &:hover {
+    color: #212830;
+    background-color: #f3eae8;
+  }
+  svg {
+    margin-right: 8px;
+  }
 `;
 
 
-export const StyledSearchButton = styled(StyledButton)`
-    position: absolute;
-    right: 1em;
+
+export const StyledSearchButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 8px;
+  margin: 0 5px;
+  &:hover {
+    color: #212830;
+    background-color: #f3eae8;
+  }
+  position: absolute;
+  right: 1em;
 `;
 
 export const SearchInput = styled.input`
@@ -54,9 +69,4 @@ export const StyledUl = styled.ul`
     padding: 0;
     margin: 0;
     height: 100%;
-`;
-
-export const MainContent = styled.main`
-    margin-top: 60px;
-    padding: 1rem;
 `;
