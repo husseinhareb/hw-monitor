@@ -3,8 +3,8 @@ import { styled, keyframes } from "styled-components";
 export const Container = styled.div`
   display: ${props => (props.hidden ? 'none' : 'flex')};
   flex-wrap: wrap;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   padding: 20px;
   background-color: #2b2b2b;
   overflow-y: auto;

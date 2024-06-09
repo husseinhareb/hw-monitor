@@ -28,7 +28,7 @@ const Performance: React.FC = () => {
   const interfaceNames = networkUsages ? networkUsages.map((item: any) => item.interface) : [];
 
   return (
-    <div>
+    <div style={{width: '100%', height: '100%'}}>
       <Sidebar interfaceNames={interfaceNames} />
     </div>
   );

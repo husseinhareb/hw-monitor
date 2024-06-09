@@ -3,11 +3,10 @@ import styled from 'styled-components';
 export const StyledNav = styled.nav`
     background-color: #222222;
     width: 100%;
-    height: 30px;
+    height:30px;
     display: flex;
     justify-content: center;
     align-items: center;
-    position:fixed;
 `;
 
 export const StyledButton = styled.button<{ active: boolean }>`
@@ -30,7 +29,6 @@ export const StyledButton = styled.button<{ active: boolean }>`
     margin-right: 8px;
   }
 `;
-
 
 
 export const StyledSearchButton = styled.button`
@@ -69,4 +67,10 @@ export const StyledUl = styled.ul`
     padding: 0;
     margin: 0;
     height: 100%;
+`;
+
+
+export const ContentContainer = styled.div`
+  height:100%;
+  width:100%
 `;

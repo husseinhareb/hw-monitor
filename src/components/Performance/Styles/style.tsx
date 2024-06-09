@@ -60,6 +60,7 @@ min-width: 0;
 export const CPU = styled.div`
 background-color: #2B2B2B;
 width: 100%;
+height: 100%;
 `;
 
 export const NameContainer = styled.div`
@@ -101,6 +102,7 @@ min-width: 0;
 export const MemoryContainer = styled.div<{ hidden: boolean }>`
 background-color: #2B2B2B;
 width: 100%;
+height:100%;
 `;
 
 export const MemoryTypes = styled.div`

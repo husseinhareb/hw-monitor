@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
-import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput } from "../styles/navbar-style";
+import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer } from "../styles/navbar-style";
 import Proc from "./Processes/Proc";
 import Performance from "./Performance/Performance";
 import Sensors from "./Sensors/Sensors";
@@ -7,7 +7,7 @@ import Disks from "./Disks/Disks";
 import { GiProcessor } from "react-icons/gi";
 import { MdSpeed } from "react-icons/md";
 import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
-import { FaSearch } from "react-icons/fa"; 
+import { FaSearch } from "react-icons/fa";
 import { useSetProcessSearch } from "../services/store";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks";
@@ -79,7 +79,7 @@ const Navbar: React.FC = () => {
     const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
     return (
-        <div>
+        <div style={{height: '100%', width: '100',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
             <StyledNav>
                 <StyledUl>
                     <li>
@@ -112,9 +112,9 @@ const Navbar: React.FC = () => {
                     </>
                 )}
             </StyledNav>
-            <div style={{ marginTop: '30px' }}>
+            <ContentContainer>
                 {DynamicComponent && <DynamicComponent />}
-            </div>
+            </ContentContainer>
         </div>
     );
 }

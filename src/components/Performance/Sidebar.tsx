@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     }, [interfaceNames]);
 
     return (
-        <div style={{ display: 'flex'  }}>
+        <div style={{ display: 'flex'}}>
             <SidebarContainer>
                 <Title>Performance</Title>
                 <List>
