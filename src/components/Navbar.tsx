@@ -83,23 +83,23 @@ const Navbar: React.FC = () => {
             <StyledNav>
                 <StyledUl>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Proc")}><GiProcessor /> Processes</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}><GiProcessor /> Processes</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Performance")}><MdSpeed /> Performance</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Performance")} active={activeComponent === "Performance"}><MdSpeed /> Performance</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Sensors")}><FaTemperatureHalf /> Sensors</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Sensors")} active={activeComponent === "Sensors"}><FaTemperatureHalf /> Sensors</StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Disks")}><FaFloppyDisk /> Disks</StyledButton>
+                        <StyledButton onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}><FaFloppyDisk /> Disks</StyledButton>
                     </li>
                 </StyledUl>
                 {activeComponent === "Proc" && (
                     <>
                         {showSearchInput && <SearchInput type="text" placeholder="Search..." onChange={handleSearchInputChange} ref={searchInputRef} />}
                         <StyledSearchButton onClick={handleSearchButtonClick}>
-                            <FaSearch style={{ marginLeft: '0.5em' }} />
+                            <FaSearch />
                         </StyledSearchButton>
                     </>
                 )}

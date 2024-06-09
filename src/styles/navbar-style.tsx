@@ -7,17 +7,16 @@ export const StyledNav = styled.nav`
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
 `;
 
-export const StyledButton = styled.button`
-    display: flex;
+export const StyledButton = styled.button<{ active: boolean }>`
+  background-color: ${({ active }) => (active ? "#f3eae8" : "transparent")};
+  color: ${({ active }) => (active ? "#212830" : "#f3eae8")};
+  display: flex;
     align-items: center;
-    background-color: transparent;
-    border-radius: 6px;
-    color: white;
+    border-radius: 4px;
     border: none;
-    font-size: 14px;
+    font-size: 12px;
     cursor: pointer;
     outline: none;
     padding: 4px 8px;
@@ -29,7 +28,9 @@ export const StyledButton = styled.button`
     svg {
         margin-right: 8px;
     }
+
 `;
+
 
 export const StyledSearchButton = styled(StyledButton)`
     position: absolute;
