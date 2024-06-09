@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FunctionComponent, ChangeEvent } from "react";
+import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput } from "../styles/navbar-style";
 import Proc from "./Processes/Proc";
 import Performance from "./Performance/Performance";
@@ -23,13 +23,17 @@ const Navbar: React.FC = () => {
     const [activeComponent, setActiveComponent] = useState<ComponentName>("Proc");
     const [showSearchInput, setShowSearchInput] = useState(false);
     const setProcessSearch = useSetProcessSearch();
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const handleButtonClick = (componentName: ComponentName) => {
         setActiveComponent(componentName);
+        if (componentName !== "Proc") {
+            setShowSearchInput(false);
+        }
     };
 
     const handleSearchButtonClick = () => {
-        setShowSearchInput(!showSearchInput);
+        setShowSearchInput(prev => !prev);
     };
 
     const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -64,6 +68,14 @@ const Navbar: React.FC = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (showSearchInput && searchInputRef.current) {
+            searchInputRef.current.focus();
+        } else {
+            setProcessSearch("");
+        }
+    }, [showSearchInput, setProcessSearch]);
+
     const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
     return (
@@ -85,7 +97,7 @@ const Navbar: React.FC = () => {
                 </StyledUl>
                 {activeComponent === "Proc" && (
                     <>
-                        {showSearchInput && <SearchInput type="text" placeholder="Search..." onChange={handleSearchInputChange} />}
+                        {showSearchInput && <SearchInput type="text" placeholder="Search..." onChange={handleSearchInputChange} ref={searchInputRef} />}
                         <StyledSearchButton onClick={handleSearchButtonClick}>
                             <FaSearch style={{ marginLeft: '0.5em' }} />
                         </StyledSearchButton>
