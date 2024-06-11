@@ -37,7 +37,11 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
                     <NameLabel>Network</NameLabel>
                     <NameValue>{interfaceName}</NameValue>
                 </NameContainer>
-                <Graph firstGraphValue={downloadValues} secondGraphValue={uploadValues} />
+                <Graph
+                firstGraphValue={downloadValues}
+                secondGraphValue={uploadValues}
+                width="98%"
+                />
 
                 <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                     <RealTimeValues>

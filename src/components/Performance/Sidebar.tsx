@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     }, [interfaceNames]);
 
     return (
-        <div style={{ display: 'flex'}}>
+        <div style={{ height: '100%', width: '100%', display: 'flex'}}>
             <SidebarContainer>
                 <Title>Performance</Title>
                 <List>
@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {isMaxMemorySet && (
                         <ListItem onClick={() => handleItemClick('Memory')}>
                             Memory
-                            <Graph firstGraphValue={memory} maxValue={maxMemory}  height="120px" width="100%"/>
+                            <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
                         </ListItem>
                     )}
 
@@ -67,16 +67,18 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {ethernet &&
                         <ListItem onClick={() => handleItemClick('Ethernet')}>
                             Ethernet
-                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed}  height="120px" width="100%" />
+                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                 </List>
             </SidebarContainer>
+            <div style={{height: '100%', width: '100%',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
             <Cpu hidden={!showCpu} />
-            <Memory hidden={!showMemory} />
-            <Disks hidden={!showDisk} />
-            <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />
-            <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''} />
-        </div>
+                <Memory hidden={!showMemory} />
+                <Disks hidden={!showDisk} />
+                <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />
+                <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''} />
+            </div>
+        </div >
     );
 }
 

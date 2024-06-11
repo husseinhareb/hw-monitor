@@ -72,6 +72,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                     <Graph
                         firstGraphValue={activeMem}
                         maxValue={Math.floor(memoryData.total.value)}
+                        width="98%"
                     />
                     <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                         <RealTimeValues>

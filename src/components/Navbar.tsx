@@ -79,7 +79,7 @@ const Navbar: React.FC = () => {
     const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
     return (
-        <div style={{height: '100%', width: '100',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+        <div style={{height: '100%', width: '100%',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
             <StyledNav>
                 <StyledUl>
                     <li>
