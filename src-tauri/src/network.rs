@@ -13,6 +13,28 @@ pub struct Network {
 }
 
 #[tauri::command]
+pub async fn get_interfaces() -> Vec<String> {
+    let mut networks = Networks::new_with_refreshed_list();
+    // Use tokio's sleep function
+    tokio::time::sleep(Duration::from_millis(1000)).await;
+    networks.refresh();
+    let mut result: Vec<String> = Vec::new();
+
+    // Sort the network interfaces by name
+    let mut sorted_networks: Vec<_> = networks.iter().collect();
+    sorted_networks.sort_by(|(name1, _), (name2, _)| name1.cmp(name2));
+
+    for (interface_name, _) in sorted_networks {
+        // Only consider interfaces starting with "wl", "en", or "eth"
+        if interface_name.starts_with("wl") || interface_name.starts_with("en") || interface_name.starts_with("eth") {
+            result.push(interface_name.clone());
+        }
+    }
+    println!("{:?}",result);
+    result
+}
+
+#[tauri::command]
 pub async fn get_network() -> Vec<Network> {
     let mut networks = Networks::new_with_refreshed_list();
     // Use tokio's sleep function

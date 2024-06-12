@@ -13,6 +13,7 @@ fn main() {
             total_usages::get_total_usages,
             cpu::get_cpu_informations,
             network::get_network,
+            network::get_interfaces,
             memory::get_mem_info,
             disk::get_disks,
             sensors::get_cpu_sensors,
