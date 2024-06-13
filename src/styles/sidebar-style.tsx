@@ -25,7 +25,8 @@ export const List = styled.ul`
 export const ListItem = styled.li`
   margin-bottom: 10px;
   cursor: pointer;
+  color: #b4b4b4;
   &:hover {
-    color: #ffd700;
+    color: #fff;
   }
 `;

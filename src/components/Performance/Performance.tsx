@@ -4,14 +4,12 @@ import { invoke } from "@tauri-apps/api/tauri";
 import Sidebar from './Sidebar';
 
 const Performance: React.FC = () => {
-  const [networkUsages, setNetworkUsages] = useState<any>(null);
-
-  
+  const [networkUsages, setNetworkUsages] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedNetworkUsages: any = await invoke("get_network");
+        const fetchedNetworkUsages: string[] = await invoke("get_interfaces");
         setNetworkUsages(fetchedNetworkUsages);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -24,12 +22,9 @@ const Performance: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-
-  const interfaceNames = networkUsages ? networkUsages.map((item: any) => item.interface) : [];
-
   return (
     <div style={{width: '100%', height: '100%'}}>
-      <Sidebar interfaceNames={interfaceNames} />
+      <Sidebar interfaceNames={networkUsages} />
     </div>
   );
 };
