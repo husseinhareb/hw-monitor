@@ -1,4 +1,3 @@
-//sidebar.tsx
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
@@ -20,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [ethernet, setEthernet] = useState(false);
     const [showWifi, setShowWifi] = useState(false);
     const [showEthernet, setShowEthernet] = useState(false);
+    const [selectedItem, setSelectedItem] = useState('CPU');
 
     const cpuUsage = useCpu();
     const memory = useMemory();
@@ -29,11 +29,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
     const handleItemClick = (itemName: string) => {
-        setShowCpu(itemName === 'CPU' ? true : false);
-        setShowMemory(itemName === 'Memory' ? true : false);
-        setShowDisk(itemName === 'DISK' ? true : false);
-        setShowWifi(itemName === 'Wi-Fi' ? true : false);
-        setShowEthernet(itemName === 'Ethernet' ? true : false);
+        setSelectedItem(itemName);
+        setShowCpu(itemName === 'CPU');
+        setShowMemory(itemName === 'Memory');
+        setShowDisk(itemName === 'DISK');
+        setShowWifi(itemName === 'Wi-Fi');
+        setShowEthernet(itemName === 'Ethernet');
     };
 
     useEffect(() => {
@@ -48,31 +49,43 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             <SidebarContainer>
                 <Title>Performance</Title>
                 <List>
-                    <ListItem onClick={() => handleItemClick('CPU')}>
+                    <ListItem 
+                        onClick={() => handleItemClick('CPU')}
+                        style={{ color: selectedItem === 'CPU' ? '#fff' : '#b4b4b4' }}
+                    >
                         CPU
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
                     {isMaxMemorySet && (
-                        <ListItem onClick={() => handleItemClick('Memory')}>
+                        <ListItem 
+                            onClick={() => handleItemClick('Memory')}
+                            style={{ color: selectedItem === 'Memory' ? '#fff' : '#b4b4b4' }}
+                        >
                             Memory
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
                         </ListItem>
                     )}
 
                     {wifi &&
-                        <ListItem onClick={() => handleItemClick('Wi-Fi')}>
+                        <ListItem 
+                            onClick={() => handleItemClick('Wi-Fi')}
+                            style={{ color: selectedItem === 'Wi-Fi' ? '#fff' : '#b4b4b4' }}
+                        >
                             Wi-Fi
                             <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                     {ethernet &&
-                        <ListItem onClick={() => handleItemClick('Ethernet')}>
+                        <ListItem 
+                            onClick={() => handleItemClick('Ethernet')}
+                            style={{ color: selectedItem === 'Ethernet' ? '#fff' : '#b4b4b4' }}
+                        >
                             Ethernet
                             <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                 </List>
             </SidebarContainer>
             <div style={{height: '100%', width: '100%',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
-            <Cpu hidden={!showCpu} />
+                <Cpu hidden={!showCpu} />
                 <Memory hidden={!showMemory} />
                 <Disks hidden={!showDisk} />
                 <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />

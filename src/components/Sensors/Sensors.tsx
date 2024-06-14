@@ -7,6 +7,7 @@ import {
 } from '../../styles/sensors-style';
 import Battery from '../Sensors/BatterySensors';
 import CpuSensors from '../Sensors/CpuSensors';
+import DiskSensors from './DiskSensors';
 
 const Sensors: React.FC = () => {
   return (
@@ -18,6 +19,9 @@ const Sensors: React.FC = () => {
         </SensorList>
         <SensorList>
           <CpuSensors />
+        </SensorList>
+        <SensorList>
+          <DiskSensors />
         </SensorList>
       </SensorGrid>
     </Container>

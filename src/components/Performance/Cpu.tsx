@@ -3,9 +3,21 @@ import React, { useState, useEffect } from "react";
 import Graph from "../Graph";
 import { useSetCpu } from "../../services/store";
 import useCpuData from "../../hooks/useCpuData";
-import { CPU, LeftLabel, RightLabel, RightValue, LeftValue, NameValue, RealTimeValues, FixedValues, SpeedUsageContainer, SpeedUsageItem, FixedValueItem } from "./Styles/style";
+import {
+    CPU, LeftLabel,
+    RightLabel,
+    RightValue,
+    LeftValue,
+    NameValue,
+    RealTimeValues,
+    FixedValues,
+    SpeedUsageContainer,
+    SpeedUsageItem,
+    FixedValueItem,
+    NameLabel
+} from "./Styles/style";
 import useTotalUsagesData from "../../hooks/useTotalUsagesData";
-import { NameContainer, NameLabel } from "../../styles/general-style";
+import { NameContainer, } from "../../styles/general-style";
 
 interface CpuProps {
     hidden: boolean;
@@ -38,16 +50,16 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     }, [cpuUsage]);
 
     return (
-        <CPU style={{height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}>
+        <CPU style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}>
             <NameContainer>
                 <NameLabel>CPU</NameLabel>
                 <NameValue>{cpuData.name}</NameValue>
             </NameContainer>
             <div>
-                <Graph 
-                firstGraphValue={cpuUsage}
-                maxValue={100}
-                width="98%"
+                <Graph
+                    firstGraphValue={cpuUsage}
+                    maxValue={100}
+                    width="98%"
                 />
             </div>
             <div style={{ display: 'flex', marginTop: '100px', width: '70%', flexWrap: 'wrap' }}>

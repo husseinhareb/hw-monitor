@@ -17,6 +17,7 @@ fn main() {
             memory::get_mem_info,
             disk::get_disks,
             sensors::get_cpu_sensors,
+            sensors::get_disk_sensors,
             battery::get_batteries,
             ])
         .run(tauri::generate_context!())

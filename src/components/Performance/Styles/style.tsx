@@ -35,7 +35,7 @@ font-size: 20px;
 // Common Name Label
 export const NameLabel = styled.p`
 color: rgb(255, 255, 255);
-font-size: 40px;
+font-size: 30px;
 margin: 7px;
 flex-shrink: 0;
 `;
@@ -73,7 +73,6 @@ flex-wrap: wrap;
 
 export const FixedValues = styled.div`
 flex: 1;
-padding: 10px;
 text-align: left;
 border-left: 2px solid white;
 min-width: 0;

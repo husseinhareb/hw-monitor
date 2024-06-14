@@ -3,7 +3,7 @@ import Graph from "../Graph";
 import useMemoryData from "../../hooks/useMemoryData";
 import { useSetMemory } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
-import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "./Styles/style";
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "./Styles/style";
 import { NameContainer } from "../../styles/general-style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
@@ -78,28 +78,28 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                         <RealTimeValues>
                             <MemoryTypes>Ram <FaMemory style={{ marginLeft: '0.5em' }}  /></MemoryTypes>
                             <FixedValueItem>
-                                <LeftLabel>Total</LeftLabel>
+                                <RightLabel>Total</RightLabel>
                                 <LeftValue>{memoryData.total.value} {memoryData.total.unit}</LeftValue>
                             </FixedValueItem>
                             <FixedValueItem>
 
-                                <LeftLabel>Free</LeftLabel>
+                                <RightLabel>Free</RightLabel>
                                 <LeftValue>{memoryData.free.value} {memoryData.free.unit}</LeftValue>
                             </FixedValueItem>
                             <FixedValueItem>
 
-                                <LeftLabel>Available</LeftLabel>
+                                <RightLabel>Available</RightLabel>
                                 <LeftValue>{memoryData.available.value} {memoryData.available.unit}</LeftValue>
                             </FixedValueItem>
 
                             <FixedValueItem>
 
-                                <LeftLabel>Cached</LeftLabel>
+                                <RightLabel>Cached</RightLabel>
                                 <LeftValue>{memoryData.cached.value} {memoryData.cached.unit}</LeftValue>
                             </FixedValueItem>
 
                             <FixedValueItem>
-                                <LeftLabel>Active</LeftLabel>
+                                <RightLabel>Active</RightLabel>
                                 <LeftValue> {memoryData.active.value} {memoryData.active.unit}</LeftValue>
                             </FixedValueItem>
                         </RealTimeValues>
