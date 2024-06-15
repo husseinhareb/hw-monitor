@@ -9,6 +9,7 @@ use libmedium::{
 pub struct SensorData {
     name: String,
     value: f32,
+    critical: Option<f32>, 
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -26,9 +27,12 @@ fn get_hwmon_data() -> Vec<HwMonData> {
         let mut sensors = Vec::new();
         for (_, temp_sensor) in hwmon.temps() {
             let temperature: Temperature = temp_sensor.read_input().unwrap();
+            let critical_temp = temp_sensor.read_crit().ok(); // Try to read the critical temperature
+
             sensors.push(SensorData {
                 name: temp_sensor.name().to_string(),
                 value: temperature.as_degrees_celsius() as f32, // Converting to Celsius
+                critical: critical_temp.map(|t| t.as_degrees_celsius() as f32), // Store the critical temperature if available
             });
         }
         hwmon_data.push(HwMonData {
