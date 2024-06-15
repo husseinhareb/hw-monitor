@@ -6,6 +6,7 @@ mod disk;
 mod total_usages;
 mod sensors;
 mod battery;
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -16,8 +17,7 @@ fn main() {
             network::get_interfaces,
             memory::get_mem_info,
             disk::get_disks,
-            sensors::get_cpu_sensors,
-            sensors::get_disk_sensors,
+            sensors::get_sensors,
             battery::get_batteries,
             ])
         .run(tauri::generate_context!())
