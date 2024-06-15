@@ -4,7 +4,7 @@ interface DesignProps {
     percentage: number;
   }
   
-export const BatteryItem = styled.p`
+export const Item = styled.p`
   color:white;
   margin-bottom:3px;
 `
