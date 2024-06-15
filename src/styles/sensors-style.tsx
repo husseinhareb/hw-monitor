@@ -19,7 +19,7 @@ export const Title = styled.h1`
 export const SensorGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 60px;
+  gap: 20px;
 `;
 
 export const SensorGroup = styled.div`
@@ -29,23 +29,18 @@ export const SensorGroup = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  height: 330px; 
-  overflow: hidden;
-`;
-
-export const SensorGroupName = styled.h2`
-  margin-bottom: 10px;
-  color: #006eb8;
+  justify-content: space-between;
+  height: 100%;
 `;
 
 export const SensorList = styled.div`
-  list-style: none;
-  padding: 0;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  justify-content: center;
-  height: 100%;  
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
   overflow: hidden;
 `;
 
@@ -57,7 +52,7 @@ export const SensorItem = styled.div`
   font-weight: bold;
   display: flex;
   justify-content: space-between;
-  width: 100%;  /* Ensure full width within the list */
+  width: 100%;
 `;
 
 export const SensorName = styled.h3`
@@ -65,6 +60,14 @@ export const SensorName = styled.h3`
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
+`;
+
+export const ContentDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
 `;
 
 export const SensorValue = styled.span`
