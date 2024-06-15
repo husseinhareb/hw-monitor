@@ -1,3 +1,4 @@
+//useCpudata.ts
 import  { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 

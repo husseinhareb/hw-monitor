@@ -40,11 +40,12 @@ const Proc: React.FC = () => {
 
     const sortProcessesByColumn = useMemo(() => (processes: Process[], column: string, order: string): Process[] => {
         if (!column) return processes;
-
+    
         return [...processes].sort((a, b) => {
             let valueA: any;
             let valueB: any;
-
+    
+            // Determine how to extract values for sorting based on column
             if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed") {
                 valueA = convertDataValue(a[column]);
                 valueB = convertDataValue(b[column]);
@@ -58,7 +59,8 @@ const Proc: React.FC = () => {
                 valueA = (a[column as keyof Process] as string).toLowerCase();
                 valueB = (b[column as keyof Process] as string).toLowerCase();
             }
-
+    
+            // Apply sorting order (asc/desc)
             if (order === 'asc') {
                 return valueA > valueB ? 1 : -1;
             } else {
@@ -66,10 +68,12 @@ const Proc: React.FC = () => {
             }
         });
     }, []);
-
+    
+    // Apply sorting based on current sortBy and sortOrder
     const sortedProcesses = useMemo(() => {
         return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
     }, [sortBy, sortOrder, processes]);
+    
 
     const sortProcesses = (column: string) => {
         setSortBy(column);
