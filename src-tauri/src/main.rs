@@ -9,7 +9,6 @@ mod battery;
 mod config;
 
 fn main() {
-
     let _ = config::create_config();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![

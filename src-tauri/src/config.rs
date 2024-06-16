@@ -34,9 +34,9 @@ pub fn default_config() -> Result<(), io::Error> {
     let mut file = File::create(&file_path)?;
 
     let default_values = "\
-        key1=value1\n\
-        key2=value2\n\
-        key3=value3\n\
+        processes_color=value1\n\
+        processes_bg_color=value2\n\
+        processes_update_time=value3\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -102,8 +102,70 @@ pub struct ConfigData {
     pub color: String,
 }
 
+// Function to save config data to file
+pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
+    let file_path = config_file()?;
+    
+    let mut file = File::create(&file_path)?;
+    
+    let config_content = format!(
+        "processes_update_time={}\nprocesses_bg_color={}\nprocesses_color={}\n",
+        data.update_time,
+        data.background_color,
+        data.color
+    );
+    
+    file.write_all(config_content.as_bytes())?;
+    Ok(())
+}
+
+pub fn read_process_configs() -> Result<ConfigData, io::Error> {
+    let file_path = config_file()?;
+    let file = File::open(&file_path)?;
+    let reader = io::BufReader::new(file);
+
+    let mut update_time: Option<u32> = None;
+    let mut background_color: Option<String> = None;
+    let mut color: Option<String> = None;
+
+    for line in reader.lines() {
+        let line = line?;
+        if line.starts_with("processes_") {
+            let parts: Vec<&str> = line.splitn(2, '=').collect();
+            if parts.len() == 2 {
+                match parts[0] {
+                    "processes_update_time" => {
+                        update_time = parts[1].parse::<u32>().ok();
+                    }
+                    "processes_bg_color" => {
+                        background_color = Some(parts[1].to_string());
+                    }
+                    "processes_color" => {
+                        color = Some(parts[1].to_string());
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    // Ensure all values are found
+    if let (Some(update_time), Some(background_color), Some(color)) = (update_time, background_color, color) {
+        Ok(ConfigData {
+            update_time,
+            background_color,
+            color,
+        })
+    } else {
+        Err(io::Error::new(io::ErrorKind::NotFound, "Some process config values are missing"))
+    }
+}
+
+
 #[tauri::command]
 pub async fn set_proc_config(data: ConfigData) {
     println!("Received config data: {:?}", data);
-    // Here you can process the data, save it, or do whatever is needed
+    if let Err(e) = save_config(&data) {
+        println!("Failed to save config: {}", e);
+    }
 }
