@@ -2,11 +2,12 @@ import styled from 'styled-components';
 
 export const TableContainer = styled.div`
     width: 100%;
+    overflow-x: auto;
 `;
 
 export const Table = styled.table`
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
     border-collapse: collapse;
     background-color: #1e1e1e;
     color: #d4d4d4;
@@ -25,6 +26,7 @@ export const Th = styled.th`
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
+    font-size:14px;
     text-overflow: ellipsis;
     position: relative;
     &:hover {
@@ -33,7 +35,7 @@ export const Th = styled.th`
 `;
 
 export const Resizer = styled.div`
-    width: px;
+    width: 5px;
     height: 100%;
     background: #000;
     position: absolute;
@@ -51,10 +53,10 @@ export const Tr = styled.tr``;
 
 export const Td = styled.td`
     padding: 8px;
-    font-size:14px;
+    font-size: 14px;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
     border: 1px solid #333;
     &:hover {
         background-color: #3e3e3e;

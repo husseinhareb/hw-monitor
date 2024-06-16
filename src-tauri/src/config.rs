@@ -2,6 +2,7 @@ use std::fs::{self, File};
 use std::path::PathBuf;
 use std::io::{self, BufRead, Write};
 use tauri::InvokeError;
+use serde::Deserialize;
 
 pub fn create_config() -> Result<(), InvokeError> {
     let config_dir = dirs::config_dir().ok_or_else(|| InvokeError::from("Unable to determine config directory"))?;
@@ -92,4 +93,17 @@ fn config_file() -> Result<PathBuf, io::Error> {
 
     let file_path = config_dir.join("hw-monitor").join("hw-monitor.conf");
     Ok(file_path)
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ConfigData {
+    pub update_time: u32,
+    pub background_color: String,
+    pub color: String,
+}
+
+#[tauri::command]
+pub async fn set_proc_config(data: ConfigData) {
+    println!("Received config data: {:?}", data);
+    // Here you can process the data, save it, or do whatever is needed
 }

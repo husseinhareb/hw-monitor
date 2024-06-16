@@ -22,6 +22,7 @@ fn main() {
             disk::get_disks,
             sensors::get_sensors,
             battery::get_batteries,
+            config::set_proc_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
