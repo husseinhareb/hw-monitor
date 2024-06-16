@@ -7,6 +7,12 @@ export const StyledNav = styled.nav`
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+`;
+
+export const ConfigButtonContainer = styled.div`
+    position: absolute;
+    left: 1em;
 `;
 
 export const StyledButton = styled.button<{ active: boolean }>`
@@ -29,7 +35,6 @@ export const StyledButton = styled.button<{ active: boolean }>`
     margin-right: 8px;
   }
 `;
-
 
 export const StyledSearchButton = styled.button`
   display: flex;
@@ -68,7 +73,6 @@ export const StyledUl = styled.ul`
     margin: 0;
     height: 100%;
 `;
-
 
 export const ContentContainer = styled.div`
   height:100%;

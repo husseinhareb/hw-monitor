@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
-import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer } from "../styles/navbar-style";
+import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../styles/navbar-style";
 import Proc from "./Processes/Proc";
 import Performance from "./Performance/Performance";
 import Sensors from "./Sensors/Sensors";
 import Disks from "./Disks/Disks";
+import Config from "./Config";
 import { GiProcessor } from "react-icons/gi";
 import { MdSpeed } from "react-icons/md";
 import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 import { useSetProcessSearch } from "../services/store";
+import { LuSettings2 } from "react-icons/lu";
 
-type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks";
+type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Config";
 
 const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
     Proc,
     Performance,
     Sensors,
-    Disks
+    Disks,
+    Config
 };
 
 const Navbar: React.FC = () => {
@@ -43,6 +46,9 @@ const Navbar: React.FC = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
         if (event.altKey) {
             switch (event.key) {
+                case '0':
+                    setActiveComponent("Config");
+                    break;
                 case '1':
                     setActiveComponent("Proc");
                     break;
@@ -81,6 +87,11 @@ const Navbar: React.FC = () => {
     return (
         <div style={{height: '100%', width: '100%',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
             <StyledNav>
+                <ConfigButtonContainer>
+                    <StyledButton onClick={() => handleButtonClick("Config")} active={activeComponent === "Config"}>
+                        <LuSettings2 />
+                    </StyledButton>
+                </ConfigButtonContainer>
                 <StyledUl>
                     <li>
                         <StyledButton onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}>

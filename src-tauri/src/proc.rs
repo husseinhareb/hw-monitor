@@ -233,8 +233,6 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
     }).collect()
 }
 
-
-
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();

@@ -23,7 +23,9 @@ const useProcessData = () => {
     useEffect(() => {
         const fetchProcess = async () => {
             try {
+                console.time("Data Fetch Time");
                 const fetchedProcess: Process[] = await invoke("get_processes");
+                console.timeEnd("Data Fetch Time");
                 setProcesses(fetchedProcess);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -35,7 +37,9 @@ const useProcessData = () => {
 
         return () => clearInterval(intervalId);
     }, []);
+
     return { processes };
 }
+
 
 export default useProcessData;

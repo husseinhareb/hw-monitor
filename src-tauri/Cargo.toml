@@ -18,6 +18,7 @@ sysinfo = "0.30.11"
 serde_json = "1"
 battery = "0.7.8"
 libmedium = "0.8.1"
+dirs = "5.0.1"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
