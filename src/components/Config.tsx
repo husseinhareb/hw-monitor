@@ -24,7 +24,7 @@ const Config: React.FC = () => {
     const sendData = async (data: ProcessConfig) => {
         try {
             await invoke("set_proc_config", { data });
-            console.log(data);
+            console.log("Data sent to backend:", data);
         } catch (error) {
             console.error('Error while sending data to backend:', error);
         }
@@ -61,10 +61,12 @@ const Config: React.FC = () => {
         });
     };
 
+    // useEffect to fetch config data every second
     useEffect(() => {
-        const fetchConfig = async () => {
+        const intervalId = setInterval(async () => {
             try {
                 const config: ProcessConfig = await invoke("get_process_configs");
+                console.log(config)
                 setProcessConfig(config);
                 setUpdateTime(config.update_time);
                 setBackgroundColor(config.background_color);
@@ -72,12 +74,13 @@ const Config: React.FC = () => {
             } catch (error) {
                 console.error("Error fetching process config:", error);
             }
-        };
+        }, 1000); // Fetch every 1000ms (1 second)
 
-        fetchConfig();
-    }, []);
+        // Clean up the interval on component unmount
+        return () => clearInterval(intervalId);
+    }, []); // Empty dependency array ensures this effect runs only once on mount
 
-    console.log(processConfig);
+
     return (
         <div>
             <h1>Config File</h1>

@@ -2,8 +2,25 @@ use std::fs::{self, File};
 use std::path::PathBuf;
 use std::io::{self, BufRead, Write};
 use tauri::InvokeError;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
+// Struct for the configuration data
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ConfigData {
+    pub update_time: u32,
+    pub background_color: String,
+    pub color: String,
+}
+
+// Struct for process-specific configuration data
+#[derive(Debug, Deserialize, Serialize, Default)]
+pub struct ProcessConfigData {
+    pub update_time: u32,
+    pub background_color: String,
+    pub color: String,
+}
+
+// Function to create the initial configuration file if not exists
 pub fn create_config() -> Result<(), InvokeError> {
     let config_dir = dirs::config_dir().ok_or_else(|| InvokeError::from("Unable to determine config directory"))?;
     let folder_path = config_dir.join("hw-monitor");
@@ -34,9 +51,9 @@ pub fn default_config() -> Result<(), io::Error> {
     let mut file = File::create(&file_path)?;
 
     let default_values = "\
-        processes_color=value1\n\
-        processes_bg_color=value2\n\
-        processes_update_time=value3\n\
+        processes_update_time=60\n\
+        processes_bg_color=#FFFFFF\n\
+        processes_color=#000000\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -64,6 +81,33 @@ pub fn read_all_configs() -> io::Result<String> {
     }
 
     Ok(config_content)
+}
+
+// Function to read process-specific configs
+pub fn read_process_configs() -> Result<ProcessConfigData, io::Error> {
+    let config_content = read_all_configs()?;
+    let mut process_config = ProcessConfigData::default();
+
+    for line in config_content.lines() {
+        if let Some((key, value)) = parse_config_line(line) {
+            match key {
+                "processes_update_time" => process_config.update_time = value.parse().unwrap_or_default(),
+                "processes_bg_color" => process_config.background_color = value.to_string(),
+                "processes_color" => process_config.color = value.to_string(),
+                _ => {}
+            }
+        }
+    }
+
+    Ok(process_config)
+}
+
+// Helper function to parse a single line from config content
+fn parse_config_line(line: &str) -> Option<(&str, &str)> {
+    let mut parts = line.split('=');
+    let key = parts.next()?.trim();
+    let value = parts.next()?.trim();
+    Some((key, value))
 }
 
 // Function to check if a folder exists
@@ -95,13 +139,6 @@ fn config_file() -> Result<PathBuf, io::Error> {
     Ok(file_path)
 }
 
-#[derive(Deserialize, Debug)]
-pub struct ConfigData {
-    pub update_time: u32,
-    pub background_color: String,
-    pub color: String,
-}
-
 // Function to save config data to file
 pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
     let file_path = config_file()?;
@@ -119,53 +156,15 @@ pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn read_process_configs() -> Result<ConfigData, io::Error> {
-    let file_path = config_file()?;
-    let file = File::open(&file_path)?;
-    let reader = io::BufReader::new(file);
-
-    let mut update_time: Option<u32> = None;
-    let mut background_color: Option<String> = None;
-    let mut color: Option<String> = None;
-
-    for line in reader.lines() {
-        let line = line?;
-        if line.starts_with("processes_") {
-            let parts: Vec<&str> = line.splitn(2, '=').collect();
-            if parts.len() == 2 {
-                match parts[0] {
-                    "processes_update_time" => {
-                        update_time = parts[1].parse::<u32>().ok();
-                    }
-                    "processes_bg_color" => {
-                        background_color = Some(parts[1].to_string());
-                    }
-                    "processes_color" => {
-                        color = Some(parts[1].to_string());
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
-
-    // Ensure all values are found
-    if let (Some(update_time), Some(background_color), Some(color)) = (update_time, background_color, color) {
-        Ok(ConfigData {
-            update_time,
-            background_color,
-            color,
-        })
-    } else {
-        Err(io::Error::new(io::ErrorKind::NotFound, "Some process config values are missing"))
-    }
-}
-
-
 #[tauri::command]
 pub async fn set_proc_config(data: ConfigData) {
     println!("Received config data: {:?}", data);
     if let Err(e) = save_config(&data) {
         println!("Failed to save config: {}", e);
     }
+}
+
+#[tauri::command]
+pub async fn get_process_configs() -> Result<ProcessConfigData, InvokeError> {
+    read_process_configs().map_err(|e| InvokeError::from(e.to_string()))
 }
