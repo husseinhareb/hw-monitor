@@ -2,14 +2,15 @@ import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../../hooks/useProcessData';
 import useTotalUsagesData from '../../hooks/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
-import { usePorcessSearch } from '../../services/store';
+import { useProcessSearch, useProcessesConfig } from '../../services/store';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<string>('asc');
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
-    const processSearch = usePorcessSearch();
+    const processSearch = useProcessSearch();
+    const processConfig = useProcessesConfig();
 
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
@@ -32,7 +33,7 @@ const Proc: React.FC = () => {
     const calculateTotalUsage = (processes: Process[], key: string): number => {
         return processes.reduce((total, process) => total + convertDataValue(String(process[key])), 0);
     };
-    
+
 
     const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
     const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
@@ -40,11 +41,11 @@ const Proc: React.FC = () => {
 
     const sortProcessesByColumn = useMemo(() => (processes: Process[], column: string, order: string): Process[] => {
         if (!column) return processes;
-    
+
         return [...processes].sort((a, b) => {
             let valueA: any;
             let valueB: any;
-    
+
             // Determine how to extract values for sorting based on column
             if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed") {
                 valueA = convertDataValue(a[column]);
@@ -59,7 +60,7 @@ const Proc: React.FC = () => {
                 valueA = (a[column as keyof Process] as string).toLowerCase();
                 valueB = (b[column as keyof Process] as string).toLowerCase();
             }
-    
+
             // Apply sorting order (asc/desc)
             if (order === 'asc') {
                 return valueA > valueB ? 1 : -1;
@@ -68,12 +69,12 @@ const Proc: React.FC = () => {
             }
         });
     }, []);
-    
+
     // Apply sorting based on current sortBy and sortOrder
     const sortedProcesses = useMemo(() => {
         return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
     }, [sortBy, sortOrder, processes]);
-    
+
 
     const sortProcesses = (column: string) => {
         setSortBy(column);
@@ -105,8 +106,11 @@ const Proc: React.FC = () => {
 
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
-            <Table>
-                <Thead>
+            <Table
+                backgroundColor={processConfig.background_color}
+                color={processConfig.color}
+            >                
+            <Thead>
                     <Tr>
                         <Th onClick={() => sortProcesses('user')}>User{getSortIndicator('user')}</Th>
                         <Th onClick={() => sortProcesses('pid')}>Pid{getSortIndicator('pid')}</Th>

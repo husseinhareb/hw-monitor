@@ -1,3 +1,4 @@
+// StyledComponents.js
 import styled from 'styled-components';
 
 export const TableContainer = styled.div`
@@ -5,12 +6,12 @@ export const TableContainer = styled.div`
     overflow-x: auto;
 `;
 
-export const Table = styled.table`
+export const Table = styled.table<{ backgroundColor: string; color: string }>`
     width: 100%;
     table-layout: auto;
     border-collapse: collapse;
-    background-color: #1e1e1e;
-    color: #d4d4d4;
+    background-color: ${(props) => props.backgroundColor};
+    color: ${(props) => props.color};
 `;
 
 export const Thead = styled.thead`

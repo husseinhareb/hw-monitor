@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+interface ProcessConfig {
+  update_time: number;
+  background_color: string;
+  color: string;
+}
+
 interface Store {
   cpu: number[];
   setCpu: (cpu: number[]) => void;
@@ -19,7 +25,10 @@ interface Store {
   setEthernetSpeed: (downloadSpeed: number[], uploadSpeed: number[]) => void;
 
   processSearch: string;
-  setProcessSearch: (processSearch: string)=> void;
+  setProcessSearch: (processSearch: string) => void;
+
+  processesConfig: ProcessConfig;
+  setProcessesConfig: (processesConfig: ProcessConfig) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -41,7 +50,10 @@ export const useStore = create<Store>((set) => ({
   setEthernetSpeed: (downloadSpeed, uploadSpeed) => set({ ethernetDownloadSpeed: downloadSpeed, ethernetUploadSpeed: uploadSpeed }),
 
   processSearch: "",
-  setProcessSearch: (processSearch) => set({ processSearch})
+  setProcessSearch: (processSearch) => set({ processSearch }),
+
+  processesConfig: { update_time: 0, background_color: "#ffffff", color: "#000000" },
+  setProcessesConfig: (processesConfig) => set({ processesConfig }),
 }));
 
 export const useCpu = () => useStore((state) => state.cpu);
@@ -59,5 +71,8 @@ export const useSetWifiSpeed = () => useStore((state) => state.setWifiSpeed);
 export const useEthernetSpeed = () => useStore((state) => [state.ethernetDownloadSpeed, state.ethernetUploadSpeed]);
 export const useSetEthernetSpeed = () => useStore((state) => state.setEthernetSpeed);
 
-export const usePorcessSearch = () => useStore((state) => state.processSearch);
+export const useProcessSearch = () => useStore((state) => state.processSearch);
 export const useSetProcessSearch = () => useStore((state) => state.setProcessSearch);
+
+export const useProcessesConfig = () => useStore((state) => state.processesConfig);
+export const useSetProcessesConfig = () => useStore((state) => state.setProcessesConfig);

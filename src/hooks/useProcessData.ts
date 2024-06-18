@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import { useProcessesConfig } from "../services/store";
 
 export interface Process {
     user: string;
@@ -19,7 +20,7 @@ export interface Process {
 
 const useProcessData = () => {
     const [processes, setProcesses] = useState<Process[]>([]);
-
+    const processesConfig = useProcessesConfig();
     useEffect(() => {
         const fetchProcess = async () => {
             try {
@@ -33,7 +34,7 @@ const useProcessData = () => {
         };
 
         fetchProcess();
-        const intervalId = setInterval(fetchProcess, 1000);
+        const intervalId = setInterval(fetchProcess, processesConfig.update_time);
 
         return () => clearInterval(intervalId);
     }, []);
