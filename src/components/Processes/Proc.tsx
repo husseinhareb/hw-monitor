@@ -11,7 +11,7 @@ const Proc: React.FC = () => {
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
     const processConfig = useProcessesConfig();
-    console.log("re",processConfig);
+    
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 
@@ -33,7 +33,6 @@ const Proc: React.FC = () => {
     const calculateTotalUsage = (processes: Process[], key: string): number => {
         return processes.reduce((total, process) => total + convertDataValue(String(process[key])), 0);
     };
-
 
     const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
     const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
@@ -75,7 +74,6 @@ const Proc: React.FC = () => {
         return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
     }, [sortBy, sortOrder, processes]);
 
-
     const sortProcesses = (column: string) => {
         setSortBy(column);
         setSortOrder(prevOrder => (column === sortBy && prevOrder === 'asc' ? 'desc' : 'asc'));
@@ -107,10 +105,15 @@ const Proc: React.FC = () => {
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
             <Table
-                backgroundColor={processConfig.background_color}
-                color={processConfig.color}
-            >                
-            <Thead>
+                bodyBackgroundColor={processConfig.body_background_color}
+                bodyColor={processConfig.body_color}
+                headBackgroundColor={processConfig.head_background_color}
+                headColor={processConfig.head_color}
+            >
+                <Thead
+                    headBackgroundColor={processConfig.head_background_color}
+                    headColor={processConfig.head_color}
+                >
                     <Tr>
                         <Th onClick={() => sortProcesses('user')}>User{getSortIndicator('user')}</Th>
                         <Th onClick={() => sortProcesses('pid')}>Pid{getSortIndicator('pid')}</Th>
@@ -129,7 +132,10 @@ const Proc: React.FC = () => {
                         <Th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed{getSortIndicator('write_disk_speed')}</Th>
                     </Tr>
                 </Thead>
-                <Tbody>
+                <Tbody
+                    bodyBackgroundColor={processConfig.body_background_color}
+                    bodyColor={processConfig.body_color}
+                >
                     {filteredProcesses.map((process, index) => (
                         <Tr key={index}>
                             <Td>{process.user}</Td>

@@ -8,17 +8,22 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ConfigData {
     pub update_time: u32,
-    pub background_color: String,
-    pub color: String,
+    pub body_background_color: String,
+    pub body_color: String,
+    pub head_background_color: String,
+    pub head_color: String,
 }
 
 // Struct for process-specific configuration data
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub struct ProcessConfigData {
     pub update_time: u32,
-    pub background_color: String,
-    pub color: String,
+    pub body_background_color: String,
+    pub body_color: String,
+    pub head_background_color: String,
+    pub head_color: String,
 }
+
 
 // Function to create the initial configuration file if not exists
 pub fn create_config() -> Result<(), InvokeError> {
@@ -52,13 +57,16 @@ pub fn default_config() -> Result<(), io::Error> {
 
     let default_values = "\
         processes_update_time=60\n\
-        processes_bg_color=#FFFFFF\n\
-        processes_color=#000000\n\
+        body_background_color=#FFFFFF\n\
+        body_color=#000000\n\
+        head_background_color=#FFFFFF\n\
+        head_color=#000000\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
     Ok(())
 }
+
 
 // Function to read all configs
 pub fn read_all_configs() -> io::Result<String> {
@@ -92,8 +100,10 @@ pub fn read_process_configs() -> Result<ProcessConfigData, io::Error> {
         if let Some((key, value)) = parse_config_line(line) {
             match key {
                 "processes_update_time" => process_config.update_time = value.parse().unwrap_or_default(),
-                "processes_bg_color" => process_config.background_color = value.to_string(),
-                "processes_color" => process_config.color = value.to_string(),
+                "body_background_color" => process_config.body_background_color = value.to_string(),
+                "body_color" => process_config.body_color = value.to_string(),
+                "head_background_color" => process_config.head_background_color = value.to_string(),
+                "head_color" => process_config.head_color = value.to_string(),
                 _ => {}
             }
         }
@@ -109,6 +119,7 @@ fn parse_config_line(line: &str) -> Option<(&str, &str)> {
     let value = parts.next()?.trim();
     Some((key, value))
 }
+
 
 // Function to check if a folder exists
 fn folder_exists(folder_path: &PathBuf) -> bool {
@@ -145,16 +156,19 @@ pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
     let mut file = File::create(&file_path)?;
 
     let config_content = format!(
-        "processes_update_time={}\nprocesses_bg_color={}\nprocesses_color={}\n",
+        "processes_update_time={}\nbody_background_color={}\nbody_color={}\nhead_background_color={}\nhead_color={}\n",
         data.update_time,
-        data.background_color,
-        data.color
+        data.body_background_color,
+        data.body_color,
+        data.head_background_color,
+        data.head_color,
     );
 
     file.write_all(config_content.as_bytes())?;
     file.flush()?; // Ensure data is flushed to disk immediately
     Ok(())
 }
+
 
 
 #[tauri::command]

@@ -1,61 +1,12 @@
 // Config.tsx
-import React, { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-import {  useSetProcessesConfig } from "../services/store";
-
-type ProcessConfig = {
-    update_time: number;
-    background_color: string;
-    color: string;
-};
+import React from "react";
+import useProcessConfig from "../hooks/useProcessConfig";
 
 const Config: React.FC = () => {
-    const [updateTime, setUpdateTime] = useState<number>(0);
-    const [backgroundColor, setBackgroundColor] = useState<string>("#ffffff");
-    const [color, setColor] = useState<string>("#000000");
-    const setProcessesConfig = useSetProcessesConfig();
-
-    const sendData = async (data: ProcessConfig) => {
-        try {
-            await invoke("set_proc_config", { data });
-            console.log(data);
-        } catch (error) {
-            console.error('Error while sending data to backend:', error);
-        }
-    };
-
-    const handleUpdateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = Number(event.target.value);
-        setUpdateTime(newValue);
-        sendData({ update_time: newValue, background_color: backgroundColor, color: color });
-    };
-
-    const handleBackgroundColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = event.target.value;
-        setBackgroundColor(newValue);
-        sendData({ update_time: updateTime, background_color: newValue, color: color });
-    };
-
-    const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = event.target.value;
-        setColor(newValue);
-        sendData({ update_time: updateTime, background_color: backgroundColor, color: newValue });
-    };
-
-    useEffect(() => {
-        const fetchConfig = async () => {
-            try {
-                const config: ProcessConfig = await invoke("get_process_configs");
-                setProcessesConfig(config);
-                setUpdateTime(config.update_time);
-                setBackgroundColor(config.background_color);
-                setColor(config.color);
-            } catch (error) {
-                console.error("Error fetching process config:", error);
-            }
-        };
-        fetchConfig();
-    }, [setProcessesConfig]);
+    const {
+        config,
+        updateConfig,
+    } = useProcessConfig();
 
     return (
         <div>
@@ -64,11 +15,121 @@ const Config: React.FC = () => {
                 Processes
                 <hr />
                 <p>Update Time</p>
-                <input type="number" value={updateTime} onChange={handleUpdateTimeChange} />
-                <p>Background Color</p>
-                <input type="color" value={backgroundColor} onChange={handleBackgroundColorChange} />
-                <p>Color</p>
-                <input type="color" value={color} onChange={handleColorChange} />
+                <input
+                    type="number"
+                    value={config.update_time}
+                    min={1000}
+                    step={100}
+                    onChange={(e) => updateConfig("update_time", Number(e.target.value))}
+                />
+                <p>Body Background Color</p>
+                <input
+                    type="color"
+                    value={config.body_background_color}
+                    onChange={(e) => updateConfig("body_background_color", e.target.value)}
+                />
+                <p>Body Color</p>
+                <input
+                    type="color"
+                    value={config.body_color}
+                    onChange={(e) => updateConfig("body_color", e.target.value)}
+                />
+                <p>Head Background Color</p>
+                <input
+                    type="color"
+                    value={config.head_background_color}
+                    onChange={(e) => updateConfig("head_background_color", e.target.value)}
+                />
+                <p>Head Color</p>
+                <input
+                    type="color"
+                    value={config.head_color}
+                    onChange={(e) => updateConfig("head_color", e.target.value)}
+                />
+                <label>
+                    <input
+                        type="radio"
+                        value="user"
+                    />
+                    User
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="pid"
+                    />
+                    Pid
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="ppid"
+                    />
+                    Ppid
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="name"
+                    />
+                    Name
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="state"
+                    />
+                    State
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="memory"
+                    />
+                    Memory
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="cpu"
+                    />
+                    Cpu Usage
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="diskReadTotal"
+                    />
+                    Disk Read Total
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="diskWriteTotal"
+                    />
+                    Disk Write Total
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="User"
+                    />
+                    User
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="User"
+                    />
+                    User
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="User"
+                    />
+                    User
+                </label>
             </h2>
             <h2>Performance</h2>
             <h2>Sensors</h2>

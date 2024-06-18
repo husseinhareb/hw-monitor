@@ -6,17 +6,17 @@ export const TableContainer = styled.div`
     overflow-x: auto;
 `;
 
-export const Table = styled.table<{ backgroundColor: string; color: string }>`
+export const Table = styled.table<{ bodyBackgroundColor: string; bodyColor: string; headBackgroundColor: string; headColor: string }>`
     width: 100%;
     table-layout: auto;
     border-collapse: collapse;
-    background-color: ${(props) => props.backgroundColor};
-    color: ${(props) => props.color};
+    background-color: ${(props) => props.bodyBackgroundColor};
+    color: ${(props) => props.bodyColor};
 `;
 
-export const Thead = styled.thead`
-    background-color: #252526;
-    color: #ffffff;
+export const Thead = styled.thead<{ headBackgroundColor: string; headColor: string }>`
+    background-color: ${(props) => props.headBackgroundColor};
+    color: ${(props) => props.headColor};
     text-align: left;
 `;
 
@@ -46,8 +46,9 @@ export const Resizer = styled.div`
     user-select: none;
 `;
 
-export const Tbody = styled.tbody`
-    background-color: #2d2d2d;
+export const Tbody = styled.tbody<{ bodyBackgroundColor: string; bodyColor: string }>`
+    background-color: ${(props) => props.bodyBackgroundColor};
+    color: ${(props) => props.bodyColor};
 `;
 
 export const Tr = styled.tr``;

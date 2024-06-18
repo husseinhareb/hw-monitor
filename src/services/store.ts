@@ -2,8 +2,10 @@ import { create } from "zustand";
 
 interface ProcessConfig {
   update_time: number;
-  background_color: string;
-  color: string;
+  body_background_color: string;
+  body_color: string;
+  head_background_color: string;
+  head_color: string;
 }
 
 interface Store {
@@ -52,7 +54,13 @@ export const useStore = create<Store>((set) => ({
   processSearch: "",
   setProcessSearch: (processSearch) => set({ processSearch }),
 
-  processesConfig: { update_time: 0, background_color: "#ffffff", color: "#000000" },
+  processesConfig: {
+    update_time: 0,
+    body_background_color: "#ffffff",
+    body_color: "#000000",
+    head_background_color: "#ffffff",
+    head_color: "#000000",
+  },
   setProcessesConfig: (processesConfig) => set({ processesConfig }),
 }));
 
