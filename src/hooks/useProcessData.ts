@@ -34,7 +34,7 @@ const useProcessData = () => {
         };
 
         fetchProcess();
-        const intervalId = setInterval(fetchProcess, processesConfig.update_time);
+        const intervalId = setInterval(fetchProcess, 1000);
 
         return () => clearInterval(intervalId);
     }, []);

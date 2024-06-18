@@ -11,7 +11,7 @@ const Proc: React.FC = () => {
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
     const processConfig = useProcessesConfig();
-
+    console.log("re",processConfig);
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 

@@ -1,7 +1,7 @@
 // Config.tsx
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useProcessesConfig, useSetProcessesConfig } from "../services/store";
+import {  useSetProcessesConfig } from "../services/store";
 
 type ProcessConfig = {
     update_time: number;

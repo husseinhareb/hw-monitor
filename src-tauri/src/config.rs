@@ -142,19 +142,20 @@ fn config_file() -> Result<PathBuf, io::Error> {
 // Function to save config data to file
 pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
     let file_path = config_file()?;
-    
     let mut file = File::create(&file_path)?;
-    
+
     let config_content = format!(
         "processes_update_time={}\nprocesses_bg_color={}\nprocesses_color={}\n",
         data.update_time,
         data.background_color,
         data.color
     );
-    
+
     file.write_all(config_content.as_bytes())?;
+    file.flush()?; // Ensure data is flushed to disk immediately
     Ok(())
 }
+
 
 #[tauri::command]
 pub async fn set_proc_config(data: ConfigData) {
