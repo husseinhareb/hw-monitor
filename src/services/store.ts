@@ -6,6 +6,7 @@ interface ProcessConfig {
   body_color: string;
   head_background_color: string;
   head_color: string;
+  table_values: string[]; 
 }
 
 interface Store {
@@ -56,10 +57,11 @@ export const useStore = create<Store>((set) => ({
 
   processesConfig: {
     update_time: 0,
-    body_background_color: "#ffffff",
-    body_color: "#000000",
-    head_background_color: "#ffffff",
-    head_color: "#000000",
+    body_background_color: "#2d2d2d",
+    body_color: "#ffffff",
+    head_background_color: "#252526",
+    head_color: "#ffffff",
+    table_values: ["user","pid","ppid","name","state","memory","cpu"],
   },
   setProcessesConfig: (processesConfig) => set({ processesConfig }),
 }));

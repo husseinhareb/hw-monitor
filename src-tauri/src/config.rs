@@ -12,6 +12,7 @@ pub struct ConfigData {
     pub body_color: String,
     pub head_background_color: String,
     pub head_color: String,
+    pub table_values: Vec<String>,
 }
 
 // Struct for process-specific configuration data
@@ -22,8 +23,8 @@ pub struct ProcessConfigData {
     pub body_color: String,
     pub head_background_color: String,
     pub head_color: String,
+    pub table_values: Vec<String>,
 }
-
 
 // Function to create the initial configuration file if not exists
 pub fn create_config() -> Result<(), InvokeError> {
@@ -56,17 +57,17 @@ pub fn default_config() -> Result<(), io::Error> {
     let mut file = File::create(&file_path)?;
 
     let default_values = "\
-        processes_update_time=60\n\
-        body_background_color=#FFFFFF\n\
-        body_color=#000000\n\
-        head_background_color=#FFFFFF\n\
-        head_color=#000000\n\
+        processes_update_time=1000\n\
+        body_background_color=#2d2d2d\n\
+        body_color=#ffffff\n\
+        head_background_color=#252526\n\
+        head_color=#ffffff\n\
+        table_values=[\"user\",\"pid\",\"ppid\",\"state\",\"cpu\",\"memory\"]\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
     Ok(())
 }
-
 
 // Function to read all configs
 pub fn read_all_configs() -> io::Result<String> {
@@ -94,34 +95,12 @@ pub fn read_all_configs() -> io::Result<String> {
 // Function to read process-specific configs
 pub fn read_process_configs() -> Result<ProcessConfigData, io::Error> {
     let config_content = read_all_configs()?;
-    let mut process_config = ProcessConfigData::default();
-
-    for line in config_content.lines() {
-        if let Some((key, value)) = parse_config_line(line) {
-            match key {
-                "processes_update_time" => process_config.update_time = value.parse().unwrap_or_default(),
-                "body_background_color" => process_config.body_background_color = value.to_string(),
-                "body_color" => process_config.body_color = value.to_string(),
-                "head_background_color" => process_config.head_background_color = value.to_string(),
-                "head_color" => process_config.head_color = value.to_string(),
-                _ => {}
-            }
-        }
-    }
+    let process_config: ProcessConfigData = serde_json::from_str(&config_content)?;
 
     Ok(process_config)
 }
 
-// Helper function to parse a single line from config content
-fn parse_config_line(line: &str) -> Option<(&str, &str)> {
-    let mut parts = line.split('=');
-    let key = parts.next()?.trim();
-    let value = parts.next()?.trim();
-    Some((key, value))
-}
-
-
-// Function to check if a folder exists
+// Helper function to check if a folder exists
 fn folder_exists(folder_path: &PathBuf) -> bool {
     if let Ok(metadata) = std::fs::metadata(folder_path) {
         metadata.is_dir()
@@ -130,7 +109,7 @@ fn folder_exists(folder_path: &PathBuf) -> bool {
     }
 }
 
-// Function to check if a file exists
+// Helper function to check if a file exists
 fn file_exists(file_path: &PathBuf) -> bool {
     if let Ok(metadata) = std::fs::metadata(file_path) {
         metadata.is_file()
@@ -155,13 +134,22 @@ pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
     let file_path = config_file()?;
     let mut file = File::create(&file_path)?;
 
+    // Serialize table_values as a comma-separated string
+    let table_values_str = data.table_values.join(",");
+
     let config_content = format!(
-        "processes_update_time={}\nbody_background_color={}\nbody_color={}\nhead_background_color={}\nhead_color={}\n",
+        "processes_update_time={}\n\
+        body_background_color={}\n\
+        body_color={}\n\
+        head_background_color={}\n\
+        head_color={}\n\
+        table_values={}\n",
         data.update_time,
         data.body_background_color,
         data.body_color,
         data.head_background_color,
         data.head_color,
+        table_values_str,
     );
 
     file.write_all(config_content.as_bytes())?;
@@ -170,13 +158,11 @@ pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
 }
 
 
-
 #[tauri::command]
-pub async fn set_proc_config(data: ConfigData) {
+pub async fn set_proc_config(data: ConfigData) -> Result<(), InvokeError> {
     println!("Received config data: {:?}", data);
-    if let Err(e) = save_config(&data) {
-        println!("Failed to save config: {}", e);
-    }
+    save_config(&data).map_err(|e| InvokeError::from(e.to_string()))?;
+    Ok(())
 }
 
 #[tauri::command]
