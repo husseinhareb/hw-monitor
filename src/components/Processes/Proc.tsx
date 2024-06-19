@@ -4,6 +4,7 @@ import useTotalUsagesData from '../../hooks/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
 import { useProcessSearch } from '../../services/store';
 import useProcessConfig from '../../hooks/useProcessConfig';
+import { lighten } from 'polished';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
@@ -91,8 +92,18 @@ const Proc: React.FC = () => {
 
     const getCellStyle = (value: string, total: number | null): React.CSSProperties => {
         const percentage = (convertDataValue(value) / (total || 1)) * 100;
-        return percentage > 5 ? { backgroundColor: '#3e3e3e', color: 'white' } : {};
+        if (percentage > 10) {
+            const backgroundColor = lighten(0.2, processConfig.config.body_background_color);
+            return { backgroundColor, color: 'white' };
+        }
+        if (percentage > 5) {
+            const backgroundColor = lighten(0.1, processConfig.config.body_background_color);
+            return { backgroundColor, color: 'white' };
+        }
+
+        return {};
     };
+    
 
     const filteredProcesses = useMemo(() => {
         if (!processSearch) return sortedProcesses;
@@ -133,7 +144,10 @@ const Proc: React.FC = () => {
                 >
                     <Tr>
                         {displayedColumns.map(column => (
-                            <Th key={column} onClick={() => sortProcesses(column)}>
+                            <Th key={column} onClick={() => sortProcesses(column)}
+                            headBackgroundColor={processConfig.config.head_background_color}
+                            headColor={processConfig.config.head_color}
+                            >
                                 {columnLabels[column]}{getSortIndicator(column)}
                             </Th>
                         ))}
@@ -146,7 +160,10 @@ const Proc: React.FC = () => {
                     {filteredProcesses.map((process, index) => (
                         <Tr key={index}>
                             {displayedColumns.map(column => (
-                                <Td key={column} style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}>
+                                <Td key={column} style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}
+                                bodyBackgroundColor={processConfig.config.body_background_color}
+                                bodyColor={processConfig.config.body_color}
+                                >
                                     {process[column] || ''}
                                 </Td>
                             ))}

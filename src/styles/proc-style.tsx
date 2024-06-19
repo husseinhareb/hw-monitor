@@ -1,5 +1,6 @@
 // StyledComponents.js
 import styled from 'styled-components';
+import { lighten } from 'polished';
 
 export const TableContainer = styled.div`
     width: 100%;
@@ -20,7 +21,7 @@ export const Thead = styled.thead<{ headBackgroundColor: string; headColor: stri
     text-align: left;
 `;
 
-export const Th = styled.th`
+export const Th = styled.th<{ headBackgroundColor: string; headColor: string }>`
     padding: 8px;
     border: 1px solid #2d2d2d;
     cursor: pointer;
@@ -31,8 +32,8 @@ export const Th = styled.th`
     text-overflow: ellipsis;
     position: relative;
     &:hover {
-        background-color: #3e3e3e;
-    }
+        background-color: ${(props) => lighten(0.1, props.headBackgroundColor)};
+}
 `;
 
 export const Resizer = styled.div`
@@ -53,7 +54,7 @@ export const Tbody = styled.tbody<{ bodyBackgroundColor: string; bodyColor: stri
 
 export const Tr = styled.tr``;
 
-export const Td = styled.td`
+export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string }>`
     padding: 8px;
     font-size: 14px;
     white-space: nowrap;
@@ -61,6 +62,6 @@ export const Td = styled.td`
     text-overflow: ellipsis;
     border: 1px solid #333;
     &:hover {
-        background-color: #3e3e3e;
-    }
+        background-color: ${(props) => lighten(0.1, props.bodyBackgroundColor)};
+}
 `;
