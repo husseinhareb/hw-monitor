@@ -1,7 +1,6 @@
 //ProcessesConfig.tsx
 import React, { useState, useEffect } from "react";
 import useProcessConfig from "../../hooks/useProcessConfig";
-import { useProcessesConfig } from "../../services/store";
 
 interface ProcessConfig {
     update_time: number;
@@ -15,13 +14,12 @@ interface ProcessConfig {
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
-    const processesConfig = useProcessesConfig();
 
     useEffect(() => {
-        if (processesConfig && processesConfig.table_values) {
-            setSelectedValues(processesConfig.table_values);
+        if (config && config.table_values) {
+            setSelectedValues(config.table_values);
         }
-    }, [processesConfig]);
+    }, [config]);
 
     const handleTableValueChange = (value: string) => {
         setSelectedValues((prevValues) => {
@@ -77,7 +75,7 @@ const ProcessesConfig: React.FC = () => {
             />
             <div>
                 <h3>Table Values</h3>
-                {["user", "pid", "ppid", "name", "state", "memory", "cpu", "diskReadTotal", "diskWriteTotal", "diskReadSpeed", "diskWriteSpeed"].map((value) => (
+                {["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"].map((value) => (
                     <label key={value}>
                         <input
                             type="checkbox"

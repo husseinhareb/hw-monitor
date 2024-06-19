@@ -21,17 +21,16 @@ const useProcessConfig = () => {
         body_color: "#000000",
         head_background_color: "#252526",
         head_color: "#ffffff",
-        table_values: ["user", "pid", "ppid", "name", "state", "memory", "cpu"],
+        table_values: ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage"],
     });
-
+    
     useEffect(() => {
         const fetchConfig = async () => {
             try {
                 const fetchedConfig: ProcessConfig | null = await invoke("get_process_configs");
-        
+    
                 if (fetchedConfig) {
                     console.log("Fetched process config:", fetchedConfig);
-                    setProcessesConfig(fetchedConfig);
                     setConfig(fetchedConfig);
                 } else {
                     console.warn("Empty response received from server.");
@@ -40,16 +39,14 @@ const useProcessConfig = () => {
                 console.error("Error fetching process config:", error);
             }
         };
-        
     
         fetchConfig(); // Initial fetch
     
-        const interval = setInterval(fetchConfig, 1000); // Fetch every second
-    
         return () => {
-            clearInterval(interval); // Cleanup interval on component unmount
+            // No interval cleanup needed here
         };
     }, [setProcessesConfig]);
+    
     
 
     const sendData = async (data: ProcessConfig) => {

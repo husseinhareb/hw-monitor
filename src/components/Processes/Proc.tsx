@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../../hooks/useProcessData';
 import useTotalUsagesData from '../../hooks/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
-import { useProcessSearch, useProcessesConfig } from '../../services/store';
+import { useProcessSearch } from '../../services/store';
+import useProcessConfig from '../../hooks/useProcessConfig';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>(null);
@@ -10,8 +11,8 @@ const Proc: React.FC = () => {
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
-    const processConfig = useProcessesConfig();
-    
+    const processConfig = useProcessConfig();
+
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 
@@ -31,8 +32,12 @@ const Proc: React.FC = () => {
         return parseFloat(usageStr);
     };
     const calculateTotalUsage = (processes: Process[], key: string): number => {
-        return processes.reduce((total, process) => total + convertDataValue(String(process[key])), 0);
+        return processes.reduce((total, process) => {
+            const value = process[key];
+            return total + convertDataValue(typeof value === 'string' ? value : String(value));
+        }, 0);
     };
+
 
     const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
     const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
@@ -45,22 +50,20 @@ const Proc: React.FC = () => {
             let valueA: any;
             let valueB: any;
 
-            // Determine how to extract values for sorting based on column
             if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed") {
-                valueA = convertDataValue(a[column]);
-                valueB = convertDataValue(b[column]);
+                valueA = convertDataValue(a[column] || '0');
+                valueB = convertDataValue(b[column] || '0');
             } else if (column === "pid" || column === "ppid") {
-                valueA = parseInt(String(a[column]), 10);
-                valueB = parseInt(String(b[column]), 10);
+                valueA = parseInt(String(a[column] || '0'), 10);
+                valueB = parseInt(String(b[column] || '0'), 10);
             } else if (column === "cpu_usage") {
-                valueA = parseFloat(String(a[column]) || '0');
-                valueB = parseFloat(String(b[column]) || '0');
+                valueA = parseFloat(String(a[column] || '0'));
+                valueB = parseFloat(String(b[column] || '0'));
             } else {
-                valueA = (a[column as keyof Process] as string).toLowerCase();
-                valueB = (b[column as keyof Process] as string).toLowerCase();
+                valueA = (a[column as keyof Process]?.toString().toLowerCase() || '');
+                valueB = (b[column as keyof Process]?.toString().toLowerCase() || '');
             }
 
-            // Apply sorting order (asc/desc)
             if (order === 'asc') {
                 return valueA > valueB ? 1 : -1;
             } else {
@@ -69,7 +72,7 @@ const Proc: React.FC = () => {
         });
     }, []);
 
-    // Apply sorting based on current sortBy and sortOrder
+
     const sortedProcesses = useMemo(() => {
         return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
     }, [sortBy, sortOrder, processes]);
@@ -91,76 +94,62 @@ const Proc: React.FC = () => {
         return percentage > 5 ? { backgroundColor: '#3e3e3e', color: 'white' } : {};
     };
 
-    // Filter processes based on search term
     const filteredProcesses = useMemo(() => {
         if (!processSearch) return sortedProcesses;
         return sortedProcesses.filter(process => {
-            // Check if any column value includes the search term
             return Object.values(process).some(value => {
                 return String(value).toLowerCase().includes(processSearch.toLowerCase());
             });
         });
     }, [processSearch, sortedProcesses]);
 
+    const displayedColumns = processConfig.config.table_values;
+
+    const columnLabels: { [key: string]: string } = {
+        user: 'User',
+        pid: 'Pid',
+        ppid: 'Ppid',
+        name: 'Name',
+        state: 'State',
+        memory: totalUsages.memory !== null ? `${totalUsages.memory}% Memory` : 'Memory',
+        cpu_usage: totalUsages.cpu !== null ? `${totalUsages.cpu}% CPU usage` : 'CPU usage',
+        read_disk_usage: 'Disk Read Total',
+        write_disk_usage: 'Disk Write Total',
+        read_disk_speed: 'Disk Read Speed',
+        write_disk_speed: 'Disk Write Speed',
+    };
+
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
             <Table
-                bodyBackgroundColor={processConfig.body_background_color}
-                bodyColor={processConfig.body_color}
-                headBackgroundColor={processConfig.head_background_color}
-                headColor={processConfig.head_color}
+                bodyBackgroundColor={processConfig.config.body_background_color}
+                bodyColor={processConfig.config.body_color}
+                headBackgroundColor={processConfig.config.head_background_color}
+                headColor={processConfig.config.head_color}
             >
                 <Thead
-                    headBackgroundColor={processConfig.head_background_color}
-                    headColor={processConfig.head_color}
+                    headBackgroundColor={processConfig.config.head_background_color}
+                    headColor={processConfig.config.head_color}
                 >
                     <Tr>
-                        <Th onClick={() => sortProcesses('user')}>User{getSortIndicator('user')}</Th>
-                        <Th onClick={() => sortProcesses('pid')}>Pid{getSortIndicator('pid')}</Th>
-                        <Th onClick={() => sortProcesses('ppid')}>Ppid{getSortIndicator('ppid')}</Th>
-                        <Th onClick={() => sortProcesses('name')}>Name{getSortIndicator('name')}</Th>
-                        <Th onClick={() => sortProcesses('state')}>State{getSortIndicator('state')}</Th>
-                        <Th onClick={() => sortProcesses('memory')}>
-                            {totalUsages.memory !== null ? `${totalUsages.memory}%` : 'N/A'} <br />Memory{getSortIndicator('memory')}
-                        </Th>
-                        <Th onClick={() => sortProcesses('cpu_usage')}>
-                            {totalUsages.cpu !== null ? `${totalUsages.cpu}%` : 'N/A'} <br /> CPU usage{getSortIndicator('cpu_usage')}
-                        </Th>
-                        <Th onClick={() => sortProcesses('read_disk_usage')}>Disk Read Total{getSortIndicator('read_disk_usage')}</Th>
-                        <Th onClick={() => sortProcesses('write_disk_usage')}>Disk Write Total{getSortIndicator('write_disk_usage')}</Th>
-                        <Th onClick={() => sortProcesses('read_disk_speed')}>Disk Read Speed{getSortIndicator('read_disk_speed')}</Th>
-                        <Th onClick={() => sortProcesses('write_disk_speed')}>Disk Write Speed{getSortIndicator('write_disk_speed')}</Th>
+                        {displayedColumns.map(column => (
+                            <Th key={column} onClick={() => sortProcesses(column)}>
+                                {columnLabels[column]}{getSortIndicator(column)}
+                            </Th>
+                        ))}
                     </Tr>
                 </Thead>
                 <Tbody
-                    bodyBackgroundColor={processConfig.body_background_color}
-                    bodyColor={processConfig.body_color}
+                    bodyBackgroundColor={processConfig.config.body_background_color}
+                    bodyColor={processConfig.config.body_color}
                 >
                     {filteredProcesses.map((process, index) => (
                         <Tr key={index}>
-                            <Td>{process.user}</Td>
-                            <Td>{process.pid}</Td>
-                            <Td>{process.ppid}</Td>
-                            <Td>{process.name}</Td>
-                            <Td>{process.state}</Td>
-                            <Td style={getCellStyle(process.memory, totalMemoryUsage)}>
-                                {process.memory}
-                            </Td>
-                            <Td style={getCellStyle(process.cpu_usage.toString(), totalUsages.cpu)}>
-                                {process.cpu_usage.toString()}%
-                            </Td>
-                            <Td style={getCellStyle(process.read_disk_usage, totalReadDiskUsage)}>
-                                {process.read_disk_usage}
-                            </Td>
-                            <Td style={getCellStyle(process.write_disk_usage, totalWriteDiskUsage)}>
-                                {process.write_disk_usage}
-                            </Td>
-                            <Td style={getCellStyle(process.read_disk_speed, totalReadDiskUsage)}>
-                                {process.read_disk_speed}
-                            </Td>
-                            <Td style={getCellStyle(process.write_disk_speed, totalWriteDiskUsage)}>
-                                {process.write_disk_speed}
-                            </Td>
+                            {displayedColumns.map(column => (
+                                <Td key={column} style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}>
+                                    {process[column] || ''}
+                                </Td>
+                            ))}
                         </Tr>
                     ))}
                 </Tbody>
