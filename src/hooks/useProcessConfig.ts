@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useProcessesConfig, useSetProcessesConfig } from "../services/store";
 
@@ -21,24 +21,41 @@ const useProcessConfig = () => {
         body_color: "#000000",
         head_background_color: "#252526",
         head_color: "#ffffff",
-        table_values: ["user","pid","ppid","name","state","memory","cpu"],
+        table_values: ["user", "pid", "ppid", "name", "state", "memory", "cpu"],
     });
 
-    const fetchConfig = useCallback(async () => {
-        try {
-            const fetchedConfig: ProcessConfig = await invoke("get_process_configs");
-            setProcessesConfig(fetchedConfig);
-            setConfig(fetchedConfig);
-        } catch (error) {
-            console.error("Error fetching process config:", error);
-        }
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const fetchedConfig: ProcessConfig | null = await invoke("get_process_configs");
+        
+                if (fetchedConfig) {
+                    console.log("Fetched process config:", fetchedConfig);
+                    setProcessesConfig(fetchedConfig);
+                    setConfig(fetchedConfig);
+                } else {
+                    console.warn("Empty response received from server.");
+                }
+            } catch (error) {
+                console.error("Error fetching process config:", error);
+            }
+        };
+        
+    
+        fetchConfig(); // Initial fetch
+    
+        const interval = setInterval(fetchConfig, 1000); // Fetch every second
+    
+        return () => {
+            clearInterval(interval); // Cleanup interval on component unmount
+        };
     }, [setProcessesConfig]);
+    
 
     const sendData = async (data: ProcessConfig) => {
         try {
             await invoke("set_proc_config", { data });
             setProcessesConfig(data);
-            console.log(data);
         } catch (error) {
             console.error('Error while sending data to backend:', error);
         }
@@ -56,10 +73,7 @@ const useProcessConfig = () => {
         sendData(newConfig);
     };
 
-    useEffect(() => {
-        fetchConfig();
-    }, [fetchConfig]);
-
+    // Update local config when processesConfig changes
     useEffect(() => {
         if (processesConfig) {
             setConfig(processesConfig);

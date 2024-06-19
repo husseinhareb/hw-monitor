@@ -1,3 +1,4 @@
+//ProcessesConfig.tsx
 import React, { useState, useEffect } from "react";
 import useProcessConfig from "../../hooks/useProcessConfig";
 import { useProcessesConfig } from "../../services/store";
@@ -12,7 +13,7 @@ interface ProcessConfig {
 }
 
 const ProcessesConfig: React.FC = () => {
-    const { config, updateConfig, updateTableValues, isLoading } = useProcessConfig();
+    const { config, updateConfig, updateTableValues } = useProcessConfig();
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
     const processesConfig = useProcessesConfig();
 
@@ -37,8 +38,6 @@ const ProcessesConfig: React.FC = () => {
             updateConfig(key, value);
         }
     };
-
-    if (isLoading || !config) return <div>Loading...</div>;
 
     return (
         <div>

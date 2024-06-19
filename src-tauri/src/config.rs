@@ -92,13 +92,71 @@ pub fn read_all_configs() -> io::Result<String> {
     Ok(config_content)
 }
 
-// Function to read process-specific configs
+
+// Define a function to read process-specific configs
 pub fn read_process_configs() -> Result<ProcessConfigData, io::Error> {
     let config_content = read_all_configs()?;
-    let process_config: ProcessConfigData = serde_json::from_str(&config_content)?;
 
-    Ok(process_config)
+    // Split config_content into lines
+    let lines: Vec<&str> = config_content.lines().collect();
+
+    // Initialize variables to store parsed values
+    let mut update_time: Option<u32> = None;
+    let mut body_background_color: Option<String> = None;
+    let mut body_color: Option<String> = None;
+    let mut head_background_color: Option<String> = None;
+    let mut head_color: Option<String> = None;
+    let mut table_values: Option<Vec<String>> = None;
+
+    for line in lines {
+        // Split each line into key-value pairs
+        let parts: Vec<&str> = line.split('=').map(|s| s.trim()).collect();
+
+        if parts.len() != 2 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid format in config file"));
+        }
+
+        let key = parts[0];
+        let value = parts[1];
+
+        match key {
+            "processes_update_time" => {
+                update_time = Some(value.parse().map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?);
+            },
+            "body_background_color" => {
+                body_background_color = Some(value.to_string());
+            },
+            "body_color" => {
+                body_color = Some(value.to_string());
+            },
+            "head_background_color" => {
+                head_background_color = Some(value.to_string());
+            },
+            "head_color" => {
+                head_color = Some(value.to_string());
+            },
+            "table_values" => {
+                table_values = Some(value.split(',').map(|s| s.trim().to_string()).collect());
+            },
+            _ => {
+                return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Unknown key in config file: {}", key)));
+            }
+        }
+    }
+
+    // Construct the ProcessConfigData struct
+    let config_data = ProcessConfigData {
+        update_time: update_time.ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Missing processes_update_time"))?,
+        body_background_color: body_background_color.ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Missing body_background_color"))?,
+        body_color: body_color.ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Missing body_color"))?,
+        head_background_color: head_background_color.ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Missing head_background_color"))?,
+        head_color: head_color.ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Missing head_color"))?,
+        table_values: table_values.ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Missing table_values"))?,
+    };
+
+    Ok(config_data)
 }
+
 
 // Helper function to check if a folder exists
 fn folder_exists(folder_path: &PathBuf) -> bool {
@@ -158,6 +216,7 @@ pub fn save_config(data: &ConfigData) -> Result<(), io::Error> {
 }
 
 
+// Tauri command to set process-specific config
 #[tauri::command]
 pub async fn set_proc_config(data: ConfigData) -> Result<(), InvokeError> {
     println!("Received config data: {:?}", data);
@@ -165,6 +224,7 @@ pub async fn set_proc_config(data: ConfigData) -> Result<(), InvokeError> {
     Ok(())
 }
 
+// Tauri command to get process-specific config
 #[tauri::command]
 pub async fn get_process_configs() -> Result<ProcessConfigData, InvokeError> {
     read_process_configs().map_err(|e| InvokeError::from(e.to_string()))
