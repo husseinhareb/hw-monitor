@@ -7,7 +7,7 @@ import useProcessConfig from '../../hooks/useProcessConfig';
 import { lighten } from 'polished';
 
 const Proc: React.FC = () => {
-    const [sortBy, setSortBy] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState<string | null>('name');
     const [sortOrder, setSortOrder] = useState<string>('asc');
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
@@ -32,13 +32,13 @@ const Proc: React.FC = () => {
         }
         return parseFloat(usageStr);
     };
+
     const calculateTotalUsage = (processes: Process[], key: string): number => {
         return processes.reduce((total, process) => {
             const value = process[key];
             return total + convertDataValue(typeof value === 'string' ? value : String(value));
         }, 0);
     };
-
 
     const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
     const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
@@ -51,13 +51,13 @@ const Proc: React.FC = () => {
             let valueA: any;
             let valueB: any;
 
-            if (column === "memory" || column === "read_disk_usage" || column === "write_disk_usage" || column === "read_disk_speed" || column === "write_disk_speed") {
+            if (['memory', 'read_disk_usage', 'write_disk_usage', 'read_disk_speed', 'write_disk_speed'].includes(column)) {
                 valueA = convertDataValue(a[column] || '0');
                 valueB = convertDataValue(b[column] || '0');
-            } else if (column === "pid" || column === "ppid") {
+            } else if (['pid', 'ppid'].includes(column)) {
                 valueA = parseInt(String(a[column] || '0'), 10);
                 valueB = parseInt(String(b[column] || '0'), 10);
-            } else if (column === "cpu_usage") {
+            } else if (column === 'cpu_usage') {
                 valueA = parseFloat(String(a[column] || '0'));
                 valueB = parseFloat(String(b[column] || '0'));
             } else {
@@ -73,10 +73,9 @@ const Proc: React.FC = () => {
         });
     }, []);
 
-
     const sortedProcesses = useMemo(() => {
         return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
-    }, [sortBy, sortOrder, processes]);
+    }, [sortBy, sortOrder, processes, sortProcessesByColumn]);
 
     const sortProcesses = (column: string) => {
         setSortBy(column);
@@ -100,10 +99,8 @@ const Proc: React.FC = () => {
             const backgroundColor = lighten(0.1, processConfig.config.body_background_color);
             return { backgroundColor, color: 'white' };
         }
-
         return {};
     };
-    
 
     const filteredProcesses = useMemo(() => {
         if (!processSearch) return sortedProcesses;
@@ -114,7 +111,9 @@ const Proc: React.FC = () => {
         });
     }, [processSearch, sortedProcesses]);
 
-    const displayedColumns = processConfig.config.table_values;
+    const displayedColumns = processConfig.config.table_values.filter(column => 
+        processes.some(process => column in process)
+    );
 
     const columnLabels: { [key: string]: string } = {
         user: 'User',
@@ -144,9 +143,12 @@ const Proc: React.FC = () => {
                 >
                     <Tr>
                         {displayedColumns.map(column => (
-                            <Th key={column} onClick={() => sortProcesses(column)}
-                            headBackgroundColor={processConfig.config.head_background_color}
-                            headColor={processConfig.config.head_color}
+                            <Th
+                                key={column}
+                                onClick={() => sortProcesses(column)}
+                                headBackgroundColor={processConfig.config.head_background_color}
+                                headColor={processConfig.config.head_color}
+                                aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                             >
                                 {columnLabels[column]}{getSortIndicator(column)}
                             </Th>
@@ -160,9 +162,11 @@ const Proc: React.FC = () => {
                     {filteredProcesses.map((process, index) => (
                         <Tr key={index}>
                             {displayedColumns.map(column => (
-                                <Td key={column} style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}
-                                bodyBackgroundColor={processConfig.config.body_background_color}
-                                bodyColor={processConfig.config.body_color}
+                                <Td
+                                    key={column}
+                                    style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}
+                                    bodyBackgroundColor={processConfig.config.body_background_color}
+                                    bodyColor={processConfig.config.body_color}
                                 >
                                     {process[column] || ''}
                                 </Td>
