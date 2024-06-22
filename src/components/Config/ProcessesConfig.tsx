@@ -1,6 +1,18 @@
-//ProcessesConfig.tsx
+//PorcessesConfig.tsx
 import React, { useState, useEffect } from "react";
 import useProcessConfig from "../../hooks/useProcessConfig";
+import {
+    ConfigContainer,
+    Title,
+    Separator,
+    CheckboxInput,
+    CheckboxLabel,
+    ColorInput,
+    Label,
+    Input,
+    SectionTitle
+} from "./Styles/style";
+
 
 interface ProcessConfig {
     update_time: number;
@@ -10,6 +22,8 @@ interface ProcessConfig {
     head_color: string;
     table_values: string[];
 }
+
+
 
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
@@ -38,56 +52,64 @@ const ProcessesConfig: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>Processes</h2>
-            <hr />
-            <p>Update Time</p>
-            <input
-                type="number"
-                value={config.update_time}
-                min={1000}
-                step={100}
-                onChange={(e) => handleConfigChange("update_time", Number(e.target.value))}
-            />
-            <p>Body Background Color</p>
-            <input
-                type="color"
-                value={config.body_background_color}
-                onChange={(e) => handleConfigChange("body_background_color", e.target.value)}
-            />
-            <p>Body Color</p>
-            <input
-                type="color"
-                value={config.body_color}
-                onChange={(e) => handleConfigChange("body_color", e.target.value)}
-            />
-            <p>Head Background Color</p>
-            <input
-                type="color"
-                value={config.head_background_color}
-                onChange={(e) => handleConfigChange("head_background_color", e.target.value)}
-            />
-            <p>Head Color</p>
-            <input
-                type="color"
-                value={config.head_color}
-                onChange={(e) => handleConfigChange("head_color", e.target.value)}
-            />
-            <div>
-                <h3>Table Values</h3>
-                {["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"].map((value) => (
-                    <label key={value}>
-                        <input
-                            type="checkbox"
-                            value={value}
-                            checked={selectedValues.includes(value)}
-                            onChange={() => handleTableValueChange(value)}
-                        />
-                        {value}
-                    </label>
-                ))}
-            </div>
-        </div>
+        <ConfigContainer>
+            <Title>Processes Config</Title>
+            <Separator />
+            <Label>
+                Update Time
+                <Input
+                    type="number"
+                    value={config.update_time}
+                    min={1000}
+                    step={100}
+                    onChange={(e) => handleConfigChange("update_time", Number(e.target.value))}
+                />
+            </Label>
+            <Label>
+                Body Background Color
+                <ColorInput
+                    type="color"
+                    value={config.body_background_color}
+                    onChange={(e) => handleConfigChange("body_background_color", e.target.value)}
+                />
+            </Label>
+            <Label>
+                Body Color
+                <ColorInput
+                    type="color"
+                    value={config.body_color}
+                    onChange={(e) => handleConfigChange("body_color", e.target.value)}
+                />
+            </Label>
+            <Label>
+                Head Background Color
+                <ColorInput
+                    type="color"
+                    value={config.head_background_color}
+                    onChange={(e) => handleConfigChange("head_background_color", e.target.value)}
+                />
+            </Label>
+            <Label>
+                Head Color
+                <ColorInput
+                    type="color"
+                    value={config.head_color}
+                    onChange={(e) => handleConfigChange("head_color", e.target.value)}
+                />
+            </Label>
+            <SectionTitle>Table Values</SectionTitle>
+            {["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"].map((value) => (
+                <CheckboxLabel key={value}>
+                    <CheckboxInput
+                        type="checkbox"
+                        value={value}
+                        checked={selectedValues.includes(value)}
+                        onChange={() => handleTableValueChange(value)}
+                    />
+                    {value}
+                </CheckboxLabel>
+            ))}
+        </ConfigContainer>
     );
 };
 

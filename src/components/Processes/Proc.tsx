@@ -52,8 +52,8 @@ const Proc: React.FC = () => {
             let valueB: any;
 
             if (['memory', 'read_disk_usage', 'write_disk_usage', 'read_disk_speed', 'write_disk_speed'].includes(column)) {
-                valueA = convertDataValue(a[column] || '0');
-                valueB = convertDataValue(b[column] || '0');
+                valueA = convertDataValue(a[column] as string || '0');
+                valueB = convertDataValue(b[column] as string || '0');
             } else if (['pid', 'ppid'].includes(column)) {
                 valueA = parseInt(String(a[column] || '0'), 10);
                 valueB = parseInt(String(b[column] || '0'), 10);
@@ -92,7 +92,7 @@ const Proc: React.FC = () => {
     const getCellStyle = (value: string, total: number | null): React.CSSProperties => {
         const percentage = (convertDataValue(value) / (total || 1)) * 100;
         if (percentage > 10) {
-            const backgroundColor = lighten(0.2, processConfig.config.body_background_color);
+            const backgroundColor = lighten(0.15, processConfig.config.body_background_color);
             return { backgroundColor, color: 'white' };
         }
         if (percentage > 5) {

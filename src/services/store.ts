@@ -9,6 +9,14 @@ interface ProcessConfig {
   table_values: string[]; 
 }
 
+interface PerformanceConfig {
+  update_time: number;
+  body_background_color: string;
+  body_color: string;
+  head_background_color: string;
+  head_color: string;
+}
+
 interface Store {
   cpu: number[];
   setCpu: (cpu: number[]) => void;
@@ -32,6 +40,9 @@ interface Store {
 
   processesConfig: ProcessConfig;
   setProcessesConfig: (processesConfig: ProcessConfig) => void;
+
+  performanceConfig: PerformanceConfig;
+  setPerformanceConfig: (performanceConfig: PerformanceConfig) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -64,6 +75,15 @@ export const useStore = create<Store>((set) => ({
     table_values: ["user","pid","ppid","name","state","memory","cpu"],
   },
   setProcessesConfig: (processesConfig) => set({ processesConfig }),
+
+  performanceConfig: {
+    update_time: 0,
+    body_background_color: "#2d2d2d",
+    body_color: "#ffffff",
+    head_background_color: "#252526",
+    head_color: "#ffffff",
+  },
+  setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
 }));
 
 export const useCpu = () => useStore((state) => state.cpu);
@@ -86,3 +106,6 @@ export const useSetProcessSearch = () => useStore((state) => state.setProcessSea
 
 export const useProcessesConfig = () => useStore((state) => state.processesConfig);
 export const useSetProcessesConfig = () => useStore((state) => state.setProcessesConfig);
+
+export const useZuPerformanceConfig = () => useStore((state) => state.performanceConfig);
+export const useSetPerformanceConfig = () => useStore((state) => state.setPerformanceConfig);

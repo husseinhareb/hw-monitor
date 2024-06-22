@@ -1,18 +1,18 @@
-// Config.tsx
 import React from "react";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
+import DisksConfig from "./DisksConfig";
+import SensorsConfig from "./SensorsConfig";
+import { Container } from "./Styles/style";
 
 const Config: React.FC = () => {
-
     return (
-        <div>
-            <h1>Config File</h1>
+        <Container>
             <ProcessesConfig />
-            <PerformanceConfig/>
-            <h2>Sensors</h2>
-            <h2>Disks</h2>
-        </div>
+            <PerformanceConfig />
+            <DisksConfig />
+            <SensorsConfig />
+        </Container>
     );
 };
 
