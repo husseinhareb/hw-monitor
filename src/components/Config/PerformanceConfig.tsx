@@ -10,11 +10,14 @@ import {
 } from "./Styles/style";
 
 interface PerformanceConfig {
-    update_time: number;
-    body_background_color: string;
-    body_color: string;
-    head_background_color: string;
-    head_color: string;
+    performance_update_time: number;
+    performance_sidebar_background_color: string;
+    performance_sidebar_color: string;
+    performance_perf_background_color: string;
+    performance_label_color: string;
+    performance_value_color: string;
+    performance_graph_color: string;
+    performance_sec_graph_color: string;
 }
 
 const PerformanceConfig: React.FC = () => {
@@ -34,10 +37,10 @@ const PerformanceConfig: React.FC = () => {
                 Update Time
                 <Input
                     type="number"
-                    value={config.update_time}
+                    value={config.performance_update_time}
                     min={1000}
                     step={100}
-                    onChange={(e) => handleConfigChange("update_time", Number(e.target.value))}
+                    onChange={(e) => handleConfigChange("performance_update_time", Number(e.target.value))}
                 />
             </Label>
             <h2>Sidebar</h2>
@@ -46,16 +49,16 @@ const PerformanceConfig: React.FC = () => {
                 Background Color
                 <ColorInput
                     type="color"
-                    value={config.body_background_color}
-                    onChange={(e) => handleConfigChange("body_background_color", e.target.value)}
+                    value={config.performance_sidebar_background_color}
+                    onChange={(e) => handleConfigChange("performance_sidebar_background_color", e.target.value)}
                 />
             </Label>
             <Label>
                 Color
                 <ColorInput
                     type="color"
-                    value={config.body_color}
-                    onChange={(e) => handleConfigChange("body_color", e.target.value)}
+                    value={config.performance_sidebar_color}
+                    onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)}
                 />
             </Label>
             <h2>Others</h2>
@@ -64,40 +67,40 @@ const PerformanceConfig: React.FC = () => {
                 Background Color
                 <ColorInput
                     type="color"
-                    value={config.head_background_color}
-                    onChange={(e) => handleConfigChange("head_background_color", e.target.value)}
+                    value={config.performance_background_color}
+                    onChange={(e) => handleConfigChange("performance_background_color", e.target.value)}
                 />
             </Label>
             <Label>
                 Label Color
                 <ColorInput
                     type="color"
-                    value={config.head_color}
-                    onChange={(e) => handleConfigChange("head_color", e.target.value)}
+                    value={config.performance_label_color}
+                    onChange={(e) => handleConfigChange("performance_label_color", e.target.value)}
                 />
             </Label>
             <Label>
                 Value Color
                 <ColorInput
                     type="color"
-                    value={config.head_color}
-                    onChange={(e) => handleConfigChange("head_color", e.target.value)}
+                    value={config.performance_value_color}
+                    onChange={(e) => handleConfigChange("performance_value_color", e.target.value)}
                 />
             </Label>
             <Label>
                 Graph Color
                 <ColorInput
                     type="color"
-                    value={config.head_color}
-                    onChange={(e) => handleConfigChange("head_color", e.target.value)}
+                    value={config.performance_graph_color}
+                    onChange={(e) => handleConfigChange("performance_graph_color", e.target.value)}
                 />
             </Label>
             <Label>
                 Second Graph Color
                 <ColorInput
                     type="color"
-                    value={config.head_color}
-                    onChange={(e) => handleConfigChange("head_color", e.target.value)}
+                    value={config.performance_sec_graph_color}
+                    onChange={(e) => handleConfigChange("performance_sec_graph_color", e.target.value)}
                 />
             </Label>
         </ConfigContainer>

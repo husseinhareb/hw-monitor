@@ -1,8 +1,7 @@
 import React from "react";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
-import DisksConfig from "./DisksConfig";
-import SensorsConfig from "./SensorsConfig";
+
 import { Container } from "./Styles/style";
 
 const Config: React.FC = () => {
@@ -10,8 +9,6 @@ const Config: React.FC = () => {
         <Container>
             <ProcessesConfig />
             <PerformanceConfig />
-            <DisksConfig />
-            <SensorsConfig />
         </Container>
     );
 };

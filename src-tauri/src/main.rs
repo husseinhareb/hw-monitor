@@ -23,6 +23,8 @@ fn main() {
             battery::get_batteries,
             config::set_proc_config,
             config::get_process_configs,
+            config::set_performance_config,
+            config::get_performance_configs,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -29,8 +29,8 @@ const SensorsConfig: React.FC = () => {
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
     useEffect(() => {
-        if (config && config.table_values) {
-            setSelectedValues(config.table_values);
+        if (config && config.processes_table_values) {
+            setSelectedValues(config.processes_table_values);
         }
     }, [config]);
 
@@ -58,7 +58,7 @@ const SensorsConfig: React.FC = () => {
                 Update Time
                 <Input
                     type="number"
-                    value={config.update_time}
+                    value={config.processes_update_time}
                     min={1000}
                     step={100}
                     onChange={(e) => handleConfigChange("update_time", Number(e.target.value))}
@@ -68,7 +68,7 @@ const SensorsConfig: React.FC = () => {
                 Body Background Color
                 <ColorInput
                     type="color"
-                    value={config.body_background_color}
+                    value={config.processes_body_background_color}
                     onChange={(e) => handleConfigChange("body_background_color", e.target.value)}
                 />
             </Label>
@@ -76,7 +76,7 @@ const SensorsConfig: React.FC = () => {
                 Body Color
                 <ColorInput
                     type="color"
-                    value={config.body_color}
+                    value={config.processes_body_color}
                     onChange={(e) => handleConfigChange("body_color", e.target.value)}
                 />
             </Label>
@@ -84,7 +84,7 @@ const SensorsConfig: React.FC = () => {
                 Head Background Color
                 <ColorInput
                     type="color"
-                    value={config.head_background_color}
+                    value={config.processes_head_background_color}
                     onChange={(e) => handleConfigChange("head_background_color", e.target.value)}
                 />
             </Label>
@@ -92,7 +92,7 @@ const SensorsConfig: React.FC = () => {
                 Head Color
                 <ColorInput
                     type="color"
-                    value={config.head_color}
+                    value={config.processes_head_color}
                     onChange={(e) => handleConfigChange("head_color", e.target.value)}
                 />
             </Label>

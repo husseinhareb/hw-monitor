@@ -1,20 +1,23 @@
 import { create } from "zustand";
 
 interface ProcessConfig {
-  update_time: number;
-  body_background_color: string;
-  body_color: string;
-  head_background_color: string;
-  head_color: string;
-  table_values: string[]; 
+  processes_update_time: number;
+  processes_body_background_color: string;
+  processes_body_color: string;
+  processes_head_background_color: string;
+  processes_head_color: string;
+  processes_table_values: string[]; 
 }
 
 interface PerformanceConfig {
-  update_time: number;
-  body_background_color: string;
-  body_color: string;
-  head_background_color: string;
-  head_color: string;
+  performance_update_time: number;
+  performance_sidebar_background_color: string;
+  performance_sidebar_color: string;
+  performance_background_color: string;
+  performance_label_color: string;
+  performance_value_color: string;
+  performance_graph_color: string;
+  performance_sec_graph_color: string;
 }
 
 interface Store {
@@ -67,21 +70,24 @@ export const useStore = create<Store>((set) => ({
   setProcessSearch: (processSearch) => set({ processSearch }),
 
   processesConfig: {
-    update_time: 0,
-    body_background_color: "#2d2d2d",
-    body_color: "#ffffff",
-    head_background_color: "#252526",
-    head_color: "#ffffff",
-    table_values: ["user","pid","ppid","name","state","memory","cpu"],
+    processes_update_time: 1000,
+    processes_body_background_color: "#2d2d2d",
+    processes_body_color: "#ffffff",
+    processes_head_background_color: "#252526",
+    processes_head_color: "#ffffff",
+    processes_table_values: ["user","pid","ppid","name","state","memory","cpu"],
   },
   setProcessesConfig: (processesConfig) => set({ processesConfig }),
 
   performanceConfig: {
-    update_time: 0,
-    body_background_color: "#2d2d2d",
-    body_color: "#ffffff",
-    head_background_color: "#252526",
-    head_color: "#ffffff",
+    performance_update_time: 1000,
+    performance_sidebar_background_color: "#fff",
+    performance_sidebar_color: "#fff",
+    performance_background_color: "#fff",
+    performance_label_color: "#fff",
+    performance_value_color: "#fff",
+    performance_graph_color: "#fff",
+    performance_sec_graph_color: '#fff',
   },
   setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
 }));

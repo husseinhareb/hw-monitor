@@ -13,7 +13,6 @@ const Proc: React.FC = () => {
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
     const processConfig = useProcessConfig();
-
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 
@@ -92,12 +91,12 @@ const Proc: React.FC = () => {
     const getCellStyle = (value: string, total: number | null): React.CSSProperties => {
         const percentage = (convertDataValue(value) / (total || 1)) * 100;
         if (percentage > 10) {
-            const backgroundColor = lighten(0.15, processConfig.config.body_background_color);
-            return { backgroundColor, color: 'white' };
+            const backgroundColor = lighten(0.15, processConfig.config.processes_body_background_color);
+            return { backgroundColor, color: processConfig.config.processes_body_color };
         }
         if (percentage > 5) {
-            const backgroundColor = lighten(0.1, processConfig.config.body_background_color);
-            return { backgroundColor, color: 'white' };
+            const backgroundColor = lighten(0.1, processConfig.config.processes_body_background_color);
+            return { backgroundColor, color: processConfig.config.processes_body_color };
         }
         return {};
     };
@@ -111,7 +110,7 @@ const Proc: React.FC = () => {
         });
     }, [processSearch, sortedProcesses]);
 
-    const displayedColumns = processConfig.config.table_values.filter(column => 
+    const displayedColumns = processConfig.config.processes_table_values.filter(column => 
         processes.some(process => column in process)
     );
 
@@ -132,22 +131,22 @@ const Proc: React.FC = () => {
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
             <Table
-                bodyBackgroundColor={processConfig.config.body_background_color}
-                bodyColor={processConfig.config.body_color}
-                headBackgroundColor={processConfig.config.head_background_color}
-                headColor={processConfig.config.head_color}
+                bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                bodyColor={processConfig.config.processes_body_color}
+                headBackgroundColor={processConfig.config.processes_head_background_color}
+                headColor={processConfig.config.processes_head_color}
             >
                 <Thead
-                    headBackgroundColor={processConfig.config.head_background_color}
-                    headColor={processConfig.config.head_color}
+                    headBackgroundColor={processConfig.config.processes_head_background_color}
+                    headColor={processConfig.config.processes_head_color}
                 >
                     <Tr>
                         {displayedColumns.map(column => (
                             <Th
                                 key={column}
                                 onClick={() => sortProcesses(column)}
-                                headBackgroundColor={processConfig.config.head_background_color}
-                                headColor={processConfig.config.head_color}
+                                headBackgroundColor={processConfig.config.processes_head_background_color}
+                                headColor={processConfig.config.processes_head_color}
                                 aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                             >
                                 {columnLabels[column]}{getSortIndicator(column)}
@@ -156,8 +155,8 @@ const Proc: React.FC = () => {
                     </Tr>
                 </Thead>
                 <Tbody
-                    bodyBackgroundColor={processConfig.config.body_background_color}
-                    bodyColor={processConfig.config.body_color}
+                    bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                    bodyColor={processConfig.config.processes_body_color}
                 >
                     {filteredProcesses.map((process, index) => (
                         <Tr key={index}>
@@ -165,8 +164,8 @@ const Proc: React.FC = () => {
                                 <Td
                                     key={column}
                                     style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}
-                                    bodyBackgroundColor={processConfig.config.body_background_color}
-                                    bodyColor={processConfig.config.body_color}
+                                    bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                                    bodyColor={processConfig.config.processes_body_color}
                                 >
                                     {process[column] || ''}
                                 </Td>

@@ -3,23 +3,30 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { useZuPerformanceConfig, useSetPerformanceConfig } from "../services/store";
 
 type PerformanceConfig = {
-    update_time: number;
-    body_background_color: string;
-    body_color: string;
-    head_background_color: string;
-    head_color: string;
+    performance_update_time: number;
+    performance_sidebar_background_color: string;
+    performance_sidebar_color: string;
+    performance_background_color: string;
+    performance_label_color: string;
+    performance_value_color: string;
+    performance_graph_color: string;
+    performance_sec_graph_color: string;
 };
+
 
 const usePerformanceConfig = () => {
     const performanceConfig = useZuPerformanceConfig();
     const setPerformanceConfig = useSetPerformanceConfig();
 
     const [config, setConfig] = useState<PerformanceConfig>({
-        update_time: 1000,
-        body_background_color: "#ffffff",
-        body_color: "#000000",
-        head_background_color: "#252526",
-        head_color: "#ffffff",
+        performance_update_time: 1000,
+        performance_sidebar_background_color: "#333",
+        performance_sidebar_color: "#fff",
+        performance_background_color: "#2B2B2B",
+        performance_label_color: "#6d6d6d",
+        performance_value_color: "#fff",
+        performance_graph_color: "#09ffff33",
+        performance_sec_graph_color: '#ff638433',
     });
 
     useEffect(() => {

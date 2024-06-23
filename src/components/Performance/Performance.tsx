@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-
 import Sidebar from './Sidebar';
+import usePerformanceConfig from '../../hooks/usePerformanceConfig';
 
 const Performance: React.FC = () => {
   const [networkUsages, setNetworkUsages] = useState<string[]>([]);
-
+  const performanceConfig = usePerformanceConfig();
+  console.log("bloat",performanceConfig)
   useEffect(() => {
     const fetchData = async () => {
       try {

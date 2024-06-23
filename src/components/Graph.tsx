@@ -26,8 +26,8 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                         datasets: [
                             {
                                 data: firstGraphValue,
-                                borderColor: 'rgb(75, 192, 192)',
-                                backgroundColor: 'rgba(9, 255, 255, 0.2)',
+                                borderColor: '#4BC0C0',
+                                backgroundColor: '#09ffff33',
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -36,8 +36,8 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             },
                             {
                                 data: secondGraphValue || [],
-                                borderColor: 'rgb(255, 99, 132)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: '#ff6384',
+                                backgroundColor: '#ff638433',
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -63,7 +63,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                                 display: false
                             },
                             tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                backgroundColor: '#000000b3',
                             }
                         }
                     }
