@@ -41,6 +41,7 @@ const useProcessConfig = () => {
 
     const sendData = async (data: ProcessConfig) => {
         try {
+            console.log(data);
             await invoke("set_proc_config", { data });
             setProcessesConfig(data);
         } catch (error) {
