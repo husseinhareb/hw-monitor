@@ -21,6 +21,11 @@ pub struct ConfigData {
     pub performance_value_color: String,
     pub performance_graph_color: String,
     pub performance_sec_graph_color: String,
+    pub sensors_update_time: u32,
+    pub sensors_background_color: String,
+    pub sensors_foreground_color: String,
+    pub sensors_group_background_color: String,
+    pub sensors_group_foreground_color: String,
 }
 
 // Function to create the initial configuration file if it does not exist
@@ -48,6 +53,7 @@ pub fn create_config() -> Result<(), InvokeError> {
 }
 
 // Function to write default values to the config file
+
 pub fn default_config() -> Result<(), io::Error> {
     let file_path = config_file()?;
 

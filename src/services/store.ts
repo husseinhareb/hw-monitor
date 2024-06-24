@@ -20,6 +20,15 @@ interface PerformanceConfig {
   performance_sec_graph_color: string;
 }
 
+interface SensorsConfig {
+  sensors_update_time: number;
+  sensors_background_color: string;
+  sensors_foreground_color: string;
+  sensors_group_background_color: string;
+  sensors_group_foreground_color: string;
+}
+
+
 interface Store {
   cpu: number[];
   setCpu: (cpu: number[]) => void;
@@ -46,6 +55,9 @@ interface Store {
 
   performanceConfig: PerformanceConfig;
   setPerformanceConfig: (performanceConfig: PerformanceConfig) => void;
+
+  sensorsConfig: SensorsConfig;
+  setSensorsConfig: (sensorsConfig: SensorsConfig) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -90,7 +102,18 @@ export const useStore = create<Store>((set) => ({
     performance_sec_graph_color: '#fff',
   },
   setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
+
+  sensorsConfig: {
+    sensors_update_time: 1000,
+    sensors_background_color: "#2d2d2d",
+    sensors_foreground_color: "#ffffff",
+    sensors_group_background_color: "#252526",
+    sensors_group_foreground_color: "#ffffff",
+  },
+  setSensorsConfig: (sensorsConfig) => set({ sensorsConfig }),
 }));
+
+
 
 export const useCpu = () => useStore((state) => state.cpu);
 export const useSetCpu = () => useStore((state) => state.setCpu);
@@ -115,3 +138,6 @@ export const useSetProcessesConfig = () => useStore((state) => state.setProcesse
 
 export const useZuPerformanceConfig = () => useStore((state) => state.performanceConfig);
 export const useSetPerformanceConfig = () => useStore((state) => state.setPerformanceConfig);
+
+export const useZuSensorsConfig = () => useStore((state) => state.sensorsConfig);
+export const useSetSensorsConfig = () => useStore((state) => state.setSensorsConfig);

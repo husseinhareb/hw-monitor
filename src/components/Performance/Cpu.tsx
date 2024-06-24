@@ -1,7 +1,7 @@
 //Cpu.tsx
 import React, { useState, useEffect } from "react";
 import Graph from "../Graph";
-import { useSetCpu, useZuPerformanceConfig } from "../../services/store";
+    import { useSetCpu } from "../../services/store";
 import useCpuData from "../../hooks/useCpuData";
 import {
     CPU, LeftLabel,
@@ -18,6 +18,7 @@ import {
 } from "./Styles/style";
 import useTotalUsagesData from "../../hooks/useTotalUsagesData";
 import { NameContainer, } from "../../styles/general-style";
+import usePerformanceConfig from "../../hooks/usePerformanceConfig";
 
 interface CpuProps {
     hidden: boolean;
@@ -29,8 +30,8 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     const totalUsages = useTotalUsagesData();
     const setCpu = useSetCpu();
     
-    const performanceConfig = useZuPerformanceConfig();
-
+    const performanceConfig = usePerformanceConfig();
+    console.log(performanceConfig)
     useEffect(() => {
         if (cpuUsage !== null) {
             setCpuUsage(prevCpuUsage => {
@@ -53,7 +54,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
 
     return (
         <CPU 
-        performanceBackgroundColor={performanceConfig.performance_background_color}
+        performanceBackgroundColor={performanceConfig.config.performance_background_color}
         style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}
         >
             <NameContainer>
@@ -71,43 +72,43 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
                 <RealTimeValues>
                     <SpeedUsageContainer>
                         <SpeedUsageItem>
-                            <LeftLabel processLabelColor={performanceConfig.performance_label_color}>Speed</LeftLabel>
-                            <LeftValue processValueColor={performanceConfig.performance_value_color}>{cpuData.current_speed}GHz</LeftValue>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Speed</LeftLabel>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.current_speed}GHz</LeftValue>
                         </SpeedUsageItem>
                         <SpeedUsageItem>
-                            <LeftLabel processLabelColor={performanceConfig.performance_label_color}>Usage</LeftLabel>
-                            <LeftValue processValueColor={performanceConfig.performance_value_color}>{cpuData.usage}%</LeftValue>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Usage</LeftLabel>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.usage}%</LeftValue>
                         </SpeedUsageItem>
                     </SpeedUsageContainer>
-                    <LeftLabel processLabelColor={performanceConfig.performance_label_color}>Processes</LeftLabel>
-                    <LeftValue processValueColor={performanceConfig.performance_value_color}>{totalUsages.processes}</LeftValue>
-                    <LeftLabel processLabelColor={performanceConfig.performance_label_color}>Uptime</LeftLabel>
-                    <LeftValue processValueColor={performanceConfig.performance_value_color}>{cpuData.uptime}</LeftValue>
+                    <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Processes</LeftLabel>
+                    <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{totalUsages.processes}</LeftValue>
+                    <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Uptime</LeftLabel>
+                    <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.uptime}</LeftValue>
                 </RealTimeValues>
                 <FixedValues>
                     <FixedValueItem>
-                        <RightLabel processLabelColor={performanceConfig.performance_label_color}>Socket</RightLabel>
-                        <RightValue processValueColor={performanceConfig.performance_value_color}>{cpuData.socket}</RightValue>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Socket</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.socket}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <RightLabel processLabelColor={performanceConfig.performance_label_color}>Cores</RightLabel>
-                        <RightValue processValueColor={performanceConfig.performance_value_color}>{cpuData.cores}</RightValue>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Cores</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.cores}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <RightLabel processLabelColor={performanceConfig.performance_label_color}>Threads</RightLabel>
-                        <RightValue processValueColor={performanceConfig.performance_value_color}>{cpuData.threads}</RightValue>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Threads</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.threads}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <RightLabel processLabelColor={performanceConfig.performance_label_color}>Base Speed</RightLabel>
-                        <RightValue processValueColor={performanceConfig.performance_value_color}>{cpuData.base_speed / 1000000} GHz</RightValue>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Base Speed</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.base_speed / 1000000} GHz</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <RightLabel processLabelColor={performanceConfig.performance_label_color}>Max Speed</RightLabel>
-                        <RightValue processValueColor={performanceConfig.performance_value_color}>{cpuData.max_speed / 1000000} GHz</RightValue>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Max Speed</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.max_speed / 1000000} GHz</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
-                        <RightLabel processLabelColor={performanceConfig.performance_label_color}>Virtualization</RightLabel>
-                        <RightValue processValueColor={performanceConfig.performance_value_color}>{cpuData.virtualization}</RightValue>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Virtualization</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.virtualization}</RightValue>
                     </FixedValueItem>
                 </FixedValues>
             </div>

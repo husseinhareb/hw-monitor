@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-const Label = styled.p<{ processLabelColor: string; }>`
-color: ${(props) => props.processLabelColor};
+const Label = styled.p<{ performanceLabelColor: string; }>`
+color: ${(props) => props.performanceLabelColor};
 margin: 5px;
 margin-right: 20px;
 margin-left: 20px;
@@ -17,8 +17,8 @@ font-size: 14px;
 `;
 
 // Common Value Style
-const Value = styled.p<{ processValueColor: string; }>`
-color: ${(props) => props.processValueColor};
+const Value = styled.p<{ performanceValueColor: string; }>`
+color: ${(props) => props.performanceValueColor};
 margin: 5px;
 margin-left: 20px;
 margin-right: 20px;
@@ -99,8 +99,8 @@ min-width: 0;
 `;
 
 // Memory Specific Styles
-export const MemoryContainer = styled.div<{ hidden: boolean }>`
-background-color: #2B2B2B;
+export const MemoryContainer = styled.div<{ hidden: boolean; performanceBackgroundColor: string }>`
+background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
 height:100%;
 `;

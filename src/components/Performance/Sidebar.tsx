@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
-import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed, useZuPerformanceConfig } from "../../services/store";
+import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
 import Network from './Network';
 import Graph from '../Graph';
 import Cpu from './Cpu';
 import Disks from '../Disks/Disks';
 import Memory from './Memory';
+import usePerformanceConfig from '../../hooks/usePerformanceConfig';
 
 interface SidebarProps {
     interfaceNames: string[];
@@ -27,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [wifiDownloadSpeed, wifiUploadSpeed] = useWifiSpeed();
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
 
-    const performanceConfig = useZuPerformanceConfig();
+    const performanceConfig = usePerformanceConfig();
 
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
@@ -50,8 +51,8 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     return (
         <div style={{ height: '100%', width: '100%', display: 'flex' }}>
             <SidebarContainer
-                performanceSidebarBackgroundColor={performanceConfig.performance_sidebar_background_color}
-                performanceSidebarColor={performanceConfig.performance_sidebar_color}
+                performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
+                performanceSidebarColor={performanceConfig.config.performance_sidebar_color}
             >
                 <Title>Performance</Title>
                 <List>

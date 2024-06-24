@@ -63,3 +63,22 @@ export const Container = styled.div`
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     grid-gap: 20px;
 `;
+
+export const StyledButton = styled.button`
+  background-color: #f3eae8;
+  color: #212830;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 8px;
+  margin: 0 5px;
+  &:hover {
+    color: #212830;
+    background-color: #f3eae8;
+  }
+  svg {
+    margin-right: 8px;
+  }
+`;
