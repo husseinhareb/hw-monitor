@@ -1,6 +1,7 @@
 //graph.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
+import { useZuPerformanceConfig } from '../services/store';
 
 interface GraphProps {
     firstGraphValue: number[];
@@ -15,6 +16,8 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
     const chartInstance = useRef<Chart<"line"> | null>(null);
     const [timeCounter, setTimeCounter] = useState(0);
 
+    const performanceConfig = useZuPerformanceConfig();
+
     useEffect(() => {
         if (chartRef.current !== null) {
             const ctx = chartRef.current.getContext('2d');
@@ -27,7 +30,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             {
                                 data: firstGraphValue,
                                 borderColor: '#4BC0C0',
-                                backgroundColor: '#09ffff33',
+                                backgroundColor: performanceConfig.performance_graph_color,
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -37,7 +40,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             {
                                 data: secondGraphValue || [],
                                 borderColor: '#ff6384',
-                                backgroundColor: '#ff638433',
+                                backgroundColor: performanceConfig.performance_sec_graph_color,
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,

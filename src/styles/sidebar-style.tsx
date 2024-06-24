@@ -2,11 +2,11 @@
 import styled from 'styled-components';
 
 // Styled SidebarContainer component
-export const SidebarContainer = styled.div`
+export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string }>`
   width: 200px;
   height: 100%;
-  background-color: #333;
-  color: #fff;
+  background-color: ${(props) => props.performanceSidebarBackgroundColor};
+  color: ${(props) => props.performanceSidebarColor};
   padding: 20px;
 `;
 

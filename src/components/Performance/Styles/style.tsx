@@ -1,6 +1,7 @@
 import styled from 'styled-components';
-const Label = styled.p`
-color: #6d6d6d;
+
+const Label = styled.p<{ processLabelColor: string; }>`
+color: ${(props) => props.processLabelColor};
 margin: 5px;
 margin-right: 20px;
 margin-left: 20px;
@@ -16,8 +17,8 @@ font-size: 14px;
 `;
 
 // Common Value Style
-const Value = styled.p`
-color: white;
+const Value = styled.p<{ processValueColor: string; }>`
+color: ${(props) => props.processValueColor};
 margin: 5px;
 margin-left: 20px;
 margin-right: 20px;
@@ -57,9 +58,9 @@ min-width: 0;
 `;
 
 // CPU Specific Styles
-export const CPU = styled.div`
-background-color: #2B2B2B;
-width: 100%;
+export const CPU = styled.div<{ performanceBackgroundColor: string }>`
+  background-color: ${(props) => props.performanceBackgroundColor};
+  width: 100%;
 height: 100%;
 `;
 

@@ -66,8 +66,8 @@ pub fn default_config() -> Result<(), io::Error> {
         performance_background_color=#2d2d2d\n\
         performance_label_color=#ffffff\n\
         performance_value_color=#ffffff\n\
-        performance_graph_color=#00ff00\n\
-        performance_sec_graph_color=#0000ff\n\
+        performance_graph_color=#09ffff33\n\
+        performance_sec_graph_color=#ff638433\n\
     ";
 
     file.write_all(default_values.as_bytes())?;

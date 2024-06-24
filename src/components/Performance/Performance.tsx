@@ -6,7 +6,9 @@ import usePerformanceConfig from '../../hooks/usePerformanceConfig';
 const Performance: React.FC = () => {
   const [networkUsages, setNetworkUsages] = useState<string[]>([]);
   const performanceConfig = usePerformanceConfig();
-  console.log("bloat",performanceConfig)
+  console.log(performanceConfig);
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,7 +27,8 @@ const Performance: React.FC = () => {
 
   return (
     <div style={{width: '100%', height: '100%'}}>
-      <Sidebar interfaceNames={networkUsages} />
+      <Sidebar 
+      interfaceNames={networkUsages} />
     </div>
   );
 };

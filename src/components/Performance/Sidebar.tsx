@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
-import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
+import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed, useZuPerformanceConfig } from "../../services/store";
 import Network from './Network';
 import Graph from '../Graph';
 import Cpu from './Cpu';
@@ -26,6 +26,9 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const maxMemory = useMaxMemory();
     const [wifiDownloadSpeed, wifiUploadSpeed] = useWifiSpeed();
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
+
+    const performanceConfig = useZuPerformanceConfig();
+
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
     const handleItemClick = (itemName: string) => {
@@ -45,11 +48,14 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     }, [interfaceNames]);
 
     return (
-        <div style={{ height: '100%', width: '100%', display: 'flex'}}>
-            <SidebarContainer>
+        <div style={{ height: '100%', width: '100%', display: 'flex' }}>
+            <SidebarContainer
+                performanceSidebarBackgroundColor={performanceConfig.performance_sidebar_background_color}
+                performanceSidebarColor={performanceConfig.performance_sidebar_color}
+            >
                 <Title>Performance</Title>
                 <List>
-                    <ListItem 
+                    <ListItem
                         onClick={() => handleItemClick('CPU')}
                         style={{ color: selectedItem === 'CPU' ? '#fff' : '#b4b4b4' }}
                     >
@@ -57,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
                     {isMaxMemorySet && (
-                        <ListItem 
+                        <ListItem
                             onClick={() => handleItemClick('Memory')}
                             style={{ color: selectedItem === 'Memory' ? '#fff' : '#b4b4b4' }}
                         >
@@ -67,7 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     )}
 
                     {wifi &&
-                        <ListItem 
+                        <ListItem
                             onClick={() => handleItemClick('Wi-Fi')}
                             style={{ color: selectedItem === 'Wi-Fi' ? '#fff' : '#b4b4b4' }}
                         >
@@ -75,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                     {ethernet &&
-                        <ListItem 
+                        <ListItem
                             onClick={() => handleItemClick('Ethernet')}
                             style={{ color: selectedItem === 'Ethernet' ? '#fff' : '#b4b4b4' }}
                         >
@@ -84,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         </ListItem>}
                 </List>
             </SidebarContainer>
-            <div style={{height: '100%', width: '100%',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+            <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                 <Cpu hidden={!showCpu} />
                 <Memory hidden={!showMemory} />
                 <Disks hidden={!showDisk} />
