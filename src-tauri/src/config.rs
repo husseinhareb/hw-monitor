@@ -26,8 +26,10 @@ pub struct ConfigData {
     pub sensors_update_time: u32,
     pub sensors_background_color: String,
     pub sensors_foreground_color: String,
-    pub sensors_group_background_color: String,
-    pub sensors_group_foreground_color: String,
+    pub sensors_boxes_background_color: String,
+    pub sensors_boxes_foreground_color: String,
+    pub sensors_battery_background_color: String,
+    pub sensors_boxes_title_foreground_color: String,
 
     pub disks_update_time: u32,
     pub disks_background_color: String,
@@ -91,8 +93,10 @@ pub fn default_config() -> Result<(), io::Error> {
         sensors_update_time=1000\n\
         sensors_background_color=#2d2d2d\n\
         sensors_foreground_color=#ffffff\n\
-        sensors_group_background_color=#252526\n\
-        sensors_group_foreground_color=#ffffff\n\
+        sensors_boxes_background_color=#252526\n\
+        sensors_boxes_foreground_color=#ffffff\n\
+        sensors_battery_background_color=#1E1E1E\n\
+        sensors_boxes_title_foreground_color=#9A9A9A\n\
         disks_update_time=1000\n\
         disks_background_color=#2d2d2d\n\
         disks_foreground_color=#ffffff\n\
@@ -130,8 +134,10 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         sensors_update_time: 1000,
         sensors_background_color: String::new(),
         sensors_foreground_color: String::new(),
-        sensors_group_background_color: String::new(),
-        sensors_group_foreground_color: String::new(),
+        sensors_boxes_background_color: String::new(),
+        sensors_boxes_foreground_color: String::new(),
+        sensors_battery_background_color: String::new(),
+        sensors_boxes_title_foreground_color: String::new(),
         disks_update_time: 1000,
         disks_background_color: String::new(),
         disks_foreground_color: String::new(),
@@ -204,11 +210,17 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "sensors_foreground_color" => {
                 config_data.sensors_foreground_color = value.to_string();
             },
-            "sensors_group_background_color" => {
-                config_data.sensors_group_background_color = value.to_string();
+            "sensors_boxes_background_color" => {
+                config_data.sensors_boxes_background_color = value.to_string();
             },
-            "sensors_group_foreground_color" => {
-                config_data.sensors_group_foreground_color = value.to_string();
+            "sensors_boxes_foreground_color" => {
+                config_data.sensors_boxes_foreground_color = value.to_string();
+            },
+            "sensors_battery_background_color" => {
+                config_data.sensors_battery_background_color = value.to_string();
+            },
+            "sensors_boxes_title_foreground_color" => {
+                config_data.sensors_boxes_title_foreground_color = value.to_string();
             },
             "disks_update_time" => {
                 config_data.disks_update_time = value.parse().map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
@@ -231,8 +243,6 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
 
     Ok(config_data)
 }
-
-
 
 pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
     let file_path = config_file()?;
@@ -257,8 +267,10 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         sensors_update_time={}\n\
         sensors_background_color={}\n\
         sensors_foreground_color={}\n\
-        sensors_group_background_color={}\n\
-        sensors_group_foreground_color={}\n\
+        sensors_boxes_background_color={}\n\
+        sensors_boxes_foreground_color={}\n\
+        sensors_battery_background_color={}\n\
+        sensors_boxes_title_foreground_color={}\n\
         disks_update_time={}\n\
         disks_background_color={}\n\
         disks_foreground_color={}\n\
@@ -282,8 +294,10 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         config.sensors_update_time,
         config.sensors_background_color,
         config.sensors_foreground_color,
-        config.sensors_group_background_color,
-        config.sensors_group_foreground_color,
+        config.sensors_boxes_background_color,
+        config.sensors_boxes_foreground_color,
+        config.sensors_battery_background_color,
+        config.sensors_boxes_title_foreground_color,
         config.disks_update_time,
         config.disks_background_color,
         config.disks_foreground_color,
@@ -294,7 +308,6 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
     file.write_all(config_content.as_bytes())?;
     Ok(())
 }
-
 
 #[tauri::command]
 pub async fn set_config(config: ConfigData) -> Result<(), InvokeError> {

@@ -9,16 +9,15 @@ import {
     Input,
 } from "./Styles/style";
 
-
 interface SensorsConfig {
     sensors_update_time: number;
     sensors_background_color: string;
     sensors_foreground_color: string;
-    sensors_group_background_color: string;
-    sensors_group_foreground_color: string;
+    sensors_boxes_background_color: string;
+    sensors_boxes_foreground_color: string;
+    sensors_boxes_title_foreground_color: string;
+    sensors_battery_background_color: string;
 }
-
-
 
 const SensorsConfig: React.FC = () => {
     const { config, updateConfig } = useSensorsConfig();
@@ -44,7 +43,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </Label>
             <Label>
-                Body Background Color
+                Background Color
                 <ColorInput
                     type="color"
                     value={config.sensors_background_color}
@@ -52,7 +51,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </Label>
             <Label>
-                Body Color
+                Foreground Color
                 <ColorInput
                     type="color"
                     value={config.sensors_foreground_color}
@@ -60,19 +59,35 @@ const SensorsConfig: React.FC = () => {
                 />
             </Label>
             <Label>
-                Head Background Color
+                Boxes Background Color
                 <ColorInput
                     type="color"
-                    value={config.sensors_group_background_color}
-                    onChange={(e) => handleConfigChange("sensors_group_background_color", e.target.value)}
+                    value={config.sensors_boxes_background_color}
+                    onChange={(e) => handleConfigChange("sensors_boxes_background_color", e.target.value)}
                 />
             </Label>
             <Label>
-                Head Color
+                Boxes Foreground Color
                 <ColorInput
                     type="color"
-                    value={config.sensors_group_foreground_color}
-                    onChange={(e) => handleConfigChange("sensors_group_foreground_color", e.target.value)}
+                    value={config.sensors_boxes_foreground_color}
+                    onChange={(e) => handleConfigChange("sensors_boxes_foreground_color", e.target.value)}
+                />
+            </Label>
+            <Label>
+                Boxes Title Foreground Color
+                <ColorInput
+                    type="color"
+                    value={config.sensors_boxes_title_foreground_color}
+                    onChange={(e) => handleConfigChange("sensors_boxes_title_foreground_color", e.target.value)}
+                />
+            </Label>
+            <Label>
+                Battery Background Color
+                <ColorInput
+                    type="color"
+                    value={config.sensors_battery_background_color}
+                    onChange={(e) => handleConfigChange("sensors_battery_background_color", e.target.value)}
                 />
             </Label>
         </ConfigContainer>

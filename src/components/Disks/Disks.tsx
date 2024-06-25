@@ -20,7 +20,7 @@ interface DisksProps {
 
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
   const { diskData, convertData } = useDiskData();
-
+  
   const usagePercentage = (used: number, total: number) => {
     return (used / total) * 100;
   };

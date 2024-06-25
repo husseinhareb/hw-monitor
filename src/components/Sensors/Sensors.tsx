@@ -12,6 +12,7 @@ import {
 import useSensorsData from '../../hooks/useSensorsData';
 import Battery from './Battery';
 import HeatBar from './HeatBar';
+import useSensorsConfig from '../../hooks/useSensorsConfig';
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();
@@ -22,20 +23,31 @@ const Sensors: React.FC = () => {
   // Sort sensors by the number of sensors in descending order
   const sortedSensors = filteredSensors.sort((a, b) => b.sensors.length - a.sensors.length);
 
+  const sensorsConfig = useSensorsConfig();
   return (
-    <Container>
+    <Container
+      sensorsBackgroundColors={sensorsConfig.config.sensors_background_color}
+    >
       <Title>Sensors</Title>
       <SensorGrid>
-        <SensorList>
+        <SensorList
+          sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+        >
           <Battery />
         </SensorList>
         {sortedSensors.map((hwmon, index) => (
-          <SensorList key={index}>
+          <SensorList
+            key={index}
+            sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+          >
             <SensorGroup>
               <SensorName>{hwmon.name}</SensorName>
               <ContentDiv>
                 {hwmon.sensors.map((sensor, idx) => (
-                  <SensorItem key={idx}>
+                  <SensorItem
+                  sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_background_color}
+                  key={idx}>
+
                     {sensor.name}: {sensor.value.toFixed(2)}°C
                     <HeatBar value={sensor.value} critical={sensor.critical ? sensor.critical : 100} />
                   </SensorItem>

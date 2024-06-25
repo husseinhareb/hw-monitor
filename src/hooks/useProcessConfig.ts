@@ -1,4 +1,3 @@
-// useProcessConfig.ts
 import { useSetProcessesConfig } from "../services/store";
 import useFetchAndSetConfig from "../utils/useConfigUtils";
 
@@ -22,7 +21,18 @@ const initialProcessConfig: ProcessConfig = {
 
 const useProcessConfig = () => {
     const setProcessesConfig = useSetProcessesConfig();
-    return useFetchAndSetConfig(initialProcessConfig, "get_configs", setProcessesConfig);
+    const { config, updateConfig, updateValues } = useFetchAndSetConfig(initialProcessConfig, "get_configs", setProcessesConfig);
+
+    const updateTableValues = (newValues: string[]) => {
+        const newConfig = { ...config, processes_table_values: newValues };
+        updateValues(newConfig);
+    };
+
+    return {
+        config,
+        updateConfig,
+        updateTableValues,
+    };
 };
 
 export default useProcessConfig;

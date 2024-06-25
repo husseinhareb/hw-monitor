@@ -1,4 +1,3 @@
-// useConfigUtils.ts
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 
@@ -35,23 +34,27 @@ const useFetchAndSetConfig = <T extends ConfigType>(
 
     const sendData = async (data: T) => {
         try {
-            await invoke("set_config", { config: data }); // Ensure 'config' key is included
+            await invoke("set_config", { config: data });
             setConfigFunction(data);
         } catch (error) {
             console.error("Error while sending data to backend:", error);
         }
     };
-    
+
+    const updateValues = (newConfig: T) => {
+        setConfig(newConfig);
+        sendData(newConfig);
+    };
 
     const updateConfig = (key: keyof T, value: string | number | string[]) => {
         const newConfig = { ...config, [key]: value };
-        setConfig(newConfig);
-        sendData(newConfig);
+        updateValues(newConfig);
     };
 
     return {
         config,
         updateConfig,
+        updateValues,
     };
 };
 

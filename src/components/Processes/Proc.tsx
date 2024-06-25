@@ -1,3 +1,4 @@
+//Proc.tsx
 import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../../hooks/useProcessData';
 import useTotalUsagesData from '../../hooks/useTotalUsagesData';

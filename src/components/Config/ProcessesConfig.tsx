@@ -36,7 +36,7 @@ const ProcessesConfig: React.FC = () => {
             const newValues = prevValues.includes(value)
                 ? prevValues.filter((v) => v !== value)
                 : [...prevValues, value];
-            updateTableValues(newValues);
+            updateTableValues(newValues); // Update table values here
             return newValues;
         });
     };

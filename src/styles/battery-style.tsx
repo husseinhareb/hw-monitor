@@ -2,10 +2,11 @@ import styled, { keyframes } from 'styled-components';
 
 interface DesignProps {
     percentage: number;
+    sensorsBatteryBackgroundColor: string
   }
   
-export const Item = styled.p`
-  color:white;
+export const Item = styled.p<{ sensorsGroupForegroundColor: string; }>`
+  color: ${(props) => props.sensorsGroupForegroundColor};
   margin-bottom:3px;
 `
 export const DesignDiv = styled.div`
@@ -27,7 +28,7 @@ const full = keyframes`
   }
 `;
 
-export const Design = styled.div<DesignProps>`
+export const Design = styled.div<DesignProps >`  
   background-color: rgb(6, 6, 6);
   position: relative;
   margin: 20px auto;
@@ -43,7 +44,8 @@ export const Design = styled.div<DesignProps>`
     left: 6px;
     width: 98px;
     height: 0%;
-    background-color: #38e740;
+    background-color: ${(DesignProps) => DesignProps.sensorsBatteryBackgroundColor};
+
     border-radius: 5px;
     animation: ${full} 2s linear forwards;
         --percentage: ${({ percentage }) => `${percentage}%`};

@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-export const Container = styled.div`
+export const Container = styled.div<{ sensorsBackgroundColors: string; }>`
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 20px;
-  background-color: #2b2b2b;
+  background-color: ${(props) => props.sensorsBackgroundColors};
   overflow-y: auto;
 `;
 
@@ -22,12 +22,12 @@ export const SensorGrid = styled.div`
   gap: 20px;
 `;
 
-export const SensorList = styled.div`
+export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #3a3a3a;
+  background-color: ${(props) => props.sensorsBoxesBackgroundColor};
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -44,13 +44,13 @@ export const SensorGroup = styled.div`
   width: 100%;
 `;
 
-export const SensorItem = styled.div`
+export const SensorItem = styled.div<{ sensorsGroupForegroundColor: string; }>`
   margin: 5px 0;
   border-radius: 4px;
   display: flex;
   justify-content: space-between;
   width: 100%;
-  color:white;
+  color: ${(props) => props.sensorsGroupForegroundColor};
 `;
 
 export const SensorName = styled.h3`
@@ -68,6 +68,3 @@ export const ContentDiv = styled.div`
   overflow-y: auto;
 `;
 
-export const SensorValue = styled.span`
-  color: #ff5722;
-`;

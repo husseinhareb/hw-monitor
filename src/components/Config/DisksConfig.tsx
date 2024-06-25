@@ -44,7 +44,7 @@ const DisksConfig: React.FC = () => {
                 />
             </Label>
             <Label>
-                Body Background Color
+                Background Color
                 <ColorInput
                     type="color"
                     value={config.disks_background_color}
@@ -60,7 +60,7 @@ const DisksConfig: React.FC = () => {
                 />
             </Label>
             <Label>
-                Head Background Color
+                Box Background Color
                 <ColorInput
                     type="color"
                     value={config.disks_group_background_color}
@@ -68,7 +68,7 @@ const DisksConfig: React.FC = () => {
                 />
             </Label>
             <Label>
-                Head Color
+                Box foreground Color
                 <ColorInput
                     type="color"
                     value={config.disks_group_foreground_color}
