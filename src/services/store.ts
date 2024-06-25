@@ -28,6 +28,14 @@ interface SensorsConfig {
   sensors_group_foreground_color: string;
 }
 
+interface DisksConfig {
+  disks_update_time: number;
+  disks_background_color: string;
+  disks_foreground_color: string;
+  disks_group_background_color: string;
+  disks_group_foreground_color: string;
+}
+
 
 interface Store {
   cpu: number[];
@@ -58,6 +66,9 @@ interface Store {
 
   sensorsConfig: SensorsConfig;
   setSensorsConfig: (sensorsConfig: SensorsConfig) => void;
+
+  disksConfig: DisksConfig;
+  setDisksConfig: (disksConfig: DisksConfig) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -111,6 +122,15 @@ export const useStore = create<Store>((set) => ({
     sensors_group_foreground_color: "#ffffff",
   },
   setSensorsConfig: (sensorsConfig) => set({ sensorsConfig }),
+
+  disksConfig: {
+    disks_update_time: 1000,
+    disks_background_color: "#2d2d2d",
+    disks_foreground_color: "#ffffff",
+    disks_group_background_color: "#252526",
+    disks_group_foreground_color: "#ffffff",
+  },
+  setDisksConfig: (disksConfig) => set({ disksConfig }),
 }));
 
 
@@ -141,3 +161,6 @@ export const useSetPerformanceConfig = () => useStore((state) => state.setPerfor
 
 export const useZuSensorsConfig = () => useStore((state) => state.sensorsConfig);
 export const useSetSensorsConfig = () => useStore((state) => state.setSensorsConfig);
+
+export const useZuDisksConfig = () => useStore((state) => state.disksConfig);
+export const useSetDisksConfig = () => useStore((state) => state.setDisksConfig);

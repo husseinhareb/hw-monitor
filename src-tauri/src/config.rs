@@ -13,6 +13,7 @@ pub struct ConfigData {
     pub processes_head_background_color: String,
     pub processes_head_color: String,
     pub processes_table_values: Vec<String>,
+
     pub performance_update_time: u32,
     pub performance_sidebar_background_color: String,
     pub performance_sidebar_color: String,
@@ -21,11 +22,18 @@ pub struct ConfigData {
     pub performance_value_color: String,
     pub performance_graph_color: String,
     pub performance_sec_graph_color: String,
+
     pub sensors_update_time: u32,
     pub sensors_background_color: String,
     pub sensors_foreground_color: String,
     pub sensors_group_background_color: String,
     pub sensors_group_foreground_color: String,
+
+    pub disks_update_time: u32,
+    pub disks_background_color: String,
+    pub disks_foreground_color: String,
+    pub disks_group_background_color: String,
+    pub disks_group_foreground_color: String,
 }
 
 // Function to create the initial configuration file if it does not exist
@@ -52,7 +60,14 @@ pub fn create_config() -> Result<(), InvokeError> {
     Ok(())
 }
 
-// Function to write default values to the config file
+#[tauri::command]
+pub async fn set_default_config() -> Result<(), InvokeError> {
+    match default_config() {
+        Ok(_) => Ok(()),
+        Err(e) => Err(InvokeError::from(e.to_string())),
+    }
+}
+
 pub fn default_config() -> Result<(), io::Error> {
     let file_path = config_file()?;
 
@@ -78,6 +93,11 @@ pub fn default_config() -> Result<(), io::Error> {
         sensors_foreground_color=#ffffff\n\
         sensors_group_background_color=#252526\n\
         sensors_group_foreground_color=#ffffff\n\
+        disks_update_time=1000\n\
+        disks_background_color=#2d2d2d\n\
+        disks_foreground_color=#ffffff\n\
+        disks_group_background_color=#252526\n\
+        disks_group_foreground_color=#ffffff\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -112,6 +132,11 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         sensors_foreground_color: String::new(),
         sensors_group_background_color: String::new(),
         sensors_group_foreground_color: String::new(),
+        disks_update_time: 1000,
+        disks_background_color: String::new(),
+        disks_foreground_color: String::new(),
+        disks_group_background_color: String::new(),
+        disks_group_foreground_color: String::new(),
     };
 
     for line in reader.lines() {
@@ -185,71 +210,33 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "sensors_group_foreground_color" => {
                 config_data.sensors_group_foreground_color = value.to_string();
             },
-            _ => {
-                return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Unknown key in config file: {}", key)));
-            }
+            "disks_update_time" => {
+                config_data.disks_update_time = value.parse().map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+            },
+            "disks_background_color" => {
+                config_data.disks_background_color = value.to_string();
+            },
+            "disks_foreground_color" => {
+                config_data.disks_foreground_color = value.to_string();
+            },
+            "disks_group_background_color" => {
+                config_data.disks_group_background_color = value.to_string();
+            },
+            "disks_group_foreground_color" => {
+                config_data.disks_group_foreground_color = value.to_string();
+            },
+            _ => {},
         }
     }
 
     Ok(config_data)
 }
 
-// Function to save config data to file
-pub fn save_config(updated_data: &ConfigData) -> Result<(), io::Error> {
-    let existing_data = read_all_configs().unwrap_or(ConfigData {
-        processes_update_time: 1000,
-        processes_body_background_color: String::from("#2d2d2d"),
-        processes_body_color: String::from("#ffffff"),
-        processes_head_background_color: String::from("#252526"),
-        processes_head_color: String::from("#ffffff"),
-        processes_table_values: vec![String::from("user"), String::from("pid"), String::from("ppid"), String::from("state"), String::from("cpu"), String::from("memory")],
-        performance_update_time: 1000,
-        performance_sidebar_background_color: String::from("#2d2d2d"),
-        performance_sidebar_color: String::from("#ffffff"),
-        performance_background_color: String::from("#2d2d2d"),
-        performance_label_color: String::from("#ffffff"),
-        performance_value_color: String::from("#ffffff"),
-        performance_graph_color: String::from("#00ff00"),
-        performance_sec_graph_color: String::from("#0000ff"),
-        sensors_update_time: 1000,
-        sensors_background_color: String::from("#2d2d2d"),
-        sensors_foreground_color: String::from("#ffffff"),
-        sensors_group_background_color: String::from("#252526"),
-        sensors_group_foreground_color: String::from("#ffffff"),
-    });
 
-    let mut new_table_values = updated_data.processes_table_values.clone();
-    if new_table_values.is_empty() {
-        new_table_values = existing_data.processes_table_values.clone();
-    }
 
-    // Remove duplicates
-    new_table_values.sort();
-    new_table_values.dedup();
-
-    let new_data = ConfigData {
-        processes_update_time: updated_data.processes_update_time,
-        processes_body_background_color: if !updated_data.processes_body_background_color.is_empty() { updated_data.processes_body_background_color.clone() } else { existing_data.processes_body_background_color },
-        processes_body_color: if !updated_data.processes_body_color.is_empty() { updated_data.processes_body_color.clone() } else { existing_data.processes_body_color },
-        processes_head_background_color: if !updated_data.processes_head_background_color.is_empty() { updated_data.processes_head_background_color.clone() } else { existing_data.processes_head_background_color },
-        processes_head_color: if (!updated_data.processes_head_color.is_empty()) { updated_data.processes_head_color.clone() } else { existing_data.processes_head_color },
-        processes_table_values: new_table_values.clone(),
-        performance_update_time: updated_data.performance_update_time,
-        performance_sidebar_background_color: if !updated_data.performance_sidebar_background_color.is_empty() { updated_data.performance_sidebar_background_color.clone() } else { existing_data.performance_sidebar_background_color },
-        performance_sidebar_color: if !updated_data.performance_sidebar_color.is_empty() { updated_data.performance_sidebar_color.clone() } else { existing_data.performance_sidebar_color },
-        performance_background_color: if !updated_data.performance_background_color.is_empty() { updated_data.performance_background_color.clone() } else { existing_data.performance_background_color },
-        performance_label_color: if !updated_data.performance_label_color.is_empty() { updated_data.performance_label_color.clone() } else { existing_data.performance_label_color },
-        performance_value_color: if !updated_data.performance_value_color.is_empty() { updated_data.performance_value_color.clone() } else { existing_data.performance_value_color },
-        performance_graph_color: if !updated_data.performance_graph_color.is_empty() { updated_data.performance_graph_color.clone() } else { existing_data.performance_graph_color },
-        performance_sec_graph_color: if !updated_data.performance_sec_graph_color.is_empty() { updated_data.performance_sec_graph_color.clone() } else { existing_data.performance_sec_graph_color },
-        sensors_update_time: updated_data.sensors_update_time,
-        sensors_background_color: if !updated_data.sensors_background_color.is_empty() { updated_data.sensors_background_color.clone() } else { existing_data.sensors_background_color },
-        sensors_foreground_color: if !updated_data.sensors_foreground_color.is_empty() { updated_data.sensors_foreground_color.clone() } else { existing_data.sensors_foreground_color },
-        sensors_group_background_color: if !updated_data.sensors_group_background_color.is_empty() { updated_data.sensors_group_background_color.clone() } else { existing_data.sensors_group_background_color },
-        sensors_group_foreground_color: if !updated_data.sensors_group_foreground_color.is_empty() { updated_data.sensors_group_foreground_color.clone() } else { existing_data.sensors_group_foreground_color },
-    };
-
-    let processes_table_values_str = new_table_values.join(",");
+pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
+    let file_path = config_file()?;
+    let mut file = File::create(&file_path)?;
 
     let config_content = format!(
         "\
@@ -272,134 +259,70 @@ pub fn save_config(updated_data: &ConfigData) -> Result<(), io::Error> {
         sensors_foreground_color={}\n\
         sensors_group_background_color={}\n\
         sensors_group_foreground_color={}\n\
+        disks_update_time={}\n\
+        disks_background_color={}\n\
+        disks_foreground_color={}\n\
+        disks_group_background_color={}\n\
+        disks_group_foreground_color={}\n\
         ",
-        new_data.processes_update_time,
-        new_data.processes_body_background_color,
-        new_data.processes_body_color,
-        new_data.processes_head_background_color,
-        new_data.processes_head_color,
-        processes_table_values_str,
-        new_data.performance_update_time,
-        new_data.performance_sidebar_background_color,
-        new_data.performance_sidebar_color,
-        new_data.performance_background_color,
-        new_data.performance_label_color,
-        new_data.performance_value_color,
-        new_data.performance_graph_color,
-        new_data.performance_sec_graph_color,
-        new_data.sensors_update_time,
-        new_data.sensors_background_color,
-        new_data.sensors_foreground_color,
-        new_data.sensors_group_background_color,
-        new_data.sensors_group_foreground_color,
+        config.processes_update_time,
+        config.processes_body_background_color,
+        config.processes_body_color,
+        config.processes_head_background_color,
+        config.processes_head_color,
+        config.processes_table_values.join(","),
+        config.performance_update_time,
+        config.performance_sidebar_background_color,
+        config.performance_sidebar_color,
+        config.performance_background_color,
+        config.performance_label_color,
+        config.performance_value_color,
+        config.performance_graph_color,
+        config.performance_sec_graph_color,
+        config.sensors_update_time,
+        config.sensors_background_color,
+        config.sensors_foreground_color,
+        config.sensors_group_background_color,
+        config.sensors_group_foreground_color,
+        config.disks_update_time,
+        config.disks_background_color,
+        config.disks_foreground_color,
+        config.disks_group_background_color,
+        config.disks_group_foreground_color,
     );
 
-    let file_path = config_file()?;
-    let mut file = File::create(file_path)?;
-
     file.write_all(config_content.as_bytes())?;
-    file.flush()?; // Ensure data is flushed to disk immediately
     Ok(())
 }
 
-// Tauri command to set process-specific config
+
 #[tauri::command]
-pub async fn set_proc_config(data: ConfigData) -> Result<(), InvokeError> {
-    println!("Received process config data: {:?}", data);
-    let existing_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
-    let updated_data = ConfigData {
-        processes_update_time: data.processes_update_time,
-        processes_body_background_color: if !data.processes_body_background_color.is_empty() { data.processes_body_background_color } else { existing_data.processes_body_background_color },
-        processes_body_color: if !data.processes_body_color.is_empty() { data.processes_body_color } else { existing_data.processes_body_color },
-        processes_head_background_color: if !data.processes_head_background_color.is_empty() { data.processes_head_background_color } else { existing_data.processes_head_background_color },
-        processes_head_color: if !data.processes_head_color.is_empty() { data.processes_head_color } else { existing_data.processes_head_color },
-        processes_table_values: if !data.processes_table_values.is_empty() { data.processes_table_values } else { existing_data.processes_table_values },
-        ..existing_data
-    };
-    save_config(&updated_data).map_err(|e| InvokeError::from(e.to_string()))?;
-    Ok(())
+pub async fn set_config(config: ConfigData) -> Result<(), InvokeError> {
+    match save_config(config) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(InvokeError::from(e.to_string())),
+    }
 }
 
-// Tauri command to set performance-specific config
 #[tauri::command]
-pub async fn set_performance_config(data: ConfigData) -> Result<(), InvokeError> {
-    println!("Received performance config data: {:?}", data);
-    let existing_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
-    let updated_data = ConfigData {
-        performance_update_time: data.performance_update_time,
-        performance_sidebar_background_color: if !data.performance_sidebar_background_color.is_empty() { data.performance_sidebar_background_color } else { existing_data.performance_sidebar_background_color },
-        performance_sidebar_color: if !data.performance_sidebar_color.is_empty() { data.performance_sidebar_color } else { existing_data.performance_sidebar_color },
-        performance_background_color: if (!data.performance_background_color.is_empty()) { data.performance_background_color } else { existing_data.performance_background_color },
-        performance_label_color: if !data.performance_label_color.is_empty() { data.performance_label_color } else { existing_data.performance_label_color },
-        performance_value_color: if !data.performance_value_color.is_empty() { data.performance_value_color } else { existing_data.performance_value_color },
-        performance_graph_color: if !data.performance_graph_color.is_empty() { data.performance_graph_color } else { existing_data.performance_graph_color },
-        performance_sec_graph_color: if !data.performance_sec_graph_color.is_empty() { data.performance_sec_graph_color } else { existing_data.performance_sec_graph_color },
-        ..existing_data
-    };
-    save_config(&updated_data).map_err(|e| InvokeError::from(e.to_string()))?;
-    Ok(())
-}
-
-// Tauri command to set sensor-specific config
-#[tauri::command]
-pub async fn set_sensors_config(data: ConfigData) -> Result<(), InvokeError> {
-    println!("Received sensors config data: {:?}", data);
-    let existing_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
-    let updated_data = ConfigData {
-        sensors_update_time: data.sensors_update_time,
-        sensors_background_color: if !data.sensors_background_color.is_empty() { data.sensors_background_color } else { existing_data.sensors_background_color },
-        sensors_foreground_color: if !data.sensors_foreground_color.is_empty() { data.sensors_foreground_color } else { existing_data.sensors_foreground_color },
-        sensors_group_background_color: if !data.sensors_group_background_color.is_empty() { data.sensors_group_background_color } else { existing_data.sensors_group_background_color },
-        sensors_group_foreground_color: if !data.sensors_group_foreground_color.is_empty() { data.sensors_group_foreground_color } else { existing_data.sensors_group_foreground_color },
-        ..existing_data
-    };
-    save_config(&updated_data).map_err(|e| InvokeError::from(e.to_string()))?;
-    Ok(())
-}
-
-// Tauri command to get process-specific config
-#[tauri::command]
-pub async fn get_process_configs() -> Result<ConfigData, InvokeError> {
+pub async fn get_configs() -> Result<ConfigData, InvokeError> {
     read_all_configs().map_err(|e| InvokeError::from(e.to_string()))
 }
 
-// Tauri command to get performance-specific config
-#[tauri::command]
-pub async fn get_performance_configs() -> Result<ConfigData, InvokeError> {
-    read_all_configs().map_err(|e| InvokeError::from(e.to_string()))
-}
-
-// Tauri command to get sensors-specific config
-#[tauri::command]
-pub async fn get_sensors_configs() -> Result<ConfigData, InvokeError> {
-    read_all_configs().map_err(|e| InvokeError::from(e.to_string()))
+// Helper function to get the configuration file path
+fn config_file() -> Result<PathBuf, io::Error> {
+    let config_dir = dirs::config_dir().ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Unable to determine config directory"))?;
+    let folder_path = config_dir.join("hw-monitor");
+    let file_path = folder_path.join("hw-monitor.conf");
+    Ok(file_path)
 }
 
 // Helper function to check if a folder exists
-fn folder_exists(folder_path: &PathBuf) -> bool {
-    if let Ok(metadata) = std::fs::metadata(folder_path) {
-        metadata.is_dir()
-    } else {
-        false
-    }
+fn folder_exists(path: &PathBuf) -> bool {
+    fs::metadata(path).map(|metadata| metadata.is_dir()).unwrap_or(false)
 }
 
 // Helper function to check if a file exists
-fn file_exists(file_path: &PathBuf) -> bool {
-    if let Ok(metadata) = std::fs::metadata(file_path) {
-        metadata.is_file()
-    } else {
-        false
-    }
-}
-
-// Function to get the path of the config file
-fn config_file() -> Result<PathBuf, io::Error> {
-    let config_dir = match dirs::config_dir() {
-        Some(path) => path,
-        None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
-    };
-
-    let file_path = config_dir.join("hw-monitor").join("hw-monitor.conf");
-    Ok(file_path)
+fn file_exists(path: &PathBuf) -> bool {
+    fs::metadata(path).map(|metadata| metadata.is_file()).unwrap_or(false)
 }
