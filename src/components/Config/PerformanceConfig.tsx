@@ -61,7 +61,7 @@ const PerformanceConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)}
                 />
             </Label>
-            <h2>Others</h2>
+            <h2>Content</h2>
             <Separator />
             <Label>
                 Background Color

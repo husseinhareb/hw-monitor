@@ -10,9 +10,9 @@ export const Container = styled.div<{ sensorsBackgroundColors: string; }>`
   overflow-y: auto;
 `;
 
-export const Title = styled.h1`
+export const Title = styled.h1<{ sensorsForegroundColor: string; }>`
   text-align: center;
-  color: #fff;
+  color: ${(props) => props.sensorsForegroundColor};
   margin-bottom: 10px;
 `;
 
@@ -53,8 +53,8 @@ export const SensorItem = styled.div<{ sensorsGroupForegroundColor: string; }>`
   color: ${(props) => props.sensorsGroupForegroundColor};
 `;
 
-export const SensorName = styled.h3`
-  color: #0088dd;
+export const SensorName = styled.h3<{ sensorsBoxesTitleForegroundColor: string; }>`
+  color: ${(props) => props.sensorsBoxesTitleForegroundColor};
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;

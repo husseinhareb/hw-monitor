@@ -28,7 +28,7 @@ const Sensors: React.FC = () => {
     <Container
       sensorsBackgroundColors={sensorsConfig.config.sensors_background_color}
     >
-      <Title>Sensors</Title>
+      <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>Sensors</Title>
       <SensorGrid>
         <SensorList
           sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
@@ -41,11 +41,11 @@ const Sensors: React.FC = () => {
             sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
           >
             <SensorGroup>
-              <SensorName>{hwmon.name}</SensorName>
+              <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>{hwmon.name}</SensorName>
               <ContentDiv>
                 {hwmon.sensors.map((sensor, idx) => (
                   <SensorItem
-                  sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_background_color}
+                  sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
                   key={idx}>
 
                     {sensor.name}: {sensor.value.toFixed(2)}°C

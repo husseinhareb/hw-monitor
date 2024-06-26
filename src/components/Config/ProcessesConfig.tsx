@@ -9,17 +9,14 @@ import {
     ColorInput,
     Label,
     Input,
-    SectionTitle
+    SectionTitle,
+    CheckboxContainer,
+    Column,
+    ColorLabel,
+    ColorLabelText
 } from "./Styles/style";
 
-interface ProcessConfig {
-    processes_update_time: number;
-    processes_body_background_color: string;
-    processes_body_color: string;
-    processes_head_background_color: string;
-    processes_head_color: string;
-    processes_table_values: string[];
-}
+const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
 
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
@@ -36,7 +33,7 @@ const ProcessesConfig: React.FC = () => {
             const newValues = prevValues.includes(value)
                 ? prevValues.filter((v) => v !== value)
                 : [...prevValues, value];
-            updateTableValues(newValues); // Update table values here
+            updateTableValues(newValues);
             return newValues;
         });
     };
@@ -46,6 +43,11 @@ const ProcessesConfig: React.FC = () => {
             updateConfig(key, value);
         }
     };
+
+    // Split table values into two halves
+    const half = Math.ceil(tableValues.length / 2);
+    const firstHalf = tableValues.slice(0, half);
+    const secondHalf = tableValues.slice(half);
 
     return (
         <ConfigContainer>
@@ -61,50 +63,67 @@ const ProcessesConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("processes_update_time", Number(e.target.value))}
                 />
             </Label>
-            <Label>
-                Body Background Color
+            <ColorLabel>
+                <ColorLabelText>Body Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_body_background_color}
                     onChange={(e) => handleConfigChange("processes_body_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Body Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Body Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_body_color}
                     onChange={(e) => handleConfigChange("processes_body_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Head Background Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Head Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_head_background_color}
                     onChange={(e) => handleConfigChange("processes_head_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Head Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Head Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_head_color}
                     onChange={(e) => handleConfigChange("processes_head_color", e.target.value)}
                 />
-            </Label>
+            </ColorLabel>
             <SectionTitle>Table Values</SectionTitle>
-            {["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"].map((value) => (
-                <CheckboxLabel key={value}>
-                    <CheckboxInput
-                        type="checkbox"
-                        value={value}
-                        checked={selectedValues.includes(value)}
-                        onChange={() => handleTableValueChange(value)}
-                    />
-                    {value}
-                </CheckboxLabel>
-            ))}
+            <CheckboxContainer>
+                <Column>
+                    {firstHalf.map((value) => (
+                        <CheckboxLabel key={value}>
+                            <CheckboxInput
+                                type="checkbox"
+                                value={value}
+                                checked={selectedValues.includes(value)}
+                                onChange={() => handleTableValueChange(value)}
+                            />
+                            {value}
+                        </CheckboxLabel>
+                    ))}
+                </Column>
+                <Column>
+                    {secondHalf.map((value) => (
+                        <CheckboxLabel key={value}>
+                            <CheckboxInput
+                                type="checkbox"
+                                value={value}
+                                checked={selectedValues.includes(value)}
+                                onChange={() => handleTableValueChange(value)}
+                            />
+                            {value}
+                        </CheckboxLabel>
+                    ))}
+                </Column>
+            </CheckboxContainer>
         </ConfigContainer>
     );
 };

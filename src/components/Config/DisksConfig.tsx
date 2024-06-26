@@ -31,7 +31,7 @@ const DisksConfig: React.FC = () => {
 
     return (
         <ConfigContainer>
-            <Title>disks Config</Title>
+            <Title>Disks Config</Title>
             <Separator />
             <Label>
                 Update Time

@@ -13,7 +13,7 @@ const Battery: React.FC = () => {
             {batteries.length > 0 ? (
                 batteries.map((battery, index) => (
                     <SensorGroup key={index}>
-                        <SensorName>Battery {index + 1}</SensorName>
+                        <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>Battery {index + 1}</SensorName>
                         <div style={{ display: 'flex' }}>
                             <DesignDiv>
                                 <Design 

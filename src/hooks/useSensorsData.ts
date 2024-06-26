@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import useSensorsConfig from "./useSensorsConfig";
 
 interface SensorData {
   name: string;
@@ -15,6 +16,7 @@ interface HwMonData {
 
 const useSensorsData = (): HwMonData[] => {
   const [sensors, setSensors] = useState<HwMonData[]>([]);
+  const sensorsConfig = useSensorsConfig();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +29,7 @@ const useSensorsData = (): HwMonData[] => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 1000);
+    const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
 
     return () => clearInterval(intervalId);
   }, []);

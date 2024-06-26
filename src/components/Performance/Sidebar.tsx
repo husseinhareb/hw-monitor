@@ -1,3 +1,4 @@
+//Sidebar.tsx
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
@@ -92,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 </List>
             </SidebarContainer>
             <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                <Cpu hidden={!showCpu} />
+                <Cpu hidden={!showCpu} /> 
                 <Memory hidden={!showMemory} />
                 <Disks hidden={!showDisk} />
                 <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />
