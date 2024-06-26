@@ -18,6 +18,15 @@ import {
 
 const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
 
+interface ProcessConfig {
+    processes_update_time: number;
+    processes_body_background_color: string;
+    processes_body_color: string;
+    processes_head_background_color: string;
+    processes_head_color: string;
+    processes_table_values: string[];
+}
+
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
     const [selectedValues, setSelectedValues] = useState<string[]>([]);

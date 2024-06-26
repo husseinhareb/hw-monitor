@@ -7,6 +7,8 @@ import {
     ColorInput,
     Label,
     Input,
+    ColorLabel,
+    ColorLabelText
 } from "./Styles/style";
 
 
@@ -17,8 +19,6 @@ interface DisksConfig {
     disks_group_background_color: string;
     disks_group_foreground_color: string;
 }
-
-
 
 const DisksConfig: React.FC = () => {
     const { config, updateConfig } = useDisksConfig();
@@ -43,38 +43,38 @@ const DisksConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("disks_update_time", Number(e.target.value))}
                 />
             </Label>
-            <Label>
-                Background Color
+            <ColorLabel>
+                <ColorLabelText>Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_background_color}
                     onChange={(e) => handleConfigChange("disks_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Body Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Body Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_foreground_color}
                     onChange={(e) => handleConfigChange("disks_foreground_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Box Background Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Box Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_group_background_color}
                     onChange={(e) => handleConfigChange("disks_group_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Box foreground Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Box Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_group_foreground_color}
                     onChange={(e) => handleConfigChange("disks_group_foreground_color", e.target.value)}
                 />
-            </Label>
+            </ColorLabel>
         </ConfigContainer>
     );
 };

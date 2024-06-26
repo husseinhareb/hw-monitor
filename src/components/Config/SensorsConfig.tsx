@@ -7,6 +7,8 @@ import {
     ColorInput,
     Label,
     Input,
+    ColorLabel,
+    ColorLabelText
 } from "./Styles/style";
 
 interface SensorsConfig {
@@ -42,54 +44,54 @@ const SensorsConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("sensors_update_time", Number(e.target.value))}
                 />
             </Label>
-            <Label>
-                Background Color
+            <ColorLabel>
+                <ColorLabelText>Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_background_color}
                     onChange={(e) => handleConfigChange("sensors_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Foreground Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_foreground_color}
                     onChange={(e) => handleConfigChange("sensors_foreground_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Boxes Background Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Boxes Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_boxes_background_color}
                     onChange={(e) => handleConfigChange("sensors_boxes_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Boxes Foreground Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Boxes Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_boxes_foreground_color}
                     onChange={(e) => handleConfigChange("sensors_boxes_foreground_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Boxes Title Foreground Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Boxes Title Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_boxes_title_foreground_color}
                     onChange={(e) => handleConfigChange("sensors_boxes_title_foreground_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Battery Background Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Battery Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_battery_background_color}
                     onChange={(e) => handleConfigChange("sensors_battery_background_color", e.target.value)}
                 />
-            </Label>
+            </ColorLabel>
         </ConfigContainer>
     );
 };

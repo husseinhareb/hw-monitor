@@ -7,6 +7,8 @@ import {
     ColorInput,
     Label,
     Input,
+    ColorLabel,
+    ColorLabelText
 } from "./Styles/style";
 
 interface PerformanceConfig {
@@ -45,64 +47,64 @@ const PerformanceConfig: React.FC = () => {
             </Label>
             <h2>Sidebar</h2>
             <Separator />
-            <Label>
-                Background Color
+            <ColorLabel>
+                <ColorLabelText>Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_background_color}
                     onChange={(e) => handleConfigChange("performance_sidebar_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_color}
                     onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)}
                 />
-            </Label>
+            </ColorLabel>
             <h2>Content</h2>
             <Separator />
-            <Label>
-                Background Color
+            <ColorLabel>
+                <ColorLabelText>Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_background_color}
                     onChange={(e) => handleConfigChange("performance_background_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Label Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Label Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_label_color}
                     onChange={(e) => handleConfigChange("performance_label_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Value Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Value Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_value_color}
                     onChange={(e) => handleConfigChange("performance_value_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Graph Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Graph Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_graph_color}
                     onChange={(e) => handleConfigChange("performance_graph_color", e.target.value)}
                 />
-            </Label>
-            <Label>
-                Second Graph Color
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Second Graph Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sec_graph_color}
                     onChange={(e) => handleConfigChange("performance_sec_graph_color", e.target.value)}
                 />
-            </Label>
+            </ColorLabel>
         </ConfigContainer>
     );
 };
