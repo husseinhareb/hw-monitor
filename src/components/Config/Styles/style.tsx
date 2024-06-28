@@ -4,7 +4,6 @@ export const Wrapper = styled.div`
   background-color: #2b2b2b;
   height: 100%;
   width: 100%;
-  padding: 20px;
 `;
 
 export const Container = styled.div`
@@ -19,18 +18,18 @@ export const Container = styled.div`
   }
 `;
 
+
 export const StyledButton = styled.button`
   background-color: #f3eae8;
   color: #212830;
   border-radius: 5px;
   border: none;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   outline: none;
   padding: 10px 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  justify-self: center;
 
   &:hover {
     background-color: #e5d8d4;
@@ -45,6 +44,8 @@ export const StyledButton = styled.button`
     margin-right: 8px;
   }
 `;
+
+
 
 export const ConfigContainer = styled.div`
   padding: 20px;

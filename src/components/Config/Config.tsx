@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
 import { invoke } from "@tauri-apps/api/tauri";
@@ -8,9 +8,12 @@ import SensorsConfig from "./SensorsConfig";
 import DisksConfig from "./DisksConfig";
 
 const Config: React.FC = () => {
+  const [key, setKey] = useState(0);
+
   const load_default_config = async () => {
     try {
       await invoke("set_default_config");
+      setKey((prevKey) => prevKey + 1); 
     } catch (error) {
       console.error("Error fetching performance config:", error);
     }
@@ -19,7 +22,7 @@ const Config: React.FC = () => {
   return (
     <Wrapper>
       <StyledButton onClick={load_default_config}>Load Default Config</StyledButton>
-      <Container>
+      <Container key={key}>
         <ProcessesConfig />
         <PerformanceConfig />
         <SensorsConfig />
