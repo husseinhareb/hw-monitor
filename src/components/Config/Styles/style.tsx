@@ -86,13 +86,33 @@ export const Input = styled.input`
   color: white;
   margin-top: 5px;
 `;
-
 export const ColorInput = styled.input`
   width: 50px;
   height: 30px;
   margin-left: 10px;
   border: none;
+  border-radius: 5px;
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  background-color: transparent;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 5px;
+  }
+
+  &::-moz-color-swatch {
+    border: none;
+    border-radius: 5px;
+  }
 `;
+
+
 
 export const CheckboxLabel = styled.label`
   display: flex;

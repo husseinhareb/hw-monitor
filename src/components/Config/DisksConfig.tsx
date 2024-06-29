@@ -11,13 +11,17 @@ import {
     ColorLabelText
 } from "./Styles/style";
 
-
 interface DisksConfig {
     disks_update_time: number;
     disks_background_color: string;
-    disks_foreground_color: string;
-    disks_group_background_color: string;
-    disks_group_foreground_color: string;
+    disks_boxes_background_color: string;
+    disks_name_foreground_color: string;
+    disks_size_foreground_color: string;
+    disks_partition_background_color: string;
+    disks_partition_usage_background_color: string;
+    disks_partition_name_foreground_color: string;
+    disks_paritition_type_foreground_color: string;
+    disks_partition_usage_foreground_color: string;
 }
 
 const DisksConfig: React.FC = () => {
@@ -52,27 +56,67 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Body Color</ColorLabelText>
+                <ColorLabelText>Boxes Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
-                    value={config.disks_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_foreground_color", e.target.value)}
+                    value={config.disks_boxes_background_color}
+                    onChange={(e) => handleConfigChange("disks_boxes_background_color", e.target.value)}
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Box Background Color</ColorLabelText>
+                <ColorLabelText>Name Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
-                    value={config.disks_group_background_color}
-                    onChange={(e) => handleConfigChange("disks_group_background_color", e.target.value)}
+                    value={config.disks_name_foreground_color}
+                    onChange={(e) => handleConfigChange("disks_name_foreground_color", e.target.value)}
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Box Foreground Color</ColorLabelText>
+                <ColorLabelText>Size Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
-                    value={config.disks_group_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_group_foreground_color", e.target.value)}
+                    value={config.disks_size_foreground_color}
+                    onChange={(e) => handleConfigChange("disks_size_foreground_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Partition Background Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.disks_partition_background_color}
+                    onChange={(e) => handleConfigChange("disks_partition_background_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Partition Usage Background Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.disks_partition_usage_background_color}
+                    onChange={(e) => handleConfigChange("disks_partition_usage_background_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Partition Name Foreground Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.disks_partition_name_foreground_color}
+                    onChange={(e) => handleConfigChange("disks_partition_name_foreground_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Partition Type Foreground Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.disks_paritition_type_foreground_color}
+                    onChange={(e) => handleConfigChange("disks_paritition_type_foreground_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Partition Usage Foreground Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.disks_partition_usage_foreground_color}
+                    onChange={(e) => handleConfigChange("disks_partition_usage_foreground_color", e.target.value)}
                 />
             </ColorLabel>
         </ConfigContainer>

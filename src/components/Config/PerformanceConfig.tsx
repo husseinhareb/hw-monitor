@@ -45,7 +45,7 @@ const PerformanceConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("performance_update_time", Number(e.target.value))}
                 />
             </Label>
-            <h2>Sidebar</h2>
+            <h3>Sidebar</h3>
             <Separator />
             <ColorLabel>
                 <ColorLabelText>Background Color</ColorLabelText>
@@ -63,7 +63,7 @@ const PerformanceConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)}
                 />
             </ColorLabel>
-            <h2>Content</h2>
+            <h3>Content</h3>
             <Separator />
             <ColorLabel>
                 <ColorLabelText>Background Color</ColorLabelText>
