@@ -5,17 +5,27 @@ import useFetchAndSetConfig from "../utils/useConfigUtils";
 type DisksConfig = {
     disks_update_time: number;
     disks_background_color: string;
-    disks_foreground_color: string;
-    disks_group_background_color: string;
-    disks_group_foreground_color: string;
+    disks_boxes_background_color: string;
+    disks_name_foreground_color: string;
+    disks_size_foreground_color: string;
+    disks_partition_background_color: string;
+    disks_partition_usage_background_color: string;
+    disks_partition_name_foreground_color: string;
+    disks_paritition_type_foreground_color: string;
+    disks_partition_usage_foreground_color: string;
 };
 
 const initialDisksConfig: DisksConfig = {
     disks_update_time: 1000,
-    disks_background_color: "#333",
-    disks_foreground_color: "#fff",
-    disks_group_background_color: "#2B2B2B",
-    disks_group_foreground_color: "#6d6d6d",
+    disks_background_color: "#2b2b2b",
+    disks_boxes_background_color: "#3a3a3a",
+    disks_name_foreground_color: "#ffffff",
+    disks_size_foreground_color: "#cccccc",
+    disks_partition_background_color: "#4a4a4a",
+    disks_partition_usage_background_color: "#2b2b2b",
+    disks_partition_name_foreground_color: "#61dafb",
+    disks_paritition_type_foreground_color: "#a3be8c",
+    disks_partition_usage_foreground_color: "#ffcb6b",
 };
 
 const useDisksConfig = () => {
