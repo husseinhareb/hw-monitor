@@ -15,7 +15,9 @@ interface PerformanceConfig {
     performance_update_time: number;
     performance_sidebar_background_color: string;
     performance_sidebar_color: string;
+    performance_sidebar_selected_color: string;
     performance_background_color: string;
+    performance_title_color: string;
     performance_label_color: string;
     performance_value_color: string;
     performance_graph_color: string;
@@ -56,11 +58,19 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Color</ColorLabelText>
+                <ColorLabelText>Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_color}
                     onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Selected Foreground Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.performance_sidebar_selected_color}
+                    onChange={(e) => handleConfigChange("performance_sidebar_selected_color", e.target.value)}
                 />
             </ColorLabel>
             <h3>Content</h3>
@@ -87,6 +97,14 @@ const PerformanceConfig: React.FC = () => {
                     type="color"
                     value={config.performance_value_color}
                     onChange={(e) => handleConfigChange("performance_value_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Title Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.performance_title_color}
+                    onChange={(e) => handleConfigChange("performance_title_color", e.target.value)}
                 />
             </ColorLabel>
             <ColorLabel>

@@ -34,16 +34,16 @@ font-size: 20px;
 `;
 
 // Common Name Label
-export const NameLabel = styled.p`
-color: rgb(255, 255, 255);
+export const NameLabel = styled.p<{ performanceTitleColor: string }>`
+color: ${(props) => props.performanceTitleColor};
 font-size: 30px;
 margin: 7px;
 flex-shrink: 0;
 `;
 
 // Common Name Value
-export const NameValue = styled.p`
-color: white;
+export const NameValue = styled.p<{ performanceTitleColor: string }>`
+color: ${(props) => props.performanceTitleColor};
 margin: 7px;
 font-size: 20px;
 flex-shrink: 0;

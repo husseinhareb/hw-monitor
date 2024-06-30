@@ -30,7 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
 
     const performanceConfig = usePerformanceConfig();
-
+    
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
     const handleItemClick = (itemName: string) => {
@@ -59,7 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 <List>
                     <ListItem
                         onClick={() => handleItemClick('CPU')}
-                        style={{ color: selectedItem === 'CPU' ? '#fff' : '#b4b4b4' }}
+                        style={{ color: selectedItem === 'CPU' ? performanceConfig.config.performance_sidebar_selected_color : '#b4b4b4' }}
                     >
                         CPU
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
@@ -67,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {isMaxMemorySet && (
                         <ListItem
                             onClick={() => handleItemClick('Memory')}
-                            style={{ color: selectedItem === 'Memory' ? '#fff' : '#b4b4b4' }}
+                            style={{ color: selectedItem === 'Memory' ? performanceConfig.config.performance_sidebar_selected_color : '#b4b4b4' }}
                         >
                             Memory
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {wifi &&
                         <ListItem
                             onClick={() => handleItemClick('Wi-Fi')}
-                            style={{ color: selectedItem === 'Wi-Fi' ? '#fff' : '#b4b4b4' }}
+                            style={{ color: selectedItem === 'Wi-Fi' ? performanceConfig.config.performance_sidebar_selected_color : '#b4b4b4' }}
                         >
                             Wi-Fi
                             <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     {ethernet &&
                         <ListItem
                             onClick={() => handleItemClick('Ethernet')}
-                            style={{ color: selectedItem === 'Ethernet' ? '#fff' : '#b4b4b4' }}
+                            style={{ color: selectedItem === 'Ethernet' ? performanceConfig.config.performance_sidebar_selected_color : '#b4b4b4' }}
                         >
                             Ethernet
                             <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />

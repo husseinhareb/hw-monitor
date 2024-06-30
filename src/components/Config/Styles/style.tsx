@@ -27,6 +27,8 @@ export const StyledButton = styled.button`
   font-size: 12px;
   cursor: pointer;
   outline: none;
+  margin-left: 15px;
+  margin-top: 10px;
   padding: 10px 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
@@ -90,8 +92,8 @@ export const ColorInput = styled.input`
   width: 50px;
   height: 30px;
   margin-left: 10px;
-  border: none;
-  border-radius: 5px;
+  border: 2px solid #bbbbbb;
+  border-radius: 8px;
   padding: 0;
   cursor: pointer;
   appearance: none;

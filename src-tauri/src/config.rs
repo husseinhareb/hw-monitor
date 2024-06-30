@@ -17,7 +17,9 @@ pub struct ConfigData {
     pub performance_update_time: u32,
     pub performance_sidebar_background_color: String,
     pub performance_sidebar_color: String,
+    pub performance_sidebar_selected_color: String,
     pub performance_background_color: String,
+    pub performance_title_color: String,
     pub performance_label_color: String,
     pub performance_value_color: String,
     pub performance_graph_color: String,
@@ -90,7 +92,9 @@ pub fn default_config() -> Result<(), io::Error> {
         performance_update_time=1000\n\
         performance_sidebar_background_color=#333333\n\
         performance_sidebar_color=#ffffff\n\
+        performance_sidebar_selected_color=#ffffff\n\
         performance_background_color=#2d2d2d\n\
+        performance_title_color=#ffffff\n\
         performance_label_color=#ffffff\n\
         performance_value_color=#ffffff\n\
         performance_graph_color=#09ffff33\n\
@@ -135,7 +139,9 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         performance_update_time: 1000,
         performance_sidebar_background_color: String::new(),
         performance_sidebar_color: String::new(),
+        performance_sidebar_selected_color: String::new(),
         performance_background_color: String::new(),
+        performance_title_color: String::new(),
         performance_label_color: String::new(),
         performance_value_color: String::new(),
         performance_graph_color: String::new(),
@@ -197,8 +203,14 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "performance_sidebar_color" => {
                 config_data.performance_sidebar_color = value.to_string();
             },
+            "performance_sidebar_selected_color" => {
+                config_data.performance_sidebar_selected_color = value.to_string();
+            },
             "performance_background_color" => {
                 config_data.performance_background_color = value.to_string();
+            },
+            "performance_title_color" => {
+                config_data.performance_title_color = value.to_string();
             },
             "performance_label_color" => {
                 config_data.performance_label_color = value.to_string();
@@ -285,7 +297,9 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         performance_update_time={}\n\
         performance_sidebar_background_color={}\n\
         performance_sidebar_color={}\n\
+        performance_sidebar_selected_color={}\n\
         performance_background_color={}\n\
+        performance_title_color={}\n\
         performance_label_color={}\n\
         performance_value_color={}\n\
         performance_graph_color={}\n\
@@ -317,7 +331,9 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         config.performance_update_time,
         config.performance_sidebar_background_color,
         config.performance_sidebar_color,
+        config.performance_sidebar_selected_color,
         config.performance_background_color,
+        config.performance_title_color,
         config.performance_label_color,
         config.performance_value_color,
         config.performance_graph_color,

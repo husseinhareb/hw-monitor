@@ -1,3 +1,4 @@
+//battery-style.tsx
 import styled, { keyframes } from 'styled-components';
 
 interface DesignProps {

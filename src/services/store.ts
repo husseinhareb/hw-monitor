@@ -13,7 +13,9 @@ interface PerformanceConfig {
   performance_update_time: number;
   performance_sidebar_background_color: string;
   performance_sidebar_color: string;
+  performance_sidebar_selected_color: string;
   performance_background_color: string;
+  performance_title_color: string;
   performance_label_color: string;
   performance_value_color: string;
   performance_graph_color: string;
@@ -113,7 +115,9 @@ export const useStore = create<Store>((set) => ({
     performance_update_time: 1000,
     performance_sidebar_background_color: "#fff",
     performance_sidebar_color: "#fff",
+    performance_sidebar_selected_color: "#fff",
     performance_background_color: "#fff",
+    performance_title_color: "#fff",
     performance_label_color: "#fff",
     performance_value_color: "#fff",
     performance_graph_color: "#fff",

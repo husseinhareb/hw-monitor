@@ -1,3 +1,4 @@
+//Battery.tsx
 import React from 'react';
 import useBatteryData from '../../hooks/useBatteryData';
 import {  Design, DesignDiv, ContentDiv,Item } from '../../styles/battery-style';

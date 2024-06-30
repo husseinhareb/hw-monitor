@@ -73,8 +73,8 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
             {memoryData && (
                 <>
                     <NameContainer>
-                        <NameLabel>Memory</NameLabel>
-                        <NameValue>{Math.floor(memoryData.total.value)} {memoryData.total.unit}</NameValue>
+                        <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>Memory</NameLabel>
+                        <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{Math.floor(memoryData.total.value)} {memoryData.total.unit}</NameValue>
                     </NameContainer>
                     <Graph
                         firstGraphValue={activeMem}

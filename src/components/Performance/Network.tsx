@@ -38,8 +38,8 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
 
             <>
                 <NameContainer>
-                    <NameLabel>Network</NameLabel>
-                    <NameValue>{interfaceName}</NameValue>
+                    <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>Network</NameLabel>
+                    <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{interfaceName}</NameValue>
                 </NameContainer>
                 <Graph
                 firstGraphValue={downloadValues}

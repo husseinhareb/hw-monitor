@@ -58,8 +58,8 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
         style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}
         >
             <NameContainer>
-                <NameLabel>CPU</NameLabel>
-                <NameValue>{cpuData.name}</NameValue>
+                <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>CPU</NameLabel>
+                <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{cpuData.name}</NameValue>
             </NameContainer>
             <div>
                 <Graph
