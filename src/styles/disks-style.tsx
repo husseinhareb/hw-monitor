@@ -1,17 +1,17 @@
 import { styled, keyframes } from "styled-components";
 
-export const Container = styled.div`
+export const Container = styled.div<{ bodyBackgroundColor: string }>`
   display: ${props => (props.hidden ? 'none' : 'flex')};
   flex-wrap: wrap;
   width: 100%;
   height: 100%;
   padding: 20px;
-  background-color: #2b2b2b;
+  background-color: ${(props) => props.bodyBackgroundColor};
   overflow-y: auto;
 `;
 
-export const DiskCard = styled.div`
-  background-color: #3a3a3a;
+export const DiskCard = styled.div<{ boxesBackgroundColor: string }>`
+  background-color: ${(props) => props.boxesBackgroundColor};
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   padding: 20px;
@@ -30,14 +30,14 @@ export const DiskCard = styled.div`
   }
 `;
 
-export const DiskTitle = styled.h3`
+export const DiskTitle = styled.h3<{ nameForegroundColor: string }>`
   margin-top: 0;
-  color: #fff;
+  color:  ${(props) => props.nameForegroundColor};
 `;
 
-export const DiskSize = styled.p`
+export const DiskSize = styled.p<{ sizeForegroundColor: string }>`
   font-size: 1.1em;
-  color: #ccc;
+  color: ${(props) => props.sizeForegroundColor};
 `;
 
 export const PartitionList = styled.ul`
@@ -46,10 +46,10 @@ export const PartitionList = styled.ul`
   margin: 0;
 `;
 
-export const PartitionContainer = styled.div`
+export const PartitionContainer = styled.div<{ partitionBackgroundColor: string }>`
   width: 100%;
   height: 40px;
-  background-color: #4a4a4a;
+  background-color:  ${(props) => props.partitionBackgroundColor};
   border-radius: 8px;
   margin: 20px 0;
   position: relative;
@@ -73,9 +73,9 @@ const progressAnimation = keyframes<{ progress: number }>`
   }
 `;
 
-export const PartitionBar = styled.div`
+export const PartitionBar = styled.div<{ partitionUsageBackgroundColor: string }>`
   height: 100%;
-  background-color: #2b2b2b;
+  background-color:  ${(props) => props.partitionUsageBackgroundColor};
   border-radius: 8px;
   position: absolute;
   top: 0;
@@ -84,19 +84,16 @@ export const PartitionBar = styled.div`
   animation: ${progressAnimation} 1s ease-in-out;
 `;
 
-export const PartitionName = styled.span`
+export const PartitionName = styled.span<{ partitionNameForegroundColor: string }>`
   font-weight: bold;
-  color: #61dafb;
+  color:  ${(props) => props.partitionNameForegroundColor};
 `;
 
-export const PartitionSize = styled.span`
-  color: #ff6b6b;
+
+export const FileSystem = styled.span<{ parititionTypeForegroundColor: string }>`
+  color:  ${(props) => props.parititionTypeForegroundColor};
 `;
 
-export const FileSystem = styled.span`
-  color: #a3be8c;
-`;
-
-export const Space = styled.span`
-  color: #ffcb6b;
+export const Space = styled.span<{ partitionUsageForegroundColor: string }>`
+  color:  ${(props) => props.partitionUsageForegroundColor};
 `;

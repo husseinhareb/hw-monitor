@@ -33,9 +33,14 @@ pub struct ConfigData {
 
     pub disks_update_time: u32,
     pub disks_background_color: String,
-    pub disks_foreground_color: String,
-    pub disks_group_background_color: String,
-    pub disks_group_foreground_color: String,
+    pub disks_boxes_background_color: String,
+    pub disks_name_foreground_color: String,
+    pub disks_size_foreground_color: String,
+    pub disks_partition_background_color: String,
+    pub disks_partition_usage_background_color: String,
+    pub disks_partition_name_foreground_color: String,
+    pub disks_paritition_type_foreground_color: String,
+    pub disks_partition_usage_foreground_color: String,
 }
 
 // Function to create the initial configuration file if it does not exist
@@ -98,10 +103,15 @@ pub fn default_config() -> Result<(), io::Error> {
         sensors_battery_background_color=#38e740\n\
         sensors_boxes_title_foreground_color=#0088dd\n\
         disks_update_time=1000\n\
-        disks_background_color=#2d2d2d\n\
-        disks_foreground_color=#ffffff\n\
-        disks_group_background_color=#252526\n\
-        disks_group_foreground_color=#ffffff\n\
+        disks_background_color=#2b2b2b\n\
+        disks_boxes_background_color=#3a3a3a\n\
+        disks_name_foreground_color=#ffffff\n\
+        disks_size_foreground_color=#cccccc\n\
+        disks_partition_background_color=#4a4a4a\n\
+        disks_partition_usage_background_color=#2b2b2b\n\
+        disks_partition_name_foreground_color=#61dafb\n\
+        disks_paritition_type_foreground_color=#a3be8c\n\
+        disks_partition_usage_foreground_color=#ffcb6b\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -115,7 +125,6 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
     let file = File::open(&file_path)?;
     let reader = io::BufReader::new(file);
 
-    let mut config_content = String::new();
     let mut config_data: ConfigData = ConfigData {
         processes_update_time: 1000,
         processes_body_background_color: String::new(),
@@ -140,16 +149,18 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         sensors_boxes_title_foreground_color: String::new(),
         disks_update_time: 1000,
         disks_background_color: String::new(),
-        disks_foreground_color: String::new(),
-        disks_group_background_color: String::new(),
-        disks_group_foreground_color: String::new(),
+        disks_boxes_background_color: String::new(),
+        disks_name_foreground_color: String::new(),
+        disks_size_foreground_color: String::new(),
+        disks_partition_background_color: String::new(),
+        disks_partition_usage_background_color: String::new(),
+        disks_partition_name_foreground_color: String::new(),
+        disks_paritition_type_foreground_color: String::new(),
+        disks_partition_usage_foreground_color: String::new(),
     };
 
     for line in reader.lines() {
         let line = line?;
-        config_content.push_str(&line);
-        config_content.push('\n');
-
         let parts: Vec<&str> = line.split('=').map(|s| s.trim()).collect();
         if parts.len() != 2 {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid format in config file"));
@@ -228,14 +239,29 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "disks_background_color" => {
                 config_data.disks_background_color = value.to_string();
             },
-            "disks_foreground_color" => {
-                config_data.disks_foreground_color = value.to_string();
+            "disks_boxes_background_color" => {
+                config_data.disks_boxes_background_color = value.to_string();
             },
-            "disks_group_background_color" => {
-                config_data.disks_group_background_color = value.to_string();
+            "disks_name_foreground_color" => {
+                config_data.disks_name_foreground_color = value.to_string();
             },
-            "disks_group_foreground_color" => {
-                config_data.disks_group_foreground_color = value.to_string();
+            "disks_size_foreground_color" => {
+                config_data.disks_size_foreground_color = value.to_string();
+            },
+            "disks_partition_background_color" => {
+                config_data.disks_partition_background_color = value.to_string();
+            },
+            "disks_partition_usage_background_color" => {
+                config_data.disks_partition_usage_background_color = value.to_string();
+            },
+            "disks_partition_name_foreground_color" => {
+                config_data.disks_partition_name_foreground_color = value.to_string();
+            },
+            "disks_paritition_type_foreground_color" => {
+                config_data.disks_paritition_type_foreground_color = value.to_string();
+            },
+            "disks_partition_usage_foreground_color" => {
+                config_data.disks_partition_usage_foreground_color = value.to_string();
             },
             _ => {},
         }
@@ -273,9 +299,14 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         sensors_boxes_title_foreground_color={}\n\
         disks_update_time={}\n\
         disks_background_color={}\n\
-        disks_foreground_color={}\n\
-        disks_group_background_color={}\n\
-        disks_group_foreground_color={}\n\
+        disks_boxes_background_color={}\n\
+        disks_name_foreground_color={}\n\
+        disks_size_foreground_color={}\n\
+        disks_partition_background_color={}\n\
+        disks_partition_usage_background_color={}\n\
+        disks_partition_name_foreground_color={}\n\
+        disks_paritition_type_foreground_color={}\n\
+        disks_partition_usage_foreground_color={}\n\
         ",
         config.processes_update_time,
         config.processes_body_background_color,
@@ -300,9 +331,14 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         config.sensors_boxes_title_foreground_color,
         config.disks_update_time,
         config.disks_background_color,
-        config.disks_foreground_color,
-        config.disks_group_background_color,
-        config.disks_group_foreground_color,
+        config.disks_boxes_background_color,
+        config.disks_name_foreground_color,
+        config.disks_size_foreground_color,
+        config.disks_partition_background_color,
+        config.disks_partition_usage_background_color,
+        config.disks_partition_name_foreground_color,
+        config.disks_paritition_type_foreground_color,
+        config.disks_partition_usage_foreground_color,
     );
 
     file.write_all(config_content.as_bytes())?;

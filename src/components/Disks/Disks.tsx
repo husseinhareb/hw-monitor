@@ -13,6 +13,7 @@ import {
   PartitionContainer,
   PartitionBar,
 } from "../../styles/disks-style";
+import useDisksConfig from "../../hooks/useDisksConfig";
 
 interface DisksProps {
   hidden: boolean;
@@ -20,27 +21,43 @@ interface DisksProps {
 
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
   const { diskData, convertData } = useDiskData();
-  
+  const disksConfig = useDisksConfig();
+
+
   const usagePercentage = (used: number, total: number) => {
     return (used / total) * 100;
   };
 
   return (
-    <Container hidden={hidden}>
+    <Container
+      hidden={hidden}
+      bodyBackgroundColor={disksConfig.config.disks_background_color}
+    >
       {diskData.length === 0 ? (
         <p>No disk information available.</p>
       ) : (
         diskData.map((disk, index) => (
-          <DiskCard key={index}>
-            <DiskTitle>{disk.name}</DiskTitle>
-            <DiskSize>
+          <DiskCard
+            key={index}
+            boxesBackgroundColor={disksConfig.config.disks_boxes_background_color}
+          >
+            <DiskTitle
+              nameForegroundColor={disksConfig.config.disks_name_foreground_color}
+            >{disk.name}</DiskTitle>
+            <DiskSize
+              sizeForegroundColor={disksConfig.config.disks_size_foreground_color}
+            >
               Size: {convertData(disk.size).value} {convertData(disk.size).unit}
             </DiskSize>
             <PartitionList>
               {disk.partitions.map((partition, partitionIndex) => (
-                <PartitionContainer key={partitionIndex}>
+                <PartitionContainer
+                  partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
+                  key={partitionIndex}
+                >
                   {partition.used_space && partition.total_space && (
                     <PartitionBar
+                      partitionUsageBackgroundColor={disksConfig.config.disks_partition_usage_background_color}
                       style={{
                         width: `${usagePercentage(
                           partition.used_space,
@@ -50,21 +67,31 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                     ></PartitionBar>
                   )}
                   <PartitionItem>
-                    <PartitionName>{partition.name}</PartitionName>
+                    <PartitionName
+                      partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
+                    >{partition.name}</PartitionName>
                     {!partition.total_space && (
-                      <Space>
+                      <Space
+                        partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                      >
                         {convertData(partition.size).value}{" "}
                         {convertData(partition.size).unit}
                       </Space>
                     )}
                     {partition.mount_point && (
-                      <FileSystem>{partition.mount_point}</FileSystem>
+                      <FileSystem
+                        parititionTypeForegroundColor={disksConfig.config.disks_paritition_type_foreground_color}
+                      >{partition.mount_point}</FileSystem>
                     )}
                     {partition.file_system && (
-                      <FileSystem>{partition.file_system}</FileSystem>
+                      <FileSystem
+                        parititionTypeForegroundColor={disksConfig.config.disks_paritition_type_foreground_color}
+                      >{partition.file_system}</FileSystem>
                     )}
                     {partition.used_space && partition.total_space && (
-                      <Space>
+                      <Space
+                        partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                      >
                         {convertData(partition.used_space).value}{" "}
                         {convertData(partition.used_space).unit} /{" "}
                         {convertData(partition.total_space).value}{" "}
