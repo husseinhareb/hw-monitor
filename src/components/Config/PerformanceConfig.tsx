@@ -66,7 +66,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Selected Foreground Color</ColorLabelText>
+                <ColorLabelText>List Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_selected_color}

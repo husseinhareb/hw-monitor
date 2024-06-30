@@ -17,9 +17,8 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
     const [timeCounter, setTimeCounter] = useState(0);
 
     const performanceConfig = usePerformanceConfig();
-
     useEffect(() => {
-        if (chartRef.current !== null) {
+        if (chartRef.current !== null && performanceConfig?.config) {
             const ctx = chartRef.current.getContext('2d');
             if (ctx !== null) {
                 chartInstance.current = new Chart(ctx, {
@@ -29,8 +28,8 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                         datasets: [
                             {
                                 data: firstGraphValue,
-                                borderColor: '#4BC0C0',
-                                backgroundColor: performanceConfig.config.performance_graph_color,
+                                borderColor: performanceConfig.config.performance_graph_color,
+                                backgroundColor: performanceConfig.config.performance_graph_color + "33",
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -39,8 +38,8 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                             },
                             {
                                 data: secondGraphValue || [],
-                                borderColor: '#ff6384',
-                                backgroundColor: performanceConfig.config.performance_sec_graph_color,
+                                borderColor: performanceConfig.config.performance_sec_graph_color,
+                                backgroundColor: performanceConfig.config.performance_sec_graph_color  + "33",
                                 tension: 0.4,
                                 fill: true,
                                 borderWidth: 1,
@@ -73,13 +72,15 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
                 });
             }
         }
-
+    
         return () => {
             if (chartInstance.current !== null) {
                 chartInstance.current.destroy();
             }
         };
-    }, []);
+    }, [performanceConfig?.config.performance_graph_color, performanceConfig?.config.performance_sec_graph_color]);
+    
+    
 
     useEffect(() => {
         if (chartInstance.current !== null) {
