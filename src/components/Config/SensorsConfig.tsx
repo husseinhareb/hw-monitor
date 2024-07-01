@@ -19,6 +19,7 @@ interface SensorsConfig {
     sensors_boxes_foreground_color: string;
     sensors_boxes_title_foreground_color: string;
     sensors_battery_background_color: string;
+    sensors_battery_frame_color: string;
 }
 
 const SensorsConfig: React.FC = () => {
@@ -85,11 +86,19 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Battery Background Color</ColorLabelText>
+                <ColorLabelText>Battery Usage Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_battery_background_color}
                     onChange={(e) => handleConfigChange("sensors_battery_background_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>Battery Frame Background Color</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.sensors_battery_frame_color}
+                    onChange={(e) => handleConfigChange("sensors_battery_frame_color", e.target.value)}
                 />
             </ColorLabel>
         </ConfigContainer>

@@ -32,6 +32,7 @@ pub struct ConfigData {
     pub sensors_boxes_foreground_color: String,
     pub sensors_battery_background_color: String,
     pub sensors_boxes_title_foreground_color: String,
+    pub sensors_battery_frame_color: String,
 
     pub disks_update_time: u32,
     pub disks_background_color: String,
@@ -95,16 +96,17 @@ pub fn default_config() -> Result<(), io::Error> {
         performance_sidebar_selected_color=#ffffff\n\
         performance_background_color=#2d2d2d\n\
         performance_title_color=#ffffff\n\
-        performance_label_color=#ffffff\n\
+        performance_label_color=#6d6d6d\n\
         performance_value_color=#ffffff\n\
-        performance_graph_color=#09ffff33\n\
-        performance_sec_graph_color=#ff638433\n\
+        performance_graph_color=#09ffff\n\
+        performance_sec_graph_color=#ff6384\n\
         sensors_update_time=1000\n\
         sensors_background_color=#2b2b2b\n\
         sensors_foreground_color=#ffffff\n\
         sensors_boxes_background_color=#3a3a3a\n\
         sensors_boxes_foreground_color=#ffffff\n\
         sensors_battery_background_color=#38e740\n\
+        sensors_battery_frame_color=#ffffff\n\
         sensors_boxes_title_foreground_color=#0088dd\n\
         disks_update_time=1000\n\
         disks_background_color=#2b2b2b\n\
@@ -152,6 +154,7 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         sensors_boxes_background_color: String::new(),
         sensors_boxes_foreground_color: String::new(),
         sensors_battery_background_color: String::new(),
+        sensors_battery_frame_color: String::new(),
         sensors_boxes_title_foreground_color: String::new(),
         disks_update_time: 1000,
         disks_background_color: String::new(),
@@ -242,6 +245,9 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "sensors_battery_background_color" => {
                 config_data.sensors_battery_background_color = value.to_string();
             },
+            "sensors_battery_frame_color" => {
+                config_data.sensors_battery_frame_color = value.to_string();
+            },
             "sensors_boxes_title_foreground_color" => {
                 config_data.sensors_boxes_title_foreground_color = value.to_string();
             },
@@ -310,6 +316,7 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         sensors_boxes_background_color={}\n\
         sensors_boxes_foreground_color={}\n\
         sensors_battery_background_color={}\n\
+        sensors_battery_frame_color={}\n\
         sensors_boxes_title_foreground_color={}\n\
         disks_update_time={}\n\
         disks_background_color={}\n\
@@ -344,6 +351,7 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         config.sensors_boxes_background_color,
         config.sensors_boxes_foreground_color,
         config.sensors_battery_background_color,
+        config.sensors_battery_frame_color,
         config.sensors_boxes_title_foreground_color,
         config.disks_update_time,
         config.disks_background_color,

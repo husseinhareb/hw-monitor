@@ -30,6 +30,7 @@ interface SensorsConfig {
   sensors_boxes_foreground_color: string;
   sensors_boxes_title_foreground_color: string;
   sensors_battery_background_color: string;
+  sensors_battery_frame_color: string;
 }
 
 interface DisksConfig {
@@ -113,26 +114,27 @@ export const useStore = create<Store>((set) => ({
 
   performanceConfig: {
     performance_update_time: 1000,
-    performance_sidebar_background_color: "#fff",
-    performance_sidebar_color: "#fff",
-    performance_sidebar_selected_color: "#fff",
-    performance_background_color: "#fff",
-    performance_title_color: "#fff",
-    performance_label_color: "#fff",
-    performance_value_color: "#fff",
-    performance_graph_color: "#fff",
-    performance_sec_graph_color: '#fff',
+    performance_sidebar_background_color: "#ffffff",
+    performance_sidebar_color: "#ffffff",
+    performance_sidebar_selected_color: "#ffffff",
+    performance_background_color: "#ffffff",
+    performance_title_color: "#ffffff",
+    performance_label_color: "#6d6d6d",
+    performance_value_color: "#ffffff",
+    performance_graph_color: "#09ffff",
+    performance_sec_graph_color: '#ff6384',
   },
   setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
 
   sensorsConfig: {
     sensors_update_time: 1000,
     sensors_background_color: "#333",
-    sensors_foreground_color: "#fff",
+    sensors_foreground_color: "#ffffff",
     sensors_boxes_background_color: "#2B2B2B",
     sensors_boxes_foreground_color: "#6d6d6d",
     sensors_boxes_title_foreground_color: "#9A9A9A",
     sensors_battery_background_color: "#1E1E1E",
+    sensors_battery_frame_color: "#FFFFFF",
   },
   setSensorsConfig: (sensorsConfig) => set({ sensorsConfig }),
 

@@ -20,6 +20,7 @@ const Battery: React.FC = () => {
                                 <Design 
                                 percentage={battery.percentage}
                                 sensorsBatteryBackgroundColor={sensorsConfig.config.sensors_battery_background_color}
+                                sensorsBatteryFrameColor={sensorsConfig.config.sensors_battery_frame_color}
                                  />
                             </DesignDiv>
                             <ContentDiv>

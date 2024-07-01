@@ -18,14 +18,14 @@ type PerformanceConfig = {
 const initialPerformanceConfig: PerformanceConfig = {
     performance_update_time: 1000,
     performance_sidebar_background_color: "#333",
-    performance_sidebar_color: "#fff",
-    performance_sidebar_selected_color: "#fff",
+    performance_sidebar_color: "#ffffff",
+    performance_sidebar_selected_color: "#ffffff",
     performance_background_color: "#2B2B2B",
-    performance_title_color: "#fff",
+    performance_title_color: "#ffffff",
     performance_label_color: "#6d6d6d",
     performance_value_color: "#fff",
-    performance_graph_color: "#09ffff33",
-    performance_sec_graph_color: '#ff638433',
+    performance_graph_color: "#09ffff",
+    performance_sec_graph_color: '#ff6384',
 };
 
 const usePerformanceConfig = () => {

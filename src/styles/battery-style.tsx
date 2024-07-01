@@ -4,6 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 interface DesignProps {
     percentage: number;
     sensorsBatteryBackgroundColor: string;
+    sensorsBatteryFrameColor: string;
 }
 
 const realPerc = (percentage: number) => {
@@ -44,7 +45,7 @@ export const Design = styled.div<DesignProps>`
   margin: 20px auto;
   width: 130px;
   height: 220px;
-  border: 10px solid rgba(255, 255, 255, 0.8);
+  border: 10px solid ${(props) => props.sensorsBatteryFrameColor + "CC"};
   border-radius: 15px;
 
   ${({ percentage }) => calculatePercentage(percentage)}
@@ -69,7 +70,7 @@ export const Design = styled.div<DesignProps>`
     transform: translateX(-50%);
     width: 60px;
     height: 15px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: ${(props) => props.sensorsBatteryFrameColor + "CC"};
     border-top-left-radius: 10px; 
     border-top-right-radius: 10px; 
   }

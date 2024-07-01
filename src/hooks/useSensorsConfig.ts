@@ -9,6 +9,7 @@ type SensorsConfig = {
     sensors_boxes_foreground_color: string;
     sensors_boxes_title_foreground_color: string;
     sensors_battery_background_color: string;
+    sensors_battery_frame_color: string;
 };
 
 const initialSensorsConfig: SensorsConfig = {
@@ -19,6 +20,7 @@ const initialSensorsConfig: SensorsConfig = {
     sensors_boxes_foreground_color: "#6d6d6d",
     sensors_boxes_title_foreground_color: "#9A9A9A",
     sensors_battery_background_color: "#1E1E1E",
+    sensors_battery_frame_color: '#FFFFFF',
 };
 
 const useSensorsConfig = () => {
