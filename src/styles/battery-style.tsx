@@ -1,15 +1,20 @@
-//battery-style.tsx
-import styled, { keyframes } from 'styled-components';
+// battery-style.tsx
+import styled, { keyframes, css } from 'styled-components';
 
 interface DesignProps {
     percentage: number;
-    sensorsBatteryBackgroundColor: string
-  }
-  
+    sensorsBatteryBackgroundColor: string;
+}
+
+const realPerc = (percentage: number) => {
+    return percentage * 94 / 100;
+}
+
 export const Item = styled.p<{ sensorsGroupForegroundColor: string; }>`
   color: ${(props) => props.sensorsGroupForegroundColor};
-  margin-bottom:3px;
-`
+  margin-bottom: 3px;
+`;
+
 export const DesignDiv = styled.div`
   flex: 0 0 auto;
   margin-right: 20px;
@@ -17,7 +22,7 @@ export const DesignDiv = styled.div`
 
 export const ContentDiv = styled.div`
   flex: 1;
-  margin-top:30px;
+  margin-top: 30px;
 `;
 
 const full = keyframes`
@@ -29,7 +34,11 @@ const full = keyframes`
   }
 `;
 
-export const Design = styled.div<DesignProps >`  
+const calculatePercentage = (percentage: number) => css`
+  --percentage: ${realPerc(percentage)}%;
+`;
+
+export const Design = styled.div<DesignProps>`
   background-color: rgb(6, 6, 6);
   position: relative;
   margin: 20px auto;
@@ -38,6 +47,8 @@ export const Design = styled.div<DesignProps >`
   border: 10px solid rgba(255, 255, 255, 0.8);
   border-radius: 15px;
 
+  ${({ percentage }) => calculatePercentage(percentage)}
+
   &::before {
     content: "";
     position: absolute;
@@ -45,11 +56,9 @@ export const Design = styled.div<DesignProps >`
     left: 6px;
     width: 98px;
     height: 0%;
-    background-color: ${(DesignProps) => DesignProps.sensorsBatteryBackgroundColor};
-
+    background-color: ${(props) => props.sensorsBatteryBackgroundColor};
     border-radius: 5px;
     animation: ${full} 2s linear forwards;
-        --percentage: ${({ percentage }) => `${percentage}%`};
   }
 
   &::after {
