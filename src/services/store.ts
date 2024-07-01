@@ -46,6 +46,13 @@ interface DisksConfig {
   disks_partition_usage_foreground_color: string;
 }
 
+interface NavbarConfig {
+  navbar_background_color: string;
+  navbar_buttons_background_color: string;
+  navbar_buttons_foreground_color: string;
+  navbar_search_background_color: string;
+  navbar_search_foreground_color: string;
+}
 
 interface Store {
   cpu: number[];
@@ -79,6 +86,9 @@ interface Store {
 
   disksConfig: DisksConfig;
   setDisksConfig: (disksConfig: DisksConfig) => void;
+
+  navbarConfig: NavbarConfig;
+  setNavbarConfig: (navbarConfig: NavbarConfig) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -151,6 +161,15 @@ export const useStore = create<Store>((set) => ({
     disks_partition_usage_foreground_color: "#ffcb6b",
   },
   setDisksConfig: (disksConfig) => set({ disksConfig }),
+
+  navbarConfig: {
+    navbar_background_color: "#222222",
+    navbar_buttons_background_color: "#f3eae8",
+    navbar_buttons_foreground_color: "#212830",
+    navbar_search_background_color: "string",
+    navbar_search_foreground_color: "string",
+  },
+  setNavbarConfig: (navbarConfig) => set({ navbarConfig }),
 }));
 
 
@@ -184,3 +203,6 @@ export const useSetSensorsConfig = () => useStore((state) => state.setSensorsCon
 
 export const useZuDisksConfig = () => useStore((state) => state.disksConfig);
 export const useSetDisksConfig = () => useStore((state) => state.setDisksConfig);
+
+export const useZuNavbarConfig = () => useStore((state) => state.navbarConfig);
+export const useSetNavbarConfig = () => useStore((state) => state.setNavbarConfig);

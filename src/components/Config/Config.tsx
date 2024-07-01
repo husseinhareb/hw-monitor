@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { Wrapper, Container, StyledButton } from "./Styles/style";
 import SensorsConfig from "./SensorsConfig";
 import DisksConfig from "./DisksConfig";
+import NavbarConfig from "./NavbarConfig";
 
 const Config: React.FC = () => {
   const [key, setKey] = useState(0);
@@ -27,6 +28,7 @@ const Config: React.FC = () => {
         <PerformanceConfig />
         <SensorsConfig />
         <DisksConfig />
+        <NavbarConfig />
       </Container>
     </Wrapper>
   );
