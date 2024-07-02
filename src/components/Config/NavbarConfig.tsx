@@ -42,8 +42,8 @@ const NavbarConfig: React.FC = () => {
                 <ColorLabelText>Buttons Background Color</ColorLabelText>
                 <ColorInput
                     type="color"
-                    value={config.navbar_buttons_foreground_color}
-                    onChange={(e) => handleConfigChange("navbar_buttons_foreground_color", e.target.value)}
+                    value={config.navbar_buttons_background_color}
+                    onChange={(e) => handleConfigChange("navbar_buttons_background_color", e.target.value)}
                 />
             </ColorLabel>
             <ColorLabel>

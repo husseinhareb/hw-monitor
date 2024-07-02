@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-export const StyledNav = styled.nav`
-    background-color: #222222;
+export const StyledNav = styled.nav<{ navbarBackgroundColor:string; }>`
+    background-color: ${(props) => props.navbarBackgroundColor};
     width: 100%;
     height:30px;
     display: flex;
@@ -15,9 +15,9 @@ export const ConfigButtonContainer = styled.div`
     left: 1em;
 `;
 
-export const StyledButton = styled.button<{ active: boolean }>`
-  background-color: ${({ active }) => (active ? "#f3eae8" : "transparent")};
-  color: ${({ active }) => (active ? "#212830" : "#f3eae8")};
+export const StyledButton = styled.button<{ active: boolean; navbarButtonsForegroundColor: string; navbarButtonsBackgroundColor:string }>`
+  background-color: ${({ active }) => (active ? (props) => props.navbarButtonsBackgroundColor : "transparent")};
+  color: ${({ active }) => (active ? (props) => props.navbarButtonsForegroundColor : (props) => props.navbarButtonsBackgroundColor)};
   display: flex;
   align-items: center;
   border-radius: 4px;
@@ -28,15 +28,15 @@ export const StyledButton = styled.button<{ active: boolean }>`
   padding: 4px 8px;
   margin: 0 5px;
   &:hover {
-    color: #212830;
-    background-color: #f3eae8;
+    color: ${(props) => props.navbarButtonsForegroundColor};
+    background-color: ${(props) => props.navbarButtonsBackgroundColor};
   }
   svg {
     margin-right: 8px;
   }
 `;
 
-export const StyledSearchButton = styled.button`
+export const StyledSearchButton = styled.button<{ navbarButtonsForegroundColor: string; navbarButtonsBackgroundColor:string }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -47,20 +47,21 @@ export const StyledSearchButton = styled.button`
   outline: none;
   padding: 4px 8px;
   margin: 0 5px;
-  &:hover {
-    color: #212830;
-    background-color: #f3eae8;
-  }
+  color: ${(props) => props.navbarButtonsForegroundColor};
+  background-color: ${(props) => props.navbarButtonsBackgroundColor};
+  
   position: absolute;
   right: 1em;
 `;
 
-export const SearchInput = styled.input`
+export const SearchInput = styled.input<{ navbarSearchBackgroundColor: string; navbarSearchForegroundColor:string }>`
     position: absolute;
     right: 5em;
     padding: 2px 4px;
     border-radius: 2px;
     border: none;
+    color: ${(props) => props.navbarSearchForegroundColor};
+    background-color: ${(props) => props.navbarSearchBackgroundColor};
     outline: none;
 `;
 

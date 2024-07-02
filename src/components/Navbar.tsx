@@ -11,6 +11,7 @@ import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 import { useSetProcessSearch } from "../services/store";
 import { LuSettings2 } from "react-icons/lu";
+import useNavbarConfig from "../hooks/useNavbarConfig";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Config";
 
@@ -27,6 +28,7 @@ const Navbar: React.FC = () => {
     const [showSearchInput, setShowSearchInput] = useState(false);
     const setProcessSearch = useSetProcessSearch();
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const navbarConfig = useNavbarConfig();
 
     const handleButtonClick = (componentName: ComponentName) => {
         setActiveComponent(componentName);
@@ -85,39 +87,67 @@ const Navbar: React.FC = () => {
     const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
     return (
-        <div style={{height: '100%', width: '100%',display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
-            <StyledNav>
+        <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+            <StyledNav
+                navbarBackgroundColor={navbarConfig.config.navbar_background_color}
+            >
                 <ConfigButtonContainer>
-                    <StyledButton onClick={() => handleButtonClick("Config")} active={activeComponent === "Config"}>
+                    <StyledButton
+                        navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                        navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                        onClick={() => handleButtonClick("Config")} active={activeComponent === "Config"}
+                    >
                         <LuSettings2 />
                     </StyledButton>
                 </ConfigButtonContainer>
                 <StyledUl>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}>
+                        <StyledButton
+                            navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                            navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                            onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}
+                        >
                             <GiProcessor /> Processes
                         </StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Performance")} active={activeComponent === "Performance"}>
+                        <StyledButton
+                            navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                            navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                            onClick={() => handleButtonClick("Performance")} active={activeComponent === "Performance"}
+                        >
                             <MdSpeed /> Performance
                         </StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Sensors")} active={activeComponent === "Sensors"}>
+                        <StyledButton
+                            navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                            navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                            onClick={() => handleButtonClick("Sensors")} active={activeComponent === "Sensors"}
+                        >
                             <FaTemperatureHalf /> Sensors
                         </StyledButton>
                     </li>
                     <li>
-                        <StyledButton onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}>
+                        <StyledButton
+                            navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                            navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                            onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}
+                        >
                             <FaFloppyDisk /> Disks
                         </StyledButton>
                     </li>
                 </StyledUl>
                 {activeComponent === "Proc" && (
                     <>
-                        {showSearchInput && <SearchInput type="text" placeholder="Search..." onChange={handleSearchInputChange} ref={searchInputRef} />}
-                        <StyledSearchButton onClick={handleSearchButtonClick}>
+                        {showSearchInput && <SearchInput
+                        navbarSearchBackgroundColor={navbarConfig.config.navbar_search_background_color}
+                        navbarSearchForegroundColor={navbarConfig.config.navbar_search_foreground_color}
+                        type="text" placeholder="Search..." onChange={handleSearchInputChange} ref={searchInputRef} />}
+                        <StyledSearchButton
+                        navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                        navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                        onClick={handleSearchButtonClick}>
                             <FaSearch />
                         </StyledSearchButton>
                     </>
