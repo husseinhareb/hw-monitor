@@ -50,6 +50,17 @@ pub struct ConfigData {
     pub navbar_buttons_foreground_color: String,
     pub navbar_search_background_color: String,
     pub navbar_search_foreground_color: String,
+
+    pub heatbar_color_one: String,
+    pub heatbar_color_two: String,
+    pub heatbar_color_three: String,
+    pub heatbar_color_four: String,
+    pub heatbar_color_five: String,
+    pub heatbar_color_six: String,
+    pub heatbar_color_seven: String,
+    pub heatbar_color_eight: String,
+    pub heatbar_color_nine: String,
+    pub heatbar_color_ten: String,
 }
 
 // Function to create the initial configuration file if it does not exist
@@ -129,6 +140,16 @@ pub fn default_config() -> Result<(), io::Error> {
         navbar_buttons_foreground_color=#212830\n\
         navbar_search_background_color=#f3eae8\n\
         navbar_search_foreground_color=#212830\n\
+        heatbar_color_one=#00FF00\n\
+        heatbar_color_two=#33FF00\n\
+        heatbar_color_three=#66FF00\n\
+        heatbar_color_four=#99FF00\n\
+        heatbar_color_five=#CCFF00\n\
+        heatbar_color_six=#FFFF00\n\
+        heatbar_color_seven=#FFCC00\n\
+        heatbar_color_eight=#FF9900\n\
+        heatbar_color_nine=#FF6600\n\
+        heatbar_color_ten=#FF0000\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -182,6 +203,16 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         navbar_buttons_foreground_color: String::new(),
         navbar_search_background_color: String::new(),
         navbar_search_foreground_color: String::new(),
+        heatbar_color_one: String::new(),
+        heatbar_color_two: String::new(),
+        heatbar_color_three: String::new(),
+        heatbar_color_four: String::new(),
+        heatbar_color_five: String::new(),
+        heatbar_color_six: String::new(),
+        heatbar_color_seven: String::new(),
+        heatbar_color_eight: String::new(),
+        heatbar_color_nine: String::new(),
+        heatbar_color_ten: String::new(),
     };
 
     for line in reader.lines() {
@@ -312,6 +343,38 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "navbar_search_foreground_color" => {
                 config_data.navbar_search_foreground_color = value.to_string();
             },
+
+
+            "heatbar_color_one" => {
+                config_data.heatbar_color_one = value.to_string();
+            },
+            "heatbar_color_two" => {
+                config_data.heatbar_color_two = value.to_string();
+            },
+            "heatbar_color_three" => {
+                config_data.heatbar_color_three = value.to_string();
+            },
+            "heatbar_color_four" => {
+                config_data.heatbar_color_four = value.to_string();
+            },
+            "heatbar_color_five" => {
+                config_data.heatbar_color_five = value.to_string();
+            },
+            "heatbar_color_six" => {
+                config_data.heatbar_color_six = value.to_string();
+            },
+            "heatbar_color_seven" => {
+                config_data.heatbar_color_seven = value.to_string();
+            },
+            "heatbar_color_eight" => {
+                config_data.heatbar_color_eight = value.to_string();
+            },
+            "heatbar_color_nine" => {
+                config_data.heatbar_color_nine = value.to_string();
+            },
+            "heatbar_color_ten" => {
+                config_data.heatbar_color_ten = value.to_string();
+            },
             _ => {},
         }
     }
@@ -364,6 +427,16 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         navbar_buttons_foreground_color={}\n\
         navbar_search_background_color={}\n\
         navbar_search_foreground_color={}\n\
+        heatbar_color_one={}\n\
+        heatbar_color_two={}\n\
+        heatbar_color_three={}\n\
+        heatbar_color_four={}\n\
+        heatbar_color_five={}\n\
+        heatbar_color_six={}\n\
+        heatbar_color_seven={}\n\
+        heatbar_color_eight={}\n\
+        heatbar_color_nine={}\n\
+        heatbar_color_ten={}\n\
         ",
         config.processes_update_time,
         config.processes_body_background_color,
@@ -404,6 +477,16 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         config.navbar_buttons_foreground_color,
         config.navbar_search_background_color,
         config.navbar_search_foreground_color,
+        config.heatbar_color_one,
+        config.heatbar_color_two,
+        config.heatbar_color_three,
+        config.heatbar_color_four,
+        config.heatbar_color_five,
+        config.heatbar_color_six,
+        config.heatbar_color_seven,
+        config.heatbar_color_eight,
+        config.heatbar_color_nine,
+        config.heatbar_color_ten,
     );
 
     file.write_all(config_content.as_bytes())?;

@@ -54,6 +54,19 @@ interface NavbarConfig {
   navbar_search_foreground_color: string;
 }
 
+interface HeatbarConfig {
+  heatbar_color_one: string;
+  heatbar_color_two: string;
+  heatbar_color_three: string;
+  heatbar_color_four: string;
+  heatbar_color_five: string;
+  heatbar_color_six: string;
+  heatbar_color_seven: string;
+  heatbar_color_eight: string;
+  heatbar_color_nine: string;
+  heatbar_color_ten: string;
+}
+
 interface Store {
   cpu: number[];
   setCpu: (cpu: number[]) => void;
@@ -89,6 +102,10 @@ interface Store {
 
   navbarConfig: NavbarConfig;
   setNavbarConfig: (navbarConfig: NavbarConfig) => void;
+
+
+  heatbarConfig: HeatbarConfig;
+  setHeatbarConfig: (heatbarConfig: HeatbarConfig) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -170,6 +187,20 @@ export const useStore = create<Store>((set) => ({
     navbar_search_foreground_color: "string",
   },
   setNavbarConfig: (navbarConfig) => set({ navbarConfig }),
+
+  heatbarConfig: {
+    heatbar_color_one: "#00FF00",
+    heatbar_color_two: "#33FF00",
+    heatbar_color_three: "#66FF00",
+    heatbar_color_four: "#99FF00",
+    heatbar_color_five: "#CCFF00",
+    heatbar_color_six: "#FFFF00",
+    heatbar_color_seven: "#FFCC00",
+    heatbar_color_eight: "#FF9900",
+    heatbar_color_nine: "#FF6600",
+    heatbar_color_ten: "#FF0000",
+  },
+  setHeatbarConfig: (heatbarConfig) => set({ heatbarConfig }),
 }));
 
 
@@ -206,3 +237,6 @@ export const useSetDisksConfig = () => useStore((state) => state.setDisksConfig)
 
 export const useZuNavbarConfig = () => useStore((state) => state.navbarConfig);
 export const useSetNavbarConfig = () => useStore((state) => state.setNavbarConfig);
+
+export const useZuHeatbarConfig = () => useStore((state) => state.heatbarConfig);
+export const useSetHeatbarConfig = () => useStore((state) => state.setHeatbarConfig);

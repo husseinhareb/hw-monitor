@@ -7,6 +7,7 @@ import { Wrapper, Container, StyledButton } from "./Styles/style";
 import SensorsConfig from "./SensorsConfig";
 import DisksConfig from "./DisksConfig";
 import NavbarConfig from "./NavbarConfig";
+import HeatbarConfig from "./HeatbarConfig";
 
 const Config: React.FC = () => {
   const [key, setKey] = useState(0);
@@ -29,6 +30,7 @@ const Config: React.FC = () => {
         <SensorsConfig />
         <DisksConfig />
         <NavbarConfig />
+        <HeatbarConfig />
       </Container>
     </Wrapper>
   );

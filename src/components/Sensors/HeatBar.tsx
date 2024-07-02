@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import useHeatbarConfig from '../../hooks/useHeatbarConfig';
 
 // Style for the heat bar container
 const BarContainer = styled.div`
@@ -26,18 +27,18 @@ interface HeatBarProps {
 const HeatBar: React.FC<HeatBarProps> = ({ value, critical }) => {
     // Calculate the width of the fill based on the value and critical value
     const width = Math.min((value / critical) * 100, 100);
-
+    const heatbarConfig = useHeatbarConfig();
     const sections = [
-        { limit: 10, color: '#00FF00' }, // Bright Green
-        { limit: 20, color: '#33FF00' },
-        { limit: 30, color: '#66FF00' },
-        { limit: 40, color: '#99FF00' },
-        { limit: 50, color: '#CCFF00' },
-        { limit: 60, color: '#FFFF00' }, // Yellow
-        { limit: 70, color: '#FFCC00' },
-        { limit: 80, color: '#FF9900' },
-        { limit: 90, color: '#FF6600' },
-        { limit: 100, color: '#FF0000' }, // Red
+        { limit: 10, color: heatbarConfig.config.heatbar_color_one }, // Bright Green
+        { limit: 20, color: heatbarConfig.config.heatbar_color_two },
+        { limit: 30, color: heatbarConfig.config.heatbar_color_three },
+        { limit: 40, color: heatbarConfig.config.heatbar_color_four },
+        { limit: 50, color: heatbarConfig.config.heatbar_color_five },
+        { limit: 60, color: heatbarConfig.config.heatbar_color_six }, // Yellow
+        { limit: 70, color: heatbarConfig.config.heatbar_color_seven },
+        { limit: 80, color: heatbarConfig.config.heatbar_color_eight },
+        { limit: 90, color:heatbarConfig.config.heatbar_color_nine },
+        { limit: 100, color: heatbarConfig.config.heatbar_color_ten }, // Red
     ];
 
     const filledSections = sections.map((section, index) => {
