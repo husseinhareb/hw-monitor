@@ -31,7 +31,6 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     const setCpu = useSetCpu();
     
     const performanceConfig = usePerformanceConfig();
-    console.log(performanceConfig)
     useEffect(() => {
         if (cpuUsage !== null) {
             setCpuUsage(prevCpuUsage => {

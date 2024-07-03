@@ -1,4 +1,3 @@
-//Proc.tsx
 import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../../hooks/useProcessData';
 import useTotalUsagesData from '../../hooks/useTotalUsagesData';
@@ -6,14 +5,16 @@ import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/pr
 import { useProcessSearch } from '../../services/store';
 import useProcessConfig from '../../hooks/useProcessConfig';
 import { lighten } from 'polished';
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 
 const Proc: React.FC = () => {
-    const [sortBy, setSortBy] = useState<string | null>('name');
-    const [sortOrder, setSortOrder] = useState<string>('asc');
+    const [sortBy, setSortBy] = useState<string | null>('memory');
+    const [sortOrder, setSortOrder] = useState<string>('desc');
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
     const processConfig = useProcessConfig();
+
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 
@@ -84,9 +85,9 @@ const Proc: React.FC = () => {
 
     const getSortIndicator = (column: string) => {
         if (sortBy === column) {
-            return sortOrder === 'asc' ? ' ▲' : ' ▼';
+            return sortOrder === 'asc' ? <FaArrowUp /> : <FaArrowDown />;
         }
-        return '';
+        return null;
     };
 
     const getCellStyle = (value: string, total: number | null): React.CSSProperties => {
@@ -111,7 +112,7 @@ const Proc: React.FC = () => {
         });
     }, [processSearch, sortedProcesses]);
 
-    const displayedColumns = processConfig.config.processes_table_values.filter(column => 
+    const displayedColumns = processConfig.config.processes_table_values.filter(column =>
         processes.some(process => column in process)
     );
 
@@ -150,7 +151,10 @@ const Proc: React.FC = () => {
                                 headColor={processConfig.config.processes_head_color}
                                 aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                             >
-                                {columnLabels[column]}{getSortIndicator(column)}
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span>{columnLabels[column]}</span>
+                                    {getSortIndicator(column)}
+                                </div>
                             </Th>
                         ))}
                     </Tr>

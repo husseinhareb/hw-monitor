@@ -16,7 +16,6 @@ const useFetchAndSetConfig = <T extends ConfigType>(
             try {
                 const fetchedConfig: T | null = await invoke(getConfigKey);
                 if (fetchedConfig) {
-                    console.log("Fetched config:", fetchedConfig);
                     setConfig(fetchedConfig);
                 } else {
                     console.warn("Empty response received from server.");
