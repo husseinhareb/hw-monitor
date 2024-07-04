@@ -85,8 +85,8 @@ const Proc: React.FC = () => {
 
     const getSortIndicator = (column: string) => {
         if (sortBy === column) {
-            return sortOrder === 'asc' ? <FaArrowUp style={{ fontSize: '10px', marginLeft: '1px' }} />
-            : <FaArrowDown style={{ fontSize: '10px', marginLeft: '2px' }} />;
+            return sortOrder === 'asc' ? <FaArrowUp style={{ fontSize: '10px', marginLeft: '4px' }} />
+                : <FaArrowDown style={{ fontSize: '10px', marginLeft: '4px' }} />;
         }
         return null;
     };
@@ -113,22 +113,24 @@ const Proc: React.FC = () => {
         });
     }, [processSearch, sortedProcesses]);
 
-    const displayedColumns = processConfig.config.processes_table_values.filter(column =>
-        processes.some(process => column in process)
-    );
+    const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
 
-    const columnLabels: { [key: string]: string } = {
-        user: 'User',
-        pid: 'Pid',
-        ppid: 'Ppid',
-        name: 'Name',
-        state: 'State',
-        memory: totalUsages.memory !== null ? `${totalUsages.memory}% Memory` : 'Memory',
-        cpu_usage: totalUsages.cpu !== null ? `${totalUsages.cpu}% CPU usage` : 'CPU usage',
-        read_disk_usage: 'Disk Read Total',
-        write_disk_usage: 'Disk Write Total',
-        read_disk_speed: 'Disk Read Speed',
-        write_disk_speed: 'Disk Write Speed',
+    const displayedColumns = processConfig.config.processes_table_values
+        .filter(column => processes.some(process => column in process))
+        .sort((a, b) => tableValues.indexOf(a) - tableValues.indexOf(b));
+
+    const columnLabels: { [key: string]: { percentage: string | null; label: string } } = {
+        user: { percentage: null, label: 'User' },
+        pid: { percentage: null, label: 'Pid' },
+        ppid: { percentage: null, label: 'Ppid' },
+        name: { percentage: null, label: 'Name' },
+        state: { percentage: null, label: 'State' },
+        memory: { percentage: totalUsages.memory !== null ? `${totalUsages.memory}%` : null, label: 'Memory' },
+        cpu_usage: { percentage: totalUsages.cpu !== null ? `${totalUsages.cpu}%` : null, label: 'CPU usage' },
+        read_disk_usage: { percentage: null, label: 'Disk Read Total' },
+        write_disk_usage: { percentage: null, label: 'Disk Write Total' },
+        read_disk_speed: { percentage: null, label: 'Disk Read Speed' },
+        write_disk_speed: { percentage: null, label: 'Disk Write Speed' },
     };
 
     return (
@@ -151,9 +153,13 @@ const Proc: React.FC = () => {
                                 headBackgroundColor={processConfig.config.processes_head_background_color}
                                 headColor={processConfig.config.processes_head_color}
                                 aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
+                                columnCount={displayedColumns.length}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <span>{columnLabels[column]}</span>
+                                <div className="header-label">
+                                    <div className="header-content">
+                                        {columnLabels[column].percentage && <span className="percentage">{columnLabels[column].percentage}</span>}
+                                        <span className="label">{columnLabels[column].label}</span>
+                                    </div>
                                     {getSortIndicator(column)}
                                 </div>
                             </Th>
@@ -172,7 +178,7 @@ const Proc: React.FC = () => {
                                     style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}
                                     bodyBackgroundColor={processConfig.config.processes_body_background_color}
                                     bodyColor={processConfig.config.processes_body_color}
-                                >
+                                    columnCount={displayedColumns.length}>
                                     {process[column] || ''}
                                 </Td>
                             ))}
