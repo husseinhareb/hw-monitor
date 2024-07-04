@@ -29,8 +29,8 @@ const Config: React.FC = () => {
         <PerformanceConfig />
         <SensorsConfig />
         <DisksConfig />
-        <NavbarConfig />
         <HeatbarConfig />
+        <NavbarConfig />
       </Container>
     </Wrapper>
   );

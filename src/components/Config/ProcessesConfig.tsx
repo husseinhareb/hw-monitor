@@ -4,8 +4,6 @@ import {
     ConfigContainer,
     Title,
     Separator,
-    CheckboxInput,
-    CheckboxLabel,
     ColorInput,
     Label,
     Input,
@@ -13,7 +11,8 @@ import {
     CheckboxContainer,
     Column,
     ColorLabel,
-    ColorLabelText
+    ColorLabelText,
+    CheckboxWrapper,
 } from "./Styles/style";
 
 const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
@@ -51,6 +50,14 @@ const ProcessesConfig: React.FC = () => {
         if (config) {
             updateConfig(key, value);
         }
+    };
+
+    // Convert snake_case to a more readable format
+    const formatLabel = (value: string) => {
+        return value
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
     };
 
     // Split table values into two halves
@@ -108,28 +115,54 @@ const ProcessesConfig: React.FC = () => {
             <CheckboxContainer>
                 <Column>
                     {firstHalf.map((value) => (
-                        <CheckboxLabel key={value}>
-                            <CheckboxInput
+                        <CheckboxWrapper className="checkbox-wrapper-4" key={value}>
+                            <input
+                                className="inp-cbx"
+                                id={value}
                                 type="checkbox"
-                                value={value}
                                 checked={selectedValues.includes(value)}
                                 onChange={() => handleTableValueChange(value)}
                             />
-                            {value}
-                        </CheckboxLabel>
+                            <label className="cbx" htmlFor={value}>
+                                <span>
+                                    <svg width="12px" height="10px">
+                                        <use xlinkHref="#check-4"></use>
+                                    </svg>
+                                </span>
+                                <span>{formatLabel(value)}</span>
+                            </label>
+                            <svg className="inline-svg">
+                                <symbol id="check-4" viewBox="0 0 12 10">
+                                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                </symbol>
+                            </svg>
+                        </CheckboxWrapper>
                     ))}
                 </Column>
                 <Column>
                     {secondHalf.map((value) => (
-                        <CheckboxLabel key={value}>
-                            <CheckboxInput
+                        <CheckboxWrapper className="checkbox-wrapper-4" key={value}>
+                            <input
+                                className="inp-cbx"
+                                id={value}
                                 type="checkbox"
-                                value={value}
                                 checked={selectedValues.includes(value)}
                                 onChange={() => handleTableValueChange(value)}
                             />
-                            {value}
-                        </CheckboxLabel>
+                            <label className="cbx" htmlFor={value}>
+                                <span>
+                                    <svg width="12px" height="10px">
+                                        <use xlinkHref="#check-4"></use>
+                                    </svg>
+                                </span>
+                                <span>{formatLabel(value)}</span>
+                            </label>
+                            <svg className="inline-svg">
+                                <symbol id="check-4" viewBox="0 0 12 10">
+                                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                </symbol>
+                            </svg>
+                        </CheckboxWrapper>
                     ))}
                 </Column>
             </CheckboxContainer>

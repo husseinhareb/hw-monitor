@@ -85,7 +85,8 @@ const Proc: React.FC = () => {
 
     const getSortIndicator = (column: string) => {
         if (sortBy === column) {
-            return sortOrder === 'asc' ? <FaArrowUp /> : <FaArrowDown />;
+            return sortOrder === 'asc' ? <FaArrowUp style={{ fontSize: '10px', marginLeft: '1px' }} />
+            : <FaArrowDown style={{ fontSize: '10px', marginLeft: '2px' }} />;
         }
         return null;
     };
