@@ -21,19 +21,24 @@ pub struct Process {
 
 fn list_proc_pid() -> Vec<String> {
     fs::read_dir("/proc")
-        .unwrap()
+        .unwrap_or_else(|_| panic!("Failed to read /proc directory"))
         .filter_map(|entry| {
-            let entry = entry.ok()?;
-            if entry.file_type().ok()?.is_dir() {
-                let folder_name = entry.file_name().to_str()?.to_string();
-                if folder_name.chars().all(|c| c.is_ascii_digit()) {
-                    return Some(folder_name);
+            entry.ok().and_then(|entry| {
+                if entry.file_type().ok()?.is_dir() {
+                    let folder_name = entry.file_name().to_str()?.to_string();
+                    if folder_name.chars().all(|c| c.is_ascii_digit()) {
+                        Some(folder_name)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
                 }
-            }
-            None
+            })
         })
         .collect()
 }
+
 
 fn read_proc_status_file(pid: &str) -> Option<(String, String, String)> {
     let status = fs::read_to_string(format!("/proc/{}/status", pid)).ok()?;
@@ -83,7 +88,7 @@ fn get_proc_mem(pid: &str) -> Option<String> {
     let status = fs::read_to_string(format!("/proc/{}/statm", pid)).ok()?;
     let resident_str = status.split_whitespace().nth(1)?;
     let resident = resident_str.parse::<u64>().ok()?;
-    let mem = resident * 4;
+    let mem = resident * 4; // Assuming the page size is 4 KB
 
     let mem_str = if mem > 1_000_000 {
         format!("{:.2} Gb", mem as f64 / 1_024.0 / 1_024.0)
@@ -219,13 +224,13 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
             
             // Format the disk usage into human-readable form
             let usage_str = if usage_bytes > 1_024.0 * 1_024.0 * 1_024.0 {
-                format!("{} Gb/s", usage_bytes / 1_024.0 / 1_024.0 / 1_024.0)
+                format!("{:.2} Gb/s", usage_bytes / 1_024.0 / 1_024.0 / 1_024.0)
             } else if usage_bytes > 1_024.0 * 1_024.0 {
-                format!("{} Mb/s", usage_bytes / 1_024.0 / 1_024.0)
+                format!("{:.2} Mb/s", usage_bytes / 1_024.0 / 1_024.0)
             } else if usage_bytes > 1_024.0 {
-                format!("{} Kb/s", usage_bytes / 1_024.0)
+                format!("{:.2} Kb/s", usage_bytes / 1_024.0)
             } else {
-                format!("{} B/s", usage_bytes)
+                format!("{:.2} B/s", usage_bytes)
             };
             
             (pid, usage_str)
@@ -264,7 +269,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let read_disk_speed = read_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(format!("{:.2}", speed))
+                Some(speed.clone())
             } else {
                 None
             }
@@ -272,7 +277,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let write_disk_speed = write_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(format!("{:.2}", speed))
+                Some(speed.clone())
             } else {
                 None
             }
