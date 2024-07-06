@@ -20,25 +20,27 @@ pub struct Process {
 }
 
 fn list_proc_pid() -> Vec<String> {
-    fs::read_dir("/proc")
-        .unwrap_or_else(|_| panic!("Failed to read /proc directory"))
-        .filter_map(|entry| {
-            entry.ok().and_then(|entry| {
-                if entry.file_type().ok()?.is_dir() {
-                    let folder_name = entry.file_name().to_str()?.to_string();
-                    if folder_name.chars().all(|c| c.is_ascii_digit()) {
-                        Some(folder_name)
+    if let Ok(entries) = fs::read_dir("/proc") {
+        entries
+            .filter_map(|entry| {
+                entry.ok().and_then(|entry| {
+                    if entry.file_type().ok()?.is_dir() {
+                        let folder_name = entry.file_name().to_str()?.to_string();
+                        if folder_name.chars().all(|c| c.is_ascii_digit()) {
+                            Some(folder_name)
+                        } else {
+                            None
+                        }
                     } else {
                         None
                     }
-                } else {
-                    None
-                }
+                })
             })
-        })
-        .collect()
+            .collect()
+    } else {
+        Vec::new()
+    }
 }
-
 
 fn read_proc_status_file(pid: &str) -> Option<(String, String, String)> {
     let status = fs::read_to_string(format!("/proc/{}/status", pid)).ok()?;
@@ -88,7 +90,7 @@ fn get_proc_mem(pid: &str) -> Option<String> {
     let status = fs::read_to_string(format!("/proc/{}/statm", pid)).ok()?;
     let resident_str = status.split_whitespace().nth(1)?;
     let resident = resident_str.parse::<u64>().ok()?;
-    let mem = resident * 4; // Assuming the page size is 4 KB
+    let mem = resident * 4;
 
     let mem_str = if mem > 1_000_000 {
         format!("{:.2} Gb", mem as f64 / 1_024.0 / 1_024.0)
@@ -116,7 +118,7 @@ fn get_username(uid: u32) -> Option<String> {
     None
 }
 
-fn get_total_proc_disk_usage(pid_str: &str, s: &sysinfo::System, read: bool) -> Option<String> {
+fn get_total_proc_disk_usage(pid_str: &str, s: &System, read: bool) -> Option<String> {
     let pid_usize = pid_str.parse::<usize>().ok()?;
     let pid = Pid::from(pid_usize);
     let process = s.process(pid)?;
@@ -191,7 +193,7 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     Ok(cpu_usage_results)
 }
 
-async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool) -> Vec<(i32, String)> {
+async fn get_proc_disk_usage_speed(pids: Vec<String>, mut s: System, read: bool) -> Vec<(i32, String)> {
     let mut initial_disk_usages = Vec::new();
 
     // Collect initial disk usage for each process
@@ -208,8 +210,14 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
         }
     }
 
-    // Wait for 1 second to measure usage over time
-    sleep(Duration::from_secs(1)).await;
+    // Spawn a separate task to sleep
+    let sleep_task = tokio::spawn(async {
+        sleep(Duration::from_secs(1)).await;
+    });
+    
+    // Wait for the sleep task to complete
+    let _ = sleep_task.await;
+
     s.refresh_processes();
 
     // Calculate and format disk usage speed for each process
@@ -241,13 +249,35 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, s: &mut System, read: bool
 #[tauri::command]
 pub async fn get_processes() -> Vec<Process> {
     let mut processes = Vec::new();
-    let mut s = System::new_all();
     let pids = list_proc_pid();
 
-    let cpu_usage_results = calculate_cpu_percentage(1).await.unwrap_or_default();
-    let read_disk_speeds = get_proc_disk_usage_speed(pids.clone(), &mut s, true).await;
-    let write_disk_speeds = get_proc_disk_usage_speed(pids.clone(), &mut s, false).await;
+    let cpu_usage_results = tokio::spawn(async move {
+        calculate_cpu_percentage(1).await.unwrap_or_default()
+    });
 
+    let read_disk_speeds = tokio::spawn({
+        let pids_clone = pids.clone();
+        async move {
+            let mut s = System::new_all();
+            get_proc_disk_usage_speed(pids_clone, s, true).await
+        }
+    });
+
+    let write_disk_speeds = tokio::spawn({
+        let pids_clone = pids.clone();
+        async move {
+            let mut s = System::new_all();
+            get_proc_disk_usage_speed(pids_clone, s, false).await
+        }
+    });
+
+    let (cpu_usage_results, read_disk_speeds, write_disk_speeds) = tokio::try_join!(
+        cpu_usage_results,
+        read_disk_speeds,
+        write_disk_speeds
+    ).unwrap();
+
+    let mut s = System::new_all();
     for pid in pids {
         let (name, ppid, user) = match read_proc_status_file(&pid) {
             Some(info) => info,
@@ -269,7 +299,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let read_disk_speed = read_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(speed.clone())
+                Some(format!("{:.2}", speed))
             } else {
                 None
             }
@@ -277,7 +307,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let write_disk_speed = write_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(speed.clone())
+                Some(format!("{:.2}", speed))
             } else {
                 None
             }
