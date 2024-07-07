@@ -32,7 +32,7 @@ const useSensorsData = (): HwMonData[] => {
     const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [sensorsConfig.config.sensors_update_time]);
 
   return sensors;
 };

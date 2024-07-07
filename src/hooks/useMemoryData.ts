@@ -20,7 +20,7 @@ const useMemoryData = () => {
     const setMemory = useSetMemory();
     const setMaxMemory = useSetMaxMemory();
     const convertData = useDataConverter();
-    const perfomanceConfig = usePerformanceConfig();
+    const performanceConfig = usePerformanceConfig();
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -33,11 +33,10 @@ const useMemoryData = () => {
         };
 
         fetchData();
-        const intervalId = setInterval(fetchData, perfomanceConfig.config.performance_update_time);
+        const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time);
 
         return () => clearInterval(intervalId);
-    }, [setMaxMemory, setMemory]);
-
+    }, [setMaxMemory, setMemory, performanceConfig.config.performance_update_time]);
     return memoryUsage;
 };
 

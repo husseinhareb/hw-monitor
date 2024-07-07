@@ -38,7 +38,7 @@ const useDiskData = () => {
         const intervalId = setInterval(fetchDiskData, disksConfig.config.disks_update_time);
         return () => clearInterval(intervalId);
 
-    }, []);
+    }, [disksConfig.config.disks_update_time]);
 
     return { diskData, convertData };
 };

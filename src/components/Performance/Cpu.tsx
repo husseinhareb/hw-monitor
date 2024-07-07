@@ -32,7 +32,6 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
     
     const performanceConfig = usePerformanceConfig();
     useEffect(() => {
-        console.log(cpuUsage);
         if (cpuData !== null && cpuData.usage !== undefined) {
             setCpuUsage(prevCpuUsage => {
                 const newActiveMem = [...prevCpuUsage, cpuData.usage as number];

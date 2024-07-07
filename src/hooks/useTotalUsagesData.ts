@@ -25,7 +25,7 @@ const useTotalUsagesData = (): TotalUsages => {
         const intervalId = setInterval(fetchData, processConfig.config.processes_update_time);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [processConfig.config.processes_update_time]);
 
     return totalUsages;
 };

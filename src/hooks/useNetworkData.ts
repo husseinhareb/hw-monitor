@@ -45,10 +45,10 @@ const useNetworkData = (interfaceName: string) => {
         };
 
         fetchData(); // Initial fetch
-        const intervalId = setInterval(fetchData, perfomanceConfig.config.performance_update_time); // Fetch every second
+        const intervalId = setInterval(fetchData, perfomanceConfig.config.performance_update_time); 
 
         return () => clearInterval(intervalId);
-    }, [interfaceName]);
+    }, [interfaceName,perfomanceConfig.config.performance_update_time]);
 
     return { download, upload, totalDownload, totalUpload };
 };
