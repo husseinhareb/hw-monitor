@@ -11,7 +11,7 @@ type ProcessConfig = {
 };
 
 const initialProcessConfig: ProcessConfig = {
-    processes_update_time: 1000,
+    processes_update_time: 2000,
     processes_body_background_color: "#ffffff",
     processes_body_color: "#000000",
     processes_head_background_color: "#252526",

@@ -13,7 +13,7 @@ type SensorsConfig = {
 };
 
 const initialSensorsConfig: SensorsConfig = {
-    sensors_update_time: 1000,
+    sensors_update_time: 2000,
     sensors_background_color: "#333",
     sensors_foreground_color: "#fff",
     sensors_boxes_background_color: "#2B2B2B",

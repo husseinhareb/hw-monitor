@@ -101,7 +101,7 @@ pub fn default_config() -> Result<(), io::Error> {
     let mut file = File::create(&file_path)?;
 
     let default_values = "\
-        processes_update_time=1000\n\
+        processes_update_time=2000\n\
         processes_body_background_color=#2d2d2d\n\
         processes_body_color=#ffffff\n\
         processes_head_background_color=#252526\n\
@@ -117,7 +117,7 @@ pub fn default_config() -> Result<(), io::Error> {
         performance_value_color=#ffffff\n\
         performance_graph_color=#09ffff\n\
         performance_sec_graph_color=#ff6384\n\
-        sensors_update_time=1000\n\
+        sensors_update_time=2000\n\
         sensors_background_color=#2b2b2b\n\
         sensors_foreground_color=#ffffff\n\
         sensors_boxes_background_color=#3a3a3a\n\
@@ -125,7 +125,7 @@ pub fn default_config() -> Result<(), io::Error> {
         sensors_battery_background_color=#38e740\n\
         sensors_battery_frame_color=#ffffff\n\
         sensors_boxes_title_foreground_color=#0088dd\n\
-        disks_update_time=1000\n\
+        disks_update_time=5000\n\
         disks_background_color=#2b2b2b\n\
         disks_boxes_background_color=#3a3a3a\n\
         disks_name_foreground_color=#ffffff\n\

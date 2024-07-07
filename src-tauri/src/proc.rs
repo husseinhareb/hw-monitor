@@ -193,7 +193,8 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
     Ok(cpu_usage_results)
 }
 
-async fn get_proc_disk_usage_speed(pids: Vec<String>, mut s: System, read: bool) -> Vec<(i32, String)> {
+async fn get_proc_disk_usage_speed(pids: Vec<String>, read: bool) -> Vec<(i32, String)> {
+    let mut s = System::new_all();
     let mut initial_disk_usages = Vec::new();
 
     // Collect initial disk usage for each process
@@ -210,15 +211,7 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, mut s: System, read: bool)
         }
     }
 
-    // Spawn a separate task to sleep
-    let sleep_task = tokio::spawn(async {
-        sleep(Duration::from_secs(1)).await;
-    });
-    
-    // Wait for the sleep task to complete
-    let _ = sleep_task.await;
-
-    s.refresh_processes();
+    sleep(Duration::from_secs(1)).await;
 
     // Calculate and format disk usage speed for each process
     initial_disk_usages.into_iter().filter_map(|(pid, initial_bytes)| {
@@ -258,16 +251,14 @@ pub async fn get_processes() -> Vec<Process> {
     let read_disk_speeds = tokio::spawn({
         let pids_clone = pids.clone();
         async move {
-            let mut s = System::new_all();
-            get_proc_disk_usage_speed(pids_clone, s, true).await
+            get_proc_disk_usage_speed(pids_clone, true).await
         }
     });
 
     let write_disk_speeds = tokio::spawn({
         let pids_clone = pids.clone();
         async move {
-            let mut s = System::new_all();
-            get_proc_disk_usage_speed(pids_clone, s, false).await
+            get_proc_disk_usage_speed(pids_clone, false).await
         }
     });
 

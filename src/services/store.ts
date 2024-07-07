@@ -130,7 +130,7 @@ export const useStore = create<Store>((set) => ({
   setProcessSearch: (processSearch) => set({ processSearch }),
 
   processesConfig: {
-    processes_update_time: 1000,
+    processes_update_time: 2000,
     processes_body_background_color: "#2d2d2d",
     processes_body_color: "#ffffff",
     processes_head_background_color: "#252526",
@@ -154,7 +154,7 @@ export const useStore = create<Store>((set) => ({
   setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
 
   sensorsConfig: {
-    sensors_update_time: 1000,
+    sensors_update_time: 2000,
     sensors_background_color: "#333",
     sensors_foreground_color: "#ffffff",
     sensors_boxes_background_color: "#2B2B2B",
@@ -166,7 +166,7 @@ export const useStore = create<Store>((set) => ({
   setSensorsConfig: (sensorsConfig) => set({ sensorsConfig }),
 
   disksConfig: {
-    disks_update_time: 1000,
+    disks_update_time: 5000,
     disks_background_color: "#2b2b2b",
     disks_boxes_background_color: "#3a3a3a",
     disks_name_foreground_color: "#ffffff",

@@ -16,7 +16,7 @@ type DisksConfig = {
 };
 
 const initialDisksConfig: DisksConfig = {
-    disks_update_time: 1000,
+    disks_update_time: 5000,
     disks_background_color: "#2b2b2b",
     disks_boxes_background_color: "#3a3a3a",
     disks_name_foreground_color: "#ffffff",

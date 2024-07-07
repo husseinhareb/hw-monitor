@@ -32,7 +32,7 @@ const useProcessData = () => {
         };
 
         fetchProcess();
-        const intervalId = setInterval(fetchProcess, 1000);
+        const intervalId = setInterval(fetchProcess, 2000);
 
         return () => clearInterval(intervalId);
     }, []);
