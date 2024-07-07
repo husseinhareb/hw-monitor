@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useSetMemory, useSetMaxMemory } from "../services/store";
 import useDataConverter from "../helpers/useDataConverter";
+import usePerformanceConfig from "./usePerformanceConfig";
 
 interface Memory {
     total: number | null;
@@ -19,7 +20,7 @@ const useMemoryData = () => {
     const setMemory = useSetMemory();
     const setMaxMemory = useSetMaxMemory();
     const convertData = useDataConverter();
-
+    const perfomanceConfig = usePerformanceConfig();
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,7 +33,7 @@ const useMemoryData = () => {
         };
 
         fetchData();
-        const intervalId = setInterval(fetchData, 1000);
+        const intervalId = setInterval(fetchData, perfomanceConfig.config.performance_update_time);
 
         return () => clearInterval(intervalId);
     }, [setMaxMemory, setMemory]);

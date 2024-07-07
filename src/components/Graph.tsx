@@ -86,7 +86,7 @@ const Graph: React.FC<GraphProps> = ({ firstGraphValue, secondGraphValue, maxVal
         if (chartInstance.current !== null) {
             updateChartData();
         }
-        setTimeCounter(prevCounter => prevCounter + 1);
+        setTimeCounter(prevCounter => prevCounter + 1* Math.floor(performanceConfig.config.performance_update_time/1000));
     }, [firstGraphValue, secondGraphValue]);
 
     const updateChartData = () => {

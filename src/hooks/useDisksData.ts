@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import useDataConverter from "../helpers/useDataConverter";
+import useDisksConfig from "./useDisksConfig";
 
 interface PartitionData {
     name: string;
@@ -21,7 +22,7 @@ interface DiskData {
 const useDiskData = () => {
     const [diskData, setDiskData] = useState<DiskData[]>([]);
     const convertData = useDataConverter();
-
+    const disksConfig = useDisksConfig();
     useEffect(() => {
         const fetchDiskData = async () => {
             try {
@@ -34,7 +35,7 @@ const useDiskData = () => {
         };
 
         fetchDiskData();
-        const intervalId = setInterval(fetchDiskData, 5000);
+        const intervalId = setInterval(fetchDiskData, disksConfig.config.disks_update_time);
         return () => clearInterval(intervalId);
 
     }, []);

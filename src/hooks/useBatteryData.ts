@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
+import useSensorsConfig from './useSensorsConfig';
 
 interface BatteryData {
     model: string | null;
@@ -16,7 +17,7 @@ interface BatteryData {
 
 const useBatteryData = (): BatteryData[] => {
     const [batteryData, setBatteryData] = useState<BatteryData[]>([]);
-
+    const sensorsConfig = useSensorsConfig();
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -28,7 +29,7 @@ const useBatteryData = (): BatteryData[] => {
         };
 
         fetchData();
-        const intervalId = setInterval(fetchData, 5000);
+        const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
 
         return () => clearInterval(intervalId);
     }, []);

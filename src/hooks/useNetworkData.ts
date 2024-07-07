@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
 import useDataConverter from '../helpers/useDataConverter';
+import usePerformanceConfig from './usePerformanceConfig';
 
 interface NetworkUsage {
     download: number;
@@ -21,7 +22,7 @@ const useNetworkData = (interfaceName: string) => {
     const [totalDownload, setTotalDownload] = useState<number>();
     const [totalUpload, setTotalUpload] = useState<number>();
     const convertData = useDataConverter();
-
+    const perfomanceConfig = usePerformanceConfig();
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -44,7 +45,7 @@ const useNetworkData = (interfaceName: string) => {
         };
 
         fetchData(); // Initial fetch
-        const intervalId = setInterval(fetchData, 1000); // Fetch every second
+        const intervalId = setInterval(fetchData, perfomanceConfig.config.performance_update_time); // Fetch every second
 
         return () => clearInterval(intervalId);
     }, [interfaceName]);
