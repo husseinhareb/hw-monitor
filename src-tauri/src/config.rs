@@ -217,7 +217,13 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
 
     for line in reader.lines() {
         let line = line?;
-        let parts: Vec<&str> = line.split('=').map(|s| s.trim()).collect();
+        let trimmed_line = line.trim();
+
+        if trimmed_line.is_empty() || trimmed_line.starts_with('#') {
+            continue; // Skip blank lines and comments
+        }
+
+        let parts: Vec<&str> = trimmed_line.split('=').map(|s| s.trim()).collect();
         if parts.len() != 2 {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid format in config file"));
         }
@@ -343,8 +349,6 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "navbar_search_foreground_color" => {
                 config_data.navbar_search_foreground_color = value.to_string();
             },
-
-
             "heatbar_color_one" => {
                 config_data.heatbar_color_one = value.to_string();
             },
@@ -375,12 +379,15 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "heatbar_color_ten" => {
                 config_data.heatbar_color_ten = value.to_string();
             },
-            _ => {},
+            _ => {
+                return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Unknown key: {}", key)));
+            }
         }
     }
 
     Ok(config_data)
 }
+
 
 pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
     let file_path = config_file()?;
