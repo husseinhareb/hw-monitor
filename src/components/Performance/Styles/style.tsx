@@ -105,8 +105,8 @@ width: 100%;
 height:100%;
 `;
 
-export const MemoryTypes = styled.div`
-color: white;
+export const MemoryTypes = styled.div<{ performanceValueColor: string; }>`
+color: ${(props) => props.performanceValueColor};
 margin: 7px;
 font-size: 24px;
 display: flex;

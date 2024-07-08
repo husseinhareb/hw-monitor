@@ -49,7 +49,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
 
                 <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                     <RealTimeValues>
-                        <MemoryTypes>Usage</MemoryTypes>
+                        <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color} >Usage</MemoryTypes>
                         <FixedValueItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Download</LeftLabel>
                             {totalDownload !== undefined && (
@@ -69,7 +69,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
                     </RealTimeValues>
 
                     <FixedValues>
-                        <MemoryTypes>Speed</MemoryTypes>
+                        <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>Speed</MemoryTypes>
 
                         <FixedValueItem>
                             <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Download</RightLabel>

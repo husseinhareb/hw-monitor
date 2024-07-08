@@ -79,7 +79,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                     />
                     <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                         <RealTimeValues>
-                            <MemoryTypes>Ram <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>
+                            <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>Ram <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>
                             <FixedValueItem>
                                 <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Total</RightLabel>
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.total.value} {memoryData.total.unit}</LeftValue>
@@ -102,7 +102,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden }) => {
                             </FixedValueItem>
                         </RealTimeValues>
                         <FixedValues>
-                            <MemoryTypes>Swap<IoMdSwap style={{ marginLeft: '0.5em' }}/></MemoryTypes>
+                            <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>Swap<IoMdSwap style={{ marginLeft: '0.5em' }}/></MemoryTypes>
                             <FixedValueItem>
                                 <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Total</RightLabel>
                                 <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.swapTotal.value} {memoryData.swapTotal.unit}</RightValue>
