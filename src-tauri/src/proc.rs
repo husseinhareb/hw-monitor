@@ -194,7 +194,7 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
 }
 
 async fn get_proc_disk_usage_speed(pids: Vec<String>, read: bool) -> Vec<(i32, String)> {
-    let mut s = System::new_all();
+    let  s = System::new_all();
     let mut initial_disk_usages = Vec::new();
 
     // Collect initial disk usage for each process

@@ -1,3 +1,4 @@
+//HeatbarConfig.tsx
 import React from "react";
 import useHeatbar from "../../hooks/useHeatbarConfig";
 import {

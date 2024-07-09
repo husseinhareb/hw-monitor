@@ -1,4 +1,3 @@
-//Sidebar.tsx
 import React, { useEffect, useState } from 'react';
 import { lighten } from 'polished';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
@@ -6,9 +5,9 @@ import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from 
 import Network from './Network';
 import Graph from '../Graph';
 import Cpu from './Cpu';
-import Disks from '../Disks/Disks';
 import Memory from './Memory';
 import usePerformanceConfig from '../../hooks/usePerformanceConfig';
+
 interface SidebarProps {
     interfaceNames: string[];
 }
@@ -16,7 +15,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showCpu, setShowCpu] = useState(true);
     const [showMemory, setShowMemory] = useState(false);
-    const [showDisk, setShowDisk] = useState(false);
     const [wifi, setWifi] = useState(false);
     const [ethernet, setEthernet] = useState(false);
     const [showWifi, setShowWifi] = useState(false);
@@ -30,14 +28,14 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
 
     const performanceConfig = usePerformanceConfig();
-    
+
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
+
     const handleItemClick = (itemName: string) => {
         setSelectedItem(itemName);
         setShowCpu(itemName === 'CPU');
         setShowMemory(itemName === 'Memory');
-        setShowDisk(itemName === 'DISK');
         setShowWifi(itemName === 'Wi-Fi');
         setShowEthernet(itemName === 'Ethernet');
     };
@@ -93,11 +91,10 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 </List>
             </SidebarContainer>
             <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                <Cpu hidden={!showCpu} /> 
-                <Memory hidden={!showMemory} />
-                <Disks hidden={!showDisk} />
-                <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} />
-                <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''} />
+                <Cpu hidden={!showCpu} performanceConfig={performanceConfig} />
+                <Memory hidden={!showMemory} performanceConfig={performanceConfig} />
+                <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''}  performanceConfig={performanceConfig}/>
+                <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''}  performanceConfig={performanceConfig}/>
             </div>
         </div >
     );

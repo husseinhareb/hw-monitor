@@ -4,19 +4,26 @@ import Graph from '../Graph';
 import useNetworkData from '../../hooks/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
-import usePerformanceConfig from '../../hooks/usePerformanceConfig';
 
 interface NetworkProps {
     hidden: boolean;
     interfaceName: string;
+    performanceConfig: {
+        config: {
+            performance_background_color: string;
+            performance_title_color: string;
+            performance_label_color: string;
+            performance_value_color: string;
+        }
+    };
 }
 
-const Network: React.FC<NetworkProps> = ({ hidden, interfaceName }) => {
+const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceConfig }) => {
     const { download = [], upload = [], totalDownload, totalUpload } = useNetworkData(interfaceName);
     const setWifiSpeed = useSetWifiSpeed();
     const setEthernetSpeed = useSetEthernetSpeed();
     const convertData = useDataConverter();
-    const performanceConfig = usePerformanceConfig();
+
     const downloadValues = useMemo(() => download.map(d => d.value), [download]);
     const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
 

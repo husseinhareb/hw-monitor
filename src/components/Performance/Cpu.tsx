@@ -1,7 +1,6 @@
-//Cpu.tsx
 import React, { useState, useEffect } from "react";
 import Graph from "../Graph";
-    import { useSetCpu } from "../../services/store";
+import { useSetCpu } from "../../services/store";
 import useCpuData from "../../hooks/useCpuData";
 import {
     CPU, LeftLabel,
@@ -14,23 +13,29 @@ import {
     SpeedUsageContainer,
     SpeedUsageItem,
     FixedValueItem,
-    NameLabel
+    NameLabel,
+    NameContainer
 } from "./Styles/style";
 import useTotalUsagesData from "../../hooks/useTotalUsagesData";
-import { NameContainer, } from "../../styles/general-style";
-import usePerformanceConfig from "../../hooks/usePerformanceConfig";
 
 interface CpuProps {
     hidden: boolean;
+    performanceConfig: {
+        config: {
+            performance_background_color: string;
+            performance_title_color: string;
+            performance_label_color: string;
+            performance_value_color: string;
+        }
+    };
 }
 
-const Cpu: React.FC<CpuProps> = ({ hidden }) => {
+const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
     const { cpuData } = useCpuData();
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
     const totalUsages = useTotalUsagesData();
     const setCpu = useSetCpu();
-    
-    const performanceConfig = usePerformanceConfig();
+
     useEffect(() => {
         if (cpuData !== null && cpuData.usage !== undefined) {
             setCpuUsage(prevCpuUsage => {
@@ -44,18 +49,18 @@ const Cpu: React.FC<CpuProps> = ({ hidden }) => {
             });
         }
     }, [cpuData, setCpuUsage]);
-    
+
     useEffect(() => {
         if (cpuData !== null && cpuUsage.length > 0) {
             setCpu(cpuUsage);
         }
     }, [cpuUsage, cpuData, setCpu]);
-    
+
 
     return (
-        <CPU 
-        performanceBackgroundColor={performanceConfig.config.performance_background_color}
-        style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}
+        <CPU
+            performanceBackgroundColor={performanceConfig.config.performance_background_color}
+            style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>CPU</NameLabel>

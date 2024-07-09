@@ -7,19 +7,24 @@ import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, Na
 import { NameContainer } from "../../styles/general-style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
-import usePerformanceConfig from "../../hooks/usePerformanceConfig";
 
 interface MemoryProps {
     hidden: boolean;
+    performanceConfig: {
+        config: {
+            performance_background_color: string;
+            performance_title_color: string;
+            performance_label_color: string;
+            performance_value_color: string;
+        }
+    };
 }
 
-const Memory: React.FC<MemoryProps> = ({ hidden }) => {
+const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
     const memoryUsage = useMemoryData();
     const [activeMem, setActiveMem] = useState<number[]>([]);
     const setMemory = useSetMemory();
     const convertData = useDataConverter();
-    
-    const performanceConfig = usePerformanceConfig();
 
     const [memoryData, setMemoryData] = useState<{
         total: { value: number, unit: string },

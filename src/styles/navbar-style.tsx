@@ -63,6 +63,7 @@ export const SearchInput = styled.input<{ navbarSearchBackgroundColor: string; n
     color: ${(props) => props.navbarSearchForegroundColor};
     background-color: ${(props) => props.navbarSearchBackgroundColor};
     outline: none;
+    width:15%;
 `;
 
 export const StyledUl = styled.ul`

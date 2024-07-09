@@ -2,7 +2,7 @@
 import { useSetPerformanceConfig } from "../services/store";
 import useFetchAndSetConfig from "../utils/useConfigUtils";
 
-type PerformanceConfig = {
+export type PerformanceConfig = {
     performance_update_time: number;
     performance_sidebar_background_color: string;
     performance_sidebar_color: string;
