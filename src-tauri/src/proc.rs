@@ -268,7 +268,7 @@ pub async fn get_processes() -> Vec<Process> {
         write_disk_speeds
     ).unwrap();
 
-    let mut s = System::new_all();
+    let s = System::new_all();
     for pid in pids {
         let (name, ppid, user) = match read_proc_status_file(&pid) {
             Some(info) => info,

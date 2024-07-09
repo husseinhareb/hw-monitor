@@ -21,11 +21,10 @@ const initialProcessConfig: ProcessConfig = {
 
 const useProcessConfig = () => {
     const setProcessesConfig = useSetProcessesConfig();
-    const { config, updateConfig, updateValues } = useFetchAndSetConfig(initialProcessConfig, "get_configs", setProcessesConfig);
+    const { config, updateConfig } = useFetchAndSetConfig(initialProcessConfig, "get_configs", setProcessesConfig);
 
     const updateTableValues = (newValues: string[]) => {
-        const newConfig = { ...config, processes_table_values: newValues };
-        updateValues(newConfig);
+        updateConfig("processes_table_values", newValues);
     };
 
     return {

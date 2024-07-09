@@ -1,4 +1,3 @@
-//useConfigUtils.tsx
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 
@@ -41,20 +40,24 @@ const useFetchAndSetConfig = <T extends ConfigType>(
         }
     };
 
-    const updateValues = (newConfig: T) => {
-        setConfig(newConfig);
-        sendData(newConfig);
-    };
-
-    const updateConfig = (key: keyof T, value: string | number | string[]) => {
-        const newConfig = { ...config, [key]: value };
-        updateValues(newConfig);
+    const updateConfig = async (key: keyof T, value: string | number | string[]) => {
+        try {
+            const fetchedConfig: T | null = await invoke(getConfigKey);
+            if (fetchedConfig) {
+                const newConfig = { ...fetchedConfig, [key]: value };
+                setConfig(newConfig);
+                sendData(newConfig);
+            } else {
+                console.warn("Empty response received from server.");
+            }
+        } catch (error) {
+            console.error("Error fetching config:", error);
+        }
     };
 
     return {
         config,
         updateConfig,
-        updateValues,
     };
 };
 
