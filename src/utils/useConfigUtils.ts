@@ -23,13 +23,14 @@ const useFetchAndSetConfig = <T extends ConfigType>(
                 console.error("Error fetching config:", error);
             }
         };
-
+    
         fetchConfig();
-
+    
         return () => {
-            // No interval cleanup needed here
+            // Optional cleanup function if needed
         };
-    }, [setConfigFunction]);
+    }, [getConfigKey]); // Ensure getConfigKey is the only dependency if it changes
+    
 
     const sendData = async (data: T) => {
         try {

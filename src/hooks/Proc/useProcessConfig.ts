@@ -1,5 +1,5 @@
-import { useSetProcessesConfig } from "../services/store";
-import useFetchAndSetConfig from "../utils/useConfigUtils";
+import { useSetProcessesConfig } from "../../services/store";
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type ProcessConfig = {
     processes_update_time: number;

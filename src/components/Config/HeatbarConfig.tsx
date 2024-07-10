@@ -1,6 +1,6 @@
 //HeatbarConfig.tsx
 import React from "react";
-import useHeatbar from "../../hooks/useHeatbarConfig";
+import useHeatbarConfig from "../../hooks/Sensors/useHeatbarConfig";
 import {
     ConfigContainer,
     Title,
@@ -24,9 +24,9 @@ interface HeatbarConfig {
 }
 
 const HeatbarConfig: React.FC = () => {
-    const { config, updateConfig } = useHeatbar();
+    const { config, updateConfig } = useHeatbarConfig();
 
-    const handleConfigChange = (key: keyof HeatbarConfig, value: string | number) => {
+    const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
         if (config) {
             updateConfig(key, value);
         }

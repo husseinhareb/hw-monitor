@@ -1,6 +1,6 @@
 // useHeatbarConfig.ts
-import { useSetHeatbarConfig } from "../services/store";
-import useFetchAndSetConfig from "../utils/useConfigUtils";
+import { useSetHeatbarConfig } from "../../services/store";
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type HeatbarConfig = {
     heatbar_color_one: string;

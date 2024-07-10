@@ -3,7 +3,7 @@ import useProcessData, { Process } from '../../hooks/useProcessData';
 import useTotalUsagesData from '../../hooks/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
 import { useProcessSearch } from '../../services/store';
-import useProcessConfig from '../../hooks/useProcessConfig';
+import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { lighten } from 'polished';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 

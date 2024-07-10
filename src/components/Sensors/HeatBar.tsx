@@ -1,6 +1,7 @@
+//Heatbar.tsx
 import React from 'react';
 import styled from 'styled-components';
-import useHeatbarConfig from '../../hooks/useHeatbarConfig';
+import useHeatbarConfig from '../../hooks/Sensors/useHeatbarConfig';
 
 // Style for the heat bar container
 const BarContainer = styled.div`

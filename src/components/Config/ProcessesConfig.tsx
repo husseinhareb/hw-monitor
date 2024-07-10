@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import useProcessConfig from "../../hooks/useProcessConfig";
+import useProcessConfig from "../../hooks/Proc/useProcessConfig";
 import {
     ConfigContainer,
     Title,

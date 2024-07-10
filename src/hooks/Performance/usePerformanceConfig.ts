@@ -1,6 +1,6 @@
 // usePerformanceConfig.ts
-import { useSetPerformanceConfig } from "../services/store";
-import useFetchAndSetConfig from "../utils/useConfigUtils";
+import { useSetPerformanceConfig } from "../../services/store";
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 export type PerformanceConfig = {
     performance_update_time: number;

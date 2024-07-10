@@ -6,7 +6,7 @@ import Network from './Network';
 import Graph from '../Graph';
 import Cpu from './Cpu';
 import Memory from './Memory';
-import usePerformanceConfig from '../../hooks/usePerformanceConfig';
+import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
 
 interface SidebarProps {
     interfaceNames: string[];

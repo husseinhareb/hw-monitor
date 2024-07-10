@@ -1,5 +1,5 @@
 import React from "react";
-import useSensorsConfig from "../../hooks/useSensorsConfig";
+import useSensorsConfig from "../../hooks/Sensors/useSensorsConfig";
 import {
     ConfigContainer,
     Title,

@@ -1,5 +1,5 @@
 import React from "react";
-import usePerformanceConfig from "../../hooks/usePerformanceConfig";
+import usePerformanceConfig from "../../hooks/Performance/usePerformanceConfig";
 import {
     ConfigContainer,
     Title,
