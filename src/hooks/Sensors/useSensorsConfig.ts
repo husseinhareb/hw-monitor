@@ -1,5 +1,5 @@
-import { useSetSensorsConfig } from "../services/store";
-import useFetchAndSetConfig from "../utils/useConfigUtils";
+import { useSetSensorsConfig } from "../../services/store";
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type SensorsConfig = {
     sensors_update_time: number;

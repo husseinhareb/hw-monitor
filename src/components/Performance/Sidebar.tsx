@@ -3,7 +3,7 @@ import { lighten } from 'polished';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
 import Network from './Network';
-import Graph from '../Graph';
+import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
 import Memory from './Memory';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';

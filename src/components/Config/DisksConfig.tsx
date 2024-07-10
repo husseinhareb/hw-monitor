@@ -1,6 +1,6 @@
 //DisksConfig.tsx
 import React from "react";
-import useDisksConfig from "../../hooks/useDisksConfig";
+import useDisksConfig from "../../hooks/Disks/useDisksConfig";
 import {
     ConfigContainer,
     Title,

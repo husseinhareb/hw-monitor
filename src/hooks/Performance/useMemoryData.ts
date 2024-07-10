@@ -1,9 +1,9 @@
 //useMemoryData.ts
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useSetMemory, useSetMaxMemory } from "../services/store";
-import useDataConverter from "../helpers/useDataConverter";
-import usePerformanceConfig from "./usePerformanceConfig";
+import { useSetMemory, useSetMaxMemory } from "../../services/store";
+import useDataConverter from "../../helpers/useDataConverter";
+import usePerformanceConfig from "../Performance/usePerformanceConfig";
 
 interface Memory {
     total: number | null;

@@ -1,7 +1,7 @@
 //graph.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
-import usePerformanceConfig from '../hooks/usePerformanceConfig';
+import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
 
 interface GraphProps {
     firstGraphValue: number[];

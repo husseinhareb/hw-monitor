@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-import useDataConverter from '../helpers/useDataConverter';
-import usePerformanceConfig from './usePerformanceConfig';
+import useDataConverter from '../../helpers/useDataConverter';
+import usePerformanceConfig from '../Performance/usePerformanceConfig';
 
 interface NetworkUsage {
     download: number;

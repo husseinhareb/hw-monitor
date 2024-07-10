@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Graph from "../Graph";
-import useMemoryData from "../../hooks/useMemoryData";
+import Graph from "../Graph/Graph";
+import useMemoryData from "../../hooks/Performance/useMemoryData";
 import { useSetMemory } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "./Styles/style";

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useSetEthernetSpeed, useSetWifiSpeed } from '../../services/store';
-import Graph from '../Graph';
-import useNetworkData from '../../hooks/useNetworkData';
+import Graph from '../Graph/Graph';
+import useNetworkData from '../../hooks/Performance/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 

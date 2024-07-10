@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import useProcessData, { Process } from '../../hooks/useProcessData';
-import useTotalUsagesData from '../../hooks/useTotalUsagesData';
+import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
+import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
 import { useProcessSearch } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';

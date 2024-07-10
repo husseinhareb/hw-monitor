@@ -9,10 +9,10 @@ import {
   SensorItem,
   ContentDiv,
 } from '../../styles/sensors-style';
-import useSensorsData from '../../hooks/useSensorsData';
-import Battery from './Battery';
-import HeatBar from './HeatBar';
-import useSensorsConfig from '../../hooks/useSensorsConfig';
+import useSensorsData from '../../hooks/Sensors/useSensorsData';
+import Battery from '../Sensors/Battery';
+import HeatBar from '../Sensors/HeatBar';
+import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();

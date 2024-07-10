@@ -3,7 +3,7 @@ import React from 'react';
 import useBatteryData from '../../hooks/Sensors/useBatteryData';
 import {  Design, DesignDiv, ContentDiv,Item } from '../../styles/battery-style';
 import { SensorGroup, SensorName} from '../../styles/sensors-style';
-import useSensorsConfig from '../../hooks/useSensorsConfig';
+import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 
 const Battery: React.FC = () => {
     const batteries = useBatteryData();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Graph from "../Graph";
+import Graph from "../Graph/Graph";
 import { useSetCpu } from "../../services/store";
-import useCpuData from "../../hooks/useCpuData";
+import useCpuData from "../../hooks/Performance/useCpuData";
 import {
     CPU, LeftLabel,
     RightLabel,
@@ -16,7 +16,7 @@ import {
     NameLabel,
     NameContainer
 } from "./Styles/style";
-import useTotalUsagesData from "../../hooks/useTotalUsagesData";
+import useTotalUsagesData from "../../hooks/Proc/useTotalUsagesData";
 
 interface CpuProps {
     hidden: boolean;

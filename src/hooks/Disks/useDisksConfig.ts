@@ -1,6 +1,6 @@
 // useDisksConfig.ts
-import { useSetDisksConfig } from "../services/store";
-import useFetchAndSetConfig from "../utils/useConfigUtils";
+import { useSetDisksConfig } from "../../services/store";
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type DisksConfig = {
     disks_update_time: number;

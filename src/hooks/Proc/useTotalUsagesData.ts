@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-import useProcessConfig from './Proc/useProcessConfig';
+import useProcessConfig from '../Proc/useProcessConfig';
 
 interface TotalUsages {
     memory: number | null;

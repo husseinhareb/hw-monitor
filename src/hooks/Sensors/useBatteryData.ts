@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/tauri";
-import useSensorsConfig from './useSensorsConfig';
+import useSensorsConfig from '../Sensors/useSensorsConfig';
 
 interface BatteryData {
     model: string | null;

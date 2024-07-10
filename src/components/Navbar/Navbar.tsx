@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
-import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../styles/navbar-style";
-import Proc from "./Processes/Proc";
-import Performance from "./Performance/Performance";
-import Sensors from "./Sensors/Sensors";
-import Disks from "./Disks/Disks";
-import Config from "./Config/Config";
+import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
+import Proc from "../Processes/Proc";
+import Performance from "../Performance/Performance";
+import Sensors from "../Sensors/Sensors";
+import Disks from "../Disks/Disks";
+import Config from "../Config/Config";
 import { GiProcessor } from "react-icons/gi";
 import { MdSpeed } from "react-icons/md";
 import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
-import { useSetProcessSearch } from "../services/store";
+import { useSetProcessSearch } from "../../services/store";
 import { LuSettings2 } from "react-icons/lu";
-import useNavbarConfig from "../hooks/useNavbarConfig";
+import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Config";
 

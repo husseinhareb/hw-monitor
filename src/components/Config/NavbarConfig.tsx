@@ -1,5 +1,5 @@
 import React from "react";
-import useNavbarConfig from "../../hooks/useNavbarConfig";
+import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 import {
     ConfigContainer,
     Title,

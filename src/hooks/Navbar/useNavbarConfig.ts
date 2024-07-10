@@ -1,5 +1,5 @@
-import { useSetNavbarConfig } from "../services/store";
-import useFetchAndSetConfig from "../utils/useConfigUtils";
+import { useSetNavbarConfig } from "../../services/store";
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type NavbarConfig = {
     navbar_background_color: string;
