@@ -91,18 +91,30 @@ const Proc: React.FC = () => {
         return null;
     };
 
-    const getCellStyle = (value: string, total: number | null): React.CSSProperties => {
+    const getCellStyle = (value: string, total: number | null, isCpuUsage: boolean = false): React.CSSProperties => {
         const percentage = (convertDataValue(value) / (total || 1)) * 100;
-        if (percentage > 10) {
-            const backgroundColor = lighten(0.15, processConfig.config.processes_body_background_color);
-            return { backgroundColor, color: processConfig.config.processes_body_color };
+        let backgroundColor;
+
+        if (isCpuUsage) {
+            const cpuUsage = parseFloat(value);
+            if (cpuUsage > 20) {
+                backgroundColor = lighten(0.15, processConfig.config.processes_body_background_color);
+            } else if (cpuUsage > 5) {
+                backgroundColor = lighten(0.1, processConfig.config.processes_body_background_color);
+            } else if (cpuUsage > 3) {
+                backgroundColor = lighten(0.05, processConfig.config.processes_body_background_color);
+            }
+        } else {
+            if (percentage > 10) {
+                backgroundColor = lighten(0.15, processConfig.config.processes_body_background_color);
+            } else if (percentage > 5) {
+                backgroundColor = lighten(0.1, processConfig.config.processes_body_background_color);
+            }
         }
-        if (percentage > 5) {
-            const backgroundColor = lighten(0.1, processConfig.config.processes_body_background_color);
-            return { backgroundColor, color: processConfig.config.processes_body_color };
-        }
-        return {};
+
+        return backgroundColor ? { backgroundColor, color: processConfig.config.processes_body_color } : {};
     };
+
 
     const filteredProcesses = useMemo(() => {
         if (!processSearch) return sortedProcesses;
@@ -175,16 +187,28 @@ const Proc: React.FC = () => {
                             {displayedColumns.map(column => (
                                 <Td
                                     key={column}
-                                    style={column === 'memory' || column.includes('disk') ? getCellStyle(process[column] as string, column.includes('read') ? totalReadDiskUsage : column.includes('write') ? totalWriteDiskUsage : totalMemoryUsage) : {}}
+                                    style={getCellStyle(
+                                        process[column] as string,
+                                        column.includes('disk')
+                                            ? column.includes('read')
+                                                ? totalReadDiskUsage
+                                                : totalWriteDiskUsage
+                                            : column === 'cpu_usage'
+                                                ? null  // No total for CPU usage
+                                                : totalMemoryUsage,
+                                        column === 'cpu_usage'  // Check if the column is 'cpu_usage'
+                                    )}
                                     bodyBackgroundColor={processConfig.config.processes_body_background_color}
                                     bodyColor={processConfig.config.processes_body_color}
-                                    columnCount={displayedColumns.length}>
+                                    columnCount={displayedColumns.length}
+                                >
                                     {process[column] || ''}
                                 </Td>
                             ))}
                         </Tr>
                     ))}
                 </Tbody>
+
             </Table>
         </TableContainer>
     );
