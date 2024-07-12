@@ -131,3 +131,46 @@ heatbar_color_eight=#7aa2f7
 heatbar_color_nine=#2ac3de
 heatbar_color_ten=#a9b1d6
 ```
+
+## Installation 
+You can download the app from the release page or build it yourself 
+### Building Binaries 
+Follow these steps to build the app locally:
+
+1. **Clone the repository**:
+
+    ```
+    git clone https://github.com/husseinhareb/hw-monitor
+    ```
+
+2. **Install dependencies**:
+
+    ```
+    cd hw-monitor/
+    npm install
+    ```
+
+3. **Run the application**:
+
+    ```
+    npm run tauri dev
+    ```
+4. **Build the application**:
+  
+    ```
+    npm run tauri build
+    ```
+
+## Contributing
+
+Contributions are welcome! If you'd like to contribute:
+
+    Fork the repository.
+    Create your branch: git checkout -b feature/YourFeature.
+    Commit your changes: git commit -m 'Add some feature'.
+    Push to the branch: git push origin feature/YourFeature.
+    Submit a pull request.
+
+## Licence
+
+This project is licensed under the [MIT License](https://github.com/husseinhareb/hw-monitor/blob/main/LICENSE).
