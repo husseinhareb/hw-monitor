@@ -54,6 +54,8 @@ The software also contains a configuration file that is created at startup insid
 ### Catpuccin Alike Theme
 
 Along with the default configuration, there is another beautiful theme that has a palette similar to Catpuccin.
+![swappy-20240712_192709](https://github.com/user-attachments/assets/035d8c1c-1dbb-46b9-a1b9-60927b05ef61)
+![swappy-20240712_203241](https://github.com/user-attachments/assets/242d3fae-cfd4-4256-84e4-3a4b6f79f252)
 
 ```shell
 # Catpuccin Theme
