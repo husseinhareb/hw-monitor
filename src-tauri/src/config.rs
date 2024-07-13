@@ -42,7 +42,7 @@ pub struct ConfigData {
     pub disks_partition_background_color: String,
     pub disks_partition_usage_background_color: String,
     pub disks_partition_name_foreground_color: String,
-    pub disks_paritition_type_foreground_color: String,
+    pub disks_partition_type_foreground_color: String,
     pub disks_partition_usage_foreground_color: String,
 
     pub navbar_background_color: String,
@@ -133,7 +133,7 @@ pub fn default_config() -> Result<(), io::Error> {
         disks_partition_background_color=#4a4a4a\n\
         disks_partition_usage_background_color=#2b2b2b\n\
         disks_partition_name_foreground_color=#61dafb\n\
-        disks_paritition_type_foreground_color=#a3be8c\n\
+        disks_partition_type_foreground_color=#a3be8c\n\
         disks_partition_usage_foreground_color=#ffcb6b\n\
         navbar_background_color=#222222\n\
         navbar_buttons_background_color=#f3eae8\n\
@@ -196,7 +196,7 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         disks_partition_background_color: String::new(),
         disks_partition_usage_background_color: String::new(),
         disks_partition_name_foreground_color: String::new(),
-        disks_paritition_type_foreground_color: String::new(),
+        disks_partition_type_foreground_color: String::new(),
         disks_partition_usage_foreground_color: String::new(),
         navbar_background_color: String::new(),
         navbar_buttons_background_color: String::new(),
@@ -328,8 +328,8 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "disks_partition_name_foreground_color" => {
                 config_data.disks_partition_name_foreground_color = value.to_string();
             },
-            "disks_paritition_type_foreground_color" => {
-                config_data.disks_paritition_type_foreground_color = value.to_string();
+            "disks_partition_type_foreground_color" => {
+                config_data.disks_partition_type_foreground_color = value.to_string();
             },
             "disks_partition_usage_foreground_color" => {
                 config_data.disks_partition_usage_foreground_color = value.to_string();
@@ -427,7 +427,7 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         disks_partition_background_color={}\n\
         disks_partition_usage_background_color={}\n\
         disks_partition_name_foreground_color={}\n\
-        disks_paritition_type_foreground_color={}\n\
+        disks_partition_type_foreground_color={}\n\
         disks_partition_usage_foreground_color={}\n\
         navbar_background_color={}\n\
         navbar_buttons_background_color={}\n\
@@ -477,7 +477,7 @@ pub fn save_config(config: ConfigData) -> Result<(), io::Error> {
         config.disks_partition_background_color,
         config.disks_partition_usage_background_color,
         config.disks_partition_name_foreground_color,
-        config.disks_paritition_type_foreground_color,
+        config.disks_partition_type_foreground_color,
         config.disks_partition_usage_foreground_color,
         config.navbar_background_color,
         config.navbar_buttons_background_color,

@@ -11,7 +11,7 @@ type DisksConfig = {
     disks_partition_background_color: string;
     disks_partition_usage_background_color: string;
     disks_partition_name_foreground_color: string;
-    disks_paritition_type_foreground_color: string;
+    disks_partition_type_foreground_color: string;
     disks_partition_usage_foreground_color: string;
 };
 
@@ -24,7 +24,7 @@ const initialDisksConfig: DisksConfig = {
     disks_partition_background_color: "#4a4a4a",
     disks_partition_usage_background_color: "#2b2b2b",
     disks_partition_name_foreground_color: "#61dafb",
-    disks_paritition_type_foreground_color: "#a3be8c",
+    disks_partition_type_foreground_color: "#a3be8c",
     disks_partition_usage_foreground_color: "#ffcb6b",
 };
 

@@ -23,23 +23,31 @@ const useFetchAndSetConfig = <T extends ConfigType>(
                 console.error("Error fetching config:", error);
             }
         };
-    
+
         fetchConfig();
-    
+
         return () => {
             // Optional cleanup function if needed
         };
     }, [getConfigKey]); // Ensure getConfigKey is the only dependency if it changes
-    
+
+
+    let isSending = false;
 
     const sendData = async (data: T) => {
+        if (isSending) return; // Prevent multiple sends
+        isSending = true;
         try {
+            console.log("Sending data", data);
             await invoke("set_config", { config: data });
             setConfigFunction(data);
         } catch (error) {
             console.error("Error while sending data to backend:", error);
+        } finally {
+            isSending = false; // Reset the flag after sending
         }
     };
+
 
     const updateConfig = async (key: keyof T, value: string | number | string[]) => {
         try {
@@ -47,7 +55,7 @@ const useFetchAndSetConfig = <T extends ConfigType>(
             if (fetchedConfig) {
                 const newConfig = { ...fetchedConfig, [key]: value };
                 setConfig(newConfig);
-                sendData(newConfig);
+                await sendData(newConfig); // Wait for sendData to complete before setting new state
             } else {
                 console.warn("Empty response received from server.");
             }
@@ -55,6 +63,7 @@ const useFetchAndSetConfig = <T extends ConfigType>(
             console.error("Error fetching config:", error);
         }
     };
+
 
     return {
         config,

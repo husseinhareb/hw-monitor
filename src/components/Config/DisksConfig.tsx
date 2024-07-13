@@ -21,7 +21,7 @@ interface DisksConfig {
     disks_partition_background_color: string;
     disks_partition_usage_background_color: string;
     disks_partition_name_foreground_color: string;
-    disks_paritition_type_foreground_color: string;
+    disks_partition_type_foreground_color: string;
     disks_partition_usage_foreground_color: string;
 }
 
@@ -108,8 +108,8 @@ const DisksConfig: React.FC = () => {
                 <ColorLabelText>Partition Type Foreground Color</ColorLabelText>
                 <ColorInput
                     type="color"
-                    value={config.disks_paritition_type_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_paritition_type_foreground_color", e.target.value)}
+                    value={config.disks_partition_type_foreground_color}
+                    onChange={(e) => handleConfigChange("disks_partition_type_foreground_color", e.target.value)}
                 />
             </ColorLabel>
             <ColorLabel>
