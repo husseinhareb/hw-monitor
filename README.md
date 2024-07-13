@@ -1,6 +1,6 @@
-# HW Monitor
+# hw-monitor
 
-HW Monitor is a Linux desktop application designed to monitor various aspects of your computer's hardware. Built using the Tauri framework, it features a Rust backend and a TypeScript frontend utilizing the React library.
+hw-monitor is a Linux desktop application designed to monitor various aspects of your computer's hardware. Built using the Tauri framework, it features a Rust backend and a TypeScript frontend utilizing the React library.
 
 ## Description
 
