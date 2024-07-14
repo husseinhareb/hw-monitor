@@ -11,7 +11,9 @@ const calculateFontSize = (columnCount: number): number => {
 
 export const TableContainer = styled.div`
     width: 100%;
-    overflow-x: auto;
+    height: 80vh; 
+    overflow-y: auto; 
+    position: relative;
 `;
 
 export const Table = styled.table<{ bodyBackgroundColor: string; bodyColor: string; headBackgroundColor: string; headColor: string }>`
@@ -26,6 +28,9 @@ export const Thead = styled.thead<{ headBackgroundColor: string; headColor: stri
     background-color: ${(props) => props.headBackgroundColor};
     color: ${(props) => props.headColor};
     text-align: left;
+    position: sticky;
+    top: 0; 
+    z-index: 1; 
 `;
 
 export const Th = styled.th<{ headBackgroundColor: string; headColor: string; columnCount: number; }>`

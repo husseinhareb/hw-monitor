@@ -465,62 +465,75 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
 }
 
 // Function to write all configs
+use std::fs::rename;
+
 pub fn write_all_configs(config_data: &ConfigData) -> Result<(), io::Error> {
     let file_path = config_file()?;
-    let mut file = File::create(file_path)?;
+    let temp_file_path = file_path.with_extension("tmp");
 
-    writeln!(file, "processes_update_time={}", config_data.processes_update_time)?;
-    writeln!(file, "processes_body_background_color={}", config_data.processes_body_background_color)?;
-    writeln!(file, "processes_body_color={}", config_data.processes_body_color)?;
-    writeln!(file, "processes_head_background_color={}", config_data.processes_head_background_color)?;
-    writeln!(file, "processes_head_color={}", config_data.processes_head_color)?;
-    writeln!(file, "processes_table_values={}", config_data.processes_table_values.join(","))?;
-    writeln!(file, "performance_update_time={}", config_data.performance_update_time)?;
-    writeln!(file, "performance_sidebar_background_color={}", config_data.performance_sidebar_background_color)?;
-    writeln!(file, "performance_sidebar_color={}", config_data.performance_sidebar_color)?;
-    writeln!(file, "performance_sidebar_selected_color={}", config_data.performance_sidebar_selected_color)?;
-    writeln!(file, "performance_background_color={}", config_data.performance_background_color)?;
-    writeln!(file, "performance_title_color={}", config_data.performance_title_color)?;
-    writeln!(file, "performance_label_color={}", config_data.performance_label_color)?;
-    writeln!(file, "performance_value_color={}", config_data.performance_value_color)?;
-    writeln!(file, "performance_graph_color={}", config_data.performance_graph_color)?;
-    writeln!(file, "performance_sec_graph_color={}", config_data.performance_sec_graph_color)?;
-    writeln!(file, "sensors_update_time={}", config_data.sensors_update_time)?;
-    writeln!(file, "sensors_background_color={}", config_data.sensors_background_color)?;
-    writeln!(file, "sensors_foreground_color={}", config_data.sensors_foreground_color)?;
-    writeln!(file, "sensors_boxes_background_color={}", config_data.sensors_boxes_background_color)?;
-    writeln!(file, "sensors_boxes_foreground_color={}", config_data.sensors_boxes_foreground_color)?;
-    writeln!(file, "sensors_battery_background_color={}", config_data.sensors_battery_background_color)?;
-    writeln!(file, "sensors_battery_frame_color={}", config_data.sensors_battery_frame_color)?;
-    writeln!(file, "sensors_boxes_title_foreground_color={}", config_data.sensors_boxes_title_foreground_color)?;
-    writeln!(file, "disks_update_time={}", config_data.disks_update_time)?;
-    writeln!(file, "disks_background_color={}", config_data.disks_background_color)?;
-    writeln!(file, "disks_boxes_background_color={}", config_data.disks_boxes_background_color)?;
-    writeln!(file, "disks_name_foreground_color={}", config_data.disks_name_foreground_color)?;
-    writeln!(file, "disks_size_foreground_color={}", config_data.disks_size_foreground_color)?;
-    writeln!(file, "disks_partition_background_color={}", config_data.disks_partition_background_color)?;
-    writeln!(file, "disks_partition_usage_background_color={}", config_data.disks_partition_usage_background_color)?;
-    writeln!(file, "disks_partition_name_foreground_color={}", config_data.disks_partition_name_foreground_color)?;
-    writeln!(file, "disks_partition_type_foreground_color={}", config_data.disks_partition_type_foreground_color)?;
-    writeln!(file, "disks_partition_usage_foreground_color={}", config_data.disks_partition_usage_foreground_color)?;
-    writeln!(file, "navbar_background_color={}", config_data.navbar_background_color)?;
-    writeln!(file, "navbar_buttons_background_color={}", config_data.navbar_buttons_background_color)?;
-    writeln!(file, "navbar_buttons_foreground_color={}", config_data.navbar_buttons_foreground_color)?;
-    writeln!(file, "navbar_search_background_color={}", config_data.navbar_search_background_color)?;
-    writeln!(file, "navbar_search_foreground_color={}", config_data.navbar_search_foreground_color)?;
-    writeln!(file, "heatbar_color_one={}", config_data.heatbar_color_one)?;
-    writeln!(file, "heatbar_color_two={}", config_data.heatbar_color_two)?;
-    writeln!(file, "heatbar_color_three={}", config_data.heatbar_color_three)?;
-    writeln!(file, "heatbar_color_four={}", config_data.heatbar_color_four)?;
-    writeln!(file, "heatbar_color_five={}", config_data.heatbar_color_five)?;
-    writeln!(file, "heatbar_color_six={}", config_data.heatbar_color_six)?;
-    writeln!(file, "heatbar_color_seven={}", config_data.heatbar_color_seven)?;
-    writeln!(file, "heatbar_color_eight={}", config_data.heatbar_color_eight)?;
-    writeln!(file, "heatbar_color_nine={}", config_data.heatbar_color_nine)?;
-    writeln!(file, "heatbar_color_ten={}", config_data.heatbar_color_ten)?;
+    // Create and write to the temporary file
+    {
+        let mut file = File::create(&temp_file_path)?;
+
+        writeln!(file, "processes_update_time={}", config_data.processes_update_time)?;
+        writeln!(file, "processes_body_background_color={}", config_data.processes_body_background_color)?;
+        writeln!(file, "processes_body_color={}", config_data.processes_body_color)?;
+        writeln!(file, "processes_head_background_color={}", config_data.processes_head_background_color)?;
+        writeln!(file, "processes_head_color={}", config_data.processes_head_color)?;
+        writeln!(file, "processes_table_values={}", config_data.processes_table_values.join(","))?;
+        writeln!(file, "performance_update_time={}", config_data.performance_update_time)?;
+        writeln!(file, "performance_sidebar_background_color={}", config_data.performance_sidebar_background_color)?;
+        writeln!(file, "performance_sidebar_color={}", config_data.performance_sidebar_color)?;
+        writeln!(file, "performance_sidebar_selected_color={}", config_data.performance_sidebar_selected_color)?;
+        writeln!(file, "performance_background_color={}", config_data.performance_background_color)?;
+        writeln!(file, "performance_title_color={}", config_data.performance_title_color)?;
+        writeln!(file, "performance_label_color={}", config_data.performance_label_color)?;
+        writeln!(file, "performance_value_color={}", config_data.performance_value_color)?;
+        writeln!(file, "performance_graph_color={}", config_data.performance_graph_color)?;
+        writeln!(file, "performance_sec_graph_color={}", config_data.performance_sec_graph_color)?;
+        writeln!(file, "sensors_update_time={}", config_data.sensors_update_time)?;
+        writeln!(file, "sensors_background_color={}", config_data.sensors_background_color)?;
+        writeln!(file, "sensors_foreground_color={}", config_data.sensors_foreground_color)?;
+        writeln!(file, "sensors_boxes_background_color={}", config_data.sensors_boxes_background_color)?;
+        writeln!(file, "sensors_boxes_foreground_color={}", config_data.sensors_boxes_foreground_color)?;
+        writeln!(file, "sensors_battery_background_color={}", config_data.sensors_battery_background_color)?;
+        writeln!(file, "sensors_battery_frame_color={}", config_data.sensors_battery_frame_color)?;
+        writeln!(file, "sensors_boxes_title_foreground_color={}", config_data.sensors_boxes_title_foreground_color)?;
+        writeln!(file, "disks_update_time={}", config_data.disks_update_time)?;
+        writeln!(file, "disks_background_color={}", config_data.disks_background_color)?;
+        writeln!(file, "disks_boxes_background_color={}", config_data.disks_boxes_background_color)?;
+        writeln!(file, "disks_name_foreground_color={}", config_data.disks_name_foreground_color)?;
+        writeln!(file, "disks_size_foreground_color={}", config_data.disks_size_foreground_color)?;
+        writeln!(file, "disks_partition_background_color={}", config_data.disks_partition_background_color)?;
+        writeln!(file, "disks_partition_usage_background_color={}", config_data.disks_partition_usage_background_color)?;
+        writeln!(file, "disks_partition_name_foreground_color={}", config_data.disks_partition_name_foreground_color)?;
+        writeln!(file, "disks_partition_type_foreground_color={}", config_data.disks_partition_type_foreground_color)?;
+        writeln!(file, "disks_partition_usage_foreground_color={}", config_data.disks_partition_usage_foreground_color)?;
+        writeln!(file, "navbar_background_color={}", config_data.navbar_background_color)?;
+        writeln!(file, "navbar_buttons_background_color={}", config_data.navbar_buttons_background_color)?;
+        writeln!(file, "navbar_buttons_foreground_color={}", config_data.navbar_buttons_foreground_color)?;
+        writeln!(file, "navbar_search_background_color={}", config_data.navbar_search_background_color)?;
+        writeln!(file, "navbar_search_foreground_color={}", config_data.navbar_search_foreground_color)?;
+        writeln!(file, "heatbar_color_one={}", config_data.heatbar_color_one)?;
+        writeln!(file, "heatbar_color_two={}", config_data.heatbar_color_two)?;
+        writeln!(file, "heatbar_color_three={}", config_data.heatbar_color_three)?;
+        writeln!(file, "heatbar_color_four={}", config_data.heatbar_color_four)?;
+        writeln!(file, "heatbar_color_five={}", config_data.heatbar_color_five)?;
+        writeln!(file, "heatbar_color_six={}", config_data.heatbar_color_six)?;
+        writeln!(file, "heatbar_color_seven={}", config_data.heatbar_color_seven)?;
+        writeln!(file, "heatbar_color_eight={}", config_data.heatbar_color_eight)?;
+        writeln!(file, "heatbar_color_nine={}", config_data.heatbar_color_nine)?;
+        writeln!(file, "heatbar_color_ten={}", config_data.heatbar_color_ten)?;
+
+        file.flush()?;
+    }
+
+    // Rename the temporary file to the actual config file
+    rename(temp_file_path, file_path)?;
 
     Ok(())
 }
+
 
 #[tauri::command]
 pub async fn get_configs() -> Result<ConfigData, InvokeError> {

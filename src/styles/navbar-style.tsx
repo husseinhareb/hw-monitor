@@ -1,14 +1,18 @@
 import styled from 'styled-components';
 
-export const StyledNav = styled.nav<{ navbarBackgroundColor:string; }>`
+export const StyledNav = styled.nav<{ navbarBackgroundColor: string }>`
     background-color: ${(props) => props.navbarBackgroundColor};
     width: 100%;
-    height:30px;
+    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
+    position: fixed;
+    top: 0; 
+    left: 0;  
+    z-index: 1000;  
 `;
+
 
 export const ConfigButtonContainer = styled.div`
     position: absolute;
@@ -77,6 +81,7 @@ export const StyledUl = styled.ul`
 `;
 
 export const ContentContainer = styled.div`
-  height:100%;
-  width:100%
+  height: 100%;
+  width: 100%;
+  padding-top: 30px; 
 `;
