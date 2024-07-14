@@ -1,4 +1,3 @@
-import { useSetProcessesConfig } from "../../services/store";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type ProcessConfig = {
@@ -20,8 +19,9 @@ const initialProcessConfig: ProcessConfig = {
 };
 
 const useProcessConfig = () => {
-    const setProcessesConfig = useSetProcessesConfig();
-    const { config, updateConfig } = useFetchAndSetConfig(initialProcessConfig, "get_configs", setProcessesConfig);
+
+
+    const { config, updateConfig } = useFetchAndSetConfig(initialProcessConfig, "get_configs", "set_processes_configs");
 
     const updateTableValues = (newValues: string[]) => {
         updateConfig("processes_table_values", newValues);

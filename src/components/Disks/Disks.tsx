@@ -80,12 +80,12 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                     )}
                     {partition.mount_point && (
                       <FileSystem
-                        parititionTypeForegroundColor={disksConfig.config.disks_paritition_type_foreground_color}
+                        partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
                       >{partition.mount_point}</FileSystem>
                     )}
                     {partition.file_system && (
                       <FileSystem
-                        parititionTypeForegroundColor={disksConfig.config.disks_paritition_type_foreground_color}
+                        partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
                       >{partition.file_system}</FileSystem>
                     )}
                     {partition.used_space && partition.total_space && (

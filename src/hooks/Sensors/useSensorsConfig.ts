@@ -1,4 +1,3 @@
-import { useSetSensorsConfig } from "../../services/store";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type SensorsConfig = {
@@ -24,8 +23,8 @@ const initialSensorsConfig: SensorsConfig = {
 };
 
 const useSensorsConfig = () => {
-    const setSensorsConfig = useSetSensorsConfig();
-    return useFetchAndSetConfig(initialSensorsConfig, "get_configs", setSensorsConfig);
+
+    return useFetchAndSetConfig(initialSensorsConfig, "get_configs", "set_sensors_configs");
 };
 
 export default useSensorsConfig;

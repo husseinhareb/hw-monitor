@@ -21,9 +21,16 @@ fn main() {
             disk::get_disks,
             sensors::get_sensors,
             battery::get_batteries,
-            config::set_default_config,
-            config::set_config,
             config::get_configs,
+            config::set_default_config,
+            config::set_processes_configs,
+            config::set_performance_configs,
+            config::set_sensors_configs,
+            config::set_heatbar_configs,
+            config::set_disks_configs,
+            config::set_navbar_configs,
+
+
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,4 +1,3 @@
-import { useSetNavbarConfig } from "../../services/store";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type NavbarConfig = {
@@ -18,8 +17,8 @@ const initialNavbarConfig: NavbarConfig = {
 };
 
 const useNavbarConfig = () => {
-    const setNavbarConfig = useSetNavbarConfig();
-    return useFetchAndSetConfig(initialNavbarConfig, "get_configs", setNavbarConfig);
+
+    return useFetchAndSetConfig(initialNavbarConfig, "get_configs", "set_navbar_configs");
 };
 
 export default useNavbarConfig;

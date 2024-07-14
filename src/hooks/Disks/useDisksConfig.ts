@@ -1,5 +1,3 @@
-// useDisksConfig.ts
-import { useSetDisksConfig } from "../../services/store";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type DisksConfig = {
@@ -29,8 +27,7 @@ const initialDisksConfig: DisksConfig = {
 };
 
 const useDisksConfig = () => {
-    const setDisksConfig = useSetDisksConfig();
-    return useFetchAndSetConfig(initialDisksConfig, "get_configs", setDisksConfig);
+    return useFetchAndSetConfig(initialDisksConfig, "get_configs", "set_disks_configs");
 };
 
 export default useDisksConfig;

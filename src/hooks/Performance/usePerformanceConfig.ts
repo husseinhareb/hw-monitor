@@ -1,5 +1,3 @@
-// usePerformanceConfig.ts
-import { useSetPerformanceConfig } from "../../services/store";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 export type PerformanceConfig = {
@@ -29,8 +27,8 @@ const initialPerformanceConfig: PerformanceConfig = {
 };
 
 const usePerformanceConfig = () => {
-    const setPerformanceConfig = useSetPerformanceConfig();
-    return useFetchAndSetConfig(initialPerformanceConfig, "get_configs", setPerformanceConfig);
+
+    return useFetchAndSetConfig(initialPerformanceConfig, "get_configs", "set_performance_configs");
 };
 
 export default usePerformanceConfig;

@@ -1,5 +1,3 @@
-// useHeatbarConfig.ts
-import { useSetHeatbarConfig } from "../../services/store";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 
 type HeatbarConfig = {
@@ -29,8 +27,8 @@ const initialHeatbarConfig: HeatbarConfig = {
 };
 
 const useHeatbarConfig = () => {
-    const setHeatbarConfig = useSetHeatbarConfig();
-    return useFetchAndSetConfig(initialHeatbarConfig, "get_configs", setHeatbarConfig);
+
+    return useFetchAndSetConfig(initialHeatbarConfig, "get_configs", "set_heatbar_configs");
 };
 
 export default useHeatbarConfig;

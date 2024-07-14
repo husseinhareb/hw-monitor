@@ -90,8 +90,8 @@ export const PartitionName = styled.span<{ partitionNameForegroundColor: string 
 `;
 
 
-export const FileSystem = styled.span<{ parititionTypeForegroundColor: string }>`
-  color:  ${(props) => props.parititionTypeForegroundColor};
+export const FileSystem = styled.span<{ partitionTypeForegroundColor: string }>`
+  color:  ${(props) => props.partitionTypeForegroundColor};
 `;
 
 export const Space = styled.span<{ partitionUsageForegroundColor: string }>`
