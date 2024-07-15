@@ -31,6 +31,13 @@ const SensorsConfig: React.FC = () => {
         }
     };
 
+    const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(e.target.value);
+        if (value >= 1000) {
+            handleConfigChange("sensors_update_time", value);
+        }
+    };
+
     return (
         <ConfigContainer>
             <Title>Sensors Config</Title>
@@ -42,7 +49,7 @@ const SensorsConfig: React.FC = () => {
                     value={config.sensors_update_time}
                     min={1000}
                     step={100}
-                    onChange={(e) => handleConfigChange("sensors_update_time", Number(e.target.value))}
+                    onChange={handleUpdateTimeChange}
                 />
             </Label>
             <ColorLabel>

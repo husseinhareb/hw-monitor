@@ -52,6 +52,14 @@ const ProcessesConfig: React.FC = () => {
         }
     };
 
+    const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(e.target.value);
+        if (value >= 1000) {
+            handleConfigChange("processes_update_time", value);
+        }
+    };
+
+
     // Convert snake_case to a more readable format
     const formatLabel = (value: string) => {
         return value
@@ -76,7 +84,7 @@ const ProcessesConfig: React.FC = () => {
                     value={config.processes_update_time}
                     min={1000}
                     step={100}
-                    onChange={(e) => handleConfigChange("processes_update_time", Number(e.target.value))}
+                    onChange={handleUpdateTimeChange}
                 />
             </Label>
             <ColorLabel>

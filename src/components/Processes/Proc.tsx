@@ -202,11 +202,12 @@ const Proc: React.FC = () => {
                                     bodyColor={processConfig.config.processes_body_color}
                                     columnCount={displayedColumns.length}
                                 >
-                                    {process[column] || ''}
+                                    {column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
                                 </Td>
                             ))}
                         </Tr>
                     ))}
+
                 </Tbody>
 
             </Table>

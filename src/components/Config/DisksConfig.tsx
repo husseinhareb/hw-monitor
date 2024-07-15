@@ -1,4 +1,3 @@
-//DisksConfig.tsx
 import React from "react";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
 import {
@@ -34,6 +33,13 @@ const DisksConfig: React.FC = () => {
         }
     };
 
+    const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(e.target.value);
+        if (value >= 1000) {
+            handleConfigChange("disks_update_time", value);
+        }
+    };
+
     return (
         <ConfigContainer>
             <Title>Disks Config</Title>
@@ -45,7 +51,7 @@ const DisksConfig: React.FC = () => {
                     value={config.disks_update_time}
                     min={1000}
                     step={100}
-                    onChange={(e) => handleConfigChange("disks_update_time", Number(e.target.value))}
+                    onChange={handleUpdateTimeChange}
                 />
             </Label>
             <ColorLabel>
