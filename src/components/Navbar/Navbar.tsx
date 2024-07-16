@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
+import styled from 'styled-components';
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
 import Proc from "../Processes/Proc";
 import Performance from "../Performance/Performance";
@@ -22,6 +23,13 @@ const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
     Disks,
     Config
 };
+
+// Create a styled container with overflow: hidden
+const ProcContainer = styled.div`
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+`;
 
 const Navbar: React.FC = () => {
     const [activeComponent, setActiveComponent] = useState<ComponentName>("Proc");
@@ -87,7 +95,7 @@ const Navbar: React.FC = () => {
     const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
 
     return (
-        <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column',overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
             <StyledNav
                 navbarBackgroundColor={navbarConfig.config.navbar_background_color}
             >
@@ -154,7 +162,13 @@ const Navbar: React.FC = () => {
                 )}
             </StyledNav>
             <ContentContainer>
-                {DynamicComponent && <DynamicComponent />}
+                {activeComponent === "Proc" ? (
+                    <ProcContainer>
+                        <Proc />
+                    </ProcContainer>
+                ) : (
+                    DynamicComponent && <DynamicComponent />
+                )}
             </ContentContainer>
         </div>
     );
