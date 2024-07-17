@@ -7,12 +7,13 @@ mod total_usages;
 mod sensors;
 mod battery;
 mod config;
-
+mod gpu;
 fn main() {
     let _ = config::create_config();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             proc::get_processes,
+            
             total_usages::get_total_usages,
             cpu::get_cpu_informations,
             network::get_network,
@@ -29,6 +30,7 @@ fn main() {
             config::set_heatbar_configs,
             config::set_disks_configs,
             config::set_navbar_configs,
+            gpu::get_gpu_informations,
 
 
         ])
