@@ -13,9 +13,11 @@ import useSensorsData from '../../hooks/Sensors/useSensorsData';
 import Battery from '../Sensors/Battery';
 import HeatBar from '../Sensors/HeatBar';
 import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
+import useBatteryData from '../../hooks/Sensors/useBatteryData';
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();
+  const battery = useBatteryData();
 
   // Filter out sensors with no sensor values
   const filteredSensors = sensors.filter(hwmon => hwmon.sensors.length > 0);
@@ -30,11 +32,11 @@ const Sensors: React.FC = () => {
     >
       <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>Sensors</Title>
       <SensorGrid>
-        <SensorList
+        {battery.length > 0 && <SensorList
           sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
         >
           <Battery />
-        </SensorList>
+        </SensorList>}
         {sortedSensors.map((hwmon, index) => (
           <SensorList
             key={index}
