@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { lighten } from 'polished';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
-import { useCpu, useEthernetSpeed, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
+import { useCpu, useEthernetSpeed, useGpu, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
 import Network from './Network';
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
 import Memory from './Memory';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
+import Gpu from './Gpu';
 
 interface SidebarProps {
     interfaceNames: string[];
@@ -15,6 +16,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [showCpu, setShowCpu] = useState(true);
     const [showMemory, setShowMemory] = useState(false);
+    const [showGpu, setShowGpu] = useState(false);
     const [wifi, setWifi] = useState(false);
     const [ethernet, setEthernet] = useState(false);
     const [showWifi, setShowWifi] = useState(false);
@@ -24,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const cpuUsage = useCpu();
     const memory = useMemory();
     const maxMemory = useMaxMemory();
+    const gpuUsage = useGpu();
     const [wifiDownloadSpeed, wifiUploadSpeed] = useWifiSpeed();
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
 
@@ -36,6 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         setSelectedItem(itemName);
         setShowCpu(itemName === 'CPU');
         setShowMemory(itemName === 'Memory');
+        setShowGpu(itemName === 'GPU');
         setShowWifi(itemName === 'Wi-Fi');
         setShowEthernet(itemName === 'Ethernet');
     };
@@ -71,7 +75,13 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
                         </ListItem>
                     )}
-
+                    <ListItem
+                        onClick={() => handleItemClick('GPU')}
+                        style={{ color: selectedItem === 'GPU' ? lighten(0.1, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
+                    >
+                        GPU
+                        <Graph firstGraphValue={gpuUsage} maxValue={100} height="120px" width="100%" />
+                    </ListItem>
                     {wifi &&
                         <ListItem
                             onClick={() => handleItemClick('Wi-Fi')}
@@ -93,6 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                 <Cpu hidden={!showCpu} performanceConfig={performanceConfig} />
                 <Memory hidden={!showMemory} performanceConfig={performanceConfig} />
+                <Gpu hidden={!showGpu} performanceConfig={performanceConfig} />
                 <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''}  performanceConfig={performanceConfig}/>
                 <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''}  performanceConfig={performanceConfig}/>
             </div>

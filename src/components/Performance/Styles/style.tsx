@@ -16,6 +16,10 @@ export const LeftLabel = styled(Label)`
 font-size: 14px;
 `;
 
+export const TitleLabel = styled(Label)`
+font-size: 20px;
+`;
+
 // Common Value Style
 const Value = styled.p<{ performanceValueColor: string; }>`
 color: ${(props) => props.performanceValueColor};
@@ -59,10 +63,11 @@ min-width: 0;
 
 // CPU Specific Styles
 export const CPU = styled.div<{ performanceBackgroundColor: string }>`
-  background-color: ${(props) => props.performanceBackgroundColor};
-  width: 100%;
+background-color: ${(props) => props.performanceBackgroundColor};
+width: 100%;
 height: 100%;
 `;
+
 
 export const NameContainer = styled.div`
 display: flex;
