@@ -6,6 +6,7 @@ import { useProcessSearch } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { lighten } from 'polished';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
+import Spinner from '../Misc/Spinner';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>('memory');
@@ -147,7 +148,8 @@ const Proc: React.FC = () => {
 
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
-            <Table
+            {processes.length === 0 ? (<Spinner />) :
+            (<Table
                 bodyBackgroundColor={processConfig.config.processes_body_background_color}
                 bodyColor={processConfig.config.processes_body_color}
                 headBackgroundColor={processConfig.config.processes_head_background_color}
@@ -210,7 +212,7 @@ const Proc: React.FC = () => {
 
                 </Tbody>
 
-            </Table>
+            </Table>)}
         </TableContainer>
     );
 };
