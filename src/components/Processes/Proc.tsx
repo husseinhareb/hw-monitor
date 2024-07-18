@@ -11,11 +11,16 @@ import Spinner from '../Misc/Spinner';
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>('memory');
     const [sortOrder, setSortOrder] = useState<string>('desc');
+    const [selectedRow, setSelectedRow] = useState<number | null>(null); // State to track selected row index
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
     const processConfig = useProcessConfig();
 
+    // Function to handle click on a row
+    const handleRowClick = (index: number) => {
+        setSelectedRow(index === selectedRow ? null : index); // Toggle selection
+    };
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 
@@ -92,7 +97,12 @@ const Proc: React.FC = () => {
         return null;
     };
 
-    const getCellStyle = (value: string, total: number | null, isCpuUsage: boolean = false): React.CSSProperties => {
+    const getCellStyle = (value: string, total: number | null, isCpuUsage: boolean = false, selected: boolean = false): React.CSSProperties => {
+        if (selected) {
+            // Apply default or overridden styles for selected rows
+            return { backgroundColor: 'transparent', color: processConfig.config.processes_body_color }; // Or any other styles
+        }
+
         const percentage = (convertDataValue(value) / (total || 1)) * 100;
         let backgroundColor;
 
@@ -115,6 +125,7 @@ const Proc: React.FC = () => {
 
         return backgroundColor ? { backgroundColor, color: processConfig.config.processes_body_color } : {};
     };
+
 
 
     const filteredProcesses = useMemo(() => {
@@ -149,70 +160,75 @@ const Proc: React.FC = () => {
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
             {processes.length === 0 ? (<Spinner />) :
-            (<Table
-                bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                bodyColor={processConfig.config.processes_body_color}
-                headBackgroundColor={processConfig.config.processes_head_background_color}
-                headColor={processConfig.config.processes_head_color}
-            >
-                <Thead
+                (<Table
+                    bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                    bodyColor={processConfig.config.processes_body_color}
                     headBackgroundColor={processConfig.config.processes_head_background_color}
                     headColor={processConfig.config.processes_head_color}
                 >
-                    <Tr>
-                        {displayedColumns.map(column => (
-                            <Th
-                                key={column}
-                                onClick={() => sortProcesses(column)}
-                                headBackgroundColor={processConfig.config.processes_head_background_color}
-                                headColor={processConfig.config.processes_head_color}
-                                aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
-                                columnCount={displayedColumns.length}
-                            >
-                                <div className="header-label">
-                                    <div className="header-content">
-                                        {columnLabels[column].percentage && <span className="percentage">{columnLabels[column].percentage}</span>}
-                                        <span className="label">{columnLabels[column].label}</span>
-                                    </div>
-                                    {getSortIndicator(column)}
-                                </div>
-                            </Th>
-                        ))}
-                    </Tr>
-                </Thead>
-                <Tbody
-                    bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                    bodyColor={processConfig.config.processes_body_color}
-                >
-                    {filteredProcesses.map((process, index) => (
-                        <Tr key={index}>
+                    <Thead
+                        headBackgroundColor={processConfig.config.processes_head_background_color}
+                        headColor={processConfig.config.processes_head_color}
+                    >
+                        <Tr>
                             {displayedColumns.map(column => (
-                                <Td
+                                <Th
                                     key={column}
-                                    style={getCellStyle(
-                                        process[column] as string,
-                                        column.includes('disk')
-                                            ? column.includes('read')
-                                                ? totalReadDiskUsage
-                                                : totalWriteDiskUsage
-                                            : column === 'cpu_usage'
-                                                ? null  // No total for CPU usage
-                                                : totalMemoryUsage,
-                                        column === 'cpu_usage'  // Check if the column is 'cpu_usage'
-                                    )}
-                                    bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                                    bodyColor={processConfig.config.processes_body_color}
+                                    onClick={() => sortProcesses(column)}
+                                    headBackgroundColor={processConfig.config.processes_head_background_color}
+                                    headColor={processConfig.config.processes_head_color}
+                                    aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                                     columnCount={displayedColumns.length}
                                 >
-                                    {column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
-                                </Td>
+                                    <div className="header-label">
+                                        <div className="header-content">
+                                            {columnLabels[column].percentage && <span className="percentage">{columnLabels[column].percentage}</span>}
+                                            <span className="label">{columnLabels[column].label}</span>
+                                        </div>
+                                        {getSortIndicator(column)}
+                                    </div>
+                                </Th>
                             ))}
                         </Tr>
-                    ))}
+                    </Thead>
+                    <Tbody
+                        bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                        bodyColor={processConfig.config.processes_body_color}
+                    >
+                        {filteredProcesses.map((process, index) => (
+                            <Tr
+                                key={index}
+                                onClick={() => handleRowClick(index)} // Attach click handler to entire row
+                                style={{ backgroundColor: selectedRow === index ? lighten(0.15, processConfig.config.processes_body_background_color) : 'transparent' }} // Highlight row if selected
+                            >
+                                {displayedColumns.map(column => (
+                                    <Td
+                                        key={column}
+                                        style={getCellStyle(
+                                            process[column] as string,
+                                            column.includes('disk')
+                                                ? column.includes('read')
+                                                    ? totalReadDiskUsage
+                                                    : totalWriteDiskUsage
+                                                : column === 'cpu_usage'
+                                                    ? null  // No total for CPU usage
+                                                    : totalMemoryUsage,
+                                            column === 'cpu_usage',  // Check if the column is 'cpu_usage'
+                                            selectedRow === index  // Pass the selected status
+                                        )}
+                                        bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                                        bodyColor={processConfig.config.processes_body_color}
+                                        columnCount={displayedColumns.length}
+                                    >
+                                        {column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
+                                    </Td>
+                                ))}
+                            </Tr>
+                        ))}
+                    </Tbody>
 
-                </Tbody>
 
-            </Table>)}
+                </Table>)}
         </TableContainer>
     );
 };
