@@ -13,6 +13,8 @@ interface GpuData {
     utilization: string;
     clock_speed: string;
     wattage: string;
+    fan_speed: string;
+    performance_state: string;
 }
 
 const useGpuData = () => {
@@ -25,7 +27,9 @@ const useGpuData = () => {
         temperature: "N/A",
         utilization: "0",
         clock_speed: "N/A",
-        wattage: "N/A"
+        wattage: "N/A",
+        fan_speed: "N/A",
+        performance_state: "N/A",
     });
     const performanceConfig = usePerformanceConfig();  
 
@@ -38,7 +42,6 @@ const useGpuData = () => {
                 console.error("Error fetching GPU data:", error);
             }
         };
-        console.log(gpuData)
         fetchGpuData();
         const intervalId = setInterval(fetchGpuData, performanceConfig.config.performance_update_time); 
 
