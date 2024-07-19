@@ -19,6 +19,7 @@ pub struct Process {
     write_disk_speed: Option<String>,
 }
 
+
 fn list_proc_pid() -> Vec<String> {
     if let Ok(entries) = fs::read_dir("/proc") {
         entries
@@ -320,4 +321,25 @@ pub async fn get_processes() -> Vec<Process> {
     }
 
     processes
+}
+
+
+#[tauri::command]
+pub fn kill_process(process: Process) -> Result<(), String> {
+    let pid_str = process.pid;
+    let pid = pid_str.parse::<usize>().map_err(|_| format!("Invalid PID: {}", pid_str))?;
+    let pid = Pid::from(pid);
+
+    let mut system = System::new_all();
+    system.refresh_all();
+
+    match system.process(pid) {
+        Some(proc) => {
+            match proc.kill() {
+                true => Ok(()),
+                false => Err(format!("Failed to kill process with PID {}", pid_str)),
+            }
+        },
+        None => Err(format!("No process found with PID {}", pid_str)),
+    }
 }
