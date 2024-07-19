@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
 import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
-import { TableContainer, Table, Tbody, Thead, Td, Th, Tr } from '../../styles/proc-style';
+import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from '../../styles/proc-style';
 import { useProcessSearch } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { lighten } from 'polished';
@@ -21,6 +21,15 @@ const Proc: React.FC = () => {
     const handleRowClick = (index: number) => {
         setSelectedRow(index === selectedRow ? null : index); // Toggle selection
     };
+
+    const handleKillProcess = () => {
+        if (selectedRow !== null) {
+            const selectedProcess = filteredProcesses[selectedRow];
+            // Implement the logic to kill the process using the selectedProcess data
+            console.log('Killing process:', selectedProcess);
+        }
+    };
+
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
 
@@ -126,8 +135,6 @@ const Proc: React.FC = () => {
         return backgroundColor ? { backgroundColor, color: processConfig.config.processes_body_color } : {};
     };
 
-
-
     const filteredProcesses = useMemo(() => {
         if (!processSearch) return sortedProcesses;
         return sortedProcesses.filter(process => {
@@ -158,7 +165,7 @@ const Proc: React.FC = () => {
     };
 
     return (
-        <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white' }}>
+        <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white', position: 'relative' }}>
             {processes.length === 0 ? (<Spinner />) :
                 (<Table
                     bodyBackgroundColor={processConfig.config.processes_body_background_color}
@@ -226,9 +233,16 @@ const Proc: React.FC = () => {
                             </Tr>
                         ))}
                     </Tbody>
-
-
                 </Table>)}
+            {selectedRow !== null && (
+                <BottomBar bottomBarBackgroundColor={processConfig.config.processes_head_background_color}>
+                    <KillButton
+                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
+                        killButtonColor={processConfig.config.processes_body_color}
+                        onClick={handleKillProcess}
+                    >Kill Process</KillButton>
+                </BottomBar>
+            )}
         </TableContainer>
     );
 };

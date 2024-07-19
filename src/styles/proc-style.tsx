@@ -92,3 +92,29 @@ export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; co
     }
     max-width: 140px;
 `;
+
+export const BottomBar = styled.div<{ bottomBarBackgroundColor: string }>`
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height:4%;
+    width: 100%;
+    background-color: ${(props) => props.bottomBarBackgroundColor};
+    padding: 4px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+`;
+
+export const KillButton = styled.button<{ killButtonBackgroundColor: string; killButtonColor: string }>`
+    background-color: ${(props) => props.killButtonBackgroundColor};
+    color: ${(props) => props.killButtonColor};
+    border: none;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    &:hover {
+        background-color: ${(props) => lighten(0.01, props.killButtonBackgroundColor)};
+    }
+`;
