@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { invoke } from "@tauri-apps/api/tauri";
 import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
 import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from '../../styles/proc-style';
@@ -22,11 +23,15 @@ const Proc: React.FC = () => {
         setSelectedRow(index === selectedRow ? null : index); // Toggle selection
     };
 
-    const handleKillProcess = () => {
+    const handleKillProcess = async () => {
         if (selectedRow !== null) {
             const selectedProcess = filteredProcesses[selectedRow];
-            // Implement the logic to kill the process using the selectedProcess data
-            console.log('Killing process:', selectedProcess);
+            try {
+                await invoke('kill_process', { process: selectedProcess });
+                console.log('Killing process:', selectedProcess);
+            } catch (error) {
+                console.error('Failed to kill process:', error);
+            }
         }
     };
 

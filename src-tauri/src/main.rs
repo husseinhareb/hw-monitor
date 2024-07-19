@@ -13,7 +13,7 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             proc::get_processes,
-            
+            proc::kill_process,
             total_usages::get_total_usages,
             cpu::get_cpu_informations,
             network::get_network,

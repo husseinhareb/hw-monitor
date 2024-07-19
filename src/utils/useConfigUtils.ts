@@ -33,7 +33,7 @@ const useFetchAndSetConfig = <T extends ConfigType>(
 
     const sendData = async (data: T) => {
         try {
-            await invoke(setConfigCommand, { configs: data }); // Changed 'config' to 'settings'
+            await invoke(setConfigCommand, { configs: data }); 
         } catch (error) {
             console.error("Error while sending data to backend:", error);
         }
