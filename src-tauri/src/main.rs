@@ -9,6 +9,7 @@ mod battery;
 mod config;
 mod gpu;
 fn main() {
+    let devtools = devtools::init();
     let _ = config::create_config();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -34,6 +35,7 @@ fn main() {
 
 
         ])
+        .plugin(devtools)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
