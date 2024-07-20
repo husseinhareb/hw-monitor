@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { lighten } from 'polished';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import { useCpu, useEthernetSpeed, useGpu, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
 import Network from './Network';
@@ -51,7 +50,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         }
     }, [interfaceNames]);
 
-
     return (
         <div style={{ height: '100%', width: '100%', display: 'flex', overflow: 'hidden' }}>
             <SidebarContainer
@@ -61,45 +59,50 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 <Title>Performance</Title>
                 <List>
                     <ListItem
+                        performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
+                        performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                        isSelected={selectedItem === 'CPU'}
                         onClick={() => handleItemClick('CPU')}
-                        style={{ color: selectedItem === 'CPU' ? lighten(0.1, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
-                        className={`${selectedItem === 'CPU' && 'selected'}`}
                     >
                         CPU
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
                     {isMaxMemorySet && (
                         <ListItem
+                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            isSelected={selectedItem === 'Memory'}
                             onClick={() => handleItemClick('Memory')}
-                            style={{ color: selectedItem === 'Memory' ? lighten(0.15, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
-                            className={`${selectedItem === 'Memory' && 'selected'}`}
                         >
                             Memory
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
                         </ListItem>
                     )}
                     <ListItem
+                        performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
+                        performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                        isSelected={selectedItem === 'GPU'}
                         onClick={() => handleItemClick('GPU')}
-                        style={{ color: selectedItem === 'GPU' ? lighten(0.1, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
-                        className={`${selectedItem === 'GPU' && 'selected'}`}
                     >
-                        Gpu
+                        GPU
                         <Graph firstGraphValue={gpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
                     {wifi &&
                         <ListItem
+                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            isSelected={selectedItem === 'Wi-Fi'}
                             onClick={() => handleItemClick('Wi-Fi')}
-                            style={{ color: selectedItem === 'Wi-Fi' ? lighten(0.15, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
-                            className={`${selectedItem === 'Wi-Fi' && 'selected'}`}
                         >
                             Wi-Fi
                             <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                     {ethernet &&
                         <ListItem
+                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            isSelected={selectedItem === 'Ethernet'}
                             onClick={() => handleItemClick('Ethernet')}
-                            style={{ color: selectedItem === 'Ethernet' ? lighten(0.15, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
-                            className={`${selectedItem === 'Ethernet' && 'selected'}`}
                         >
                             Ethernet
                             <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />
