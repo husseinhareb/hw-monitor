@@ -31,9 +31,6 @@
     animation: rotation 1s linear infinite;
 }
 
-.selected { 
-    background-color: #506d7e21;
-}
 
 @keyframes rotation {
     0% {

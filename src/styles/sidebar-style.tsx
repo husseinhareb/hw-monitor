@@ -1,6 +1,6 @@
 // sidebar-style.js
 import styled from 'styled-components';
-
+import { lighten } from 'polished';
 // Styled SidebarContainer component
 export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string }>`
   width: 240px;
@@ -64,18 +64,19 @@ export const List = styled.ul`
   padding: 0;
 `;
 
-// Styled ListItem component
-export const ListItem = styled.li`
+// Updated ListItem component
+export const ListItem = styled.li<{ performanceSidebarBackgroundColor: string; performanceSidebarSelectedColor: string; isSelected: boolean }>`
   font-size: 14px;
   margin-bottom: 10px;
   cursor: pointer;
-  color: #b4b4b4;
   padding: 5px;
   border-radius: 5px;
-  transition-property: background;
-  transition-duration: .3s;
+  transition: background-color 0.3s;
+  color: ${(props) => props.isSelected ? lighten(0.1, props.performanceSidebarSelectedColor) : props.performanceSidebarSelectedColor};
+  background-color: ${(props) => props.isSelected ? lighten(0.04, props.performanceSidebarBackgroundColor) : props.performanceSidebarBackgroundColor};
+  transition: background-color 0.3s;
+
   &:hover {
-    color: #fff;
-    background: #506d7e21;
+    background-color: ${(props) => lighten(0.04, props.performanceSidebarBackgroundColor)};
   }
 `;
