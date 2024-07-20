@@ -1,6 +1,8 @@
 use serde::{Serialize, Deserialize};
 use nvml_wrapper::Nvml;
 use nvml_wrapper::error::NvmlError;
+use std::fs::{read_dir, read_to_string};
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GpuInformations {
@@ -19,16 +21,14 @@ pub struct GpuInformations {
 
 fn add_memory_unit(value: u64) -> String {
     let memory = value as f64;
-    if memory >= 1024.0 * 1024.0 * 1024.0{
+    if memory >= 1024.0 * 1024.0 * 1024.0 {
         format!("{:.0} GB", memory / (1024.0 * 1024.0 * 1024.0))
-    }
-    else if memory >= 1024.0 * 1024.0 {
-    format!("{:.0} MB", memory / (1024.0 * 1024.0))
+    } else if memory >= 1024.0 * 1024.0 {
+        format!("{:.0} MB", memory / (1024.0 * 1024.0))
     } else {
         format!("{} MB", memory)
     }
 }
-
 
 fn add_clock_speed_unit(value: u32) -> String {
     let clock_speed = value as f64;
@@ -39,10 +39,41 @@ fn add_clock_speed_unit(value: u32) -> String {
     }
 }
 
-fn get_gpu_info() -> Result<GpuInformations, NvmlError> {
+fn detect_nvidia_gpus() -> bool {
+    match Nvml::init() {
+        Ok(nvml) => {
+            let device_count = nvml.device_count();
+            device_count.is_ok() && device_count.unwrap() > 0
+        },
+        Err(_) => false,
+    }
+}
+
+fn detect_amd_gpus() -> bool {
+    let sysfs_path = PathBuf::from("/sys/class/drm/");
+    match read_dir(&sysfs_path) {
+        Ok(mut entries) => entries.any(|entry| {
+            if let Ok(entry) = entry {
+                let path = entry.path();
+                if path.is_dir() {
+                    let device_name = path.file_name().unwrap().to_str().unwrap();
+                    device_name.starts_with("card")
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }),
+        Err(_) => false,
+    }
+}
+
+
+fn get_nvidia_gpu_info() -> Result<GpuInformations, NvmlError> {
     let nvml = Nvml::init()?;
-    
     let device_count = nvml.device_count()?;
+    
     if device_count == 0 {
         return Err(NvmlError::NoPermission); // Changed to a more appropriate error
     }
@@ -77,16 +108,88 @@ fn get_gpu_info() -> Result<GpuInformations, NvmlError> {
     })
 }
 
+fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn std::error::Error>> {
+    let sysfs_path = PathBuf::from("/sys/class/drm/");
+    let devices = read_dir(&sysfs_path)?;
+
+    for entry in devices {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_dir() {
+            let device_name = path.file_name().unwrap().to_str().unwrap();
+            if device_name.starts_with("card") {
+                let mut info = GpuInformations {
+                    name: None,
+                    driver_version: None,
+                    memory_total: None,
+                    memory_used: None,
+                    memory_free: None,
+                    temperature: None,
+                    utilization: None,
+                    clock_speed: None,
+                    wattage: None,
+                    fan_speed: None,
+                    performance_state: None,
+                };
+
+                let memory_total_path = path.join("device/mem_info_vram_total");
+                if let Ok(total) = read_to_string(memory_total_path) {
+                    info.memory_total = Some(add_memory_unit(total.trim().parse::<u64>()?));
+                }
+
+                let memory_used_path = path.join("device/mem_info_vram_used");
+                if let Ok(used) = read_to_string(memory_used_path) {
+                    info.memory_used = Some(add_memory_unit(used.trim().parse::<u64>()?));
+                }
+
+                let memory_free_path = path.join("device/mem_info_vram_free");
+                if let Ok(free) = read_to_string(memory_free_path) {
+                    info.memory_free = Some(add_memory_unit(free.trim().parse::<u64>()?));
+                }
+
+                let temperature_path = path.join("device/hwmon/hwmon0/temp1_input");
+                if let Ok(temp) = read_to_string(temperature_path) {
+                    info.temperature = Some(format!("{} °C", temp.trim()));
+                }
+
+                let utilization_path = path.join("device/usage");
+                if let Ok(util) = read_to_string(utilization_path) {
+                    info.utilization = Some(format!("{} %", util.trim()));
+                }
+
+                let clock_speed_path = path.join("device/clock_speed");
+                if let Ok(clock) = read_to_string(clock_speed_path) {
+                    info.clock_speed = Some(add_clock_speed_unit(clock.trim().parse::<u32>()?));
+                }
+
+                return Ok(info);
+            }
+        }
+    }
+
+    Err("No AMD GPU found".into())
+}
+
 #[tauri::command]
 pub async fn get_gpu_informations() -> Option<GpuInformations> {
-    // Try fetching NVIDIA GPU information
-    match get_gpu_info() {
-        Ok(info) => {
-            Some(info)
-        },
-        Err(err) => {
-            eprintln!("Failed to get GPU information: {:?}", err);
-            None
-        },
+    if detect_nvidia_gpus() {
+        match get_nvidia_gpu_info() {
+            Ok(info) => return Some(info),
+            Err(err) => {
+                eprintln!("Failed to get NVIDIA GPU information: {:?}", err);
+            },
+        }
     }
+
+    if detect_amd_gpus() {
+        match get_amd_gpu_info() {
+            Ok(info) => return Some(info),
+            Err(err) => {
+                eprintln!("Failed to get AMD GPU information: {:?}", err);
+            },
+        }
+    }
+
+    None
 }
