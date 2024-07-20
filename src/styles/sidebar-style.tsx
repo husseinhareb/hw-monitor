@@ -66,10 +66,16 @@ export const List = styled.ul`
 
 // Styled ListItem component
 export const ListItem = styled.li`
+  font-size: 14px;
   margin-bottom: 10px;
   cursor: pointer;
   color: #b4b4b4;
+  padding: 5px;
+  border-radius: 5px;
+  transition-property: background;
+  transition-duration: .3s;
   &:hover {
     color: #fff;
+    background: #506d7e21;
   }
 `;

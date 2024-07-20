@@ -63,6 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     <ListItem
                         onClick={() => handleItemClick('CPU')}
                         style={{ color: selectedItem === 'CPU' ? lighten(0.1, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
+                        className={`${selectedItem === 'CPU' && 'selected'}`}
                     >
                         CPU
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
@@ -71,6 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         <ListItem
                             onClick={() => handleItemClick('Memory')}
                             style={{ color: selectedItem === 'Memory' ? lighten(0.15, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
+                            className={`${selectedItem === 'Memory' && 'selected'}`}
                         >
                             Memory
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
@@ -79,6 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                     <ListItem
                         onClick={() => handleItemClick('GPU')}
                         style={{ color: selectedItem === 'GPU' ? lighten(0.1, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
+                        className={`${selectedItem === 'GPU' && 'selected'}`}
                     >
                         Gpu
                         <Graph firstGraphValue={gpuUsage} maxValue={100} height="120px" width="100%" />
@@ -87,6 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         <ListItem
                             onClick={() => handleItemClick('Wi-Fi')}
                             style={{ color: selectedItem === 'Wi-Fi' ? lighten(0.15, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
+                            className={`${selectedItem === 'Wi-Fi' && 'selected'}`}
                         >
                             Wi-Fi
                             <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
@@ -95,6 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         <ListItem
                             onClick={() => handleItemClick('Ethernet')}
                             style={{ color: selectedItem === 'Ethernet' ? lighten(0.15, performanceConfig.config.performance_sidebar_selected_color) : performanceConfig.config.performance_sidebar_selected_color }}
+                            className={`${selectedItem === 'Ethernet' && 'selected'}`}
                         >
                             Ethernet
                             <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />
