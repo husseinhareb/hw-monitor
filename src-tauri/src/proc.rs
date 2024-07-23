@@ -291,7 +291,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let read_disk_speed = read_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(format!("{:.2}", speed))
+                Some(speed.clone()) // Use the already formatted string
             } else {
                 None
             }
@@ -299,7 +299,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let write_disk_speed = write_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(format!("{:.2}", speed))
+                Some(speed.clone()) // Use the already formatted string
             } else {
                 None
             }
@@ -322,6 +322,7 @@ pub async fn get_processes() -> Vec<Process> {
 
     processes
 }
+
 
 
 #[tauri::command]

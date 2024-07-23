@@ -64,6 +64,11 @@ const Proc: React.FC = () => {
     const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
     const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
     const totalWriteDiskUsage = calculateTotalUsage(processes, 'write_disk_usage');
+    const totalCpuUsage = processes.reduce((total, process) => {
+        const cpuUsage = typeof process.cpu_usage === 'string' ? parseFloat(process.cpu_usage) : 0;
+        return total + (cpuUsage || 0);
+    }, 0);
+    
 
     const sortProcessesByColumn = useMemo(() => (processes: Process[], column: string, order: string): Process[] => {
         if (!column) return processes;
@@ -162,7 +167,7 @@ const Proc: React.FC = () => {
         name: { percentage: null, label: 'Name' },
         state: { percentage: null, label: 'State' },
         memory: { percentage: totalUsages.memory !== null ? `${totalUsages.memory}%` : null, label: 'Memory' },
-        cpu_usage: { percentage: totalUsages.cpu !== null ? `${totalUsages.cpu}%` : null, label: 'CPU usage' },
+        cpu_usage: { percentage: `${Math.round(totalCpuUsage)}%`, label: 'CPU usage' }, // Set the percentage to the total CPU usage
         read_disk_usage: { percentage: null, label: 'Disk Read Total' },
         write_disk_usage: { percentage: null, label: 'Disk Write Total' },
         read_disk_speed: { percentage: null, label: 'Disk Read Speed' },
