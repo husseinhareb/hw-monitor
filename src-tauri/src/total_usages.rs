@@ -1,6 +1,7 @@
 use std::fs;
+use std::time::Duration;
+use std::thread::sleep;
 use serde::{Serialize, Deserialize};
-use sysinfo::{System, RefreshKind, CpuRefreshKind};
 
 #[derive(Serialize, Deserialize)]
 pub struct TotalUsage {
@@ -9,7 +10,39 @@ pub struct TotalUsage {
     processes: Option<String>
 }
 
+fn read_cpu_times() -> (u64, u64) {
+    let content = fs::read_to_string("/proc/stat").expect("Failed to read /proc/stat");
+    let cpu_line = content.lines()
+        .find(|line| line.starts_with("cpu "))
+        .expect("Failed to find cpu line");
 
+    let fields: Vec<u64> = cpu_line
+        .split_whitespace()
+        .skip(1)
+        .map(|field| field.parse().expect("Failed to parse CPU field"))
+        .collect();
+
+    let total_time: u64 = fields.iter().sum();
+    let idle_time = fields[3];
+
+    (total_time, idle_time)
+}
+
+async fn get_cpu_usage_percentage() -> Option<u64> {
+    let (prev_total, prev_idle) = read_cpu_times();
+    
+    sleep(Duration::from_secs(1));
+    
+    let (total, idle) = read_cpu_times();
+
+    let total_diff = total - prev_total;
+    let idle_diff = idle - prev_idle;
+
+    let cpu_usage = 100.0 * (total_diff - idle_diff) as f64 / total_diff as f64;
+    let rounded_cpu_usage = cpu_usage.round() as u64;
+
+    Some(rounded_cpu_usage)
+}
 
 fn get_memory_usage_percentage() -> Option<u64> {
     let mut total_memory = 0;
@@ -37,33 +70,6 @@ fn get_memory_usage_percentage() -> Option<u64> {
     None
 }
 
-
-async fn get_cpu_usage_percentage() -> Option<u64> {
-    let mut s = System::new_with_specifics(
-        RefreshKind::new().with_cpu(CpuRefreshKind::everything()),
-    );
-    
-    // Wait a bit because CPU usage is based on diff.
-    std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
-    // Refresh CPUs again.
-    s.refresh_cpu();
-
-    let mut total_usage = 0.0;
-    let mut num_cpus = 0;
-
-    for cpu in s.cpus() {
-        total_usage += cpu.cpu_usage() as f64;
-        num_cpus += 1;
-    }
-
-    if num_cpus > 0 {
-        let average_usage = (total_usage / num_cpus as f64) as u64;
-        Some(average_usage)
-    } else {
-        None
-    }
-}
-
 fn get_running_processes_count() -> Option<usize> {
     if let Ok(entries) = fs::read_dir("/proc") {
         let count = entries
@@ -84,7 +90,6 @@ fn get_running_processes_count() -> Option<usize> {
         None 
     }
 }
-
 
 #[tauri::command]
 pub async fn get_total_usages() -> Option<TotalUsage> {
