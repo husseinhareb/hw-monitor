@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 use std::fs;
 use std::process::Command;
 use sysinfo::{RefreshKind, System, CpuRefreshKind};
+use crate::sensors;
 
 #[derive(Serialize, Deserialize)]
 pub struct CpuInformations {
@@ -15,7 +16,9 @@ pub struct CpuInformations {
     max_speed: Option<String>,
     virtualization: Option<String>,
     uptime: Option<String>,
+    temperature: Option<String>, 
 }
+
 
 fn get_base_speed_from_file() -> Option<String> {
     let cpu_base_freq_file = "/sys/devices/system/cpu/cpu0/cpufreq/base_frequency";
@@ -30,7 +33,7 @@ fn get_max_speed_from_file() -> Option<String> {
     let cpu_max_freq_file = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq";
 
     match fs::read_to_string(cpu_max_freq_file) {
-        Ok(cpu_clock_info) => Some(cpu_clock_info.trim().to_string()), // Read and trim the value
+        Ok(cpu_clock_info) => Some(cpu_clock_info.trim().to_string()),
         Err(_) => None, // Return None if reading the file fails
     }
 }
@@ -97,6 +100,23 @@ async fn get_cpu_usage_percentage() -> Option<i64> {
         None
     }
 }
+
+fn get_cpu_temperature() -> Option<String> {
+    let hwmon_data = sensors::get_hwmon_data();
+
+    for hwmon in hwmon_data {
+        // Check if the hwmon device has sensors
+        for sensor in hwmon.sensors {
+            if sensor.name.contains("core") || sensor.name.contains("Package") {
+                // Adjust this logic based on your actual sensor names
+                return Some(format!("{:.1} °C", sensor.value));
+            }
+        }
+    }
+    None
+}
+
+
 
 fn parse_cpu_info(cpu_info: &str) -> Option<(String, String, String, Vec<f64>, String, usize)> {
     let mut cpu_name = None;
@@ -186,11 +206,14 @@ async fn get_cpu_info() -> Option<CpuInformations> {
                 virtualization: Some(virtualization),
                 socket: Some(num_sockets.to_string()),
                 uptime: Some(uptime_tuple),
+                temperature: get_cpu_temperature(),
             });
         }
     }
     None
 }
+
+
 
 #[tauri::command]
 pub async fn get_cpu_informations() -> Option<CpuInformations> {

@@ -15,11 +15,12 @@ interface CpuData {
     max_speed: number;
     virtualization: string;
     uptime: string;
+    temperature:string;
 }
 
 
 const useCpuData = () => {
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a" });
+    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a", temperature: "0 C" });
     const performanceConfig = usePerformanceConfig();  
 
     useEffect(() => {
