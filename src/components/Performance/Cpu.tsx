@@ -85,8 +85,16 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
                             <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.usage}%</LeftValue>
                         </SpeedUsageItem>
                     </SpeedUsageContainer>
-                    <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Processes</LeftLabel>
-                    <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{totalUsages.processes}</LeftValue>
+                    <SpeedUsageContainer>
+                        <SpeedUsageItem>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Temperature</LeftLabel>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.temperature}</LeftValue>
+                        </SpeedUsageItem>
+                        <SpeedUsageItem>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Processes</LeftLabel>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color} style={{'textAlign': 'right'}}>{totalUsages.processes}</LeftValue>
+                        </SpeedUsageItem>
+                    </SpeedUsageContainer>
                     <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Uptime</LeftLabel>
                     <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.uptime}</LeftValue>
                 </RealTimeValues>

@@ -20,7 +20,6 @@ battery = "0.7.8"
 libmedium = "0.8.1"
 dirs = "5.0.1"
 nvml-wrapper = "0.10.0"
-devtools = "0.3.2"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

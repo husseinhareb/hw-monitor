@@ -193,9 +193,9 @@ async fn calculate_cpu_percentage(duration_secs: u64) -> Result<Vec<(i32, f64)>,
 
     Ok(cpu_usage_results)
 }
-
 async fn get_proc_disk_usage_speed(pids: Vec<String>, read: bool) -> Vec<(i32, String)> {
-    let  s = System::new_all();
+    let mut s = System::new_all();
+    s.refresh_all();
     let mut initial_disk_usages = Vec::new();
 
     // Collect initial disk usage for each process
@@ -213,6 +213,9 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, read: bool) -> Vec<(i32, S
     }
 
     sleep(Duration::from_secs(1)).await;
+
+    // Update the System object to capture the latest data
+    s.refresh_all();
 
     // Calculate and format disk usage speed for each process
     initial_disk_usages.into_iter().filter_map(|(pid, initial_bytes)| {
@@ -234,6 +237,9 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, read: bool) -> Vec<(i32, S
             } else {
                 format!("{:.2} B/s", usage_bytes)
             };
+            if pid == 32102 {
+                println!("{}", usage_str);
+            }
             
             (pid, usage_str)
         })
@@ -291,7 +297,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let read_disk_speed = read_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(speed.clone()) // Use the already formatted string
+                Some(format!("{:.2}", speed))
             } else {
                 None
             }
@@ -299,7 +305,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let write_disk_speed = write_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(speed.clone()) // Use the already formatted string
+                Some(format!("{:.2}", speed))
             } else {
                 None
             }
@@ -322,7 +328,6 @@ pub async fn get_processes() -> Vec<Process> {
 
     processes
 }
-
 
 
 #[tauri::command]

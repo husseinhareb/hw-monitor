@@ -7,19 +7,20 @@ use libmedium::{
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SensorData {
-    name: String,
-    value: f32,
-    critical: Option<f32>, 
+    pub name: String,
+    pub value: f32,
+    pub critical: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HwMonData {
-    index: u32,
-    name: String,
-    sensors: Vec<SensorData>,
+    pub index: u32,
+    pub name: String,
+    pub sensors: Vec<SensorData>,
 }
 
-fn get_hwmon_data() -> Vec<HwMonData> {
+
+pub fn get_hwmon_data() -> Vec<HwMonData> {
     let hwmons = parse_hwmons().unwrap();
     let mut hwmon_data = Vec::new();
 
