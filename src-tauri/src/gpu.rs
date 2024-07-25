@@ -215,3 +215,4 @@ pub async fn get_gpu_informations() -> Option<GpuInformations> {
 
     None
 }
+
