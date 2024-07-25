@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use std::fs;
 use std::process::Command;
+use std::str::FromStr;
 use sysinfo::{RefreshKind, System, CpuRefreshKind};
 use crate::sensors;
 
@@ -24,8 +25,14 @@ fn get_base_speed_from_file() -> Option<String> {
     let cpu_base_freq_file = "/sys/devices/system/cpu/cpu0/cpufreq/base_frequency";
 
     match fs::read_to_string(cpu_base_freq_file) {
-        Ok(cpu_clock_info) => Some(cpu_clock_info.trim().to_string()), // Read and trim the value
-        Err(_) => None, // Return None if reading the file fails
+        Ok(cpu_clock_info) => {
+            let trimmed = cpu_clock_info.trim();
+            match f32::from_str(trimmed) {
+                Ok(value) => Some(format!("{:.1}", value)),
+                Err(_) => None,
+            }
+        },
+        Err(_) => None,
     }
 }
 
@@ -33,8 +40,14 @@ fn get_max_speed_from_file() -> Option<String> {
     let cpu_max_freq_file = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq";
 
     match fs::read_to_string(cpu_max_freq_file) {
-        Ok(cpu_clock_info) => Some(cpu_clock_info.trim().to_string()),
-        Err(_) => None, // Return None if reading the file fails
+        Ok(cpu_clock_info) => {
+            let trimmed = cpu_clock_info.trim();
+            match f32::from_str(trimmed) {
+                Ok(value) => Some(format!("{:.1}", value)),
+                Err(_) => None,
+            }
+        },
+        Err(_) => None,
     }
 }
 
