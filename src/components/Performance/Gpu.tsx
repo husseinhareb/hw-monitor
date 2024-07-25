@@ -35,7 +35,7 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
     const setGpu = useSetGpu();
 
     useEffect(() => {
-        if (gpuData !== null && gpuData.utilization !== undefined) {
+        if (gpuData && gpuData.utilization !== undefined) {
             setGpuUsage(prevGpuUsage => {
                 const newActiveMem = [...prevGpuUsage, parseInt(gpuData.utilization) as number];
                 // Trim the array to keep only the last 20 elements
@@ -49,7 +49,7 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
     }, [gpuData, setGpuUsage]);
 
     useEffect(() => {
-        if (gpuData !== null && gpuUsage.length > 0) {
+        if (gpuData && gpuUsage.length > 0) {
             setGpu(gpuUsage);
         }
     }, [gpuUsage, gpuData, setGpu]);
@@ -61,7 +61,9 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>Gpu</NameLabel>
-                <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{gpuData.name}</NameValue>
+                {gpuData && (
+                    <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{gpuData.name}</NameValue>
+                )}
             </NameContainer>
             <div>
                 <Graph
@@ -70,56 +72,57 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
                     width="98%"
                 />
             </div>
-            <div style={{ display: 'flex', marginTop: '100px', width: '70%', flexWrap: 'wrap' }}>
-                <RealTimeValues>
-                    <SpeedUsageContainer>
-                        <SpeedUsageItem>
-                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Clock Speed</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.clock_speed}</LeftValue>
-                        </SpeedUsageItem>
-                        <SpeedUsageItem>
-                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Usage</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.utilization}</LeftValue>
-                        </SpeedUsageItem>
-                    </SpeedUsageContainer>
-                    <SpeedUsageContainer>
-                        <SpeedUsageItem>
-                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Temperature</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.temperature}</LeftValue>
-                        </SpeedUsageItem>
-                        <SpeedUsageItem>
-                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Wattage</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.wattage}</LeftValue>
-                        </SpeedUsageItem>
-                    </SpeedUsageContainer>
-                    <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Driver Version</LeftLabel>
-                    <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.driver_version}</LeftValue>
-                </RealTimeValues>
-                <FixedValues>
-                    <FixedValueItem>
-                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Memory Used</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_used}</RightValue>
-                    </FixedValueItem>
-                    <FixedValueItem>
-                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Memory Free</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_free}</RightValue>
-                    </FixedValueItem>
-                    <FixedValueItem>
-                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Memory Total</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_total}</RightValue>
-                    </FixedValueItem>
-                    <FixedValueItem>
-                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Fan Speed</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.fan_speed}</RightValue>
-                    </FixedValueItem>
-                    <FixedValueItem>
-                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Performane State</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.performance_state}</RightValue>
-                    </FixedValueItem>
-                </FixedValues>
-            </div>
+            {gpuData && (
+                <div style={{ display: 'flex', marginTop: '100px', width: '70%', flexWrap: 'wrap' }}>
+                    <RealTimeValues>
+                        <SpeedUsageContainer>
+                            <SpeedUsageItem>
+                                <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Clock Speed</LeftLabel>
+                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.clock_speed}</LeftValue>
+                            </SpeedUsageItem>
+                            <SpeedUsageItem>
+                                <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Usage</LeftLabel>
+                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.utilization}</LeftValue>
+                            </SpeedUsageItem>
+                        </SpeedUsageContainer>
+                        <SpeedUsageContainer>
+                            <SpeedUsageItem>
+                                <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Temperature</LeftLabel>
+                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.temperature}</LeftValue>
+                            </SpeedUsageItem>
+                            <SpeedUsageItem>
+                                <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Wattage</LeftLabel>
+                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.wattage}</LeftValue>
+                            </SpeedUsageItem>
+                        </SpeedUsageContainer>
+                        <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Driver Version</LeftLabel>
+                        <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.driver_version}</LeftValue>
+                    </RealTimeValues>
+                    <FixedValues>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Memory Used</RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_used}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Memory Free</RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_free}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Memory Total</RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_total}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Fan Speed</RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.fan_speed}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Performance State</RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.performance_state}</RightValue>
+                        </FixedValueItem>
+                    </FixedValues>
+                </div>
+            )}
         </CPU>
-
     );
 }
 
