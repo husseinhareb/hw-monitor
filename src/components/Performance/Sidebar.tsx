@@ -52,14 +52,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         }
     }, [interfaceNames]);
 
-    useEffect(() => {
-        if (gpuData && gpuData.name !== "No GPU detected") {
-            setShowGpu(true);
-        } else {
-            setShowGpu(false);
-        }
-    }, [gpuData]);
-
     return (
         <div style={{ height: '100%', width: '100%', display: 'flex', overflow: 'hidden' }}>
             <SidebarContainer
@@ -124,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                 <Cpu hidden={!showCpu} performanceConfig={performanceConfig} />
                 <Memory hidden={!showMemory} performanceConfig={performanceConfig} />
-                {showGpu && <Gpu hidden={!showGpu} performanceConfig={performanceConfig} />}
+                <Gpu hidden={!showGpu} performanceConfig={performanceConfig} />
                 <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} performanceConfig={performanceConfig} />
                 <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''} performanceConfig={performanceConfig} />
             </div>
