@@ -4,7 +4,7 @@ use sysinfo::{System, Pid};
 use std::fs;
 use std::io;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize,Debug)]
 pub struct Process {
     pid: String,
     name: Option<String>,
@@ -218,32 +218,32 @@ async fn get_proc_disk_usage_speed(pids: Vec<String>, read: bool) -> Vec<(i32, S
     s.refresh_all();
 
     // Calculate and format disk usage speed for each process
-    initial_disk_usages.into_iter().filter_map(|(pid, initial_bytes)| {
-        s.process(Pid::from(pid as usize)).map(|process| {
-            let final_bytes = if read {
-                process.disk_usage().total_read_bytes as f64
-            } else {
-                process.disk_usage().total_written_bytes as f64
-            };
-            let usage_bytes = (final_bytes - initial_bytes).max(0.0);
-            
-            // Format the disk usage into human-readable form
-            let usage_str = if usage_bytes > 1_024.0 * 1_024.0 * 1_024.0 {
-                format!("{:.2} Gb/s", usage_bytes / 1_024.0 / 1_024.0 / 1_024.0)
-            } else if usage_bytes > 1_024.0 * 1_024.0 {
-                format!("{:.2} Mb/s", usage_bytes / 1_024.0 / 1_024.0)
-            } else if usage_bytes > 1_024.0 {
-                format!("{:.2} Kb/s", usage_bytes / 1_024.0)
-            } else {
-                format!("{:.2} B/s", usage_bytes)
-            };
-            if pid == 32102 {
-                println!("{}", usage_str);
-            }
-            
-            (pid, usage_str)
+    initial_disk_usages
+        .into_iter()
+        .filter_map(|(pid, initial_bytes)| {
+            s.process(Pid::from(pid as usize)).map(|process| {
+                let final_bytes = if read {
+                    process.disk_usage().total_read_bytes as f64
+                } else {
+                    process.disk_usage().total_written_bytes as f64
+                };
+                let usage_bytes = (final_bytes - initial_bytes).max(0.0);
+
+                // Format the disk usage into human-readable form
+                let usage_str = if usage_bytes >= 1_024.0 * 1_024.0 * 1_024.0 {
+                    format!("{:.2} Gb/s", usage_bytes / 1_024.0 / 1_024.0 / 1_024.0)
+                } else if usage_bytes >= 1_024.0 * 1_024.0 {
+                    format!("{:.2} Mb/s", usage_bytes / 1_024.0 / 1_024.0)
+                } else if usage_bytes >= 1_024.0 {
+                    format!("{:.2} Kb/s", usage_bytes / 1_024.0)
+                } else {
+                    format!("{:.2} B/s", usage_bytes)
+                };
+
+                (pid, usage_str)
+            })
         })
-    }).collect()
+        .collect()
 }
 
 #[tauri::command]
@@ -297,7 +297,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let read_disk_speed = read_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(format!("{:.2}", speed))
+                Some(speed.clone())
             } else {
                 None
             }
@@ -305,7 +305,7 @@ pub async fn get_processes() -> Vec<Process> {
 
         let write_disk_speed = write_disk_speeds.iter().find_map(|(id, speed)| {
             if *id == pid.parse::<i32>().unwrap_or_default() {
-                Some(format!("{:.2}", speed))
+                Some(speed.clone())
             } else {
                 None
             }
@@ -328,7 +328,6 @@ pub async fn get_processes() -> Vec<Process> {
 
     processes
 }
-
 
 #[tauri::command]
 pub fn kill_process(process: Process) -> Result<(), String> {
