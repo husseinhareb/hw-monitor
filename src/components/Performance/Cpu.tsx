@@ -92,7 +92,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
                         </SpeedUsageItem>
                         <SpeedUsageItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Processes</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color} style={{'textAlign': 'right'}}>{totalUsages.processes}</LeftValue>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color} style={{ 'textAlign': 'right' }}>{totalUsages.processes}</LeftValue>
                         </SpeedUsageItem>
                     </SpeedUsageContainer>
                     <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Uptime</LeftLabel>
@@ -113,12 +113,17 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
                     </FixedValueItem>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Base Speed</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.base_speed / 1000000} GHz</RightValue>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
+                            {(cpuData.base_speed / 1000000).toFixed(1)} GHz
+                        </RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Max Speed</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.max_speed / 1000000} GHz</RightValue>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
+                            {(cpuData.max_speed / 1000000).toFixed(1)} GHz
+                        </RightValue>
                     </FixedValueItem>
+
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Virtualization</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.virtualization}</RightValue>
