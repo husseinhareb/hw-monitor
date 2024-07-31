@@ -63,7 +63,7 @@ Along with the default configuration, there is another beautiful theme that has 
 ##################
 ### processes ###
 #################
-processes_update_time=10000
+processes_update_time=2000
 processes_body_background_color=#1E1E2E
 processes_body_color=#CDD6F4
 processes_head_background_color=#313244
@@ -87,7 +87,7 @@ performance_sec_graph_color=#FAB387
 ################
 ### sensors ###
 ###############
-sensors_update_time=20000
+sensors_update_time=5000
 sensors_background_color=#1E1E2E
 sensors_foreground_color=#CDD6F4
 sensors_boxes_background_color=#313244
@@ -132,6 +132,82 @@ heatbar_color_seven=#bb9af7
 heatbar_color_eight=#7aa2f7
 heatbar_color_nine=#2ac3de
 heatbar_color_ten=#a9b1d6
+```
+### Gruvbox Alike Theme
+
+```shell
+##################
+### processes ###
+#################
+processes_update_time=2000
+processes_body_background_color=#282828
+processes_body_color=#ebdbb2
+processes_head_background_color=#3c3836
+processes_head_color=#ebdbb2
+processes_table_values=user,pid,ppid,name,state,cpu_usage,memory
+
+####################
+### performance ###
+###################
+performance_update_time=1000
+performance_sidebar_background_color=#3c3836
+performance_sidebar_color=#ebdbb2
+performance_sidebar_selected_color=#458588
+performance_background_color=#282828
+performance_title_color=#cc241d
+performance_label_color=#98971a
+performance_value_color=#458588
+performance_graph_color=#98971a
+performance_sec_graph_color=#d65d0e
+
+################
+### sensors ###
+###############
+sensors_update_time=5000
+sensors_background_color=#282828
+sensors_foreground_color=#ebdbb2
+sensors_boxes_background_color=#3c3836
+sensors_boxes_foreground_color=#928374
+sensors_battery_background_color=#689d6a
+sensors_battery_frame_color=#45475A
+sensors_boxes_title_foreground_color=#928374
+
+##############
+### disks ###
+#############
+disks_update_time=5000
+disks_background_color=#282828
+disks_boxes_background_color=#3c3836
+disks_name_foreground_color=#458588
+disks_size_foreground_color=#689d6a
+disks_partition_background_color=#1d2021
+disks_partition_usage_background_color=#504945
+disks_partition_name_foreground_color=#928374
+disks_partition_type_foreground_color=#928374
+disks_partition_usage_foreground_color=#98971a
+
+###############
+### navbar ###
+##############
+navbar_background_color=#282828
+navbar_buttons_background_color=#3c3836
+navbar_buttons_foreground_color=#ebdbb2
+navbar_search_background_color=#3c3836
+navbar_search_foreground_color=#ebdbb2
+
+################
+### heatbar ###
+###############
+heatbar_color_one=#cc241d
+heatbar_color_two=#d65d0e
+heatbar_color_three=#d79921
+heatbar_color_four=#689d6a
+heatbar_color_five=#458588
+heatbar_color_six=#b16286
+heatbar_color_seven=#689d6a
+heatbar_color_eight=#458588
+heatbar_color_nine=#98971a
+heatbar_color_ten=#928374
 ```
 
 ## Installation 
