@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     }, [interfaceNames]);
 
     return (
-        <div style={{ height: '100%', width: '100%', display: 'flex', overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: '100%', display: 'flex' }}>
             <SidebarContainer
                 performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
                 performanceSidebarColor={performanceConfig.config.performance_sidebar_color}
