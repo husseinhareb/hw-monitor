@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
 import styled from 'styled-components';
+import { GiProcessor } from "react-icons/gi";
+import { MdSpeed } from "react-icons/md";
+import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
+import { FaSearch } from "react-icons/fa";
+import { LuSettings2 } from "react-icons/lu";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
 import Proc from "../Processes/Proc";
 import Performance from "../Performance/Performance";
 import Sensors from "../Sensors/Sensors";
 import Disks from "../Disks/Disks";
 import Config from "../Config/Config";
-import { GiProcessor } from "react-icons/gi";
-import { MdSpeed } from "react-icons/md";
-import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
-import { FaSearch } from "react-icons/fa";
 import { useSetProcessSearch } from "../../services/store";
-import { LuSettings2 } from "react-icons/lu";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Config";
@@ -29,6 +29,14 @@ const ProcContainer = styled.div`
     height: 100%;
     width: 100%;
     overflow: hidden;
+`;
+
+const MainContainer = styled.div`
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 `;
 
 const Navbar: React.FC = () => {
@@ -53,31 +61,31 @@ const Navbar: React.FC = () => {
         setProcessSearch(event.target.value);
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.altKey) {
-            switch (event.key) {
-                case '0':
-                    setActiveComponent("Config");
-                    break;
-                case '1':
-                    setActiveComponent("Proc");
-                    break;
-                case '2':
-                    setActiveComponent("Performance");
-                    break;
-                case '3':
-                    setActiveComponent("Sensors");
-                    break;
-                case '4':
-                    setActiveComponent("Disks");
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.altKey) {
+                switch (event.key) {
+                    case '0':
+                        setActiveComponent("Config");
+                        break;
+                    case '1':
+                        setActiveComponent("Proc");
+                        break;
+                    case '2':
+                        setActiveComponent("Performance");
+                        break;
+                    case '3':
+                        setActiveComponent("Sensors");
+                        break;
+                    case '4':
+                        setActiveComponent("Disks");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
         window.addEventListener('keydown', handleKeyDown);
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
@@ -92,10 +100,10 @@ const Navbar: React.FC = () => {
         }
     }, [showSearchInput, setProcessSearch]);
 
-    const DynamicComponent: FunctionComponent | null = componentMap[activeComponent] || null;
+    const DynamicComponent = componentMap[activeComponent] || null;
 
     return (
-        <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+        <MainContainer>
             <StyledNav
                 navbarBackgroundColor={navbarConfig.config.navbar_background_color}
             >
@@ -170,7 +178,7 @@ const Navbar: React.FC = () => {
                     DynamicComponent && <DynamicComponent />
                 )}
             </ContentContainer>
-        </div>
+        </MainContainer>
     );
 }
 

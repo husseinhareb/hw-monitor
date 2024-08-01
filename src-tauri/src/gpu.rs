@@ -3,8 +3,6 @@ use serde::{Serialize, Deserialize};
 use nvml_wrapper::Nvml;
 use nvml_wrapper::error::NvmlError;
 
-use rocm_smi_lib::RocmSmi;
-use rocm_smi_lib::error::RocmErr;
 
 use std::fs::{read_dir, read_to_string};
 use std::path::PathBuf;
@@ -130,10 +128,6 @@ fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
         let path = entry.path();
 
         if path.is_dir() {
-            // let mut rocm = RocmSmi::init()?;
-            // let name = rocm.get_device_identifiers(0)?.name;
-            // println!("{:?}", name);
-
             
             let device_name = path.file_name().unwrap().to_str().unwrap();
             if device_name.starts_with("card") && !device_name.contains('-') && is_amd_gpu(&path) {

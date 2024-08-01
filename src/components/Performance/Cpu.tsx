@@ -22,10 +22,16 @@ interface CpuProps {
     hidden: boolean;
     performanceConfig: {
         config: {
+            performance_update_time: number;
+            performance_sidebar_background_color: string;
+            performance_sidebar_color: string;
+            performance_sidebar_selected_color: string;
             performance_background_color: string;
             performance_title_color: string;
             performance_label_color: string;
             performance_value_color: string;
+            performance_graph_color: string;
+            performance_sec_graph_color: string;
         }
     };
 }
