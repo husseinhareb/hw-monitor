@@ -12,10 +12,12 @@
   "dependencies": {
     "@tauri-apps/api": "^1",
     "chart.js": "^4.4.2",
+    "i18next": "^23.12.2",
     "polished": "^4.3.1",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
+    "react-i18next": "^15.0.0",
     "react-icons": "^5.2.1",
     "react-window": "^1.8.10",
     "styled-components": "^6.1.8",
