@@ -13,6 +13,7 @@ import Disks from "../Disks/Disks";
 import Config from "../Config/Config";
 import { useSetProcessSearch } from "../../services/store";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
+import { useTranslation } from "react-i18next";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Config";
 
@@ -37,9 +38,11 @@ const MainContainer = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
+    overflow: hidden;
 `;
 
 const Navbar: React.FC = () => {
+    const { t } =useTranslation(); 
     const [activeComponent, setActiveComponent] = useState<ComponentName>("Proc");
     const [showSearchInput, setShowSearchInput] = useState(false);
     const setProcessSearch = useSetProcessSearch();
@@ -123,7 +126,7 @@ const Navbar: React.FC = () => {
                             navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
                             onClick={() => handleButtonClick("Proc")} active={activeComponent === "Proc"}
                         >
-                            <GiProcessor /> Processes
+                            <GiProcessor /> {t('navbar.processes')}
                         </StyledButton>
                     </li>
                     <li>
@@ -132,7 +135,7 @@ const Navbar: React.FC = () => {
                             navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
                             onClick={() => handleButtonClick("Performance")} active={activeComponent === "Performance"}
                         >
-                            <MdSpeed /> Performance
+                            <MdSpeed /> {t('navbar.performance')}
                         </StyledButton>
                     </li>
                     <li>
@@ -141,7 +144,7 @@ const Navbar: React.FC = () => {
                             navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
                             onClick={() => handleButtonClick("Sensors")} active={activeComponent === "Sensors"}
                         >
-                            <FaTemperatureHalf /> Sensors
+                            <FaTemperatureHalf /> {t('navbar.sensors')}
                         </StyledButton>
                     </li>
                     <li>
@@ -150,7 +153,7 @@ const Navbar: React.FC = () => {
                             navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
                             onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}
                         >
-                            <FaFloppyDisk /> Disks
+                            <FaFloppyDisk /> {t('navbar.disks')}
                         </StyledButton>
                     </li>
                 </StyledUl>
