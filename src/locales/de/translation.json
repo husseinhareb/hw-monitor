@@ -1,0 +1,22 @@
+{
+    "navbar.processes": "Prozesse",
+    "navbar.performance": "Leistung",
+    "navbar.sensors": "Sensoren",
+    "navbar.disks": "Festplatten",
+    "navbar.config": "Konfiguration",
+    "navbar.search.placeholder": "Suche...",
+    "disks.size": "Größe",
+    "sensors.title": "Sensoren",
+    "sensors.battery": "Batterie",
+    "battery.percentage": "Prozentsatz",
+    "battery.model": "Modell",
+    "battery.state": "Zustand",
+    "battery.cycle_count": "Zyklusanzahl",
+    "battery.energy": "Energie",
+    "battery.time_to_full": "Zeit bis voll",
+    "battery.technology": "Technologie",
+    "battery.time_to_empty": "Zeit bis leer",
+    "battery.temperature": "Temperatur",
+    "battery.state_of_health": "Gesundheitszustand",
+    "battery.loading": "Lade Batteriedaten..."
+}

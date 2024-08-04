@@ -4,6 +4,20 @@
     "navbar.sensors": "Capteurs",
     "navbar.disks": "Disques",
     "navbar.config": "Configuration",
-    "navbar.search.placeholder": "Rechercher..."
+    "navbar.search.placeholder": "Rechercher...",
+    "disks.size": "Taille",
+    "sensors.title": "Capteurs",
+    "sensors.battery": "Pile",
+    "battery.percentage": "Pourcentage",
+    "battery.model": "Modèle",
+    "battery.state": "État",
+    "battery.cycle_count": "Nombre de cycles",
+    "battery.energy": "Énergie",
+    "battery.time_to_full": "Temps pour être plein",
+    "battery.technology": "Technologie",
+    "battery.time_to_empty": "Temps pour être vide",
+    "battery.temperature": "Température",
+    "battery.state_of_health": "État de santé",
+    "battery.loading": "Chargement des données de la batterie..."
 }
   

@@ -14,11 +14,12 @@ import Battery from '../Sensors/Battery';
 import HeatBar from '../Sensors/HeatBar';
 import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 import useBatteryData from '../../hooks/Sensors/useBatteryData';
+import { useTranslation } from 'react-i18next';
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();
   const battery = useBatteryData();
-
+  const { t } = useTranslation();
   // Filter out sensors with no sensor values
   const filteredSensors = sensors.filter(hwmon => hwmon.sensors.length > 0);
 
@@ -30,7 +31,7 @@ const Sensors: React.FC = () => {
     <Container
       sensorsBackgroundColors={sensorsConfig.config.sensors_background_color}
     >
-      <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>Sensors</Title>
+      <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>{t('sensors.title')}</Title>
       <SensorGrid>
         {battery.length > 0 && <SensorList
           sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
