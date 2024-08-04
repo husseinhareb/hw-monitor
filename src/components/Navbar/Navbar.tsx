@@ -162,7 +162,7 @@ const Navbar: React.FC = () => {
                         {showSearchInput && <SearchInput
                         navbarSearchBackgroundColor={navbarConfig.config.navbar_search_background_color}
                         navbarSearchForegroundColor={navbarConfig.config.navbar_search_foreground_color}
-                        type="text" placeholder="Search..." onChange={handleSearchInputChange} ref={searchInputRef} />}
+                        type="text" placeholder={t('navbar.search.placeholder')} onChange={handleSearchInputChange} ref={searchInputRef} />}
                         <StyledSearchButton
                         navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
                         navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}

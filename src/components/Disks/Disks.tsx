@@ -14,6 +14,7 @@ import {
   PartitionBar,
 } from "../../styles/disks-style";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
+import { useTranslation } from "react-i18next";
 
 interface DisksProps {
   hidden: boolean;
@@ -22,6 +23,7 @@ interface DisksProps {
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
   const { diskData, convertData } = useDiskData();
   const disksConfig = useDisksConfig();
+  const { t } =useTranslation(); 
 
 
   const usagePercentage = (used: number, total: number) => {
@@ -47,7 +49,7 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
             <DiskSize
               sizeForegroundColor={disksConfig.config.disks_size_foreground_color}
             >
-              Size: {convertData(disk.size).value} {convertData(disk.size).unit}
+              {t('disks.size')}: {convertData(disk.size).value} {convertData(disk.size).unit}
             </DiskSize>
             <PartitionList>
               {disk.partitions.map((partition, partitionIndex) => (

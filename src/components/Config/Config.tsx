@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
+import { useTranslation } from 'react-i18next';
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
 import { invoke } from "@tauri-apps/api/tauri";
@@ -10,6 +11,7 @@ import NavbarConfig from "./NavbarConfig";
 import HeatbarConfig from "./HeatbarConfig";
 
 const Config: React.FC = () => {
+  const { i18n } = useTranslation();
   const [reloadFlag, setReloadFlag] = useState(false);
 
   const load_default_config = async () => {
@@ -21,10 +23,21 @@ const Config: React.FC = () => {
     }
   };
 
+  const handleLanguageChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    i18n.changeLanguage(event.target.value);
+  };
+
   return (
     <Wrapper>
       <StyledButton onClick={load_default_config}>Load Default Config</StyledButton>
-      <Container key={reloadFlag ? "reload" : "no-reload"}>        <ProcessesConfig />
+      <label htmlFor="language-select">Language </label>
+      <select id="language-select" onChange={handleLanguageChange} defaultValue={i18n.language}>
+        <option value="en">English</option>
+        <option value="fr">French</option>
+        <option value="de">Deutsh</option>
+      </select>
+      <Container key={reloadFlag ? "reload" : "no-reload"}>
+        <ProcessesConfig />
         <PerformanceConfig />
         <SensorsConfig />
         <DisksConfig />

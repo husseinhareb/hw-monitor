@@ -4,6 +4,20 @@
     "navbar.sensors": "Sensors",
     "navbar.disks": "Disks",
     "navbar.config": "Config",
-    "navbar.search.placeholder": "Search..."
+    "navbar.search.placeholder": "Search...",
+    "disks.size": "Size",
+    "sensors.title": "Sensors",
+    "sensors.battery": "Battery",
+    "battery.percentage": "Percentage",
+    "battery.model": "Model",
+    "battery.state": "State",
+    "battery.cycle_count": "Cycle Count",
+    "battery.energy": "Energy",
+    "battery.time_to_full": "Time to Full",
+    "battery.technology": "Technology",
+    "battery.time_to_empty": "Time to Empty",
+    "battery.temperature": "Temperature",
+    "battery.state_of_health": "State of Health",
+    "battery.loading": "Loading battery data..."
 }
   
