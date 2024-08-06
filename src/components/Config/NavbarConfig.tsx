@@ -8,6 +8,7 @@ import {
     ColorLabel,
     ColorLabelText
 } from "./Styles/style";
+import { useTranslation } from "react-i18next";
 
 interface NavbarConfig {
     navbar_background_color: string;
@@ -19,6 +20,7 @@ interface NavbarConfig {
 
 const NavbarConfig: React.FC = () => {
     const { config, updateConfig } = useNavbarConfig();
+    const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof NavbarConfig, value: string | number) => {
         if (config) {
@@ -28,10 +30,10 @@ const NavbarConfig: React.FC = () => {
 
     return (
         <ConfigContainer>
-            <Title>Navbar Config</Title>
+            <Title>{t('navbar_config.title')}</Title>
             <Separator />
             <ColorLabel>
-                <ColorLabelText>Background Color</ColorLabelText>
+                <ColorLabelText>{t('navbar_config.background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.navbar_background_color}
@@ -39,7 +41,7 @@ const NavbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Buttons Background Color</ColorLabelText>
+                <ColorLabelText>{t('navbar_config.buttons_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.navbar_buttons_background_color}
@@ -47,7 +49,7 @@ const NavbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Buttons Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('navbar_config.buttons_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.navbar_buttons_foreground_color}
@@ -55,7 +57,7 @@ const NavbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Search Background Color</ColorLabelText>
+                <ColorLabelText>{t('navbar_config.search_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.navbar_search_background_color}
@@ -63,7 +65,7 @@ const NavbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Search Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('navbar_config.search_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.navbar_search_foreground_color}

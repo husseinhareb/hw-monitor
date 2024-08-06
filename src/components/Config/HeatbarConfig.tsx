@@ -1,4 +1,3 @@
-//HeatbarConfig.tsx
 import React from "react";
 import useHeatbarConfig from "../../hooks/Sensors/useHeatbarConfig";
 import {
@@ -9,6 +8,7 @@ import {
     ColorLabel,
     ColorLabelText
 } from "./Styles/style";
+import { useTranslation } from "react-i18next";
 
 interface HeatbarConfig {
     heatbar_color_one: string;
@@ -25,6 +25,7 @@ interface HeatbarConfig {
 
 const HeatbarConfig: React.FC = () => {
     const { config, updateConfig } = useHeatbarConfig();
+    const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
         if (config) {
@@ -34,10 +35,10 @@ const HeatbarConfig: React.FC = () => {
 
     return (
         <ConfigContainer>
-            <Title>Heatbar Config</Title>
+            <Title>{t('heatbar_config.title')}</Title>
             <Separator />
             <ColorLabel>
-                <ColorLabelText>First Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_one')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_one}
@@ -45,7 +46,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Second Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_two')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_two}
@@ -53,7 +54,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Third Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_three')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_three}
@@ -61,7 +62,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Fourth Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_four')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_four}
@@ -69,7 +70,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Fifth Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_five')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_five}
@@ -77,7 +78,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Sixth Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_six')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_six}
@@ -85,7 +86,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Seventh Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_seven')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_seven}
@@ -93,7 +94,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Eighth Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_eight')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_eight}
@@ -101,7 +102,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Nineth Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_nine')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_nine}
@@ -109,7 +110,7 @@ const HeatbarConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Tenth Color</ColorLabelText>
+                <ColorLabelText>{t('heatbar_config.color_ten')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.heatbar_color_ten}

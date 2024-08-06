@@ -5,9 +5,12 @@
     "navbar.disks": "Festplatten",
     "navbar.config": "Konfiguration",
     "navbar.search.placeholder": "Suche...",
+    
     "disks.size": "Größe",
+    
     "sensors.title": "Sensoren",
     "sensors.battery": "Batterie",
+    
     "battery.percentage": "Prozentsatz",
     "battery.model": "Modell",
     "battery.state": "Zustand",
@@ -18,5 +21,38 @@
     "battery.time_to_empty": "Zeit bis leer",
     "battery.temperature": "Temperatur",
     "battery.state_of_health": "Gesundheitszustand",
-    "battery.loading": "Lade Batteriedaten..."
+    "battery.loading": "Lade Batteriedaten...",
+
+    "disks_config.title": "Festplatten-Konfiguration",
+    "disks_config.update_time": "Aktualisierungszeit",
+    "disks_config.background_color": "Hintergrundfarbe",
+    "disks_config.boxes_background_color": "Boxen-Hintergrundfarbe",
+    "disks_config.name_foreground_color": "Name-Vordergrundfarbe",
+    "disks_config.size_foreground_color": "Größe-Vordergrundfarbe",
+    "disks_config.partition_background_color": "Partition-Hintergrundfarbe",
+    "disks_config.partition_usage_background_color": "Nutzungs-Hintergrundfarbe der Partition",
+    "disks_config.partition_name_foreground_color": "Namen-Vordergrundfarbe der Partition",
+    "disks_config.partition_type_foreground_color": "Typ-Vordergrundfarbe der Partition",
+    "disks_config.partition_usage_foreground_color": "Nutzungs-Vordergrundfarbe der Partition",
+
+    "heatbar_config.title": "Heizstab-Konfiguration",
+    "heatbar_config.color_one": "Erste Farbe",
+    "heatbar_config.color_two": "Zweite Farbe",
+    "heatbar_config.color_three": "Dritte Farbe",
+    "heatbar_config.color_four": "Vierte Farbe",
+    "heatbar_config.color_five": "Fünfte Farbe",
+    "heatbar_config.color_six": "Sechste Farbe",
+    "heatbar_config.color_seven": "Siebte Farbe",
+    "heatbar_config.color_eight": "Achte Farbe",
+    "heatbar_config.color_nine": "Neunte Farbe",
+    "heatbar_config.color_ten": "Zehnte Farbe",
+
+    "navbar_config.title": "Navigationsleiste-Konfiguration",
+    "navbar_config.background_color": "Hintergrundfarbe",
+    "navbar_config.buttons_background_color": "Schaltflächen-Hintergrundfarbe",
+    "navbar_config.buttons_foreground_color": "Schaltflächen-Vordergrundfarbe",
+    "navbar_config.search_background_color": "Suchfeld-Hintergrundfarbe",
+    "navbar_config.search_foreground_color": "Suchfeld-Vordergrundfarbe"
+
 }
+

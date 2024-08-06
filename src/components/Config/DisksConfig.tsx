@@ -10,6 +10,7 @@ import {
     ColorLabel,
     ColorLabelText
 } from "./Styles/style";
+import { useTranslation } from "react-i18next";
 
 interface DisksConfig {
     disks_update_time: number;
@@ -26,7 +27,7 @@ interface DisksConfig {
 
 const DisksConfig: React.FC = () => {
     const { config, updateConfig } = useDisksConfig();
-
+    const { t } = useTranslation();
     const handleConfigChange = (key: keyof DisksConfig, value: string | number) => {
         if (config) {
             updateConfig(key, value);
@@ -42,10 +43,10 @@ const DisksConfig: React.FC = () => {
 
     return (
         <ConfigContainer>
-            <Title>Disks Config</Title>
+            <Title> {t('disks_config.title')}</Title>
             <Separator />
             <Label>
-                Update Time
+                {t('disks_config.update_time')}
                 <Input
                     type="number"
                     value={config.disks_update_time}
@@ -55,7 +56,8 @@ const DisksConfig: React.FC = () => {
                 />
             </Label>
             <ColorLabel>
-                <ColorLabelText>Background Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.background_color')}
+                </ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_background_color}
@@ -63,7 +65,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Boxes Background Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.boxes_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_boxes_background_color}
@@ -71,7 +73,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Name Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.name_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_name_foreground_color}
@@ -79,7 +81,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Size Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.size_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_size_foreground_color}
@@ -87,7 +89,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Partition Background Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.partition_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_partition_background_color}
@@ -95,7 +97,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Partition Usage Background Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.partition_usage_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_partition_usage_background_color}
@@ -103,7 +105,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Partition Name Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.partition_name_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_partition_name_foreground_color}
@@ -111,7 +113,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Partition Type Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.partition_type_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_partition_type_foreground_color}
@@ -119,7 +121,7 @@ const DisksConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Partition Usage Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('disks_config.partition_usage_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.disks_partition_usage_foreground_color}

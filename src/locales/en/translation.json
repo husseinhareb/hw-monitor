@@ -18,6 +18,37 @@
     "battery.time_to_empty": "Time to Empty",
     "battery.temperature": "Temperature",
     "battery.state_of_health": "State of Health",
-    "battery.loading": "Loading battery data..."
+    "battery.loading": "Loading battery data...",
+
+    "disks_config.title": "Disks Config",
+    "disks_config.update_time": "Update Time",
+    "disks_config.background_color": "Background Color",
+    "disks_config.boxes_background_color": "Boxes Background Color",
+    "disks_config.name_foreground_color": "Name Foreground Color",
+    "disks_config.size_foreground_color": "Size Foreground Color",
+    "disks_config.partition_background_color": "Partition Background Color",
+    "disks_config.partition_usage_background_color": "Partition Usage Background Color",
+    "disks_config.partition_name_foreground_color": "Partition Name Foreground Color",
+    "disks_config.partition_type_foreground_color": "Partition Type Foreground Color",
+    "disks_config.partition_usage_foreground_color": "Partition Usage Foreground Color",
+
+    "heatbar_config.title": "Heatbar Config",
+    "heatbar_config.color_one": "First Color",
+    "heatbar_config.color_two": "Second Color",
+    "heatbar_config.color_three": "Third Color",
+    "heatbar_config.color_four": "Fourth Color",
+    "heatbar_config.color_five": "Fifth Color",
+    "heatbar_config.color_six": "Sixth Color",
+    "heatbar_config.color_seven": "Seventh Color",
+    "heatbar_config.color_eight": "Eighth Color",
+    "heatbar_config.color_nine": "Nineth Color",
+    "heatbar_config.color_ten": "Tenth Color",
+
+    "navbar_config.title": "Navbar Config",
+    "navbar_config.background_color": "Background Color",
+    "navbar_config.buttons_background_color": "Buttons Background Color",
+    "navbar_config.buttons_foreground_color": "Buttons Foreground Color",
+    "navbar_config.search_background_color": "Search Background Color",
+    "navbar_config.search_foreground_color": "Search Foreground Color"
 }
   
