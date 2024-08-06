@@ -4,7 +4,7 @@ import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
 import { invoke } from "@tauri-apps/api/tauri";
 
-import { Wrapper, Container, StyledButton } from "./Styles/style";
+import { Wrapper, Container, StyledButton, Label, Select, Header } from "./Styles/style"; // Updated import
 import SensorsConfig from "./SensorsConfig";
 import DisksConfig from "./DisksConfig";
 import NavbarConfig from "./NavbarConfig";
@@ -29,13 +29,17 @@ const Config: React.FC = () => {
 
   return (
     <Wrapper>
-      <StyledButton onClick={load_default_config}>Load Default Config</StyledButton>
-      <label htmlFor="language-select">Language </label>
-      <select id="language-select" onChange={handleLanguageChange} defaultValue={i18n.language}>
-        <option value="en">English</option>
-        <option value="fr">French</option>
-        <option value="de">Deutsh</option>
-      </select>
+      <Header>
+        <StyledButton onClick={load_default_config}>Load Default Config</StyledButton>
+        <Label htmlFor="language-select" style={{color: 'white'}}>
+          Lang:
+          <Select id="language-select" onChange={handleLanguageChange} defaultValue={i18n.language}>
+            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="de">Deutsh</option>
+          </Select>
+        </Label>
+      </Header>
       <Container key={reloadFlag ? "reload" : "no-reload"}>
         <ProcessesConfig />
         <PerformanceConfig />
