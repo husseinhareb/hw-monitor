@@ -4,6 +4,27 @@ export const Wrapper = styled.div`
   background-color: #2b2b2b;
   height: 100%;
   width: 100%;
+  overflow:auto;
+`;
+
+export const Header = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+`;
+
+export const Select = styled.select`
+  margin-top:10px;
+  flex: 1;
+  width: auto;
+  height: 34px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background: #333;
+  color: #212830;
+  margin-left: 10px;
+  margin-right: 15px;
 `;
 
 export const Container = styled.div`
