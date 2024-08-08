@@ -61,6 +61,8 @@ pub struct ConfigData {
     pub heatbar_color_eight: String,
     pub heatbar_color_nine: String,
     pub heatbar_color_ten: String,
+
+    pub language: String,
 }
 
 
@@ -138,6 +140,11 @@ pub struct HeatbarConfig {
     pub heatbar_color_ten: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct LanguageConfig {
+    pub language: String,
+
+}
 
 // Function to create the initial configuration file if it does not exist
 pub fn create_config() -> Result<(), InvokeError> {
@@ -226,6 +233,7 @@ pub fn default_config() -> Result<(), io::Error> {
         heatbar_color_eight=#FF9900\n\
         heatbar_color_nine=#FF6600\n\
         heatbar_color_ten=#FF0000\n\
+        language=en\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -289,6 +297,7 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         heatbar_color_eight: String::new(),
         heatbar_color_nine: String::new(),
         heatbar_color_ten: String::new(),
+        language: String::new(),
     };
 
     for line in reader.lines() {
@@ -455,6 +464,9 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "heatbar_color_ten" => {
                 config_data.heatbar_color_ten = value.to_string();
             },
+            "language" => {
+                config_data.language = value.to_string();
+            },
             _ => {
                 return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Unknown key: {}", key)));
             }
@@ -524,6 +536,7 @@ pub fn write_all_configs(config_data: &ConfigData) -> Result<(), io::Error> {
         writeln!(file, "heatbar_color_eight={}", config_data.heatbar_color_eight)?;
         writeln!(file, "heatbar_color_nine={}", config_data.heatbar_color_nine)?;
         writeln!(file, "heatbar_color_ten={}", config_data.heatbar_color_ten)?;
+        writeln!(file, "language={}", config_data.language)?;
 
         file.flush()?;
     }
@@ -639,6 +652,13 @@ pub async fn set_heatbar_configs(configs: HeatbarConfig) -> Result<(), InvokeErr
     Ok(())
 }
 
+#[tauri::command]
+pub async fn set_language_config(configs: LanguageConfig) -> Result<(), InvokeError> {
+    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+    config_data.language = configs.language;
+    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    Ok(())
+}
 
 // Function to get the configuration file path
 fn config_file() -> Result<PathBuf, io::Error> {

@@ -111,7 +111,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
                             </RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
                                 {upload.length > 0 ? upload[upload.length - 1].value : 0}
-                                {upload.length > 0 ? upload[upload.length - 1].unit : t('network.bytes_per_sec')}
+                                {upload.length > 0 ? upload[upload.length - 1].unit : 'B'}{t('network.bytes_per_sec')}
                             </RightValue>
                         </FixedValueItem>
                     </FixedValues>

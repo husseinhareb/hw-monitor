@@ -251,7 +251,7 @@ const Proc: React.FC = () => {
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={handleKillProcess}
-                    >Kill Process</KillButton>
+                    >{ t('proc.kill_process')}</KillButton>
                 </BottomBar>
             )}
         </TableContainer>
