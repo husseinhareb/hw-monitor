@@ -8,6 +8,7 @@ import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { lighten } from 'polished';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import Spinner from '../Misc/Spinner';
+import { useTranslation } from 'react-i18next';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>('memory');
@@ -17,7 +18,7 @@ const Proc: React.FC = () => {
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
     const processConfig = useProcessConfig();
-
+    const { t } = useTranslation();
     // Function to handle click on a row
     const handleRowClick = (index: number) => {
         setSelectedRow(index === selectedRow ? null : index); // Toggle selection
@@ -153,7 +154,7 @@ const Proc: React.FC = () => {
             });
         });
     }, [processSearch, sortedProcesses]);
-
+ 
     const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
 
     const displayedColumns = processConfig.config.processes_table_values
@@ -161,17 +162,17 @@ const Proc: React.FC = () => {
         .sort((a, b) => tableValues.indexOf(a) - tableValues.indexOf(b));
 
     const columnLabels: { [key: string]: { percentage: string | null; label: string } } = {
-        user: { percentage: null, label: 'User' },
-        pid: { percentage: null, label: 'Pid' },
-        ppid: { percentage: null, label: 'Ppid' },
-        name: { percentage: null, label: 'Name' },
-        state: { percentage: null, label: 'State' },
-        memory: { percentage: totalUsages.memory !== null ? `${totalUsages.memory}%` : null, label: 'Memory' },
-        cpu_usage: { percentage: `${Math.round(totalCpuUsage)}%`, label: 'CPU usage' }, // Set the percentage to the total CPU usage
-        read_disk_usage: { percentage: null, label: 'Disk Read Total' },
-        write_disk_usage: { percentage: null, label: 'Disk Write Total' },
-        read_disk_speed: { percentage: null, label: 'Disk Read Speed' },
-        write_disk_speed: { percentage: null, label: 'Disk Write Speed' },
+        user: { percentage: null, label: t('proc.table_value_user') },
+        pid: { percentage: null, label: t('proc.table_value_pid') },
+        ppid: { percentage: null, label: t('proc.table_value_ppid') },
+        name: { percentage: null, label: t('proc.table_value_name') },
+        state: { percentage: null, label: t('proc.table_value_state') },
+        memory: { percentage: totalUsages.memory !== null ? `${totalUsages.memory}%` : null, label: t('proc.table_value_memory') },
+        cpu_usage: { percentage: `${Math.round(totalCpuUsage)}%`, label: t('proc.table_value_cpu_usage') },
+        read_disk_usage: { percentage: null, label:  t('proc.table_value_read_disk_usage') },
+        write_disk_usage: { percentage: null, label:  t('proc.table_value_write_disk_usage') },
+        read_disk_speed: { percentage: null, label:  t('proc.table_value_read_disk_speed') },
+        write_disk_speed: { percentage: null, label:  t('proc.table_value_write_disk_speed') },
     };
 
     return (
