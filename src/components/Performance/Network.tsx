@@ -4,6 +4,7 @@ import Graph from '../Graph/Graph';
 import useNetworkData from '../../hooks/Performance/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
+import { useTranslation } from 'react-i18next';
 
 interface NetworkProps {
     hidden: boolean;
@@ -29,6 +30,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
     const setWifiSpeed = useSetWifiSpeed();
     const setEthernetSpeed = useSetEthernetSpeed();
     const convertData = useDataConverter();
+    const { t } = useTranslation();
 
     const downloadValues = useMemo(() => download.map(d => d.value), [download]);
     const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
@@ -43,65 +45,78 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
 
 
     return (
-
         <MemoryContainer
-        performanceBackgroundColor={performanceConfig.config.performance_background_color} 
-        hidden={hidden}
-         >
-
+            performanceBackgroundColor={performanceConfig.config.performance_background_color} 
+            hidden={hidden}
+        >
             <>
                 <NameContainer>
-                    <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>Network</NameLabel>
-                    <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{interfaceName}</NameValue>
+                    <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>
+                        {t('network.title')}
+                    </NameLabel>
+                    <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>
+                        {interfaceName}
+                    </NameValue>
                 </NameContainer>
                 <Graph
-                firstGraphValue={downloadValues}
-                secondGraphValue={uploadValues}
-                width="98%"
+                    firstGraphValue={downloadValues}
+                    secondGraphValue={uploadValues}
+                    width="98%"
                 />
 
                 <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                     <RealTimeValues>
-                        <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color} >Usage</MemoryTypes>
+                        <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>
+                            {t('network.usage')}
+                        </MemoryTypes>
                         <FixedValueItem>
-                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Download</LeftLabel>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>
+                                {t('network.download')}
+                            </LeftLabel>
                             {totalDownload !== undefined && (
-                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}> {convertData(totalDownload).value}{' '}
-                                    {convertData(totalDownload).unit}</LeftValue>
+                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>
+                                    {convertData(totalDownload).value}{' '}{convertData(totalDownload).unit}
+                                </LeftValue>
                             )}
-
                         </FixedValueItem>
                         <FixedValueItem>
-                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Upload</LeftLabel>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>
+                                {t('network.upload')}
+                            </LeftLabel>
                             {totalUpload !== undefined && (
-                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}> {convertData(totalUpload).value}{' '}
-                                    {convertData(totalUpload).unit}</LeftValue>
+                                <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>
+                                    {convertData(totalUpload).value}{' '}{convertData(totalUpload).unit}
+                                </LeftValue>
                             )}
-
                         </FixedValueItem>
                     </RealTimeValues>
 
                     <FixedValues>
-                        <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>Speed</MemoryTypes>
+                        <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>
+                            {t('network.speed')}
+                        </MemoryTypes>
 
                         <FixedValueItem>
-                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Download</RightLabel>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>
+                                {t('network.download')}
+                            </RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
                                 {download.length > 0 ? download[download.length - 1].value : 0}
-                                {download.length > 0 ? download[download.length - 1].unit : 'B'}
+                                {download.length > 0 ? download[download.length - 1].unit : t('network.bytes_per_sec')}
                             </RightValue>
                         </FixedValueItem>
                         <FixedValueItem>
-                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Upload</RightLabel>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>
+                                {t('network.upload')}
+                            </RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
                                 {upload.length > 0 ? upload[upload.length - 1].value : 0}
-                                {upload.length > 0 ? upload[upload.length - 1].unit : 'B'}
+                                {upload.length > 0 ? upload[upload.length - 1].unit : t('network.bytes_per_sec')}
                             </RightValue>
                         </FixedValueItem>
                     </FixedValues>
                 </div>
             </>
-            
         </MemoryContainer>
     );
 };
