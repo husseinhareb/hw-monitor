@@ -16,7 +16,7 @@ import {
 } from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
-// Use the translation keys for the table values
+// Translation keys for the table values
 const tableValues = [
     "processes_config.table_value_user",
     "processes_config.table_value_pid",
@@ -30,6 +30,21 @@ const tableValues = [
     "processes_config.table_value_read_disk_speed",
     "processes_config.table_value_write_disk_speed"
 ];
+
+// Map of translation keys to original values
+const translationMap: Record<string, string> = {
+    "processes_config.table_value_user": "user",
+    "processes_config.table_value_pid": "pid",
+    "processes_config.table_value_ppid": "ppid",
+    "processes_config.table_value_name": "name",
+    "processes_config.table_value_state": "state",
+    "processes_config.table_value_memory": "memory",
+    "processes_config.table_value_cpu_usage": "cpu_usage",
+    "processes_config.table_value_read_disk_usage": "read_disk_usage",
+    "processes_config.table_value_write_disk_usage": "write_disk_usage",
+    "processes_config.table_value_read_disk_speed": "read_disk_speed",
+    "processes_config.table_value_write_disk_speed": "write_disk_speed",
+};
 
 interface ProcessConfig {
     processes_update_time: number;
@@ -51,11 +66,12 @@ const ProcessesConfig: React.FC = () => {
         }
     }, [config]);
 
-    const handleTableValueChange = (value: string) => {
+    const handleTableValueChange = (translationKey: string) => {
+        const originalValue = translationMap[translationKey]; // Map back to original value
         setSelectedValues((prevValues) => {
-            const newValues = prevValues.includes(value)
-                ? prevValues.filter((v) => v !== value)
-                : [...prevValues, value];
+            const newValues = prevValues.includes(originalValue)
+                ? prevValues.filter((v) => v !== originalValue)
+                : [...prevValues, originalValue];
             updateTableValues(newValues);
             return newValues;
         });
@@ -128,23 +144,23 @@ const ProcessesConfig: React.FC = () => {
             <SectionTitle>{t('processes_config.table_values')}</SectionTitle>
             <CheckboxContainer>
                 <Column>
-                    {firstHalf.map((value) => (
-                        <CheckboxWrapper className="checkbox-wrapper-4" key={value}>
+                    {firstHalf.map((translationKey) => (
+                        <CheckboxWrapper className="checkbox-wrapper-4" key={translationKey}>
                             <input
                                 className="inp-cbx"
-                                id={value}
+                                id={translationKey}
                                 type="checkbox"
-                                checked={selectedValues.includes(value)}
-                                onChange={() => handleTableValueChange(value)}
+                                checked={selectedValues.includes(translationMap[translationKey])} // Check based on original value
+                                onChange={() => handleTableValueChange(translationKey)}
                             />
-                            <label className="cbx" htmlFor={value}>
+                            <label className="cbx" htmlFor={translationKey}>
                                 <span>
                                     <svg width="12px" height="10px">
                                         <use xlinkHref="#check-4"></use>
                                     </svg>
                                 </span>
                                 {/* Translate the value using t */}
-                                <span>{t(value)}</span>
+                                <span>{t(translationKey)}</span>
                             </label>
                             <svg className="inline-svg">
                                 <symbol id="check-4" viewBox="0 0 12 10">
@@ -155,23 +171,23 @@ const ProcessesConfig: React.FC = () => {
                     ))}
                 </Column>
                 <Column>
-                    {secondHalf.map((value) => (
-                        <CheckboxWrapper className="checkbox-wrapper-4" key={value}>
+                    {secondHalf.map((translationKey) => (
+                        <CheckboxWrapper className="checkbox-wrapper-4" key={translationKey}>
                             <input
                                 className="inp-cbx"
-                                id={value}
+                                id={translationKey}
                                 type="checkbox"
-                                checked={selectedValues.includes(value)}
-                                onChange={() => handleTableValueChange(value)}
+                                checked={selectedValues.includes(translationMap[translationKey])} // Check based on original value
+                                onChange={() => handleTableValueChange(translationKey)}
                             />
-                            <label className="cbx" htmlFor={value}>
+                            <label className="cbx" htmlFor={translationKey}>
                                 <span>
                                     <svg width="12px" height="10px">
                                         <use xlinkHref="#check-4"></use>
                                     </svg>
                                 </span>
                                 {/* Translate the value using t */}
-                                <span>{t(value)}</span>
+                                <span>{t(translationKey)}</span>
                             </label>
                             <svg className="inline-svg">
                                 <symbol id="check-4" viewBox="0 0 12 10">
