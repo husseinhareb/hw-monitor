@@ -10,6 +10,7 @@ import {
     ColorLabel,
     ColorLabelText
 } from "./Styles/style";
+import { useTranslation } from "react-i18next";
 
 interface SensorsConfig {
     sensors_update_time: number;
@@ -24,6 +25,7 @@ interface SensorsConfig {
 
 const SensorsConfig: React.FC = () => {
     const { config, updateConfig } = useSensorsConfig();
+    const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof SensorsConfig, value: string | number) => {
         if (config) {
@@ -40,10 +42,10 @@ const SensorsConfig: React.FC = () => {
 
     return (
         <ConfigContainer>
-            <Title>Sensors Config</Title>
+            <Title>{t('sensors_config.title')}</Title>
             <Separator />
             <Label>
-                Update Time
+                {t('sensors_config.update_time')}
                 <Input
                     type="number"
                     value={config.sensors_update_time}
@@ -53,7 +55,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </Label>
             <ColorLabel>
-                <ColorLabelText>Background Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_background_color}
@@ -61,7 +63,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_foreground_color}
@@ -69,7 +71,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Boxes Background Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.boxes_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_boxes_background_color}
@@ -77,7 +79,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Boxes Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.boxes_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_boxes_foreground_color}
@@ -85,7 +87,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Boxes Title Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.boxes_title_foreground_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_boxes_title_foreground_color}
@@ -93,7 +95,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Battery Usage Background Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.battery_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_battery_background_color}
@@ -101,7 +103,7 @@ const SensorsConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Battery Frame Background Color</ColorLabelText>
+                <ColorLabelText>{t('sensors_config.battery_frame_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.sensors_battery_frame_color}

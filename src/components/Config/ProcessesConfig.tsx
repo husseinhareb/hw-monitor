@@ -14,8 +14,22 @@ import {
     ColorLabelText,
     CheckboxWrapper,
 } from "./Styles/style";
+import { useTranslation } from "react-i18next";
 
-const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
+// Use the translation keys for the table values
+const tableValues = [
+    "processes_config.table_value_user",
+    "processes_config.table_value_pid",
+    "processes_config.table_value_ppid",
+    "processes_config.table_value_name",
+    "processes_config.table_value_state",
+    "processes_config.table_value_memory",
+    "processes_config.table_value_cpu_usage",
+    "processes_config.table_value_read_disk_usage",
+    "processes_config.table_value_write_disk_usage",
+    "processes_config.table_value_read_disk_speed",
+    "processes_config.table_value_write_disk_speed"
+];
 
 interface ProcessConfig {
     processes_update_time: number;
@@ -29,6 +43,7 @@ interface ProcessConfig {
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (config && config.processes_table_values) {
@@ -59,15 +74,6 @@ const ProcessesConfig: React.FC = () => {
         }
     };
 
-
-    // Convert snake_case to a more readable format
-    const formatLabel = (value: string) => {
-        return value
-            .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-    };
-
     // Split table values into two halves
     const half = Math.ceil(tableValues.length / 2);
     const firstHalf = tableValues.slice(0, half);
@@ -75,10 +81,10 @@ const ProcessesConfig: React.FC = () => {
 
     return (
         <ConfigContainer>
-            <Title>Processes Config</Title>
+            <Title>{t('processes_config.title')}</Title>
             <Separator />
             <Label>
-                Update Time
+                {t('processes_config.update_time')}
                 <Input
                     type="number"
                     value={config.processes_update_time}
@@ -88,7 +94,7 @@ const ProcessesConfig: React.FC = () => {
                 />
             </Label>
             <ColorLabel>
-                <ColorLabelText>Body Background Color</ColorLabelText>
+                <ColorLabelText>{t('processes_config.body_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_body_background_color}
@@ -96,7 +102,7 @@ const ProcessesConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Body Color</ColorLabelText>
+                <ColorLabelText>{t('processes_config.body_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_body_color}
@@ -104,7 +110,7 @@ const ProcessesConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Head Background Color</ColorLabelText>
+                <ColorLabelText>{t('processes_config.head_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_head_background_color}
@@ -112,14 +118,14 @@ const ProcessesConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Head Color</ColorLabelText>
+                <ColorLabelText>{t('processes_config.head_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.processes_head_color}
                     onChange={(e) => handleConfigChange("processes_head_color", e.target.value)}
                 />
             </ColorLabel>
-            <SectionTitle>Table Values</SectionTitle>
+            <SectionTitle>{t('processes_config.table_values')}</SectionTitle>
             <CheckboxContainer>
                 <Column>
                     {firstHalf.map((value) => (
@@ -137,7 +143,8 @@ const ProcessesConfig: React.FC = () => {
                                         <use xlinkHref="#check-4"></use>
                                     </svg>
                                 </span>
-                                <span>{formatLabel(value)}</span>
+                                {/* Translate the value using t */}
+                                <span>{t(value)}</span>
                             </label>
                             <svg className="inline-svg">
                                 <symbol id="check-4" viewBox="0 0 12 10">
@@ -163,7 +170,8 @@ const ProcessesConfig: React.FC = () => {
                                         <use xlinkHref="#check-4"></use>
                                     </svg>
                                 </span>
-                                <span>{formatLabel(value)}</span>
+                                {/* Translate the value using t */}
+                                <span>{t(value)}</span>
                             </label>
                             <svg className="inline-svg">
                                 <symbol id="check-4" viewBox="0 0 12 10">

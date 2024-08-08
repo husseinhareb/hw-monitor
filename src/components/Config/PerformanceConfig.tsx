@@ -10,6 +10,7 @@ import {
     ColorLabel,
     ColorLabelText
 } from "./Styles/style";
+import { useTranslation } from "react-i18next";
 
 interface PerformanceConfig {
     performance_update_time: number;
@@ -26,6 +27,7 @@ interface PerformanceConfig {
 
 const PerformanceConfig: React.FC = () => {
     const { config, updateConfig } = usePerformanceConfig();
+    const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof PerformanceConfig, value: string | number) => {
         if (config) {
@@ -40,13 +42,12 @@ const PerformanceConfig: React.FC = () => {
         }
     };
 
-
     return (
         <ConfigContainer>
-            <Title>Performance Config</Title>
+            <Title>{t('performance_config.title')}</Title>
             <Separator />
             <Label>
-                Update Time
+                {t('performance_config.update_time')}
                 <Input
                     type="number"
                     value={config.performance_update_time}
@@ -55,10 +56,10 @@ const PerformanceConfig: React.FC = () => {
                     onChange={handleUpdateTimeChange}
                 />
             </Label>
-            <h3>Sidebar</h3>
+            <h3>{t('performance_config.sidebar')}</h3>
             <Separator />
             <ColorLabel>
-                <ColorLabelText>Background Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.sidebar_background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_background_color}
@@ -66,7 +67,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.sidebar_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_color}
@@ -74,17 +75,17 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>List Foreground Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.sidebar_selected_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sidebar_selected_color}
                     onChange={(e) => handleConfigChange("performance_sidebar_selected_color", e.target.value)}
                 />
             </ColorLabel>
-            <h3>Content</h3>
+            <h3>{t('performance_config.content')}</h3>
             <Separator />
             <ColorLabel>
-                <ColorLabelText>Background Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.background_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_background_color}
@@ -92,7 +93,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Label Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.label_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_label_color}
@@ -100,7 +101,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Value Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.value_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_value_color}
@@ -108,7 +109,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Title Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.title_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_title_color}
@@ -116,7 +117,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Graph Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.graph_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_graph_color}
@@ -124,7 +125,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <ColorLabel>
-                <ColorLabelText>Second Graph Color</ColorLabelText>
+                <ColorLabelText>{t('performance_config.sec_graph_color')}</ColorLabelText>
                 <ColorInput
                     type="color"
                     value={config.performance_sec_graph_color}

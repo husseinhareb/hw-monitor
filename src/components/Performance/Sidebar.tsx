@@ -8,6 +8,7 @@ import Gpu from './Gpu';
 import Memory from './Memory';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
 import useGpuData from '../../hooks/Performance/useGpuData';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
     interfaceNames: string[];
@@ -32,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
 
     const performanceConfig = usePerformanceConfig();
+    const { t } = useTranslation();
 
     // Check if maxMemory has been set
     const isMaxMemorySet = maxMemory !== 0;
@@ -58,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
                 performanceSidebarColor={performanceConfig.config.performance_sidebar_color}
             >
-                <Title>Performance</Title>
+                <Title>{t('sidebar.performance')}</Title>
                 <List>
                     <ListItem
                         performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
@@ -66,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                         isSelected={selectedItem === 'CPU'}
                         onClick={() => handleItemClick('CPU')}
                     >
-                        CPU
+                        {t('sidebar.cpu')}
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
                     {isMaxMemorySet && (
@@ -76,18 +78,18 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             isSelected={selectedItem === 'Memory'}
                             onClick={() => handleItemClick('Memory')}
                         >
-                            Memory
+                            {t('sidebar.memory')}
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
                         </ListItem>
                     )}
-                    {gpuData && gpuData.name !== "No GPU detected" && (
+                    {gpuData && gpuData.name !== t('sidebar.no_gpu_detected') && (
                         <ListItem
                             performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
                             performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
                             isSelected={selectedItem === 'GPU'}
                             onClick={() => handleItemClick('GPU')}
                         >
-                            GPU
+                            {t('sidebar.gpu')}
                             <Graph firstGraphValue={gpuUsage} maxValue={100} height="120px" width="100%" />
                         </ListItem>
                     )}
@@ -98,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             isSelected={selectedItem === 'Wi-Fi'}
                             onClick={() => handleItemClick('Wi-Fi')}
                         >
-                            Wi-Fi
+                            {t('sidebar.wifi')}
                             <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                     {ethernet &&
@@ -108,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             isSelected={selectedItem === 'Ethernet'}
                             onClick={() => handleItemClick('Ethernet')}
                         >
-                            Ethernet
+                            {t('sidebar.ethernet')}
                             <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />
                         </ListItem>}
                 </List>

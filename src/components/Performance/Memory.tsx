@@ -7,6 +7,7 @@ import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, Na
 import { NameContainer } from "../../styles/general-style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
+import { useTranslation } from "react-i18next";
 
 interface MemoryProps {
     hidden: boolean;
@@ -31,7 +32,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
     const [activeMem, setActiveMem] = useState<number[]>([]);
     const setMemory = useSetMemory();
     const convertData = useDataConverter();
-
+    const { t } = useTranslation();
     const [memoryData, setMemoryData] = useState<{
         total: { value: number, unit: string },
         free: { value: number, unit: string },
@@ -80,7 +81,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
             {memoryData && (
                 <>
                     <NameContainer>
-                        <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>Memory</NameLabel>
+                        <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.memory')}</NameLabel>
                         <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{Math.floor(memoryData.total.value)} {memoryData.total.unit}</NameValue>
                     </NameContainer>
                     <Graph
@@ -90,36 +91,36 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
                     />
                     <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                         <RealTimeValues>
-                            <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>Ram <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>
+                            <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.ram')} <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Total</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.total')} </RightLabel>
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.total.value} {memoryData.total.unit}</LeftValue>
                             </FixedValueItem>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Free</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.free')} </RightLabel>
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.free.value} {memoryData.free.unit}</LeftValue>
                             </FixedValueItem>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Available</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.available')} </RightLabel>
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.available.value} {memoryData.available.unit}</LeftValue>
                             </FixedValueItem>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Cached</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.cached')} </RightLabel>
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.cached.value} {memoryData.cached.unit}</LeftValue>
                             </FixedValueItem>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Active</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.active')} </RightLabel>
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}> {memoryData.active.value} {memoryData.active.unit}</LeftValue>
                             </FixedValueItem>
                         </RealTimeValues>
                         <FixedValues>
-                            <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>Swap<IoMdSwap style={{ marginLeft: '0.5em' }}/></MemoryTypes>
+                            <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.swap')} <IoMdSwap style={{ marginLeft: '0.5em' }}/></MemoryTypes>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Total</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.total')} </RightLabel>
                                 <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.swapTotal.value} {memoryData.swapTotal.unit}</RightValue>
                             </FixedValueItem>
                             <FixedValueItem>
-                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>Swap Cache</RightLabel>
+                                <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.swap_cache')} </RightLabel>
                                 <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.swapCache.value} {memoryData.swapCache.unit}</RightValue>
                             </FixedValueItem>
                         </FixedValues>
