@@ -66,6 +66,8 @@
 
     "performance_config.title": "Leistungs-Konfiguration",
     "performance_config.update_time": "Aktualisierungszeit",
+    "performance_config.sidebar": "Seitenleiste",
+    "performance_config.content": "Inhalt",
     "performance_config.sidebar_background_color": "Sidebar-Hintergrundfarbe",
     "performance_config.sidebar_color": "Sidebar-Vordergrundfarbe",
     "performance_config.sidebar_selected_color": "Sidebar-Ausgewählte Farbe",
@@ -106,6 +108,7 @@
     "proc.table_value_write_disk_usage": "Festplattennutzung Schreiben",
     "proc.table_value_read_disk_speed": "Lesegeschwindigkeit",
     "proc.table_value_write_disk_speed": "Schreibgeschwindigkeit",
+    "proc.kill_process": "Prozess beenden",
 
     "performance.cpu": "CPU",
     "performance.speed": "Geschwindigkeit",
@@ -145,7 +148,7 @@
     "network.download": "Download",
     "network.upload": "Upload",
     "network.speed": "Geschwindigkeit",
-    "network.bytes_per_sec": "B/s",
+    "network.bytes_per_sec": "/s",
 
     "sidebar.performance": "Leistung",
     "sidebar.cpu": "CPU",

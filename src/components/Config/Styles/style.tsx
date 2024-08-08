@@ -166,6 +166,7 @@ export const ColorLabelText = styled.span`
 // Styled components for the checkbox
 export const CheckboxWrapper = styled.div`
   display: flex;
+  font-size: 15px;
   align-items: center;
   position: relative;
   .cbx {

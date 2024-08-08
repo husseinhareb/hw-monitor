@@ -1,18 +1,32 @@
-import React, { useState, ChangeEvent } from "react";
-import { useTranslation } from 'react-i18next';
+import React, { ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
+import useFetchAndSetConfig from "../../utils/useConfigUtils"; 
+import { invoke } from "@tauri-apps/api/tauri";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
-import { invoke } from "@tauri-apps/api/tauri";
-
-import { Wrapper, Container, StyledButton, Label, Select, Header } from "./Styles/style"; // Updated import
 import SensorsConfig from "./SensorsConfig";
 import DisksConfig from "./DisksConfig";
 import NavbarConfig from "./NavbarConfig";
 import HeatbarConfig from "./HeatbarConfig";
 
+import {
+  Wrapper,
+  Container,
+  StyledButton,
+  Label,
+  Select,
+  Header,
+} from "./Styles/style";
+
 const Config: React.FC = () => {
   const { i18n } = useTranslation();
-  const [reloadFlag, setReloadFlag] = useState(false);
+  const [reloadFlag, setReloadFlag] = React.useState(false);
+
+  const { config, updateConfig } = useFetchAndSetConfig<{ language: string }>(
+    { language: i18n.language }, // Initial config
+    "get_configs",        // Command to fetch config
+    "set_language_config"         // Command to update config
+  );
 
   const load_default_config = async () => {
     try {
@@ -23,20 +37,28 @@ const Config: React.FC = () => {
     }
   };
 
-  const handleLanguageChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    i18n.changeLanguage(event.target.value);
+  const handleLanguageChange = async (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectedLanguage = event.target.value;
+    i18n.changeLanguage(selectedLanguage);
+    await updateConfig("language", selectedLanguage); // Use the hook to update the language
   };
 
   return (
     <Wrapper>
       <Header>
-        <StyledButton onClick={load_default_config}>Load Default Config</StyledButton>
-        <Label htmlFor="language-select" style={{color: 'white'}}>
+        <StyledButton onClick={load_default_config}>
+          Load Default Config
+        </StyledButton>
+        <Label htmlFor="language-select" style={{ color: "white" }}>
           Lang:
-          <Select id="language-select" onChange={handleLanguageChange} defaultValue={i18n.language}>
+          <Select
+            id="language-select"
+            onChange={handleLanguageChange}
+            value={config.language} // Use config from the hook
+          >
             <option value="en">English</option>
             <option value="fr">French</option>
-            <option value="de">Deutsh</option>
+            <option value="de">Deutsch</option>
           </Select>
         </Label>
       </Header>
