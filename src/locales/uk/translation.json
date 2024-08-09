@@ -148,7 +148,7 @@
     "network.download": "Завантаження",
     "network.upload": "Вивантаження",
     "network.speed": "Швидкість",
-    "network.bytes_per_sec": "/с",
+    "network.bytes_per_sec": "/c",
 
     "sidebar.performance": "Продуктивність",
     "sidebar.cpu": "CPU",
