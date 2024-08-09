@@ -5,6 +5,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import translationEN from '../locales/en/translation.json';
 import translationFR from '../locales/fr/translation.json';
 import translationDE from '../locales/de/translation.json';
+import translationUK from '../locales/uk/translation.json';
 
 // Define the expected shape of the configuration object
 interface Config {
@@ -15,6 +16,8 @@ const resources = {
   en: { translation: translationEN },
   fr: { translation: translationFR },
   de: { translation: translationDE },
+  uk: { translation: translationUK },
+
 };
 
 // Function to fetch language configuration
