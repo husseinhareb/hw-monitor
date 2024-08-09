@@ -1,9 +1,6 @@
 use serde::{Serialize, Deserialize};
-
 use nvml_wrapper::Nvml;
 use nvml_wrapper::error::NvmlError;
-
-
 use std::fs::{read_dir, read_to_string};
 use std::path::PathBuf;
 use std::error::Error;
@@ -54,23 +51,20 @@ fn detect_nvidia_gpus() -> bool {
 }
 
 fn detect_amd_gpus() -> bool {
-    let sysfs_path = PathBuf::from("/sys/class/drm/");
-    match read_dir(&sysfs_path) {
-        Ok(mut entries) => entries.any(|entry| {
+    let drm_path = PathBuf::from("/sys/class/drm/");
+    if let Ok(entries) = read_dir(drm_path) {
+        for entry in entries {
             if let Ok(entry) = entry {
                 let path = entry.path();
-                if path.is_dir() {
-                    let device_name = path.file_name().unwrap().to_str().unwrap();
-                    device_name.starts_with("card") && is_amd_gpu(&path)
-                } else {
-                    false
+                if path.is_dir() && path.file_name().unwrap().to_str().unwrap().starts_with("card") {
+                    if is_amd_gpu(&path) {
+                        return true;
+                    }
                 }
-            } else {
-                false
             }
-        }),
-        Err(_) => false,
+        }
     }
+    false
 }
 
 fn is_amd_gpu(path: &PathBuf) -> bool {
@@ -79,6 +73,111 @@ fn is_amd_gpu(path: &PathBuf) -> bool {
         return vendor.trim() == "0x1002"; // AMD vendor ID
     }
     false
+}
+
+fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Option<String>) {
+    let mut fan_speed = None;
+    let mut temperature = None;
+    let mut clock_speed = None;
+
+    let hwmon_dir = device_path.join("hwmon");
+    if let Ok(entries) = read_dir(&hwmon_dir) {
+        for entry in entries {
+            if let Ok(entry) = entry {
+                let hwmon_path = entry.path();
+
+                if let Ok(fan_input) = read_to_string(hwmon_path.join("fan1_input")) {
+                    fan_speed = Some(format!("{} RPM", fan_input.trim()));
+                }
+
+                if let Ok(temp_input) = read_to_string(hwmon_path.join("temp1_input")) {
+                    let temp_celsius = temp_input.trim().parse::<u64>().unwrap_or(0) / 1000;
+                    temperature = Some(format!("{} °C", temp_celsius));
+                }
+
+                if let Ok(freq_input) = read_to_string(hwmon_path.join("freq1_input")) {
+                    let freq_mhz = freq_input.trim().parse::<u64>().unwrap_or(0) / 1_000_000;
+                    clock_speed = Some(format!("{} MHz", freq_mhz));
+                }
+            }
+        }
+    }
+
+    (fan_speed, temperature, clock_speed)
+}
+
+fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
+    let gpu_busy_percent_file = device_path.join("gpu_busy_percent");
+
+    if let Ok(contents) = read_to_string(&gpu_busy_percent_file) {
+        if let Ok(value) = contents.trim().parse::<u64>() {
+            return Some(format!("{}%", value));
+        }
+    }
+    None
+}
+
+fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
+    let drm_path = PathBuf::from("/sys/class/drm/");
+    let mut amd_gpu_path = None;
+
+    if let Ok(entries) = read_dir(drm_path) {
+        for entry in entries {
+            if let Ok(entry) = entry {
+                let path = entry.path();
+                if path.is_dir() && path.file_name().unwrap().to_str().unwrap().starts_with("card") {
+                    if is_amd_gpu(&path) {
+                        amd_gpu_path = Some(path);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if let Some(gpu_path) = amd_gpu_path {
+        let device_path = gpu_path.join("device");
+
+        // Read memory info
+        let memory_used = read_to_string(device_path.join("mem_info_vram_used")).ok()
+            .and_then(|s| s.trim().parse::<u64>().ok())
+            .map(add_memory_unit);
+        
+        let memory_total = read_to_string(device_path.join("mem_info_vram_total")).ok()
+            .and_then(|s| s.trim().parse::<u64>().ok())
+            .map(add_memory_unit);
+        
+        let memory_free = memory_total.as_ref().and_then(|total| memory_used.as_ref().map(|used| {
+            let total_bytes = total.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0) * 1024 * 1024;
+            let used_bytes = used.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0) * 1024 * 1024;
+            add_memory_unit(total_bytes - used_bytes)
+        }));
+
+        // Read performance state
+        let performance_state = read_to_string(device_path.join("power_state")).ok().map(|s| s.trim().to_string());
+
+        // Read hardware monitor info
+        let (fan_speed, temperature, clock_speed) = read_hwmon_info(&device_path);
+
+        // Read GPU busy percentage (utilization)
+        let utilization = read_gpu_busy_percent(&device_path);
+
+        Ok(GpuInformations {
+            name: Some("AMD GPU".to_string()),
+            driver_version: None,
+            memory_total,
+            memory_used,
+            memory_free,
+            temperature,
+            utilization,
+            clock_speed,
+            wattage: None,
+            fan_speed,
+            performance_state,
+        })
+    } else {
+        Err("No AMD GPU found".into())
+    }
 }
 
 fn get_nvidia_gpu_info() -> Result<GpuInformations, NvmlError> {
@@ -119,84 +218,6 @@ fn get_nvidia_gpu_info() -> Result<GpuInformations, NvmlError> {
     })
 }
 
-fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
-    let sysfs_path = PathBuf::from("/sys/class/drm/");
-    let devices = read_dir(&sysfs_path)?;
-
-    for entry in devices {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_dir() {
-            
-            let device_name = path.file_name().unwrap().to_str().unwrap();
-            if device_name.starts_with("card") && !device_name.contains('-') && is_amd_gpu(&path) {
-                let device_path = path.join("device");
-                let mut info = GpuInformations {
-                    name: Some(device_name.to_string()),
-                    driver_version: None,
-                    memory_total: None,
-                    memory_used: None,
-                    memory_free: None,
-                    temperature: None,
-                    utilization: None,
-                    clock_speed: None,
-                    wattage: None,
-                    fan_speed: None,
-                    performance_state: None,
-                };
-
-                let memory_total_path = device_path.join("mem_info_vram_total");
-                if let Ok(total) = read_to_string(&memory_total_path) {
-                    info.memory_total = Some(add_memory_unit(total.trim().parse::<u64>()?));
-                }
-
-                let memory_used_path = device_path.join("mem_info_vram_used");
-                if let Ok(used) = read_to_string(&memory_used_path) {
-                    info.memory_used = Some(add_memory_unit(used.trim().parse::<u64>()?));
-                }
-
-                let memory_free_path = device_path.join("mem_info_vram_free");
-                if let Ok(free) = read_to_string(&memory_free_path) {
-                    info.memory_free = Some(add_memory_unit(free.trim().parse::<u64>()?));
-                }
-
-                let temperature_path = device_path.join("hwmon/hwmon0/temp1_input");
-                if let Ok(temp) = read_to_string(&temperature_path) {
-                    info.temperature = Some(format!("{} °C", temp.trim()));
-                }
-
-                let utilization_path = device_path.join("gpu_busy_percent");
-                if let Ok(util) = read_to_string(&utilization_path) {
-                    info.utilization = Some(format!("{} %", util.trim()));
-                }
-
-                let clock_speed_path = device_path.join("pp_dpm_sclk");
-                if let Ok(clock) = read_to_string(&clock_speed_path) {
-                    if let Some(line) = clock.lines().last() {
-                        let clock_speed = line.split_whitespace().last().unwrap().parse::<u32>()?;
-                        info.clock_speed = Some(add_clock_speed_unit(clock_speed));
-                    }
-                }
-
-                let wattage_path = device_path.join("hwmon/hwmon0/power1_average");
-                if let Ok(watt) = read_to_string(&wattage_path) {
-                    info.wattage = Some(format!("{:.1} W", watt.trim().parse::<f64>()? / 1000000.0));
-                }
-
-                let fan_speed_path = device_path.join("hwmon/hwmon0/fan1_input");
-                if let Ok(speed) = read_to_string(&fan_speed_path) {
-                    info.fan_speed = Some(format!("{} RPM", speed.trim()));
-                }
-
-                return Ok(info);
-            }
-        }
-    }
-
-    Err("No AMD GPU found".into())
-}
-
 #[tauri::command]
 pub async fn get_gpu_informations() -> Option<GpuInformations> {
     if detect_nvidia_gpus() {
@@ -219,4 +240,3 @@ pub async fn get_gpu_informations() -> Option<GpuInformations> {
 
     None
 }
-
