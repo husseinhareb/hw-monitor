@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
-import useFetchAndSetConfig from "../../utils/useConfigUtils"; 
+import useFetchAndSetConfig from "../../utils/useConfigUtils";
 import { invoke } from "@tauri-apps/api/tauri";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
@@ -54,12 +54,13 @@ const Config: React.FC = () => {
           <Select
             id="language-select"
             onChange={handleLanguageChange}
-            value={config.language} // Use config from the hook
+            value={config.language}
           >
             <option value="en">English</option>
+            <option value="es">Español</option>
             <option value="fr">French</option>
             <option value="de">Deutsch</option>
-            <option value="uk">Ukranian</option>
+            <option value="uk">Ukrainian</option>
 
           </Select>
         </Label>
