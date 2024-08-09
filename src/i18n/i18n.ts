@@ -6,7 +6,7 @@ import translationEN from '../locales/en/translation.json';
 import translationFR from '../locales/fr/translation.json';
 import translationDE from '../locales/de/translation.json';
 import translationUK from '../locales/uk/translation.json';
-
+import translationES from '../locales/es/translation.json';
 // Define the expected shape of the configuration object
 interface Config {
   language: string;
@@ -17,6 +17,8 @@ const resources = {
   fr: { translation: translationFR },
   de: { translation: translationDE },
   uk: { translation: translationUK },
+  es: { translation: translationES},
+
 
 };
 
