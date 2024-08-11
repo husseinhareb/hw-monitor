@@ -75,10 +75,11 @@ fn is_amd_gpu(path: &PathBuf) -> bool {
     false
 }
 
-fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Option<String>) {
+fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Option<String>, Option<String>) {
     let mut fan_speed = None;
     let mut temperature = None;
     let mut clock_speed = None;
+    let mut wattage = None;
 
     let hwmon_dir = device_path.join("hwmon");
     if let Ok(entries) = read_dir(&hwmon_dir) {
@@ -99,23 +100,22 @@ fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Op
                     let freq_mhz = freq_input.trim().parse::<u64>().unwrap_or(0) / 1_000_000;
                     clock_speed = Some(format!("{} MHz", freq_mhz));
                 }
+
+                // Read power consumption if available
+                if let Ok(power_input) = read_to_string(hwmon_path.join("power1_average")) {
+                    let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
+                    wattage = Some(format!("{:.3} W", power_mw as f64 / 1000.0)); // Divide by 1000 to convert mW to W
+                } else if let Ok(power_input) = read_to_string(hwmon_path.join("power1_input")) {
+                    let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
+                    wattage = Some(format!("{:.3} W", power_mw as f64 / 1000.0)); // Divide by 1000 to convert mW to W
+                }
             }
         }
     }
 
-    (fan_speed, temperature, clock_speed)
+    (fan_speed, temperature, clock_speed, wattage)
 }
 
-fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
-    let gpu_busy_percent_file = device_path.join("gpu_busy_percent");
-
-    if let Ok(contents) = read_to_string(&gpu_busy_percent_file) {
-        if let Ok(value) = contents.trim().parse::<u64>() {
-            return Some(format!("{}%", value));
-        }
-    }
-    None
-}
 
 fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
     let drm_path = PathBuf::from("/sys/class/drm/");
@@ -156,8 +156,8 @@ fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
         // Read performance state
         let performance_state = read_to_string(device_path.join("power_state")).ok().map(|s| s.trim().to_string());
 
-        // Read hardware monitor info
-        let (fan_speed, temperature, clock_speed) = read_hwmon_info(&device_path);
+        // Read hardware monitor info, now includes wattage
+        let (fan_speed, temperature, clock_speed, wattage) = read_hwmon_info(&device_path);
 
         // Read GPU busy percentage (utilization)
         let utilization = read_gpu_busy_percent(&device_path);
@@ -171,7 +171,7 @@ fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
             temperature,
             utilization,
             clock_speed,
-            wattage: None,
+            wattage,
             fan_speed,
             performance_state,
         })
@@ -179,6 +179,20 @@ fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
         Err("No AMD GPU found".into())
     }
 }
+
+
+fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
+    let gpu_busy_percent_file = device_path.join("gpu_busy_percent");
+
+    if let Ok(contents) = read_to_string(&gpu_busy_percent_file) {
+        if let Ok(value) = contents.trim().parse::<u64>() {
+            return Some(format!("{}%", value));
+        }
+    }
+    None
+}
+
+
 
 fn get_nvidia_gpu_info() -> Result<GpuInformations, NvmlError> {
     let nvml = Nvml::init()?;
