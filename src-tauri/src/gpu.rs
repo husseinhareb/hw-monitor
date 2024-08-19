@@ -1,9 +1,13 @@
-use serde::{Serialize, Deserialize};
+use ash::vk;
+use ash::Entry;
+use serde::{Deserialize, Serialize};
 use nvml_wrapper::Nvml;
 use nvml_wrapper::error::NvmlError;
+use std::error::Error;
+use std::ffi::CStr;
 use std::fs::{read_dir, read_to_string};
 use std::path::PathBuf;
-use std::error::Error;
+use std::ptr;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GpuInformations {
@@ -45,7 +49,7 @@ fn detect_nvidia_gpus() -> bool {
         Ok(nvml) => {
             let device_count = nvml.device_count();
             device_count.is_ok() && device_count.unwrap() > 0
-        },
+        }
         Err(_) => false,
     }
 }
@@ -75,7 +79,14 @@ fn is_amd_gpu(path: &PathBuf) -> bool {
     false
 }
 
-fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Option<String>, Option<String>) {
+fn read_hwmon_info(
+    device_path: &PathBuf,
+) -> (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+) {
     let mut fan_speed = None;
     let mut temperature = None;
     let mut clock_speed = None;
@@ -101,7 +112,6 @@ fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Op
                     clock_speed = Some(format!("{} MHz", freq_mhz));
                 }
 
-                // Read power consumption if available
                 if let Ok(power_input) = read_to_string(hwmon_path.join("power1_average")) {
                     let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
                     wattage = Some(format!("{:.3} W", power_mw as f64 / 1000.0)); // Divide by 1000 to convert mW to W
@@ -115,7 +125,6 @@ fn read_hwmon_info(device_path: &PathBuf) -> (Option<String>, Option<String>, Op
 
     (fan_speed, temperature, clock_speed, wattage)
 }
-
 
 fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
     let drm_path = PathBuf::from("/sys/class/drm/");
@@ -139,22 +148,34 @@ fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
         let device_path = gpu_path.join("device");
 
         // Read memory info
-        let memory_used = read_to_string(device_path.join("mem_info_vram_used")).ok()
+        let memory_used = read_to_string(device_path.join("mem_info_vram_used"))
+            .ok()
             .and_then(|s| s.trim().parse::<u64>().ok())
             .map(add_memory_unit);
-        
-        let memory_total = read_to_string(device_path.join("mem_info_vram_total")).ok()
+
+        let memory_total = read_to_string(device_path.join("mem_info_vram_total"))
+            .ok()
             .and_then(|s| s.trim().parse::<u64>().ok())
             .map(add_memory_unit);
-        
-        let memory_free = memory_total.as_ref().and_then(|total| memory_used.as_ref().map(|used| {
-            let total_bytes = total.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0) * 1024 * 1024;
-            let used_bytes = used.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0) * 1024 * 1024;
-            add_memory_unit(total_bytes - used_bytes)
-        }));
+
+        let memory_free = memory_total.as_ref().and_then(|total| {
+            memory_used.as_ref().map(|used| {
+                let total_bytes =
+                    total.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0)
+                        * 1024
+                        * 1024;
+                let used_bytes =
+                    used.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0)
+                        * 1024
+                        * 1024;
+                add_memory_unit(total_bytes - used_bytes)
+            })
+        });
 
         // Read performance state
-        let performance_state = read_to_string(device_path.join("power_state")).ok().map(|s| s.trim().to_string());
+        let performance_state = read_to_string(device_path.join("power_state"))
+            .ok()
+            .map(|s| s.trim().to_string());
 
         // Read hardware monitor info, now includes wattage
         let (fan_speed, temperature, clock_speed, wattage) = read_hwmon_info(&device_path);
@@ -180,7 +201,6 @@ fn get_amd_gpu_info() -> Result<GpuInformations, Box<dyn Error>> {
     }
 }
 
-
 fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
     let gpu_busy_percent_file = device_path.join("gpu_busy_percent");
 
@@ -191,8 +211,6 @@ fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
     }
     None
 }
-
-
 
 fn get_nvidia_gpu_info() -> Result<GpuInformations, NvmlError> {
     let nvml = Nvml::init()?;
@@ -239,7 +257,7 @@ pub async fn get_gpu_informations() -> Option<GpuInformations> {
             Ok(info) => return Some(info),
             Err(err) => {
                 eprintln!("Failed to get NVIDIA GPU information: {:?}", err);
-            },
+            }
         }
     }
 
@@ -248,7 +266,7 @@ pub async fn get_gpu_informations() -> Option<GpuInformations> {
             Ok(info) => return Some(info),
             Err(err) => {
                 eprintln!("Failed to get AMD GPU information: {:?}", err);
-            },
+            }
         }
     }
 
