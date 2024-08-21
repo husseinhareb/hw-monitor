@@ -62,6 +62,7 @@ const Config: React.FC = () => {
             <option value="de">Deutsch</option>
             <option value="uk">Українська</option>
             <option value="pl">Polski</option>
+            <option value="ar">العربية</option>
           </Select>
         </Label>
       </Header>
