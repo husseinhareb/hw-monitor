@@ -9,7 +9,7 @@ import translationUK from '../locales/uk/translation.json';
 import translationES from '../locales/es/translation.json';
 import translationPL from '../locales/pl/translation.json';
 import translationAR from '../locales/ar/translation.json';
-// Define the expected shape of the configuration object
+import translationRU from '../locales/ru/translation.json';
 interface Config {
   language: string;
 }
@@ -21,7 +21,8 @@ const resources = {
   uk: { translation: translationUK },
   es: { translation: translationES},
   pl: { translation: translationPL},
-  ar:{ translation:translationAR}
+  ar:{ translation:translationAR},
+  ru:{ translation:translationRU},
 };
 
 // Function to fetch language configuration
