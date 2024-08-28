@@ -22,15 +22,24 @@ The Processes section provides detailed information about each process running o
 - Disk Read Speed
 - Disk Write Speed
 
-![processes](https://github.com/user-attachments/assets/8cee2604-c3f8-4536-9182-7e884732fdf1)
+![2024-08-28-124434_1295x902_scrot](https://github.com/user-attachments/assets/19b84674-fcce-4d42-9e9f-eb39136df9f7)
 
 ### Performance
 
-The Performance page mainly displays graphs of key hardware component usage, such as CPU, RAM, and network cards. In addition to graphs, it provides detailed information for each hardware component, including CPU speed, number of cores, threads, sockets, uptime, RAM and swap information, and more, as shown in the pictures below:
+The Performance page mainly displays graphs of key hardware component usage, such as CPU, RAM,GPU and network cards. In addition to graphs, it provides detailed information for each hardware component, including CPU speed, number of cores, threads, sockets, uptime, RAM and swap information, and more, as shown in the pictures below:
 
-![wifi](https://github.com/user-attachments/assets/b48109fb-9b36-4b32-a8b8-6552e36583ef)
-![memory](https://github.com/user-attachments/assets/a94d265c-b830-4d4f-8e5b-634d1c8852ee)
-![cpu](https://github.com/user-attachments/assets/8cb21c87-054e-4b49-8474-1255644c8238)
+### CPU
+![2024-08-28-124603_1226x956_scrot](https://github.com/user-attachments/assets/88d6b300-c4bf-4af5-96f9-2706ba08fc40)
+
+### Memory
+![2024-08-28-124630_1225x955_scrot](https://github.com/user-attachments/assets/e923d001-1cd7-4735-9ce2-cfc1b96e93cb)
+
+### GPU
+![2024-08-28-124643_1223x953_scrot](https://github.com/user-attachments/assets/e13d7ee5-ad4b-45c9-8a52-b065f4d64bd4)
+
+### Network
+![2024-08-28-143706_1190x913_scrot](https://github.com/user-attachments/assets/3431f04a-3697-4332-8d01-23019aa2dba3)
+
 
 ### Sensors
 
@@ -43,6 +52,13 @@ The Sensors page displays all sensors detected by the software. For laptops, it 
 The Disks page shows the disks and partitions detected by the Linux kernel, similar to the output of `lsblk`. Additionally, it displays the usage of mounted partitions, as shown below:
 
 ![disks](https://github.com/user-attachments/assets/5dcc2261-2e00-4eb3-89bd-c73a63d8c819)
+
+
+## Multilingual Support
+
+The application now includes comprehensive multilingual support, allowing users to choose from eight different languages: Arabic, German, English, Spanish, French, Polish, Russian, and Ukrainian.
+
+![2024-08-28-144327_1189x913_scrot](https://github.com/user-attachments/assets/e7b1fae4-9929-43e5-87d5-157ac4c36094)
 
 ## Configuration
 
