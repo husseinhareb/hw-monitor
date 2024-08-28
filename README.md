@@ -71,7 +71,7 @@ The software also contains a configuration file that is created at startup insid
 
 Along with the default configuration, there is another beautiful theme that has a palette similar to Catpuccin.
 ![swappy-20240712_192709](https://github.com/user-attachments/assets/035d8c1c-1dbb-46b9-a1b9-60927b05ef61)
-![swappy-20240712_203241](https://github.com/user-attachments/assets/242d3fae-cfd4-4256-84e4-3a4b6f79f252)
+![2024-08-28-144604_1187x913_scrot](https://github.com/user-attachments/assets/5e55ce4e-804d-481f-a5f8-4f6abaf19476)
 
 ```shell
 # Catpuccin Theme
@@ -148,8 +148,13 @@ heatbar_color_seven=#bb9af7
 heatbar_color_eight=#7aa2f7
 heatbar_color_nine=#2ac3de
 heatbar_color_ten=#a9b1d6
+language=en
 ```
 ### Gruvbox Alike Theme
+
+![2024-08-28-144813_1188x913_scrot](https://github.com/user-attachments/assets/cfdb6f44-2470-49da-88fe-add741904988)
+![2024-08-28-144754_1188x914_scrot](https://github.com/user-attachments/assets/87e0bbce-d9dc-492f-aaeb-7301115366d0)
+
 
 ```shell
 ##################
@@ -224,6 +229,7 @@ heatbar_color_seven=#689d6a
 heatbar_color_eight=#458588
 heatbar_color_nine=#98971a
 heatbar_color_ten=#928374
+language=en
 ```
 
 ## Installation 
