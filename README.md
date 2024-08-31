@@ -232,8 +232,61 @@ heatbar_color_ten=#928374
 language=en
 ```
 
-## Installation 
-You can download the app from the release page or build it yourself 
+## Installation Guide
+#### Step 1: Download the App
+
+You can download the app from the release page or build it yourself by following the instructions in the repository.
+#### Step 2: Resolving Dependency Errors
+
+While running the app, you might encounter an error related to missing shared libraries, such as:
+
+```
+error while loading shared libraries: libjavascriptcoregtk-4.0.so-18
+```
+To resolve this, install the appropriate package for your Linux distribution:
+- Arch Linux
+```bash
+sudo pacman -S webkit2gtk
+```
+
+- Debian/Ubuntu
+```bash
+sudo apt install libwebkit2gtk-4.0-dev
+```
+- Fedora/RHEL
+
+```bash
+sudo dnf install webkit2gtk4.0-devel
+```
+
+- Gentoo
+```bash
+sudo emerge --ask net-libs/webkit-gtk:4
+```
+- Void Linux
+
+```bash
+sudo xbps-install -S webkit2gtk-devel
+```
+### Step 3: Fixing Nvidia GPU Errors
+
+If you are using an Nvidia GPU and encounter errors such as:
+
+```bash
+src/nv_gbm.c:300: GBM-DRV error (nv_gbm_create_device_native): nv_common_gbm_create_device failed (ret=-1)
+KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: Permission denied
+Failed to create GBM buffer of size 800x600: Permission denied
+```
+To fix this, add the following environment variables to your shell configuration file (e.g., .bashrc, .zshrc):
+
+```bash
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+export LIBGL_ALWAYS_SOFTWARE=1
+export QT_XCB_FORCE_SOFTWARE_OPENGL=1
+```
+After adding these lines, save the file and run source ~/.bashrc (or source ~/.zshrc depending on your shell) to apply the changes.
+
+
 ### Building Binaries 
 Follow these steps to build the app locally:
 
