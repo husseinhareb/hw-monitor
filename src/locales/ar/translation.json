@@ -148,5 +148,14 @@
     "network.download": "التحميل",
     "network.upload": "الرفع",
     "network.speed": "السرعة",
-    "network.bytes_per_sec": "/ث"
+    "network.bytes_per_sec": "/ث",
+
+    
+    "sidebar.performance": "الأداء",
+    "sidebar.cpu": "المعالج",
+    "sidebar.memory": "الذاكرة",
+    "sidebar.gpu": "وحدة معالجة الرسوميات",
+    "sidebar.wifi": "واي فاي",
+    "sidebar.ethernet": "إيثرنت",
+    "sidebar.no_gpu_detected": "لم يتم اكتشاف وحدة معالجة الرسوميات"
 }
