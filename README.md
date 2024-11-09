@@ -284,6 +284,12 @@ export WEBKIT_DISABLE_DMABUF_RENDERER=1
 export LIBGL_ALWAYS_SOFTWARE=1
 export QT_XCB_FORCE_SOFTWARE_OPENGL=1
 ```
+for the fish shell
+```bash
+set -Ux WEBKIT_DISABLE_DMABUF_RENDERER 1
+set -Ux LIBGL_ALWAYS_SOFTWARE 1
+set -Ux QT_XCB_FORCE_SOFTWARE_OPENGL 1
+```
 After adding these lines, save the file and run source ~/.bashrc (or source ~/.zshrc depending on your shell) to apply the changes.
 
 
