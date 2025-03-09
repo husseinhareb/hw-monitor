@@ -11,20 +11,21 @@ pub struct Network {
     total_download: u64,
 }
 
+fn is_physical_interface(name: &str) -> bool {
+    name.starts_with("wl") || name.starts_with("en") || name.starts_with("eth")
+}
+
 #[tauri::command]
-pub async fn get_interfaces() -> Vec<String> {
+pub async fn get_interfaces(show_virtual: bool) -> Vec<String> {
     let mut networks = Networks::new_with_refreshed_list();
-    // Use tokio's sleep function
     networks.refresh();
     let mut interfaces: Vec<String> = Vec::new();
 
-    // Sort the network interfaces by name
     let mut sorted_networks: Vec<_> = networks.iter().collect();
     sorted_networks.sort_by(|(name1, _), (name2, _)| name1.cmp(name2));
 
     for (interface_name, _) in sorted_networks {
-        // Only consider interfaces starting with "wl", "en", or "eth"
-        if interface_name.starts_with("wl") || interface_name.starts_with("en") || interface_name.starts_with("eth") {
+        if show_virtual || is_physical_interface(interface_name) {
             interfaces.push(interface_name.clone());
         }
     }
@@ -32,23 +33,19 @@ pub async fn get_interfaces() -> Vec<String> {
 }
 
 #[tauri::command]
-pub async fn get_network() -> Vec<Network> {
+pub async fn get_network(show_virtual: bool) -> Vec<Network> {
     let mut networks = Networks::new_with_refreshed_list();
     sleep(Duration::from_millis(1000)).await;
     networks.refresh();
     let mut result: Vec<Network> = Vec::new();
 
-    // Sort the network interfaces by name
     let mut sorted_networks: Vec<_> = networks.iter().collect();
     sorted_networks.sort_by(|(name1, _), (name2, _)| name1.cmp(name2));
 
     for (interface_name, data) in sorted_networks {
-        // Only consider interfaces starting with "wl" or "en" or "eth"
-        if interface_name.starts_with("wl") || interface_name.starts_with("en") || interface_name.starts_with("eth") {
-            // Convert bytes to kilobytes
+        if show_virtual || is_physical_interface(interface_name) {
             let upload_kb = data.transmitted();
             let download_kb = data.received();
-            // Calculate total network usages
             let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
             let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();
 
