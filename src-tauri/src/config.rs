@@ -62,6 +62,7 @@ pub struct ConfigData {
     pub heatbar_color_ten: String,
 
     pub language: String,
+    pub show_virtual_interfaces: bool,
 }
 
 
@@ -87,6 +88,7 @@ pub struct PerformanceConfig {
     pub performance_value_color: String,
     pub performance_graph_color: String,
     pub performance_sec_graph_color: String,
+    pub show_virtual_interfaces: bool,
 }
 
 // Structs for individual groups of configs
@@ -233,6 +235,7 @@ pub fn default_config() -> Result<(), io::Error> {
         heatbar_color_nine=#FF6600\n\
         heatbar_color_ten=#FF0000\n\
         language=en\n\
+        show_virtual_interfaces=false\n\
     ";
 
     file.write_all(default_values.as_bytes())?;
@@ -297,6 +300,7 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         heatbar_color_nine: String::new(),
         heatbar_color_ten: String::new(),
         language: String::new(),
+        show_virtual_interfaces: false,
     };
 
     for line in reader.lines() {
@@ -466,6 +470,9 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
             "language" => {
                 config_data.language = value.to_string();
             },
+            "show_virtual_interfaces" => {
+                config_data.show_virtual_interfaces = value == "true";
+            },
             _ => {
                 return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Unknown key: {}", key)));
             }
@@ -536,6 +543,7 @@ pub fn write_all_configs(config_data: &ConfigData) -> Result<(), io::Error> {
         writeln!(file, "heatbar_color_nine={}", config_data.heatbar_color_nine)?;
         writeln!(file, "heatbar_color_ten={}", config_data.heatbar_color_ten)?;
         writeln!(file, "language={}", config_data.language)?;
+        writeln!(file, "show_virtual_interfaces={}", config_data.show_virtual_interfaces)?;
 
         file.flush()?;
     }
@@ -580,6 +588,7 @@ pub async fn set_performance_configs(configs: PerformanceConfig) -> Result<(), S
     config_data.performance_value_color = configs.performance_value_color;
     config_data.performance_graph_color = configs.performance_graph_color;
     config_data.performance_sec_graph_color = configs.performance_sec_graph_color;
+    config_data.show_virtual_interfaces = configs.show_virtual_interfaces;
 
     write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
