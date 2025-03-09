@@ -27,7 +27,9 @@ const useNetworkData = (interfaceName: string) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network");
+                const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network", {
+                    showVirtual: perfomanceConfig.config.show_virtual_interfaces,
+                });
                 const interfaceData = fetchedNetworkUsages.find(data => data.interface === interfaceName);
                 if (interfaceData) {
                     setDownload(prevDownload => [...prevDownload, convertData(interfaceData.download)]);
