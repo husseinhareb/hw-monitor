@@ -11,6 +11,7 @@ export type PerformanceConfig = {
     performance_value_color: string;
     performance_graph_color: string;
     performance_sec_graph_color: string;
+    show_virtual_interfaces: boolean;
 };
 
 const initialPerformanceConfig: PerformanceConfig = {
@@ -24,6 +25,7 @@ const initialPerformanceConfig: PerformanceConfig = {
     performance_value_color: "#fff",
     performance_graph_color: "#09ffff",
     performance_sec_graph_color: '#ff6384',
+    show_virtual_interfaces: false,
 };
 
 const usePerformanceConfig = () => {

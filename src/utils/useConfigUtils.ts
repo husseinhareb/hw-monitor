@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-type ConfigType = Record<string, string | number | string[]>;
+type ConfigType = Record<string, string | number | boolean | string[]>;
 
 const useFetchAndSetConfig = <T extends ConfigType>(
     initialConfig: T,
@@ -39,7 +39,7 @@ const useFetchAndSetConfig = <T extends ConfigType>(
         }
     };
 
-    const updateConfig = async (key: keyof T, value: string | number | string[]) => {
+    const updateConfig = async (key: keyof T, value: string | number | boolean | string[]) => {
         setConfig(prevConfig => {
             const newConfig = { ...prevConfig, [key]: value };
             sendData(newConfig);
