@@ -11,7 +11,9 @@ const Performance: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedNetworkUsages: string[] = await invoke("get_interfaces");
+        const fetchedNetworkUsages: string[] = await invoke("get_interfaces", {
+          showVirtual: performanceConfig.config.show_virtual_interfaces,
+        });
         setNetworkUsages(fetchedNetworkUsages);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -22,7 +24,7 @@ const Performance: React.FC = () => {
     const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time);
 
     return () => clearInterval(intervalId);
-  }, [performanceConfig.config.performance_update_time]);
+  }, [performanceConfig.config.performance_update_time, performanceConfig.config.show_virtual_interfaces]);
 
   return (
       <Sidebar 
