@@ -20,6 +20,7 @@ interface PerformanceConfig {
   performance_value_color: string;
   performance_graph_color: string;
   performance_sec_graph_color: string;
+  show_virtual_interfaces: boolean;
 }
 
 interface SensorsConfig {
@@ -91,6 +92,9 @@ interface Store {
   ethernetUploadSpeed: number[];
   setEthernetSpeed: (downloadSpeed: number[], uploadSpeed: number[]) => void;
 
+  networkSpeeds: { [name: string]: { download: number[]; upload: number[] } };
+  setNetworkSpeed: (name: string, download: number[], upload: number[]) => void;
+
   processSearch: string;
   setProcessSearch: (processSearch: string) => void;
 
@@ -140,6 +144,11 @@ export const useStore = create<Store>((set) => ({
   ethernetUploadSpeed: [],
   setEthernetSpeed: (downloadSpeed, uploadSpeed) => set({ ethernetDownloadSpeed: downloadSpeed, ethernetUploadSpeed: uploadSpeed }),
 
+  networkSpeeds: {},
+  setNetworkSpeed: (name, download, upload) => set((state) => ({
+    networkSpeeds: { ...state.networkSpeeds, [name]: { download, upload } },
+  })),
+
   processSearch: "",
   setProcessSearch: (processSearch) => set({ processSearch }),
 
@@ -164,6 +173,7 @@ export const useStore = create<Store>((set) => ({
     performance_value_color: "#ffffff",
     performance_graph_color: "#09ffff",
     performance_sec_graph_color: '#ff6384',
+    show_virtual_interfaces: false,
   },
   setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
 
@@ -239,6 +249,9 @@ export const useSetWifiSpeed = () => useStore((state) => state.setWifiSpeed);
 
 export const useEthernetSpeed = () => useStore((state) => [state.ethernetDownloadSpeed, state.ethernetUploadSpeed]);
 export const useSetEthernetSpeed = () => useStore((state) => state.setEthernetSpeed);
+
+export const useNetworkSpeeds = () => useStore((state) => state.networkSpeeds);
+export const useSetNetworkSpeed = () => useStore((state) => state.setNetworkSpeed);
 
 export const useProcessSearch = () => useStore((state) => state.processSearch);
 export const useSetProcessSearch = () => useStore((state) => state.setProcessSearch);
