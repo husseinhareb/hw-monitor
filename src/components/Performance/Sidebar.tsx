@@ -4,11 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import {
   useCpu,
-  useEthernetSpeed,
   useGpuUsages,
   useMaxMemory,
   useMemory,
-  useWifiSpeed,
+  useNetworkSpeeds,
 } from '../../services/store';
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
@@ -46,8 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   const maxMemory = useMaxMemory();
   const gpuUsages = useGpuUsages();
   const { gpuList } = useGpuData();
-  const [wifiDownload, wifiUpload] = useWifiSpeed();
-  const [ethDownload, ethUpload] = useEthernetSpeed();
+  const networkSpeeds = useNetworkSpeeds();
 
   // translation
   const { t } = useTranslation();
@@ -55,14 +53,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // disk histories and names
   const diskHistories = useDiskData(updateInterval);
   const diskNames = Object.keys(diskHistories);
-
-  // detect which network interfaces we actually have
-  const [showWifi, setShowWifi] = useState(false);
-  const [showEthernet, setShowEthernet] = useState(false);
-  useEffect(() => {
-    setShowWifi(interfaceNames.some((n) => n.startsWith('wl')));
-    setShowEthernet(interfaceNames.some((n) => n.startsWith('en') || n.startsWith('eth')));
-  }, [interfaceNames]);
 
   const isMaxMemSet = maxMemory > 0;
 
@@ -139,43 +129,29 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             );
           })}
 
-          {/* Wi-Fi */}
-          {showWifi && (
-            <ListItem
-              performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
-              performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
-              isSelected={selectedItem === 'Wi-Fi'}
-              onClick={() => handleItemClick('Wi-Fi')}
-            >
-              {t('sidebar.wifi')}
-              <Graph
-                tick={tick}
-                firstGraphValue={wifiDownload}
-                secondGraphValue={wifiUpload}
-                height="120px"
-                width="100%"
-              />
-            </ListItem>
-          )}
-
-          {/* Ethernet */}
-          {showEthernet && (
-            <ListItem
-              performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
-              performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
-              isSelected={selectedItem === 'Ethernet'}
-              onClick={() => handleItemClick('Ethernet')}
-            >
-              {t('sidebar.ethernet')}
-              <Graph
-                tick={tick}
-                firstGraphValue={ethDownload}
-                secondGraphValue={ethUpload}
-                height="120px"
-                width="100%"
-              />
-            </ListItem>
-          )}
+          {/* Network Interfaces */}
+          {interfaceNames.map((name) => {
+            const netKey = `Net-${name}`;
+            const speeds = networkSpeeds[name];
+            return (
+              <ListItem
+                key={netKey}
+                performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
+                isSelected={selectedItem === netKey}
+                onClick={() => handleItemClick(netKey)}
+              >
+                {name}
+                <Graph
+                  tick={tick}
+                  firstGraphValue={speeds?.download || []}
+                  secondGraphValue={speeds?.upload || []}
+                  height="120px"
+                  width="100%"
+                />
+              </ListItem>
+            );
+          })}
 
           {/* Disks */}
           {diskNames.map((name) => (
@@ -215,18 +191,17 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             />
           );
         })}
-        <Network
-          hidden={selectedItem !== 'Wi-Fi'}
-          interfaceName={interfaceNames.find((n) => n.startsWith('wl')) || ''}
-          performanceConfig={perf}
-        />
-        <Network
-          hidden={selectedItem !== 'Ethernet'}
-          interfaceName={
-            interfaceNames.find((n) => n.startsWith('en') || n.startsWith('eth')) || ''
-          }
-          performanceConfig={perf}
-        />
+        {interfaceNames.map((name) => {
+          const netKey = `Net-${name}`;
+          return (
+            <Network
+              key={netKey}
+              hidden={selectedItem !== netKey}
+              interfaceName={name}
+              performanceConfig={perf}
+            />
+          );
+        })}
         {diskNames.map((name) => (
           <Disk
             key={name}
