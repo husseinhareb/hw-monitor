@@ -77,6 +77,8 @@
     "performance_config.value_color": "Wert-Farbe",
     "performance_config.graph_color": "Grafik-Farbe",
     "performance_config.sec_graph_color": "Zweite Grafik-Farbe",
+    "performance_config.network": "Netzwerk",
+    "performance_config.show_virtual_interfaces": "Virtuelle Schnittstellen anzeigen (docker0, veth, br-, lo…)",
 
     "processes_config.title": "Prozesskonfiguration",
     "processes_config.update_time": "Aktualisierungszeit",

@@ -77,6 +77,8 @@
     "performance_config.value_color": "لون القيمة",
     "performance_config.graph_color": "لون الرسم البياني",
     "performance_config.sec_graph_color": "لون الرسم البياني الثاني",
+    "performance_config.network": "الشبكة",
+    "performance_config.show_virtual_interfaces": "إظهار الواجهات الافتراضية (docker0، veth، br-، lo…)",
 
     "processes_config.title": "إعدادات العمليات",
     "processes_config.update_time": "وقت التحديث",
