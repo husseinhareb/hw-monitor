@@ -8,7 +8,9 @@ import {
     Label,
     Input,
     ColorLabel,
-    ColorLabelText
+    ColorLabelText,
+    CheckboxLabel,
+    CheckboxInput
 } from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
@@ -23,13 +25,14 @@ interface PerformanceConfig {
     performance_value_color: string;
     performance_graph_color: string;
     performance_sec_graph_color: string;
+    show_virtual_interfaces: boolean;
 }
 
 const PerformanceConfig: React.FC = () => {
     const { config, updateConfig } = usePerformanceConfig();
     const { t } = useTranslation();
 
-    const handleConfigChange = (key: keyof PerformanceConfig, value: string | number) => {
+    const handleConfigChange = (key: keyof PerformanceConfig, value: string | number | boolean) => {
         if (config) {
             updateConfig(key, value);
         }
@@ -132,6 +135,16 @@ const PerformanceConfig: React.FC = () => {
                     onChange={(e) => handleConfigChange("performance_sec_graph_color", e.target.value)}
                 />
             </ColorLabel>
+            <h3>{t('performance_config.network')}</h3>
+            <Separator />
+            <CheckboxLabel>
+                <CheckboxInput
+                    type="checkbox"
+                    checked={config.show_virtual_interfaces}
+                    onChange={() => handleConfigChange("show_virtual_interfaces", !config.show_virtual_interfaces)}
+                />
+                {t('performance_config.show_virtual_interfaces')}
+            </CheckboxLabel>
         </ConfigContainer>
     );
 };
