@@ -1,11 +1,22 @@
+// src/components/Performance/Sidebar.tsx
+
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
-import { useCpu, useEthernetSpeed, useGpu, useMaxMemory, useMemory, useWifiSpeed } from "../../services/store";
+import {
+    useCpu,
+    useEthernetSpeed,
+    useGpu,
+    useMaxMemory,
+    useMemory,
+    useWifiSpeed,
+} from '../../services/store';
 import Network from './Network';
+import Disk from './Disk';           // <-- make sure you've created this
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
 import Gpu from './Gpu';
 import Memory from './Memory';
+import useDiskData from '../../hooks/Performance/useDiskData';  // <-- import hook
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
 import useGpuData from '../../hooks/Performance/useGpuData';
 import { useTranslation } from 'react-i18next';
@@ -15,66 +26,67 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
-    const [showCpu, setShowCpu] = useState(true);
-    const [showMemory, setShowMemory] = useState(false);
-    const [showGpu, setShowGpu] = useState(false);
-    const [wifi, setWifi] = useState(false);
-    const [ethernet, setEthernet] = useState(false);
+    const [selectedItem, setSelectedItem] = useState('CPU');
+    const [showDisks, setShowDisks] = useState(false);
     const [showWifi, setShowWifi] = useState(false);
     const [showEthernet, setShowEthernet] = useState(false);
-    const [selectedItem, setSelectedItem] = useState('CPU');
 
     const cpuUsage = useCpu();
     const memory = useMemory();
     const maxMemory = useMaxMemory();
     const gpuUsage = useGpu();
     const { gpuData } = useGpuData();
-    const [wifiDownloadSpeed, wifiUploadSpeed] = useWifiSpeed();
-    const [ethernetDownloadSpeed, ethernetUploadSpeed] = useEthernetSpeed();
+    const [wifiDownload, wifiUpload] = useWifiSpeed();
+    const [ethDownload, ethUpload] = useEthernetSpeed();
 
-    const performanceConfig = usePerformanceConfig();
+    const perf = usePerformanceConfig();
+    const updateInterval = perf.config.performance_update_time;
     const { t } = useTranslation();
 
-    // Check if maxMemory has been set
-    const isMaxMemorySet = maxMemory !== 0;
+    // disks hook
+    const diskHistories = useDiskData(updateInterval);
+    const diskNames = Object.keys(diskHistories);
 
-    const handleItemClick = (itemName: string) => {
-        setSelectedItem(itemName);
-        setShowCpu(itemName === 'CPU');
-        setShowMemory(itemName === 'Memory');
-        setShowGpu(itemName === 'GPU');
-        setShowWifi(itemName === 'Wi-Fi');
-        setShowEthernet(itemName === 'Ethernet');
-    };
-
+    // detect network interfaces
     useEffect(() => {
-        if (interfaceNames && interfaceNames.length > 0) {
-            setWifi(interfaceNames.some(name => name.includes("wl")));
-            setEthernet(interfaceNames.some(name => name.includes("en") || name.includes("eth")));
-        }
+        setShowWifi(interfaceNames.some(n => n.startsWith('wl')));
+        setShowEthernet(interfaceNames.some(n => n.startsWith('en') || n.startsWith('eth')));
     }, [interfaceNames]);
 
+    const handleItemClick = (name: string) => {
+        setSelectedItem(name);
+        setShowDisks(diskNames.includes(name));
+        setShowWifi(name === 'Wi-Fi');
+        setShowEthernet(name === 'Ethernet');
+    };
+
+    const isMaxMemSet = maxMemory > 0;
+    const hasGpu = gpuData && gpuData.name !== t('sidebar.no_gpu_detected');
+
     return (
-        <div style={{ height: '100%', width: '100%', display: 'flex' }}>
+        <div style={{ display: 'flex', height: '100%', width: '100%' }}>
             <SidebarContainer
-                performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
-                performanceSidebarColor={performanceConfig.config.performance_sidebar_color}
+                performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                performanceSidebarColor={perf.config.performance_sidebar_color}
             >
                 <Title>{t('sidebar.performance')}</Title>
                 <List>
+                    {/* CPU */}
                     <ListItem
-                        performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
-                        performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                        performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                        performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
                         isSelected={selectedItem === 'CPU'}
                         onClick={() => handleItemClick('CPU')}
                     >
                         {t('sidebar.cpu')}
                         <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
                     </ListItem>
-                    {isMaxMemorySet && (
+
+                    {/* Memory */}
+                    {isMaxMemSet && (
                         <ListItem
-                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
-                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
                             isSelected={selectedItem === 'Memory'}
                             onClick={() => handleItemClick('Memory')}
                         >
@@ -82,10 +94,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
                         </ListItem>
                     )}
-                    {gpuData && gpuData.name !== t('sidebar.no_gpu_detected') && (
+
+                    {/* GPU */}
+                    {hasGpu && (
                         <ListItem
-                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
-                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
                             isSelected={selectedItem === 'GPU'}
                             onClick={() => handleItemClick('GPU')}
                         >
@@ -93,37 +107,87 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                             <Graph firstGraphValue={gpuUsage} maxValue={100} height="120px" width="100%" />
                         </ListItem>
                     )}
-                    {wifi &&
+
+                    {/* Wi-Fi */}
+                    {showWifi && (
                         <ListItem
-                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
-                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
                             isSelected={selectedItem === 'Wi-Fi'}
                             onClick={() => handleItemClick('Wi-Fi')}
                         >
                             {t('sidebar.wifi')}
-                            <Graph firstGraphValue={wifiDownloadSpeed} secondGraphValue={wifiUploadSpeed} height="120px" width="100%" />
-                        </ListItem>}
-                    {ethernet &&
+                            <Graph
+                                firstGraphValue={wifiDownload}
+                                secondGraphValue={wifiUpload}
+                                height="120px"
+                                width="100%"
+                            />
+                        </ListItem>
+                    )}
+
+                    {/* Ethernet */}
+                    {showEthernet && (
                         <ListItem
-                            performanceSidebarBackgroundColor={performanceConfig.config.performance_sidebar_background_color}
-                            performanceSidebarSelectedColor={performanceConfig.config.performance_sidebar_selected_color}
+                            performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
                             isSelected={selectedItem === 'Ethernet'}
                             onClick={() => handleItemClick('Ethernet')}
                         >
                             {t('sidebar.ethernet')}
-                            <Graph firstGraphValue={ethernetDownloadSpeed} secondGraphValue={ethernetUploadSpeed} height="120px" width="100%" />
-                        </ListItem>}
+                            <Graph
+                                firstGraphValue={ethDownload}
+                                secondGraphValue={ethUpload}
+                                height="120px"
+                                width="100%"
+                            />
+                        </ListItem>
+                    )}
+
+                    {/* Disks */}
+                    {diskNames.map(name => (
+                        <ListItem
+                            key={name}
+                            performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+                            performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
+                            isSelected={selectedItem === name}
+                            onClick={() => handleItemClick(name)}
+                        >
+                            {name}
+                            <Graph
+                                firstGraphValue={diskHistories[name].readHistory}
+                                secondGraphValue={diskHistories[name].writeHistory}
+                                height="120px"
+                                width="100%"
+                            />
+                        </ListItem>
+                    ))}
                 </List>
             </SidebarContainer>
-            <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                <Cpu hidden={!showCpu} performanceConfig={performanceConfig} />
-                <Memory hidden={!showMemory} performanceConfig={performanceConfig} />
-                <Gpu hidden={!showGpu} performanceConfig={performanceConfig} />
-                <Network hidden={!showWifi} interfaceName={interfaceNames.find(name => name.includes("wl")) || ''} performanceConfig={performanceConfig} />
-                <Network hidden={!showEthernet} interfaceName={interfaceNames.find(name => name.includes("en") || name.includes("eth")) || ''} performanceConfig={performanceConfig} />
+
+            {/* Detail Pane */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Cpu hidden={selectedItem !== 'CPU'} performanceConfig={perf} />
+                <Memory hidden={selectedItem !== 'Memory'} performanceConfig={perf} />
+                <Gpu hidden={selectedItem !== 'GPU'} performanceConfig={perf} />
+                <Network
+                    hidden={selectedItem !== 'Wi-Fi'}
+                    interfaceName={interfaceNames.find(n => n.startsWith('wl')) || ''}
+                    performanceConfig={perf}
+                />
+                <Network
+                    hidden={selectedItem !== 'Ethernet'}
+                    interfaceName={interfaceNames.find(n => n.startsWith('en') || n.startsWith('eth')) || ''}
+                    performanceConfig={perf}
+                />
+                <Disk
+                    hidden={!diskNames.includes(selectedItem)}
+                    diskName={selectedItem}
+                    performanceConfig={perf}
+                />
             </div>
         </div>
     );
-}
+};
 
 export default Sidebar;
