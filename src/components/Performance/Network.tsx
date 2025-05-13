@@ -43,10 +43,20 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
         }
     }, [interfaceName, downloadValues, uploadValues, setWifiSpeed, setEthernetSpeed]);
 
+    // inside your component:
+    const formatSpeed = (arr: Array<{ value: number; unit: string }>) => {
+        if (arr.length === 0) {
+            // no data → 0 B/s (or your localized translation)
+            return `0${t('network.bytes_per_sec')}`;
+        }
+        const { value, unit } = arr[arr.length - 1];
+        // always append the “per second” part after the unit
+        return `${value} ${unit}${t('network.bytes_per_sec')}`;
+    };
 
     return (
         <MemoryContainer
-            performanceBackgroundColor={performanceConfig.config.performance_background_color} 
+            performanceBackgroundColor={performanceConfig.config.performance_background_color}
             hidden={hidden}
         >
             <>
@@ -101,8 +111,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
                                 {t('network.download')}
                             </RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                                {download.length > 0 ? download[download.length - 1].value : 0}
-                                {download.length > 0 ? download[download.length - 1].unit : t('network.bytes_per_sec')}
+                                {formatSpeed(download)}
                             </RightValue>
                         </FixedValueItem>
                         <FixedValueItem>
@@ -110,8 +119,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
                                 {t('network.upload')}
                             </RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                                {upload.length > 0 ? upload[upload.length - 1].value : 0}
-                                {upload.length > 0 ? upload[upload.length - 1].unit : 'B'}{t('network.bytes_per_sec')}
+                                {formatSpeed(upload)}
                             </RightValue>
                         </FixedValueItem>
                     </FixedValues>
