@@ -21,6 +21,7 @@ libmedium = "0.8.1"
 dirs = "5.0.1"
 nvml-wrapper = "0.10.0"
 ash = "0.37.3"
+procfs = "0.17.0"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
