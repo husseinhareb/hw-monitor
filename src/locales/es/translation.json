@@ -156,5 +156,11 @@
     "sidebar.gpu": "GPU",
     "sidebar.wifi": "Wifi",
     "sidebar.ethernet": "Ethernet",
-    "sidebar.no_gpu_detected": "No se Detectó GPU"
+    "sidebar.no_gpu_detected": "No se Detectó GPU",
+
+    "disk.title": "Disco",
+    "disk.usage": "Uso",
+    "disk.read": "Lectura",
+    "disk.write": "Escritura",
+    "disk.speed": "Velocidad"
 }

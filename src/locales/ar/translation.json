@@ -157,5 +157,11 @@
     "sidebar.gpu": "وحدة معالجة الرسوميات",
     "sidebar.wifi": "واي فاي",
     "sidebar.ethernet": "إيثرنت",
-    "sidebar.no_gpu_detected": "لم يتم اكتشاف وحدة معالجة الرسوميات"
+    "sidebar.no_gpu_detected": "لم يتم اكتشاف وحدة معالجة الرسوميات",
+
+    "disk.title": "القرص",
+    "disk.usage": "الاستخدام",
+    "disk.read": "قراءة",
+    "disk.write": "كتابة",
+    "disk.speed": "السرعة"
 }
