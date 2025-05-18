@@ -1,73 +1,80 @@
 // src/hooks/Performance/useDiskData.ts
 
-import { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { useState, useEffect, useRef } from 'react'
+import { invoke } from '@tauri-apps/api/tauri'
 
 export interface DiskRaw {
-  name: string;
-  read_speed: string;   // KB/s (as serialized from Rust)
-  write_speed: string;  // KB/s
-  total_read: number;   // bytes
-  total_write: number;  // bytes
+  name: string
+  read_speed: string    // KB/s serialized from Rust
+  write_speed: string   // KB/s
+  total_read: number    // bytes
+  total_write: number   // bytes
 }
 
 interface Hist {
-  readHistory: number[];
-  writeHistory: number[];
-  total_read: number;
-  total_write: number;
+  readHistory:  number[]
+  writeHistory: number[]
+  total_read:   number
+  total_write:  number
 }
 
-export default function useDiskData(updateInterval: number) {
-  const [historyMap, setHistoryMap] = useState<Record<string, Hist>>({});
+export default function useDiskData(updateInterval: number): Record<string,Hist> {
+  const [historyMap, setHistoryMap] = useState<Record<string,Hist>>({})
+  const mounted = useRef(true)
 
   useEffect(() => {
-    let cancelled = false;
+    mounted.current = true
+    let timerId: number
 
+    // 1) fetch raw stats from Rust
     async function fetchOnce() {
-      // Invoke the Tauri command and get back the raw disk info
-      const raw: DiskRaw[] = (await invoke('get_disks')) as DiskRaw[];
-      if (cancelled) return;
+      try {
+        const raw: DiskRaw[] = await invoke('get_disks') as DiskRaw[]
+        if (!mounted.current) return
 
-      setHistoryMap(prev => {
-        const next = { ...prev };
+        setHistoryMap(prev => {
+          // fold each disk into a new map
+          const next: Record<string,Hist> = {}
 
-        raw.forEach(d => {
-          // Pull out the previous history, or start fresh if none exists
-          const prevHist = prev[d.name] || {
-            readHistory: [],
-            writeHistory: [],
-            total_read: 0,
-            total_write: 0,
-          };
+          raw.forEach(d => {
+            const prevH = prev[d.name] ?? {
+              readHistory:  [0],      // if never seen before, start with a 0 sample
+              writeHistory: [0],
+              total_read:   d.total_read,
+              total_write:  d.total_write,
+            }
 
-          // Parse the KB/s strings into floats
-          const readSpeed  = parseFloat(d.read_speed);
-          const writeSpeed = parseFloat(d.write_speed);
+            const readSpeed  = parseFloat(d.read_speed)  || 0
+            const writeSpeed = parseFloat(d.write_speed) || 0
 
-          next[d.name] = {
-            // Append the new sample, but keep only the last 100 points
-            readHistory:  [...prevHist.readHistory,  readSpeed].slice(-100),
-            writeHistory: [...prevHist.writeHistory, writeSpeed].slice(-100),
-            total_read:   d.total_read,
-            total_write:  d.total_write,
-          };
-        });
+            next[d.name] = {
+              readHistory:  [...prevH.readHistory,  readSpeed ].slice(-100),
+              writeHistory: [...prevH.writeHistory, writeSpeed].slice(-100),
+              total_read:   d.total_read,
+              total_write:  d.total_write,
+            }
+          })
 
-        return next;
-      });
+          return next
+        })
+      } catch (err) {
+        console.error('useDiskData › fetchOnce error', err)
+      }
     }
 
-    // Initial fetch
-    fetchOnce();
-    // Then poll at the given interval
-    const id = window.setInterval(fetchOnce, updateInterval);
+    // 2) do one immediate pass to both
+    //    • seed every disk with [0]  
+    //    • then overwrite with the real first measurement
+    fetchOnce()
+
+    // 3) now start polling
+    timerId = window.setInterval(fetchOnce, updateInterval)
 
     return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, [updateInterval]);
+      mounted.current = false
+      window.clearInterval(timerId)
+    }
+  }, [updateInterval])
 
-  return historyMap;
+  return historyMap
 }
