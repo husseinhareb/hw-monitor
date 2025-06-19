@@ -19,6 +19,7 @@ import {
   RightValue,
 } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
+import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface DiskProps {
   hidden: boolean;
@@ -36,6 +37,7 @@ const Disk: React.FC<DiskProps> = ({ hidden, diskName, performanceConfig }) => {
   };
   const convertData = useDataConverter();
   const { t } = useTranslation();
+  const tick = usePerformanceTicker();
 
   const readValues  = hist.readHistory;
   const writeValues = hist.writeHistory;
@@ -68,6 +70,8 @@ const Disk: React.FC<DiskProps> = ({ hidden, diskName, performanceConfig }) => {
         firstGraphValue={readValues}
         secondGraphValue={writeValues}
         width="98%"
+        tick={tick}
+
       />
 
       <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>

@@ -8,6 +8,7 @@ import { NameContainer } from "../../styles/general-style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
 import { useTranslation } from "react-i18next";
+import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface MemoryProps {
     hidden: boolean;
@@ -33,6 +34,8 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
     const setMemory = useSetMemory();
     const convertData = useDataConverter();
     const { t } = useTranslation();
+    const tick = usePerformanceTicker();
+
     const [memoryData, setMemoryData] = useState<{
         total: { value: number, unit: string },
         free: { value: number, unit: string },
@@ -88,6 +91,7 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
                         firstGraphValue={activeMem}
                         maxValue={Math.floor(memoryData.total.value)}
                         width="98%"
+                        tick={tick}
                     />
                     <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
                         <RealTimeValues>
