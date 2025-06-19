@@ -29,6 +29,17 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // which panel is selected
   const [selectedItem, setSelectedItem] = useState('CPU');
 
+  // shared tick for all graphs
+  const perf = usePerformanceConfig();
+  const updateInterval = perf.config.performance_update_time;
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setTick((t) => t + 1);
+    }, updateInterval);
+    return () => window.clearInterval(id);
+  }, [updateInterval]);
+
   // raw metrics from hooks
   const cpuUsage = useCpu();
   const memory = useMemory();
@@ -38,9 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   const [wifiDownload, wifiUpload] = useWifiSpeed();
   const [ethDownload, ethUpload] = useEthernetSpeed();
 
-  // performance config (including update interval)
-  const perf = usePerformanceConfig();
-  const updateInterval = perf.config.performance_update_time;
+  // translation
   const { t } = useTranslation();
 
   // disk histories and names
@@ -51,8 +60,8 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   const [showWifi, setShowWifi] = useState(false);
   const [showEthernet, setShowEthernet] = useState(false);
   useEffect(() => {
-    setShowWifi(interfaceNames.some(n => n.startsWith('wl')));
-    setShowEthernet(interfaceNames.some(n => n.startsWith('en') || n.startsWith('eth')));
+    setShowWifi(interfaceNames.some((n) => n.startsWith('wl')));
+    setShowEthernet(interfaceNames.some((n) => n.startsWith('en') || n.startsWith('eth')));
   }, [interfaceNames]);
 
   const isMaxMemSet = maxMemory > 0;
@@ -79,7 +88,13 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             onClick={() => handleItemClick('CPU')}
           >
             {t('sidebar.cpu')}
-            <Graph firstGraphValue={cpuUsage} maxValue={100} height="120px" width="100%" />
+            <Graph
+              tick={tick}
+              firstGraphValue={cpuUsage}
+              maxValue={100}
+              height="120px"
+              width="100%"
+            />
           </ListItem>
 
           {/* Memory */}
@@ -91,7 +106,13 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
               onClick={() => handleItemClick('Memory')}
             >
               {t('sidebar.memory')}
-              <Graph firstGraphValue={memory} maxValue={maxMemory} height="120px" width="100%" />
+              <Graph
+                tick={tick}
+                firstGraphValue={memory}
+                maxValue={maxMemory}
+                height="120px"
+                width="100%"
+              />
             </ListItem>
           )}
 
@@ -104,7 +125,13 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
               onClick={() => handleItemClick('GPU')}
             >
               {t('sidebar.gpu')}
-              <Graph firstGraphValue={gpuUsage} maxValue={100} height="120px" width="100%" />
+              <Graph
+                tick={tick}
+                firstGraphValue={gpuUsage}
+                maxValue={100}
+                height="120px"
+                width="100%"
+              />
             </ListItem>
           )}
 
@@ -118,6 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             >
               {t('sidebar.wifi')}
               <Graph
+                tick={tick}
                 firstGraphValue={wifiDownload}
                 secondGraphValue={wifiUpload}
                 height="120px"
@@ -136,6 +164,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             >
               {t('sidebar.ethernet')}
               <Graph
+                tick={tick}
                 firstGraphValue={ethDownload}
                 secondGraphValue={ethUpload}
                 height="120px"
@@ -145,7 +174,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
           )}
 
           {/* Disks */}
-          {diskNames.map(name => (
+          {diskNames.map((name) => (
             <ListItem
               key={name}
               performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
@@ -155,6 +184,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             >
               {name}
               <Graph
+                tick={tick}
                 firstGraphValue={diskHistories[name].readHistory}
                 secondGraphValue={diskHistories[name].writeHistory}
                 height="120px"
@@ -172,15 +202,17 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         <Gpu hidden={selectedItem !== 'GPU'} performanceConfig={perf} />
         <Network
           hidden={selectedItem !== 'Wi-Fi'}
-          interfaceName={interfaceNames.find(n => n.startsWith('wl')) || ''}
+          interfaceName={interfaceNames.find((n) => n.startsWith('wl')) || ''}
           performanceConfig={perf}
         />
         <Network
           hidden={selectedItem !== 'Ethernet'}
-          interfaceName={interfaceNames.find(n => n.startsWith('en') || n.startsWith('eth')) || ''}
+          interfaceName={
+            interfaceNames.find((n) => n.startsWith('en') || n.startsWith('eth')) || ''
+          }
           performanceConfig={perf}
         />
-        {diskNames.map(name => (
+        {diskNames.map((name) => (
           <Disk
             key={name}
             hidden={selectedItem !== name}
