@@ -29,8 +29,14 @@ const Graph: React.FC<GraphProps> = ({
   width = '80vw',
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
-  const chartInstance = useRef<Chart<'line'>>()
+  const chartInstance = useRef<Chart<'line'>>();
   const performanceConfig = usePerformanceConfig();
+
+  // Refs to always have latest data without triggering effect
+  const latestFirst = useRef<number[]>(firstGraphValue);
+  const latestSecond = useRef<number[]>(secondGraphValue);
+  useEffect(() => { latestFirst.current = firstGraphValue; }, [firstGraphValue]);
+  useEffect(() => { latestSecond.current = secondGraphValue; }, [secondGraphValue]);
 
   // Initialize chart once
   useEffect(() => {
@@ -77,26 +83,27 @@ const Graph: React.FC<GraphProps> = ({
       },
     });
 
-    return () => {
-      chartInstance.current?.destroy();
-    };
+    return () => { chartInstance.current?.destroy(); };
   }, [performanceConfig?.config.performance_graph_color, performanceConfig?.config.performance_sec_graph_color, maxValue]);
 
-  // Update chart on each tick
+  // Update chart only when tick changes
   useEffect(() => {
     const chart = chartInstance.current;
-    if (!chart) return;
+    if (!chart || !performanceConfig?.config) return;
 
-    // Push new label based on tick and interval
     const intervalSec = performanceConfig.config.performance_update_time / 1000;
     const label = `${tick * intervalSec}s`;
 
+    // Append new label and crop
     chart.data.labels = [...(chart.data.labels || []).slice(-MAX_POINTS + 1), label];
-    chart.data.datasets[0].data = [...firstGraphValue.slice(-MAX_POINTS)];
-    chart.data.datasets[1].data = [...secondGraphValue.slice(-MAX_POINTS)];
+    // Use the latest values from refs
+    chart.data.datasets[0].data = [...latestFirst.current.slice(-MAX_POINTS)];
+    chart.data.datasets[1].data = [...latestSecond.current.slice(-MAX_POINTS)];
 
     chart.update('none');
-  }, [tick, firstGraphValue, secondGraphValue, performanceConfig.config.performance_update_time]);
+  // Only depend on tick and config interval
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tick, performanceConfig.config.performance_update_time]);
 
   return (
     <div style={{ position: 'relative', height, width }}>
