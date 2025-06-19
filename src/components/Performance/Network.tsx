@@ -5,6 +5,7 @@ import useNetworkData from '../../hooks/Performance/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
+import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface NetworkProps {
     hidden: boolean;
@@ -31,6 +32,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
     const setEthernetSpeed = useSetEthernetSpeed();
     const convertData = useDataConverter();
     const { t } = useTranslation();
+    const tick = usePerformanceTicker();
 
     const downloadValues = useMemo(() => download.map(d => d.value), [download]);
     const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
@@ -72,6 +74,7 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
                     firstGraphValue={downloadValues}
                     secondGraphValue={uploadValues}
                     width="98%"
+                    tick={tick}
                 />
 
                 <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
@@ -128,5 +131,4 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
         </MemoryContainer>
     );
 };
-
 export default Network;

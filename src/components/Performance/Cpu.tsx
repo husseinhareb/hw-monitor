@@ -18,6 +18,7 @@ import {
 } from "./Styles/style";
 import useTotalUsagesData from "../../hooks/Proc/useTotalUsagesData";
 import { useTranslation } from "react-i18next";
+import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface CpuProps {
     hidden: boolean;
@@ -43,6 +44,8 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
     const totalUsages = useTotalUsagesData();
     const setCpu = useSetCpu();
     const { t } = useTranslation();
+    const tick = usePerformanceTicker();
+
     useEffect(() => {
         if (cpuData !== null && cpuData.usage !== undefined) {
             setCpuUsage(prevCpuUsage => {
@@ -78,6 +81,8 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
                     firstGraphValue={cpuUsage}
                     maxValue={100}
                     width="98%"
+                    tick={tick}
+
                 />
             </div>
             <div style={{ display: 'flex', marginTop: '100px', width: '70%', flexWrap: 'wrap' }}>

@@ -17,6 +17,7 @@ import {
     NameContainer
 } from "./Styles/style";
 import { useTranslation } from "react-i18next";
+import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface GpuProps {
     hidden: boolean;
@@ -41,6 +42,7 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
     const [gpuUsage, setGpuUsage] = useState<number[]>([]);
     const setGpu = useSetGpu();
     const { t } = useTranslation();
+    const tick = usePerformanceTicker();
     useEffect(() => {
         if (gpuData && gpuData.utilization !== undefined) {
             setGpuUsage(prevGpuUsage => {
@@ -77,6 +79,7 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
                     firstGraphValue={gpuUsage}
                     maxValue={100}
                     width="98%"
+                    tick={tick}
                 />
             </div>
             {gpuData && (
