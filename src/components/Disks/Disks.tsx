@@ -36,7 +36,7 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
       bodyBackgroundColor={disksConfig.config.disks_background_color}
     >
       {diskData.length === 0 ? (
-        <p>No disk information available.</p>
+        <p >Loading...</p>
       ) : (
         diskData.map((disk, index) => (
           <DiskCard
