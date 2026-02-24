@@ -1,6 +1,6 @@
 //useNetworkData.ts
 import { useState, useEffect } from 'react';
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import useDataConverter from '../../helpers/useDataConverter';
 import usePerformanceConfig from '../Performance/usePerformanceConfig';
 
