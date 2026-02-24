@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
 import SensorsConfig from "./SensorsConfig";
