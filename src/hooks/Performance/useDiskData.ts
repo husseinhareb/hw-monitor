@@ -1,7 +1,7 @@
 // src/hooks/Performance/useDiskData.ts
 
 import { useState, useEffect, useRef } from 'react'
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/core'
 
 export interface DiskRaw {
   name: string
