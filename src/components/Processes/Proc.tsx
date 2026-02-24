@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
 import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from '../../styles/proc-style';
