@@ -1,7 +1,6 @@
 use std::fs::{self, File};
 use std::path::PathBuf;
 use std::io::{self, BufRead, Write};
-use tauri::InvokeError;
 use serde::{Serialize, Deserialize};
 
 // Struct for the configuration data
@@ -147,23 +146,23 @@ pub struct LanguageConfig {
 }
 
 // Function to create the initial configuration file if it does not exist
-pub fn create_config() -> Result<(), InvokeError> {
-    let config_dir = dirs::config_dir().ok_or_else(|| InvokeError::from("Unable to determine config directory"))?;
+pub fn create_config() -> Result<(), String> {
+    let config_dir = dirs::config_dir().ok_or_else(|| "Unable to determine config directory".to_string())?;
     let folder_path = config_dir.join("hw-monitor");
 
     if !folder_exists(&folder_path) {
-        fs::create_dir(&folder_path).map_err(|e| InvokeError::from(e.to_string()))?;
+        fs::create_dir(&folder_path).map_err(|e| e.to_string())?;
     }
 
     let file_path = folder_path.join("hw-monitor.conf");
 
     if !file_exists(&file_path) {
-        File::create(&file_path).map_err(|e| InvokeError::from(e.to_string()))?;
-        default_config().map_err(|e| InvokeError::from(e.to_string()))?;
+        File::create(&file_path).map_err(|e| e.to_string())?;
+        default_config().map_err(|e| e.to_string())?;
     } else {
-        let metadata = fs::metadata(&file_path).map_err(|e| InvokeError::from(e.to_string()))?;
+        let metadata = fs::metadata(&file_path).map_err(|e| e.to_string())?;
         if metadata.len() == 0 {
-            default_config().map_err(|e| InvokeError::from(e.to_string()))?;
+            default_config().map_err(|e| e.to_string())?;
         }
     }
 
@@ -171,10 +170,10 @@ pub fn create_config() -> Result<(), InvokeError> {
 }
 
 #[tauri::command]
-pub async fn set_default_config() -> Result<(), InvokeError> {
+pub async fn set_default_config() -> Result<(), String> {
     match default_config() {
         Ok(_) => Ok(()),
-        Err(e) => Err(InvokeError::from(e.to_string())),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -549,14 +548,14 @@ pub fn write_all_configs(config_data: &ConfigData) -> Result<(), io::Error> {
 
 
 #[tauri::command]
-pub async fn get_configs() -> Result<ConfigData, InvokeError> {
-    read_all_configs().map_err(|e| InvokeError::from(e.to_string()))
+pub async fn get_configs() -> Result<ConfigData, String> {
+    read_all_configs().map_err(|e| e.to_string())
 }
 
 
 #[tauri::command]
-pub async fn set_processes_configs(configs: PorcessesConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_processes_configs(configs: PorcessesConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.processes_update_time = configs.processes_update_time;
     config_data.processes_body_background_color = configs.processes_body_background_color;
     config_data.processes_body_color = configs.processes_body_color;
@@ -564,13 +563,13 @@ pub async fn set_processes_configs(configs: PorcessesConfig) -> Result<(), Invok
     config_data.processes_head_color = configs.processes_head_color;
     config_data.processes_table_values = configs.processes_table_values;
 
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn set_performance_configs(configs: PerformanceConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_performance_configs(configs: PerformanceConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.performance_update_time = configs.performance_update_time;
     config_data.performance_sidebar_background_color = configs.performance_sidebar_background_color;
     config_data.performance_sidebar_color = configs.performance_sidebar_color;
@@ -582,14 +581,14 @@ pub async fn set_performance_configs(configs: PerformanceConfig) -> Result<(), I
     config_data.performance_graph_color = configs.performance_graph_color;
     config_data.performance_sec_graph_color = configs.performance_sec_graph_color;
 
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 
 #[tauri::command]
-pub async fn set_sensors_configs(configs: SensorsConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_sensors_configs(configs: SensorsConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.sensors_update_time = configs.sensors_update_time;
     config_data.sensors_background_color = configs.sensors_background_color;
     config_data.sensors_foreground_color = configs.sensors_foreground_color;
@@ -599,13 +598,13 @@ pub async fn set_sensors_configs(configs: SensorsConfig) -> Result<(), InvokeErr
     config_data.sensors_battery_frame_color = configs.sensors_battery_frame_color;
     config_data.sensors_boxes_title_foreground_color = configs.sensors_boxes_title_foreground_color;
 
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn set_disks_configs(configs: DisksConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_disks_configs(configs: DisksConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.disks_update_time = configs.disks_update_time;
     config_data.disks_background_color = configs.disks_background_color;
     config_data.disks_boxes_background_color = configs.disks_boxes_background_color;
@@ -617,26 +616,26 @@ pub async fn set_disks_configs(configs: DisksConfig) -> Result<(), InvokeError> 
     config_data.disks_partition_type_foreground_color = configs.disks_partition_type_foreground_color;
     config_data.disks_partition_usage_foreground_color = configs.disks_partition_usage_foreground_color;
 
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn set_navbar_configs(configs: NavbarConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_navbar_configs(configs: NavbarConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.navbar_background_color = configs.navbar_background_color;
     config_data.navbar_buttons_background_color = configs.navbar_buttons_background_color;
     config_data.navbar_buttons_foreground_color = configs.navbar_buttons_foreground_color;
     config_data.navbar_search_background_color = configs.navbar_search_background_color;
     config_data.navbar_search_foreground_color = configs.navbar_search_foreground_color;
 
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn set_heatbar_configs(configs: HeatbarConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_heatbar_configs(configs: HeatbarConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.heatbar_color_one = configs.heatbar_color_one;
     config_data.heatbar_color_two = configs.heatbar_color_two;
     config_data.heatbar_color_three = configs.heatbar_color_three;
@@ -648,15 +647,15 @@ pub async fn set_heatbar_configs(configs: HeatbarConfig) -> Result<(), InvokeErr
     config_data.heatbar_color_nine = configs.heatbar_color_nine;
     config_data.heatbar_color_ten = configs.heatbar_color_ten;
 
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn set_language_config(configs: LanguageConfig) -> Result<(), InvokeError> {
-    let mut config_data = read_all_configs().map_err(|e| InvokeError::from(e.to_string()))?;
+pub async fn set_language_config(configs: LanguageConfig) -> Result<(), String> {
+    let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.language = configs.language;
-    write_all_configs(&config_data).map_err(|e| InvokeError::from(e.to_string()))?;
+    write_all_configs(&config_data).map_err(|e| e.to_string())?;
     Ok(())
 }
 
