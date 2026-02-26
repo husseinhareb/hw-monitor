@@ -1,7 +1,6 @@
 use std::fs;
-use std::time::Duration;
-use std::thread::sleep;
 use serde::{Serialize, Deserialize};
+use tokio::time::{sleep, Duration};
 
 #[derive(Serialize, Deserialize)]
 pub struct TotalUsage {
@@ -31,7 +30,7 @@ fn read_cpu_times() -> (u64, u64) {
 async fn get_cpu_usage_percentage() -> Option<u64> {
     let (prev_total, prev_idle) = read_cpu_times();
     
-    sleep(Duration::from_secs(1));
+    sleep(Duration::from_secs(1)).await;
     
     let (total, idle) = read_cpu_times();
 
