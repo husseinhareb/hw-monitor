@@ -1,7 +1,6 @@
 use serde::{Serialize, Deserialize};
-use std::thread::sleep;
 use sysinfo::Networks;
-use std::time::Duration;
+use tokio::time::{sleep, Duration};
 
 #[derive(Serialize, Deserialize)]
 pub struct Network {
@@ -35,8 +34,7 @@ pub async fn get_interfaces() -> Vec<String> {
 #[tauri::command]
 pub async fn get_network() -> Vec<Network> {
     let mut networks = Networks::new_with_refreshed_list();
-    // Use tokio's sleep function
-    sleep(Duration::from_millis(1000));
+    sleep(Duration::from_millis(1000)).await;
     networks.refresh();
     let mut result: Vec<Network> = Vec::new();
 

@@ -3,6 +3,7 @@ use std::fs;
 use std::process::Command;
 use sysinfo::{RefreshKind, System, CpuRefreshKind};
 use crate::sensors;
+use tokio::time::sleep;
 
 #[derive(Serialize, Deserialize)]
 pub struct CpuInformations {
@@ -38,36 +39,31 @@ fn get_max_speed_from_file() -> Option<String> {
     }
 }
 
-fn get_max_speed_from_lscpu() -> Option<String> {
-    let output = Command::new("lscpu")
-        .output()
-        .ok()?
-        .stdout;
-    let output_str = String::from_utf8(output).ok()?;
+fn get_speeds_from_lscpu() -> (Option<String>, Option<String>) {
+    let output = match Command::new("lscpu").output() {
+        Ok(o) => o.stdout,
+        Err(_) => return (None, None),
+    };
+    let output_str = match String::from_utf8(output) {
+        Ok(s) => s,
+        Err(_) => return (None, None),
+    };
 
-    for line in output_str.lines() {
-        if let Some(speed_str) = line.strip_prefix("CPU max MHz:") {
-            return Some(speed_str.trim().to_string());
-        }
-    }
-
-    None
-}
-
-fn get_base_speed_from_lscpu() -> Option<String> {
-    let output = Command::new("lscpu")
-        .output()
-        .ok()?
-        .stdout;
-    let output_str = String::from_utf8(output).ok()?;
+    let mut base_speed = None;
+    let mut max_speed = None;
 
     for line in output_str.lines() {
         if let Some(speed_str) = line.strip_prefix("CPU min MHz:") {
-            return Some(speed_str.trim().to_string());
+            base_speed = Some(speed_str.trim().to_string());
+        } else if let Some(speed_str) = line.strip_prefix("CPU max MHz:") {
+            max_speed = Some(speed_str.trim().to_string());
+        }
+        if base_speed.is_some() && max_speed.is_some() {
+            break;
         }
     }
 
-    None
+    (base_speed, max_speed)
 }
 
 fn uptime_to_hms(uptime_seconds: f64) -> String {
@@ -82,7 +78,7 @@ async fn get_cpu_usage_percentage() -> Option<i64> {
         RefreshKind::new().with_cpu(CpuRefreshKind::everything()),
     );
 
-    std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+    sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL).await;
     s.refresh_cpu();
 
     let mut total_usage = 0.0;
@@ -177,8 +173,14 @@ fn parse_cpu_info(cpu_info: &str) -> Option<(String, String, String, Vec<f64>, S
 }
 
 async fn get_cpu_info() -> Option<CpuInformations> {
-    let base_speed = get_base_speed_from_file().or_else(|| get_base_speed_from_lscpu());
-    let max_speed = get_max_speed_from_file().or_else(|| get_max_speed_from_lscpu());
+    let base_speed_file = get_base_speed_from_file();
+    let max_speed_file = get_max_speed_from_file();
+    let (base_speed, max_speed) = if base_speed_file.is_some() && max_speed_file.is_some() {
+        (base_speed_file, max_speed_file)
+    } else {
+        let (lscpu_base, lscpu_max) = get_speeds_from_lscpu();
+        (base_speed_file.or(lscpu_base), max_speed_file.or(lscpu_max))
+    };
 
     if let Ok(cpu_info) = fs::read_to_string("/proc/cpuinfo") {
         if let Some((cpu_name, cores, threads, current_speeds, virtualization, num_sockets)) = parse_cpu_info(&cpu_info) {
