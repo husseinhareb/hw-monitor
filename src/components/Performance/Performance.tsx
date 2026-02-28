@@ -22,7 +22,7 @@ const Performance: React.FC = () => {
     const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [performanceConfig.config.performance_update_time]);
 
   return (
       <Sidebar 

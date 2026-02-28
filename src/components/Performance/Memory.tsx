@@ -62,7 +62,6 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
             const activeValue = newMemoryData.active.value as number;
             setActiveMem(prevActiveMem => {
                 const newActiveMem = [...prevActiveMem, activeValue];
-                // Trim the array to keep only the last 20 elements
                 if (newActiveMem.length > 20) {
                     return newActiveMem.slice(newActiveMem.length - 20);
                 } else {
@@ -70,10 +69,12 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
                 }
             });
         }
-    }, [memoryUsage]);
+    }, [memoryUsage, convertData]);
 
     useEffect(() => {
-        setMemory(activeMem);
+        if (activeMem.length > 0) {
+            setMemory(activeMem);
+        }
     }, [activeMem, setMemory]);
 
     return (
