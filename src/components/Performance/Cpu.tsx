@@ -49,22 +49,21 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
     useEffect(() => {
         if (cpuData !== null && cpuData.usage !== undefined) {
             setCpuUsage(prevCpuUsage => {
-                const newActiveMem = [...prevCpuUsage, cpuData.usage as number];
-                // Trim the array to keep only the last 20 elements
-                if (newActiveMem.length > 20) {
-                    return newActiveMem.slice(newActiveMem.length - 20);
+                const newCpuUsage = [...prevCpuUsage, cpuData.usage as number];
+                if (newCpuUsage.length > 20) {
+                    return newCpuUsage.slice(newCpuUsage.length - 20);
                 } else {
-                    return newActiveMem;
+                    return newCpuUsage;
                 }
             });
         }
-    }, [cpuData, setCpuUsage]);
+    }, [cpuData]);
 
     useEffect(() => {
-        if (cpuData !== null && cpuUsage.length > 0) {
+        if (cpuUsage.length > 0) {
             setCpu(cpuUsage);
         }
-    }, [cpuUsage, cpuData, setCpu]);
+    }, [cpuUsage, setCpu]);
 
 
     return (

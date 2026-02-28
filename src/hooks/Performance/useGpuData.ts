@@ -48,7 +48,7 @@ const useGpuData = () => {
         const intervalId = setInterval(fetchGpuData, performanceConfig.config.performance_update_time); 
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [performanceConfig.config.performance_update_time]);
 
     return { gpuData };
 };
