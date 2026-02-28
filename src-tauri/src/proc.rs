@@ -259,9 +259,6 @@ pub async fn get_processes() -> Vec<Process> {
 
     let uid_map = build_uid_map();
 
-    let mut s = System::new_all();
-    s.refresh_all();
-
     let mut processes = Vec::with_capacity(pids.len());
     for pid in &pids {
         let (name, ppid, user) = match read_proc_status_file(pid, &uid_map) {
@@ -276,18 +273,22 @@ pub async fn get_processes() -> Vec<Process> {
 
         let cpu_usage = cpu_results.get(&pid_i32).map(|u| format!("{:.2}", u));
 
-        let (read_disk_usage, write_disk_usage) = if let Ok(pid_usize) = pid.parse::<usize>() {
-            if let Some(process) = s.process(Pid::from(pid_usize)) {
-                let du = process.disk_usage();
-                (
-                    format_bytes(du.total_read_bytes as f64),
-                    format_bytes(du.total_written_bytes as f64),
-                )
+        let (read_disk_usage, write_disk_usage) = {
+            let io_path = format!("/proc/{}/io", pid);
+            if let Ok(io_content) = fs::read_to_string(&io_path) {
+                let mut read_bytes: u64 = 0;
+                let mut write_bytes: u64 = 0;
+                for line in io_content.lines() {
+                    if let Some(val) = line.strip_prefix("read_bytes: ") {
+                        read_bytes = val.trim().parse().unwrap_or(0);
+                    } else if let Some(val) = line.strip_prefix("write_bytes: ") {
+                        write_bytes = val.trim().parse().unwrap_or(0);
+                    }
+                }
+                (format_bytes(read_bytes as f64), format_bytes(write_bytes as f64))
             } else {
                 ("N/A".to_string(), "N/A".to_string())
             }
-        } else {
-            ("N/A".to_string(), "N/A".to_string())
         };
 
         let (read_disk_speed, write_disk_speed) = if let Some(entry) = disk_speed_results.get(&pid_i32) {
