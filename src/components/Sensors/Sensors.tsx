@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Container,
   Title,
@@ -20,11 +20,12 @@ const Sensors: React.FC = () => {
   const sensors = useSensorsData();
   const battery = useBatteryData();
   const { t } = useTranslation();
-  // Filter out sensors with no sensor values
-  const filteredSensors = sensors.filter(hwmon => hwmon.sensors.length > 0);
 
-  // Sort sensors by the number of sensors in descending order
-  const sortedSensors = filteredSensors.sort((a, b) => b.sensors.length - a.sensors.length);
+  const sortedSensors = useMemo(() => {
+    return sensors
+      .filter(hwmon => hwmon.sensors.length > 0)
+      .sort((a, b) => b.sensors.length - a.sensors.length);
+  }, [sensors]);
 
   const sensorsConfig = useSensorsConfig();
   return (
