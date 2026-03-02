@@ -109,6 +109,12 @@
     "proc.table_value_read_disk_speed": "Швидкість диска (читання)",
     "proc.table_value_write_disk_speed": "Швидкість диска (запис)",
     "proc.kill_process": "Завершити процес",
+    "proc.monitor_button": "Моніторинг",
+    "proc.monitor_title": "Монітор процесу",
+    "proc.monitor_cpu": "Використання ЦП (%)",
+    "proc.monitor_memory": "Пам'ять (МБ)",
+    "proc.monitor_current": "Поточне",
+    "proc.monitor_process_ended": "Процес завершився",
 
     "performance.cpu": "CPU",
     "performance.speed": "Швидкість",

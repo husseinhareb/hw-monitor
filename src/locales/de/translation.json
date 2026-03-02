@@ -109,6 +109,12 @@
     "proc.table_value_read_disk_speed": "Lesegeschwindigkeit",
     "proc.table_value_write_disk_speed": "Schreibgeschwindigkeit",
     "proc.kill_process": "Prozess beenden",
+    "proc.monitor_button": "Überwachen",
+    "proc.monitor_title": "Prozessüberwachung",
+    "proc.monitor_cpu": "CPU-Auslastung (%)",
+    "proc.monitor_memory": "Speicher (MB)",
+    "proc.monitor_current": "Aktuell",
+    "proc.monitor_process_ended": "Prozess wurde beendet",
 
     "performance.cpu": "CPU",
     "performance.speed": "Geschwindigkeit",
