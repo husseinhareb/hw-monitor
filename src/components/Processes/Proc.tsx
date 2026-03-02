@@ -9,11 +9,14 @@ import { lighten } from 'polished';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import Spinner from '../Misc/Spinner';
 import { useTranslation } from 'react-i18next';
+import ProcessMonitor from './ProcessMonitor';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>('memory');
     const [sortOrder, setSortOrder] = useState<string>('desc');
     const [selectedRow, setSelectedRow] = useState<number | null>(null); // State to track selected row index
+    const [monitoredPid, setMonitoredPid] = useState<number | null>(null);
+    const [monitoredName, setMonitoredName] = useState<string>('');
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
@@ -33,6 +36,14 @@ const Proc: React.FC = () => {
             } catch (error) {
                 console.error('Failed to kill process:', error);
             }
+        }
+    };
+
+    const handleMonitorProcess = () => {
+        if (selectedRow !== null) {
+            const selectedProcess = filteredProcesses[selectedRow];
+            setMonitoredPid(selectedProcess.pid);
+            setMonitoredName(selectedProcess.name);
         }
     };
 
@@ -176,7 +187,7 @@ const Proc: React.FC = () => {
     };
 
     return (
-        <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white', position: 'relative' }}>
+        <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white', position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
             {processes.length === 0 ? (<Spinner />) :
                 (<Table
                     bodyBackgroundColor={processConfig.config.processes_body_background_color}
@@ -246,13 +257,29 @@ const Proc: React.FC = () => {
                     </Tbody>
                 </Table>)}
             {selectedRow !== null && (
-                <BottomBar bottomBarBackgroundColor={processConfig.config.processes_head_background_color}>
+                <BottomBar
+                    bottomBarBackgroundColor={processConfig.config.processes_head_background_color}
+                    style={{ bottom: monitoredPid !== null ? '45vh' : '0' }}
+                >
+                    <KillButton
+                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
+                        killButtonColor={processConfig.config.processes_body_color}
+                        onClick={handleMonitorProcess}
+                    >{t('proc.monitor_button')}</KillButton>
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={handleKillProcess}
-                    >{ t('proc.kill_process')}</KillButton>
+                    >{t('proc.kill_process')}</KillButton>
                 </BottomBar>
+            )}
+            {monitoredPid !== null && (
+                <ProcessMonitor
+                    pid={monitoredPid}
+                    name={monitoredName}
+                    processes={processes}
+                    onClose={() => setMonitoredPid(null)}
+                />
             )}
         </TableContainer>
     );
