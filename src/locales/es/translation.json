@@ -109,6 +109,12 @@
     "proc.table_value_read_disk_speed": "Velocidad de Lectura del Disco",
     "proc.table_value_write_disk_speed": "Velocidad de Escritura del Disco",
     "proc.kill_process": "Terminar Proceso",
+    "proc.monitor_button": "Monitorear",
+    "proc.monitor_title": "Monitor de Proceso",
+    "proc.monitor_cpu": "Uso de CPU (%)",
+    "proc.monitor_memory": "Memoria (MB)",
+    "proc.monitor_current": "Actual",
+    "proc.monitor_process_ended": "El proceso ha terminado",
 
     "performance.cpu": "CPU",
     "performance.speed": "Velocidad",

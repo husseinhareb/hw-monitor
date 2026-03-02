@@ -109,6 +109,12 @@
     "proc.table_value_read_disk_speed": "Скорость чтения диска",
     "proc.table_value_write_disk_speed": "Скорость записи диска",
     "proc.kill_process": "Завершить процесс",
+    "proc.monitor_button": "Мониторинг",
+    "proc.monitor_title": "Монитор процесса",
+    "proc.monitor_cpu": "Использование ЦП (%)",
+    "proc.monitor_memory": "Память (МБ)",
+    "proc.monitor_current": "Текущее",
+    "proc.monitor_process_ended": "Процесс завершился",
 
     "performance.cpu": "ЦП",
     "performance.speed": "Скорость",

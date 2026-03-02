@@ -109,6 +109,12 @@
     "proc.table_value_read_disk_speed": "سرعة قراءة القرص",
     "proc.table_value_write_disk_speed": "سرعة كتابة القرص",
     "proc.kill_process": "إيقاف العملية",
+    "proc.monitor_button": "مراقبة",
+    "proc.monitor_title": "مراقب العمليات",
+    "proc.monitor_cpu": "استخدام المعالج (%)",
+    "proc.monitor_memory": "الذاكرة (ميجابايت)",
+    "proc.monitor_current": "الحالي",
+    "proc.monitor_process_ended": "انتهت العملية",
 
     "performance.cpu": "وحدة المعالجة المركزية",
     "performance.speed": "السرعة",
