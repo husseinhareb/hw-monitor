@@ -16,6 +16,8 @@ interface GraphProps {
   /** Optional height/style */
   height?: string;
   width?: string;
+  /** Override the interval (ms) used for x-axis labels (defaults to performance_update_time) */
+  updateInterval?: number;
 }
 
 const MAX_POINTS = 20;
@@ -27,6 +29,7 @@ const Graph: React.FC<GraphProps> = ({
   maxValue,
   height = '40vh',
   width = '80vw',
+  updateInterval,
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
@@ -91,7 +94,7 @@ const Graph: React.FC<GraphProps> = ({
     const chart = chartInstance.current;
     if (!chart || !performanceConfig?.config) return;
 
-    const intervalSec = performanceConfig.config.performance_update_time / 1000;
+    const intervalSec = (updateInterval ?? performanceConfig.config.performance_update_time) / 1000;
     const label = `${tick * intervalSec}s`;
 
     // Append new label and crop
