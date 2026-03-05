@@ -124,68 +124,7 @@ fn read_hwmon_info(
 }
 
 fn get_amd_gpu_name() -> String {
-    // Initialize Vulkan entry point
-    let entry = unsafe { Entry::load().expect("Failed to create Vulkan entry") };
-
-    // Create a Vulkan instance
-    let app_name = CStr::from_bytes_with_nul(b"AMD GPU Detector\0").unwrap();
-    let engine_name = CStr::from_bytes_with_nul(b"No Engine\0").unwrap();
-
-    let app_info = vk::ApplicationInfo {
-        s_type: vk::StructureType::APPLICATION_INFO,
-        p_next: ptr::null(),
-        p_application_name: app_name.as_ptr(),
-        p_engine_name: engine_name.as_ptr(),
-        application_version: vk::make_api_version(0, 1, 0, 0),
-        engine_version: vk::make_api_version(0, 1, 0, 0),
-        api_version: vk::make_api_version(0, 1, 0, 0),
-    };
-
-    let create_info = vk::InstanceCreateInfo {
-        s_type: vk::StructureType::INSTANCE_CREATE_INFO,
-        p_next: ptr::null(),
-        flags: vk::InstanceCreateFlags::empty(),
-        p_application_info: &app_info,
-        enabled_layer_count: 0,
-        pp_enabled_layer_names: ptr::null(),
-        enabled_extension_count: 0,
-        pp_enabled_extension_names: ptr::null(),
-    };
-
-    let instance = unsafe {
-        entry
-            .create_instance(&create_info, None)
-            .expect("Failed to create Vulkan instance")
-    };
-
-    // Enumerate physical devices (GPUs)
-    let physical_devices = unsafe {
-        instance
-            .enumerate_physical_devices()
-            .expect("Failed to enumerate physical devices")
-    };
-
-    // Get the name of the first GPU
-    let device_name = if let Some(&device) = physical_devices.first() {
-        // Get device properties
-        let properties = unsafe { instance.get_physical_device_properties(device) };
-
-        // Convert the device name to a Rust String
-        unsafe {
-            CStr::from_ptr(properties.device_name.as_ptr())
-                .to_string_lossy()
-                .into_owned()
-        }
-    } else {
-        String::from("No GPU found")
-    };
-
-    // Clean up Vulkan instance
-    unsafe {
-        instance.destroy_instance(None);
-    }
-
-    device_name
+    get_vulkan_gpu_name_by_vendor(0x1002).unwrap_or_else(|| "AMD GPU".to_string())
 }
 
 fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
