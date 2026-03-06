@@ -80,6 +80,9 @@ interface Store {
   gpu: number[];
   setGpu: (cpu: number[]) => void;
 
+  gpuUsages: { [id: string]: number[] };
+  setGpuUsage: (id: string, usage: number[]) => void;
+
   wifiDownloadSpeed: number[];
   wifiUploadSpeed: number[];
   setWifiSpeed: (downloadSpeed: number[], uploadSpeed: number[]) => void;
@@ -123,6 +126,11 @@ export const useStore = create<Store>((set) => ({
 
   gpu: [],
   setGpu: (gpu) => set({ gpu }),
+
+  gpuUsages: {},
+  setGpuUsage: (id, usage) => set((state) => ({
+    gpuUsages: { ...state.gpuUsages, [id]: usage },
+  })),
 
   wifiDownloadSpeed: [],
   wifiUploadSpeed: [],
@@ -222,6 +230,9 @@ export const useSetMaxMemory = () => useStore((state) => state.setMaxMemory);
 
 export const useGpu = () => useStore((state) => state.gpu);
 export const useSetGpu = () => useStore((state) => state.setGpu);
+
+export const useGpuUsages = () => useStore((state) => state.gpuUsages);
+export const useSetGpuUsage = () => useStore((state) => state.setGpuUsage);
 
 export const useWifiSpeed = () => useStore((state) => [state.wifiDownloadSpeed, state.wifiUploadSpeed]);
 export const useSetWifiSpeed = () => useStore((state) => state.setWifiSpeed);
