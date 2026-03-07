@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Graph from "../Graph/Graph";
-import { useSetGpu } from "../../services/store";
-import usegpuData from "../../hooks/Performance/useGpuData";
+import { useSetGpu, useSetGpuUsage } from "../../services/store";
+import { GpuData } from "../../hooks/Performance/useGpuData";
 import {
     CPU, LeftLabel,
     RightLabel,
@@ -21,6 +21,8 @@ import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface GpuProps {
     hidden: boolean;
+    gpuData: GpuData | null;
+    gpuIndex: number;
     performanceConfig: {
         config: {
             performance_update_time: number;
@@ -37,17 +39,17 @@ interface GpuProps {
     };
 }
 
-const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
-    const { gpuData } = usegpuData();
+const Gpu: React.FC<GpuProps> = ({ hidden, gpuData, gpuIndex, performanceConfig }) => {
     const [gpuUsage, setGpuUsage] = useState<number[]>([]);
     const setGpu = useSetGpu();
+    const setGpuUsageStore = useSetGpuUsage();
     const { t } = useTranslation();
     const tick = usePerformanceTicker();
+
     useEffect(() => {
         if (gpuData && gpuData.utilization !== undefined) {
             setGpuUsage(prevGpuUsage => {
                 const newActiveMem = [...prevGpuUsage, parseInt(gpuData.utilization) as number];
-                // Trim the array to keep only the last 20 elements
                 if (newActiveMem.length > 20) {
                     return newActiveMem.slice(newActiveMem.length - 20);
                 } else {
@@ -55,13 +57,19 @@ const Gpu: React.FC<GpuProps> = ({ hidden, performanceConfig }) => {
                 }
             });
         }
-    }, [gpuData, setGpuUsage]);
+    }, [gpuData]);
 
     useEffect(() => {
         if (gpuData && gpuUsage.length > 0) {
-            setGpu(gpuUsage);
+            // Keep backwards compatibility: first GPU sets the global gpu store
+            if (gpuIndex === 0) {
+                setGpu(gpuUsage);
+            }
+            if (gpuData.id) {
+                setGpuUsageStore(gpuData.id, gpuUsage);
+            }
         }
-    }, [gpuUsage, gpuData, setGpu]);
+    }, [gpuUsage, gpuData, setGpu, gpuIndex, setGpuUsageStore]);
 
     return (
         <CPU
