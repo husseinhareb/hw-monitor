@@ -44,15 +44,15 @@ pub async fn get_network(show_virtual: bool) -> Vec<Network> {
 
     for (interface_name, data) in sorted_networks {
         if show_virtual || is_physical_interface(interface_name) {
-            let upload_kb = data.transmitted();
-            let download_kb = data.received();
-            let total_received: u64 = networks.iter().map(|(_, network)| network.total_received()).sum();
-            let total_transmitted: u64 = networks.iter().map(|(_, network)| network.total_transmitted()).sum();
+            let upload_bytes = data.transmitted();
+            let download_bytes = data.received();
+            let total_received: u64 = data.total_received();
+            let total_transmitted: u64 = data.total_transmitted();
 
             let network = Network {
                 interface: interface_name.clone(),
-                upload: format!("{:.1}", upload_kb),
-                download: format!("{:.1}", download_kb),
+                upload: format!("{:.1}", upload_bytes),
+                download: format!("{:.1}", download_bytes),
                 total_upload: total_transmitted, 
                 total_download: total_received,
             };

@@ -1,7 +1,7 @@
 use std::{fs, io};
 use serde::{Serialize, Deserialize};
 
-const KILO_BYTE:i64 = 1000;
+const KILO_BYTE:i64 = 1024;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Memory {
