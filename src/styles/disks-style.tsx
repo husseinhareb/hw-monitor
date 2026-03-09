@@ -64,12 +64,12 @@ export const PartitionItem = styled.li`
   z-index: 1;
 `;
 
-const progressAnimation = keyframes<{ progress: number }>`
+const progressAnimation = keyframes`
   from {
     width: 0%;
   }
   to {
-    width: ${props => props.progress}%;
+    width: 100%;
   }
 `;
 

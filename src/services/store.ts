@@ -207,8 +207,8 @@ export const useStore = create<Store>((set) => ({
     navbar_background_color: "#222222",
     navbar_buttons_background_color: "#f3eae8",
     navbar_buttons_foreground_color: "#212830",
-    navbar_search_background_color: "string",
-    navbar_search_foreground_color: "string",
+    navbar_search_background_color: "#f3eae8",
+    navbar_search_foreground_color: "#212830",
   },
   setNavbarConfig: (navbarConfig) => set({ navbarConfig }),
 

@@ -20,8 +20,8 @@ export const ConfigButtonContainer = styled.div`
 `;
 
 export const StyledButton = styled.button<{ active: boolean; navbarButtonsForegroundColor: string; navbarButtonsBackgroundColor:string }>`
-  background-color: ${({ active }) => (active ? (props) => props.navbarButtonsBackgroundColor : "transparent")};
-  color: ${({ active }) => (active ? (props) => props.navbarButtonsForegroundColor : (props) => props.navbarButtonsBackgroundColor)};
+  background-color: ${(props) => (props.active ? props.navbarButtonsBackgroundColor : "transparent")};
+  color: ${(props) => (props.active ? props.navbarButtonsForegroundColor : props.navbarButtonsBackgroundColor)};
   display: flex;
   align-items: center;
   border-radius: 4px;
