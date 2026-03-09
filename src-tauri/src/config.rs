@@ -67,7 +67,7 @@ pub struct ConfigData {
 
 
 #[derive(Debug, Deserialize)]
-pub struct PorcessesConfig {
+pub struct ProcessesConfig {
     pub processes_update_time: u32,
     pub processes_body_background_color: String,
     pub processes_body_color: String,
@@ -562,7 +562,7 @@ pub async fn get_configs() -> Result<ConfigData, String> {
 
 
 #[tauri::command]
-pub async fn set_processes_configs(configs: PorcessesConfig) -> Result<(), String> {
+pub async fn set_processes_configs(configs: ProcessesConfig) -> Result<(), String> {
     let mut config_data = read_all_configs().map_err(|e| e.to_string())?;
     config_data.processes_update_time = configs.processes_update_time;
     config_data.processes_body_background_color = configs.processes_body_background_color;
