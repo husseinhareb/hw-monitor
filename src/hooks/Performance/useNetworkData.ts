@@ -23,22 +23,22 @@ const useNetworkData = (interfaceName: string) => {
     const [totalDownload, setTotalDownload] = useState<number>();
     const [totalUpload, setTotalUpload] = useState<number>();
     const convertData = useDataConverter();
-    const perfomanceConfig = usePerformanceConfig();
+    const performanceConfig = usePerformanceConfig();
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network", {
-                    showVirtual: perfomanceConfig.config.show_virtual_interfaces,
+                    showVirtual: performanceConfig.config.show_virtual_interfaces,
                 });
                 const interfaceData = fetchedNetworkUsages.find(data => data.interface === interfaceName);
                 if (interfaceData) {
-                    setDownload(prevDownload => [...prevDownload, convertData(interfaceData.download)]);
-                    setUpload(prevUpload => [...prevUpload, convertData(interfaceData.upload)]);
+                    setDownload(prevDownload => [...prevDownload, convertData(interfaceData.download)].slice(-20));
+                    setUpload(prevUpload => [...prevUpload, convertData(interfaceData.upload)].slice(-20));
                     setTotalDownload(interfaceData.total_download);
                     setTotalUpload(interfaceData.total_upload);
                 } else {
-                    setDownload(prevDownload => [...prevDownload, { value: 0, unit: 'B' }]);
-                    setUpload(prevUpload => [...prevUpload, { value: 0, unit: 'B' }]);
+                    setDownload(prevDownload => [...prevDownload, { value: 0, unit: 'B' }].slice(-20));
+                    setUpload(prevUpload => [...prevUpload, { value: 0, unit: 'B' }].slice(-20));
                     setTotalDownload(0);
                     setTotalUpload(0);
                 }   
@@ -48,10 +48,10 @@ const useNetworkData = (interfaceName: string) => {
         };
 
         fetchData(); // Initial fetch
-        const intervalId = setInterval(fetchData, perfomanceConfig.config.performance_update_time); 
+        const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time); 
 
         return () => clearInterval(intervalId);
-    }, [interfaceName,perfomanceConfig.config.performance_update_time]);
+    }, [interfaceName,performanceConfig.config.performance_update_time]);
 
     return { download, upload, totalDownload, totalUpload };
 };
