@@ -40,11 +40,9 @@ const useFetchAndSetConfig = <T extends ConfigType>(
     };
 
     const updateConfig = async (key: keyof T, value: string | number | boolean | string[]) => {
-        setConfig(prevConfig => {
-            const newConfig = { ...prevConfig, [key]: value };
-            sendData(newConfig);
-            return newConfig;
-        });
+        const newConfig = { ...config, [key]: value } as T;
+        setConfig(newConfig);
+        sendData(newConfig);
     };
 
     return {
