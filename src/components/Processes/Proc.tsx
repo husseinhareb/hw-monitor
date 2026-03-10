@@ -16,7 +16,7 @@ import ProcessTree from './ProcessTree';
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>('memory');
     const [sortOrder, setSortOrder] = useState<string>('desc');
-    const [selectedRow, setSelectedRow] = useState<number | null>(null); // State to track selected row index
+    const [selectedPid, setSelectedPid] = useState<number | null>(null);
     const [monitoredPid, setMonitoredPid] = useState<number | null>(null);
     const [monitoredName, setMonitoredName] = useState<string>('');
     const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
@@ -26,16 +26,13 @@ const Proc: React.FC = () => {
     const processConfig = useProcessConfig();
     const { t } = useTranslation();
     // Function to handle click on a row
-    const handleRowClick = (index: number) => {
-        setSelectedRow(index === selectedRow ? null : index); // Toggle selection
+    const handleRowClick = (pid: number) => {
+        setSelectedPid(prev => prev === pid ? null : pid);
     };
 
     const handleTreeSelectProcess = (process: Process) => {
-        setSelectedRow(null);
-        setTreeSelectedPid(prev => prev === process.pid ? null : process.pid);
+        setSelectedPid(prev => prev === process.pid ? null : process.pid);
     };
-
-    const [treeSelectedPid, setTreeSelectedPid] = useState<number | null>(null);
 
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
@@ -177,11 +174,8 @@ const Proc: React.FC = () => {
     };
 
     const getSelectedProcess = (): Process | null => {
-        if (viewMode === 'table' && selectedRow !== null) {
-            return filteredProcesses[selectedRow] || null;
-        }
-        if (viewMode === 'tree' && treeSelectedPid !== null) {
-            return processes.find(p => p.pid === treeSelectedPid) || null;
+        if (selectedPid !== null) {
+            return processes.find(p => p.pid === selectedPid) || null;
         }
         return null;
     };
@@ -205,7 +199,7 @@ const Proc: React.FC = () => {
         }
     };
 
-    const hasSelection = viewMode === 'table' ? selectedRow !== null : treeSelectedPid !== null;
+    const hasSelection = selectedPid !== null;
 
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white', position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
@@ -222,7 +216,7 @@ const Proc: React.FC = () => {
                             active={viewMode === 'table'}
                             bgColor={processConfig.config.processes_body_background_color}
                             color={processConfig.config.processes_body_color}
-                            onClick={() => { setViewMode('table'); setTreeSelectedPid(null); }}
+                            onClick={() => { setViewMode('table'); }}
                         >
                             {t('proc.table_view')}
                         </ViewToggleBtn>
@@ -230,7 +224,7 @@ const Proc: React.FC = () => {
                             active={viewMode === 'tree'}
                             bgColor={processConfig.config.processes_body_background_color}
                             color={processConfig.config.processes_body_color}
-                            onClick={() => { setViewMode('tree'); setSelectedRow(null); }}
+                            onClick={() => { setViewMode('tree'); }}
                         >
                             {t('proc.tree_view')}
                         </ViewToggleBtn>
@@ -271,11 +265,11 @@ const Proc: React.FC = () => {
                         bodyBackgroundColor={processConfig.config.processes_body_background_color}
                         bodyColor={processConfig.config.processes_body_color}
                     >
-                        {filteredProcesses.map((process, index) => (
+                        {filteredProcesses.map((process) => (
                             <Tr
-                                key={index}
-                                onClick={() => handleRowClick(index)} // Attach click handler to entire row
-                                style={{ backgroundColor: selectedRow === index ? lighten(0.15, processConfig.config.processes_body_background_color) : 'transparent' }} // Highlight row if selected
+                                key={process.pid}
+                                onClick={() => handleRowClick(process.pid)}
+                                style={{ backgroundColor: selectedPid === process.pid ? lighten(0.15, processConfig.config.processes_body_background_color) : 'transparent' }}
                             >
                                 {displayedColumns.map(column => (
                                     <Td
@@ -289,8 +283,8 @@ const Proc: React.FC = () => {
                                                 : column === 'cpu_usage'
                                                     ? null  // No total for CPU usage
                                                     : totalMemoryUsage,
-                                            column === 'cpu_usage',  // Check if the column is 'cpu_usage'
-                                            selectedRow === index  // Pass the selected status
+                                            column === 'cpu_usage',
+                                            selectedPid === process.pid
                                         )}
                                         bodyBackgroundColor={processConfig.config.processes_body_background_color}
                                         bodyColor={processConfig.config.processes_body_color}
@@ -308,7 +302,7 @@ const Proc: React.FC = () => {
                             processes={filteredProcesses}
                             processConfig={processConfig}
                             onSelectProcess={handleTreeSelectProcess}
-                            selectedPid={treeSelectedPid}
+                            selectedPid={selectedPid}
                         />
                     )}
                 </>
