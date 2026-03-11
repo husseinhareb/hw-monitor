@@ -117,6 +117,10 @@
     "proc.monitor_memory": "Пам'ять (МБ)",
     "proc.monitor_current": "Поточне",
     "proc.monitor_process_ended": "Процес завершився",
+    "proc.tree_view": "Дерево",
+    "proc.table_view": "Таблиця",
+    "proc.expand_all": "Розгорнути все",
+    "proc.collapse_all": "Згорнути все",
 
     "performance.cpu": "CPU",
     "performance.speed": "Швидкість",

@@ -117,6 +117,10 @@
     "proc.monitor_memory": "Память (МБ)",
     "proc.monitor_current": "Текущее",
     "proc.monitor_process_ended": "Процесс завершился",
+    "proc.tree_view": "Дерево",
+    "proc.table_view": "Таблица",
+    "proc.expand_all": "Развернуть всё",
+    "proc.collapse_all": "Свернуть всё",
 
     "performance.cpu": "ЦП",
     "performance.speed": "Скорость",
