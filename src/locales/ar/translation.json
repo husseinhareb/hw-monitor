@@ -117,6 +117,10 @@
     "proc.monitor_memory": "الذاكرة (ميجابايت)",
     "proc.monitor_current": "الحالي",
     "proc.monitor_process_ended": "انتهت العملية",
+    "proc.tree_view": "شجرة",
+    "proc.table_view": "جدول",
+    "proc.expand_all": "توسيع الكل",
+    "proc.collapse_all": "طي الكل",
 
     "performance.cpu": "وحدة المعالجة المركزية",
     "performance.speed": "السرعة",

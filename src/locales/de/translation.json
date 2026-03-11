@@ -117,6 +117,10 @@
     "proc.monitor_memory": "Speicher (MB)",
     "proc.monitor_current": "Aktuell",
     "proc.monitor_process_ended": "Prozess wurde beendet",
+    "proc.tree_view": "Baum",
+    "proc.table_view": "Tabelle",
+    "proc.expand_all": "Alle aufklappen",
+    "proc.collapse_all": "Alle zuklappen",
 
     "performance.cpu": "CPU",
     "performance.speed": "Geschwindigkeit",

@@ -117,8 +117,12 @@
     "proc.monitor_memory": "Pamięć (MB)",
     "proc.monitor_current": "Bieżąca",
     "proc.monitor_process_ended": "Proces zakończył się",
-    
-    "performance.cpu": "CPU",
+    "proc.tree_view": "Drzewo",
+    "proc.table_view": "Tabela",
+    "proc.expand_all": "Rozwiń wszystko",
+    "proc.collapse_all": "Zwiń wszystko",
+
+    "performance.cpu":"CPU",
     "performance.speed": "Prędkość",
     "performance.usage": "Zużycie",
     "performance.temperature": "Temperatura",
