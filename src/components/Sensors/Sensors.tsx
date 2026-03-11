@@ -39,9 +39,9 @@ const Sensors: React.FC = () => {
         >
           <Battery />
         </SensorList>}
-        {sortedSensors.map((hwmon, index) => (
+        {sortedSensors.map((hwmon) => (
           <SensorList
-            key={index}
+            key={hwmon.name}
             sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
           >
             <SensorGroup>
