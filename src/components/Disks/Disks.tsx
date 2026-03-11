@@ -38,9 +38,9 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
       {diskData.length === 0 ? (
         <p >Loading...</p>
       ) : (
-        diskData.map((disk, index) => (
+        diskData.map((disk) => (
           <DiskCard
-            key={index}
+            key={disk.name}
             boxesBackgroundColor={disksConfig.config.disks_boxes_background_color}
           >
             <DiskTitle
@@ -52,10 +52,10 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
               {t('disks.size')}: {convertData(disk.size).value} {convertData(disk.size).unit}
             </DiskSize>
             <PartitionList>
-              {disk.partitions.map((partition, partitionIndex) => (
+              {disk.partitions.map((partition) => (
                 <PartitionContainer
                   partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
-                  key={partitionIndex}
+                  key={partition.name}
                 >
                   {partition.used_space && partition.total_space && (
                     <PartitionBar
