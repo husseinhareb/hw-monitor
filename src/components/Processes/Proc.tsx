@@ -6,10 +6,12 @@ import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton 
 import { useProcessSearch } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { lighten } from 'polished';
+import styled from 'styled-components';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import Spinner from '../Misc/Spinner';
 import { useTranslation } from 'react-i18next';
 import ProcessMonitor from './ProcessMonitor';
+import ProcessTree from './ProcessTree';
 
 const Proc: React.FC = () => {
     const [sortBy, setSortBy] = useState<string | null>('memory');
@@ -17,6 +19,7 @@ const Proc: React.FC = () => {
     const [selectedRow, setSelectedRow] = useState<number | null>(null); // State to track selected row index
     const [monitoredPid, setMonitoredPid] = useState<number | null>(null);
     const [monitoredName, setMonitoredName] = useState<string>('');
+    const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
     const totalUsages = useTotalUsagesData();
     const { processes } = useProcessData();
     const processSearch = useProcessSearch();
@@ -27,25 +30,12 @@ const Proc: React.FC = () => {
         setSelectedRow(index === selectedRow ? null : index); // Toggle selection
     };
 
-    const handleKillProcess = async () => {
-        if (selectedRow !== null) {
-            const selectedProcess = filteredProcesses[selectedRow];
-            try {
-                await invoke('kill_process', { process: selectedProcess });
-                console.log('Killing process:', selectedProcess);
-            } catch (error) {
-                console.error('Failed to kill process:', error);
-            }
-        }
+    const handleTreeSelectProcess = (process: Process) => {
+        setSelectedRow(null);
+        setTreeSelectedPid(prev => prev === process.pid ? null : process.pid);
     };
 
-    const handleMonitorProcess = () => {
-        if (selectedRow !== null) {
-            const selectedProcess = filteredProcesses[selectedRow];
-            setMonitoredPid(selectedProcess.pid);
-            setMonitoredName(selectedProcess.name);
-        }
-    };
+    const [treeSelectedPid, setTreeSelectedPid] = useState<number | null>(null);
 
     const convertDataValue = (usageStr: string): number => {
         if (typeof usageStr !== 'string') return 0;
@@ -186,10 +176,67 @@ const Proc: React.FC = () => {
         write_disk_speed: { percentage: null, label:  t('proc.table_value_write_disk_speed') },
     };
 
+    const getSelectedProcess = (): Process | null => {
+        if (viewMode === 'table' && selectedRow !== null) {
+            return filteredProcesses[selectedRow] || null;
+        }
+        if (viewMode === 'tree' && treeSelectedPid !== null) {
+            return processes.find(p => p.pid === treeSelectedPid) || null;
+        }
+        return null;
+    };
+
+    const handleKillSelected = async () => {
+        const proc = getSelectedProcess();
+        if (proc) {
+            try {
+                await invoke('kill_process', { process: proc });
+            } catch (error) {
+                console.error('Failed to kill process:', error);
+            }
+        }
+    };
+
+    const handleMonitorSelected = () => {
+        const proc = getSelectedProcess();
+        if (proc) {
+            setMonitoredPid(proc.pid);
+            setMonitoredName(proc.name);
+        }
+    };
+
+    const hasSelection = viewMode === 'table' ? selectedRow !== null : treeSelectedPid !== null;
+
     return (
         <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white', position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
-            {processes.length === 0 ? (<Spinner />) :
-                (<Table
+            {processes.length === 0 ? (<Spinner />) : (
+                <>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        padding: '4px 8px',
+                        backgroundColor: processConfig.config.processes_head_background_color,
+                        gap: '4px',
+                    }}>
+                        <ViewToggleBtn
+                            active={viewMode === 'table'}
+                            bgColor={processConfig.config.processes_body_background_color}
+                            color={processConfig.config.processes_body_color}
+                            onClick={() => { setViewMode('table'); setTreeSelectedPid(null); }}
+                        >
+                            {t('proc.table_view')}
+                        </ViewToggleBtn>
+                        <ViewToggleBtn
+                            active={viewMode === 'tree'}
+                            bgColor={processConfig.config.processes_body_background_color}
+                            color={processConfig.config.processes_body_color}
+                            onClick={() => { setViewMode('tree'); setSelectedRow(null); }}
+                        >
+                            {t('proc.tree_view')}
+                        </ViewToggleBtn>
+                    </div>
+
+                    {viewMode === 'table' ? (<Table
                     bodyBackgroundColor={processConfig.config.processes_body_background_color}
                     bodyColor={processConfig.config.processes_body_color}
                     headBackgroundColor={processConfig.config.processes_head_background_color}
@@ -255,8 +302,18 @@ const Proc: React.FC = () => {
                             </Tr>
                         ))}
                     </Tbody>
-                </Table>)}
-            {selectedRow !== null && (
+                </Table>
+                    ) : (
+                        <ProcessTree
+                            processes={filteredProcesses}
+                            processConfig={processConfig}
+                            onSelectProcess={handleTreeSelectProcess}
+                            selectedPid={treeSelectedPid}
+                        />
+                    )}
+                </>
+            )}
+            {hasSelection && (
                 <BottomBar
                     bottomBarBackgroundColor={processConfig.config.processes_head_background_color}
                     style={{ bottom: monitoredPid !== null ? '45vh' : '0' }}
@@ -264,12 +321,12 @@ const Proc: React.FC = () => {
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
-                        onClick={handleMonitorProcess}
+                        onClick={handleMonitorSelected}
                     >{t('proc.monitor_button')}</KillButton>
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
-                        onClick={handleKillProcess}
+                        onClick={handleKillSelected}
                     >{t('proc.kill_process')}</KillButton>
                 </BottomBar>
             )}
@@ -284,5 +341,18 @@ const Proc: React.FC = () => {
         </TableContainer>
     );
 };
+
+const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: string }>`
+    background-color: ${props => props.active ? lighten(0.15, props.bgColor) : props.bgColor};
+    color: ${props => props.color};
+    border: ${props => props.active ? '1px solid #666' : '1px solid transparent'};
+    padding: 3px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    &:hover {
+        opacity: 0.8;
+    }
+`;
 
 export default Proc;
