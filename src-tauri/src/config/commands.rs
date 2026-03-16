@@ -149,7 +149,7 @@ pub struct LanguageConfig {
 
 // Function to create the initial configuration file if it does not exist
 pub fn create_config() -> Result<(), String> {
-    let config_dir = dirs::config_dir().ok_or_else(|| "Unable to determine config directory".to_string())?;
+    let config_dir = get_config_dir().ok_or_else(|| "Unable to determine config directory".to_string())?;
     let folder_path = config_dir.join("hw-monitor");
 
     if !folder_exists(&folder_path) {
@@ -670,10 +670,22 @@ pub async fn set_language_config(configs: LanguageConfig) -> Result<(), String> 
 
 // Function to get the configuration file path
 fn config_file() -> Result<PathBuf, io::Error> {
-    let config_dir = dirs::config_dir().ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Unable to determine config directory"))?;
+    let config_dir = get_config_dir().ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Unable to determine config directory"))?;
     let folder_path = config_dir.join("hw-monitor");
     let file_path = folder_path.join("hw-monitor.conf");
     Ok(file_path)
+}
+
+fn get_config_dir() -> Option<PathBuf> {
+    if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
+        if !xdg.is_empty() {
+            return Some(PathBuf::from(xdg));
+        }
+    }
+    if let Ok(home) = std::env::var("HOME") {
+        return Some(PathBuf::from(home).join(".config"));
+    }
+    None
 }
 
 // Function to check if a folder exists
