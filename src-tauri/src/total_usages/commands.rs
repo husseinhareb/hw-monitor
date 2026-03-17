@@ -9,30 +9,29 @@ pub struct TotalUsage {
     processes: Option<String>
 }
 
-fn read_cpu_times() -> (u64, u64) {
-    let content = fs::read_to_string("/proc/stat").expect("Failed to read /proc/stat");
+fn read_cpu_times() -> Option<(u64, u64)> {
+    let content = fs::read_to_string("/proc/stat").ok()?;
     let cpu_line = content.lines()
-        .find(|line| line.starts_with("cpu "))
-        .expect("Failed to find cpu line");
+        .find(|line| line.starts_with("cpu "))?;
 
     let fields: Vec<u64> = cpu_line
         .split_whitespace()
         .skip(1)
-        .map(|field| field.parse().expect("Failed to parse CPU field"))
+        .filter_map(|field| field.parse().ok())
         .collect();
 
     let total_time: u64 = fields.iter().sum();
-    let idle_time = fields[3];
+    let idle_time = *fields.get(3)?;
 
-    (total_time, idle_time)
+    Some((total_time, idle_time))
 }
 
 async fn get_cpu_usage_percentage() -> Option<u64> {
-    let (prev_total, prev_idle) = read_cpu_times();
+    let (prev_total, prev_idle) = read_cpu_times()?;
     
     sleep(Duration::from_secs(1)).await;
     
-    let (total, idle) = read_cpu_times();
+    let (total, idle) = read_cpu_times()?;
 
     let total_diff = total - prev_total;
     let idle_diff = idle - prev_idle;
@@ -92,18 +91,13 @@ fn get_running_processes_count() -> Option<usize> {
 
 #[tauri::command]
 pub async fn get_total_usages() -> Option<TotalUsage> {
-    if let Some(memory) = get_memory_usage_percentage() {
-        if let Some(cpu) = get_cpu_usage_percentage().await {
-            if let Some(processes) = get_running_processes_count() {
+    let memory = get_memory_usage_percentage().map(|v| v.to_string());
+    let cpu = get_cpu_usage_percentage().await.map(|v| v.to_string());
+    let processes = get_running_processes_count().map(|v| v.to_string());
 
-            let total_usage = TotalUsage {
-                memory: Some(memory.to_string()),
-                cpu: Some(cpu.to_string()),
-                processes: Some(processes.to_string()),
-            };
-            return Some(total_usage);
-        };
-    }
-    }
-    None
+    Some(TotalUsage {
+        memory,
+        cpu,
+        processes,
+    })
 }
