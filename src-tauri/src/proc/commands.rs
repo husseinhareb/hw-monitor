@@ -86,7 +86,8 @@ fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(S
 
 fn get_proc_state(pid: &str) -> Option<String> {
     let file_content = fs::read_to_string(format!("/proc/{}/stat", pid)).ok()?;
-    file_content.split_whitespace().nth(2).map(|state_abbrev| match state_abbrev {
+    let after_comm = &file_content[file_content.rfind(')')? + 2..];
+    after_comm.split_whitespace().next().map(|state_abbrev| match state_abbrev {
         "R" => "Running".to_string(),
         "S" => "Sleeping".to_string(),
         "D" => "Disk sleep".to_string(),
@@ -156,9 +157,10 @@ fn get_total_cpu_time() -> Result<u64, io::Error> {
 
 fn get_process_cpu_time(pid: i32) -> Option<(u64, u64)> {
     let stat_content = fs::read_to_string(format!("/proc/{}/stat", pid)).ok()?;
-    let fields: Vec<&str> = stat_content.split_whitespace().collect();
-    let utime = fields.get(13).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
-    let stime = fields.get(14).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+    let after_comm = &stat_content[stat_content.rfind(')')? + 2..];
+    let fields: Vec<&str> = after_comm.split_whitespace().collect();
+    let utime = fields.get(11).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+    let stime = fields.get(12).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
     Some((utime, stime))
 }
 
@@ -255,7 +257,10 @@ pub async fn get_processes() -> Vec<Process> {
         async move { get_all_disk_speeds(&pids_clone).await }
     });
 
-    let (cpu_results, disk_speed_results) = tokio::try_join!(cpu_task, disk_speed_task).unwrap();
+    let (cpu_results, disk_speed_results) = match tokio::try_join!(cpu_task, disk_speed_task) {
+        Ok((cpu, disk)) => (cpu, disk),
+        Err(_) => (HashMap::new(), HashMap::new()),
+    };
 
     let uid_map = build_uid_map();
 
@@ -318,19 +323,16 @@ pub async fn get_processes() -> Vec<Process> {
 #[tauri::command]
 pub fn kill_process(process: Process) -> Result<(), String> {
     let pid_str = process.pid;
-    let pid = pid_str.parse::<usize>().map_err(|_| format!("Invalid PID: {}", pid_str))?;
-    let pid = Pid::from(pid);
+    let _pid: u32 = pid_str.parse().map_err(|_| format!("Invalid PID: {}", pid_str))?;
 
-    let mut system = System::new_all();
-    system.refresh_all();
+    let output = std::process::Command::new("kill")
+        .arg(&pid_str)
+        .output()
+        .map_err(|e| format!("Failed to execute kill: {}", e))?;
 
-    match system.process(pid) {
-        Some(proc) => {
-            match proc.kill() {
-                true => Ok(()),
-                false => Err(format!("Failed to kill process with PID {}", pid_str)),
-            }
-        },
-        None => Err(format!("No process found with PID {}", pid_str)),
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(format!("Failed to kill process with PID {}", pid_str))
     }
 }
