@@ -1,12 +1,32 @@
 // src-tauri/src/disk.rs
 
 use serde::{Deserialize, Serialize};
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
 use tokio::time::{sleep, Duration};
-use sysinfo::Disks;                // for mount-point / fs info
-use procfs::diskstats;             // for /proc/diskstats
+use sysinfo::Disks;
+
+struct DiskStat {
+    name: String,
+    sectors_read: u64,
+    sectors_written: u64,
+}
+
+fn read_diskstats() -> Result<Vec<DiskStat>, String> {
+    let content = fs::read_to_string("/proc/diskstats").map_err(|e| e.to_string())?;
+    let mut stats = Vec::new();
+    for line in content.lines() {
+        let fields: Vec<&str> = line.split_whitespace().collect();
+        if fields.len() >= 14 {
+            let name = fields[2].to_string();
+            let sectors_read = fields[5].parse::<u64>().unwrap_or(0);
+            let sectors_written = fields[9].parse::<u64>().unwrap_or(0);
+            stats.push(DiskStat { name, sectors_read, sectors_written });
+        }
+    }
+    Ok(stats)
+}
 
 const KILO_BYTE: u64 = 1000;
 const BYTES_PER_SECTOR: u64 = 512;
@@ -90,7 +110,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
 #[tauri::command]
 pub async fn get_disks() -> Result<Vec<Disk>, String> {
     // 1) snapshot #1 from /proc/diskstats
-    let stats1 = diskstats().map_err(|e| e.to_string())?;
+    let stats1 = read_diskstats()?;
     let map1: HashMap<_, _> = stats1
         .into_iter()
         .map(|st| (st.name.clone(), st))
@@ -103,7 +123,7 @@ pub async fn get_disks() -> Result<Vec<Disk>, String> {
     sleep(Duration::from_secs(1)).await;
 
     // 4) snapshot #2
-    let stats2 = diskstats().map_err(|e| e.to_string())?;
+    let stats2 = read_diskstats()?;
     let map2: HashMap<_, _> = stats2
         .into_iter()
         .map(|st| (st.name.clone(), st))
