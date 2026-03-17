@@ -130,29 +130,20 @@ fn get_amd_gpu_name() -> String {
 fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
     let device_path = gpu_path.join("device");
 
-    let memory_used = read_to_string(device_path.join("mem_info_vram_used"))
+    let memory_used_raw = read_to_string(device_path.join("mem_info_vram_used"))
         .ok()
-        .and_then(|s| s.trim().parse::<u64>().ok())
-        .map(add_memory_unit);
+        .and_then(|s| s.trim().parse::<u64>().ok());
 
-    let memory_total = read_to_string(device_path.join("mem_info_vram_total"))
+    let memory_total_raw = read_to_string(device_path.join("mem_info_vram_total"))
         .ok()
-        .and_then(|s| s.trim().parse::<u64>().ok())
-        .map(add_memory_unit);
+        .and_then(|s| s.trim().parse::<u64>().ok());
 
-    let memory_free = memory_total.as_ref().and_then(|total| {
-        memory_used.as_ref().map(|used| {
-            let total_bytes =
-                total.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0)
-                    * 1024
-                    * 1024;
-            let used_bytes =
-                used.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0)
-                    * 1024
-                    * 1024;
-            add_memory_unit(total_bytes - used_bytes)
-        })
-    });
+    let memory_used = memory_used_raw.map(add_memory_unit);
+    let memory_total = memory_total_raw.map(add_memory_unit);
+    let memory_free = match (memory_total_raw, memory_used_raw) {
+        (Some(t), Some(u)) => Some(add_memory_unit(t.saturating_sub(u))),
+        _ => None,
+    };
 
     let performance_state = read_to_string(device_path.join("power_state"))
         .ok()
@@ -322,25 +313,19 @@ fn get_intel_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformation
     let (fan_speed, temperature, hwmon_clock, wattage) = read_hwmon_info(&device_path);
     let clock_speed = clock_speed.or(hwmon_clock);
 
-    // Memory info from /sys/class/drm/card*/device/ (if i915 exposes it)
-    let memory_total = read_to_string(device_path.join("mem_info_vram_total"))
+    let memory_total_raw = read_to_string(device_path.join("mem_info_vram_total"))
         .ok()
-        .and_then(|s| s.trim().parse::<u64>().ok())
-        .map(add_memory_unit);
+        .and_then(|s| s.trim().parse::<u64>().ok());
 
-    let memory_used = read_to_string(device_path.join("mem_info_vram_used"))
+    let memory_used_raw = read_to_string(device_path.join("mem_info_vram_used"))
         .ok()
-        .and_then(|s| s.trim().parse::<u64>().ok())
-        .map(add_memory_unit);
+        .and_then(|s| s.trim().parse::<u64>().ok());
 
-    let memory_free = if memory_total.is_some() && memory_used.is_some() {
-        let total_str = memory_total.as_ref().unwrap();
-        let used_str = memory_used.as_ref().unwrap();
-        let total_bytes = total_str.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0) * 1024 * 1024;
-        let used_bytes = used_str.replace(" GB", "").replace(" MB", "").parse::<u64>().unwrap_or(0) * 1024 * 1024;
-        Some(add_memory_unit(total_bytes.saturating_sub(used_bytes)))
-    } else {
-        None
+    let memory_total = memory_total_raw.map(add_memory_unit);
+    let memory_used = memory_used_raw.map(add_memory_unit);
+    let memory_free = match (memory_total_raw, memory_used_raw) {
+        (Some(t), Some(u)) => Some(add_memory_unit(t.saturating_sub(u))),
+        _ => None,
     };
 
     // Read utilization (i915 exposes gpu_busy_percent on some kernels)
