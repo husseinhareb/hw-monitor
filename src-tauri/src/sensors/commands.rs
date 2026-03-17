@@ -21,19 +21,25 @@ pub struct HwMonData {
 
 
 pub fn get_hwmon_data() -> Vec<HwMonData> {
-    let hwmons = parse_hwmons().unwrap();
+    let hwmons = match parse_hwmons() {
+        Ok(h) => h,
+        Err(_) => return Vec::new(),
+    };
     let mut hwmon_data = Vec::new();
 
     for hwmon in &hwmons {
         let mut sensors = Vec::new();
         for (_, temp_sensor) in hwmon.temps() {
-            let temperature: Temperature = temp_sensor.read_input().unwrap();
-            let critical_temp = temp_sensor.read_crit().ok(); // Try to read the critical temperature
+            let temperature: Temperature = match temp_sensor.read_input() {
+                Ok(t) => t,
+                Err(_) => continue,
+            };
+            let critical_temp = temp_sensor.read_crit().ok();
 
             sensors.push(SensorData {
                 name: temp_sensor.name().to_string(),
-                value: temperature.as_degrees_celsius() as f32, // Converting to Celsius
-                critical: critical_temp.map(|t| t.as_degrees_celsius() as f32), // Store the critical temperature if available
+                value: temperature.as_degrees_celsius() as f32,
+                critical: critical_temp.map(|t| t.as_degrees_celsius() as f32),
             });
         }
         hwmon_data.push(HwMonData {
