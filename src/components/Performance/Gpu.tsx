@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Graph from "../Graph/Graph";
-import { useSetGpu, useSetGpuUsage } from "../../services/store";
+import { useSetGpuUsage } from "../../services/store";
 import { GpuData } from "../../hooks/Performance/useGpuData";
 import {
     CPU, LeftLabel,
@@ -41,7 +41,6 @@ interface GpuProps {
 
 const Gpu: React.FC<GpuProps> = ({ hidden, gpuData, gpuIndex, performanceConfig }) => {
     const [gpuUsage, setGpuUsage] = useState<number[]>([]);
-    const setGpu = useSetGpu();
     const setGpuUsageStore = useSetGpuUsage();
     const { t } = useTranslation();
     const tick = usePerformanceTicker();
@@ -60,16 +59,10 @@ const Gpu: React.FC<GpuProps> = ({ hidden, gpuData, gpuIndex, performanceConfig 
     }, [gpuData]);
 
     useEffect(() => {
-        if (gpuData && gpuUsage.length > 0) {
-            // Keep backwards compatibility: first GPU sets the global gpu store
-            if (gpuIndex === 0) {
-                setGpu(gpuUsage);
-            }
-            if (gpuData.id) {
-                setGpuUsageStore(gpuData.id, gpuUsage);
-            }
+        if (gpuData && gpuUsage.length > 0 && gpuData.id) {
+            setGpuUsageStore(gpuData.id, gpuUsage);
         }
-    }, [gpuUsage, gpuData, setGpu, gpuIndex, setGpuUsageStore]);
+    }, [gpuUsage, gpuData, gpuIndex, setGpuUsageStore]);
 
     return (
         <CPU

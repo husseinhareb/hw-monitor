@@ -78,19 +78,8 @@ interface Store {
   maxMemory: number;
   setMaxMemory: (maxMemory: number) => void;
 
-  gpu: number[];
-  setGpu: (cpu: number[]) => void;
-
   gpuUsages: { [id: string]: number[] };
   setGpuUsage: (id: string, usage: number[]) => void;
-
-  wifiDownloadSpeed: number[];
-  wifiUploadSpeed: number[];
-  setWifiSpeed: (downloadSpeed: number[], uploadSpeed: number[]) => void;
-
-  ethernetDownloadSpeed: number[];
-  ethernetUploadSpeed: number[];
-  setEthernetSpeed: (downloadSpeed: number[], uploadSpeed: number[]) => void;
 
   networkSpeeds: { [name: string]: { download: number[]; upload: number[] } };
   setNetworkSpeed: (name: string, download: number[], upload: number[]) => void;
@@ -128,21 +117,10 @@ export const useStore = create<Store>((set) => ({
   maxMemory: 0,
   setMaxMemory: (maxMemory) => set({ maxMemory }),
 
-  gpu: [],
-  setGpu: (gpu) => set({ gpu }),
-
   gpuUsages: {},
   setGpuUsage: (id, usage) => set((state) => ({
     gpuUsages: { ...state.gpuUsages, [id]: usage },
   })),
-
-  wifiDownloadSpeed: [],
-  wifiUploadSpeed: [],
-  setWifiSpeed: (downloadSpeed, uploadSpeed) => set({ wifiDownloadSpeed: downloadSpeed, wifiUploadSpeed: uploadSpeed }),
-
-  ethernetDownloadSpeed: [],
-  ethernetUploadSpeed: [],
-  setEthernetSpeed: (downloadSpeed, uploadSpeed) => set({ ethernetDownloadSpeed: downloadSpeed, ethernetUploadSpeed: uploadSpeed }),
 
   networkSpeeds: {},
   setNetworkSpeed: (name, download, upload) => set((state) => ({
@@ -238,17 +216,8 @@ export const useSetMemory = () => useStore((state) => state.setMemory);
 export const useMaxMemory = () => useStore((state) => state.maxMemory);
 export const useSetMaxMemory = () => useStore((state) => state.setMaxMemory);
 
-export const useGpu = () => useStore((state) => state.gpu);
-export const useSetGpu = () => useStore((state) => state.setGpu);
-
 export const useGpuUsages = () => useStore((state) => state.gpuUsages);
 export const useSetGpuUsage = () => useStore((state) => state.setGpuUsage);
-
-export const useWifiSpeed = () => useStore((state) => [state.wifiDownloadSpeed, state.wifiUploadSpeed]);
-export const useSetWifiSpeed = () => useStore((state) => state.setWifiSpeed);
-
-export const useEthernetSpeed = () => useStore((state) => [state.ethernetDownloadSpeed, state.ethernetUploadSpeed]);
-export const useSetEthernetSpeed = () => useStore((state) => state.setEthernetSpeed);
 
 export const useNetworkSpeeds = () => useStore((state) => state.networkSpeeds);
 export const useSetNetworkSpeed = () => useStore((state) => state.setNetworkSpeed);
