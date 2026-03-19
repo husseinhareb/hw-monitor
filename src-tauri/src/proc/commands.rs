@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
 use tokio::time::{sleep, Duration};
-use sysinfo::{System, Pid};
 use std::collections::HashMap;
 use std::fs;
 use std::io;
@@ -209,33 +208,37 @@ struct DiskSpeedEntry {
     write_speed: String,
 }
 
-async fn get_all_disk_speeds(pids: &[String]) -> HashMap<i32, DiskSpeedEntry> {
-    let mut s = System::new_all();
-    s.refresh_all();
+fn read_proc_io(pid: i32) -> Option<(u64, u64)> {
+    let content = fs::read_to_string(format!("/proc/{}/io", pid)).ok()?;
+    let mut read_bytes = 0u64;
+    let mut write_bytes = 0u64;
+    for line in content.lines() {
+        if let Some(val) = line.strip_prefix("read_bytes: ") {
+            read_bytes = val.trim().parse().unwrap_or(0);
+        } else if let Some(val) = line.strip_prefix("write_bytes: ") {
+            write_bytes = val.trim().parse().unwrap_or(0);
+        }
+    }
+    Some((read_bytes, write_bytes))
+}
 
-    let mut initial: Vec<(i32, f64, f64)> = Vec::with_capacity(pids.len());
+async fn get_all_disk_speeds(pids: &[String]) -> HashMap<i32, DiskSpeedEntry> {
+    let mut initial: Vec<(i32, u64, u64)> = Vec::with_capacity(pids.len());
     for pid_str in pids {
-        if let Ok(pid_usize) = pid_str.parse::<usize>() {
-            if let Some(process) = s.process(Pid::from(pid_usize)) {
-                let du = process.disk_usage();
-                initial.push((
-                    pid_usize as i32,
-                    du.total_read_bytes as f64,
-                    du.total_written_bytes as f64,
-                ));
+        if let Ok(pid) = pid_str.parse::<i32>() {
+            if let Some((r, w)) = read_proc_io(pid) {
+                initial.push((pid, r, w));
             }
         }
     }
 
     sleep(Duration::from_secs(1)).await;
-    s.refresh_all();
 
     let mut results = HashMap::with_capacity(initial.len());
     for (pid, initial_read, initial_write) in initial {
-        if let Some(process) = s.process(Pid::from(pid as usize)) {
-            let du = process.disk_usage();
-            let delta_read = (du.total_read_bytes as f64 - initial_read).max(0.0);
-            let delta_write = (du.total_written_bytes as f64 - initial_write).max(0.0);
+        if let Some((read_now, write_now)) = read_proc_io(pid) {
+            let delta_read = read_now.saturating_sub(initial_read) as f64;
+            let delta_write = write_now.saturating_sub(initial_write) as f64;
             results.insert(pid, DiskSpeedEntry {
                 read_speed: format_bytes_per_sec(delta_read),
                 write_speed: format_bytes_per_sec(delta_write),
