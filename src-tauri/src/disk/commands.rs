@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
+use std::ffi::CString;
 use tokio::time::{sleep, Duration};
-use sysinfo::Disks;
 
 struct DiskStat {
     name: String,
@@ -30,6 +30,57 @@ fn read_diskstats() -> Result<Vec<DiskStat>, String> {
 
 const KILO_BYTE: u64 = 1000;
 const BYTES_PER_SECTOR: u64 = 512;
+
+#[repr(C)]
+struct Statvfs {
+    f_bsize: u64,
+    f_frsize: u64,
+    f_blocks: u64,
+    f_bfree: u64,
+    f_bavail: u64,
+    _padding: [u8; 200],
+}
+
+extern "C" {
+    fn statvfs(path: *const std::os::raw::c_char, buf: *mut Statvfs) -> std::os::raw::c_int;
+}
+
+struct MountInfo {
+    mount_point: String,
+    file_system: String,
+}
+
+fn read_mount_info() -> HashMap<String, MountInfo> {
+    let mut map = HashMap::new();
+    let content = match fs::read_to_string("/proc/mounts") {
+        Ok(c) => c,
+        Err(_) => return map,
+    };
+    for line in content.lines() {
+        let fields: Vec<&str> = line.split_whitespace().collect();
+        if fields.len() >= 3 {
+            let device = fields[0].to_string();
+            map.insert(device, MountInfo {
+                mount_point: fields[1].to_string(),
+                file_system: fields[2].to_string(),
+            });
+        }
+    }
+    map
+}
+
+fn get_space_info(mount_point: &str) -> Option<(u64, u64)> {
+    let c_path = CString::new(mount_point).ok()?;
+    let mut buf: Statvfs = unsafe { std::mem::zeroed() };
+    let ret = unsafe { statvfs(c_path.as_ptr(), &mut buf) };
+    if ret == 0 {
+        let total = buf.f_blocks * buf.f_frsize;
+        let available = buf.f_bavail * buf.f_frsize;
+        Some((total, available))
+    } else {
+        None
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Partition {
@@ -151,23 +202,19 @@ pub async fn get_disks() -> Result<Vec<Disk>, String> {
         }
     }
 
-    // 6) populate partition mount/fs/usage via sysinfo::Disks
-    let sys_disks = Disks::new_with_refreshed_list();
+    // 6) populate partition mount/fs/usage via /proc/mounts + statvfs
+    let mounts = read_mount_info();
     for d in &mut disks {
         for part in &mut d.partitions {
-            let want = format!("/dev/{}", part.name);
-            for sd in sys_disks.list() {
-                let dev = sd.name().to_string_lossy().to_string();
-                if want.contains(&dev) {
-                    let avail = sd.available_space();
-                    let total = sd.total_space();
-                    part.available_space = Some(avail);
+            let dev_path = format!("/dev/{}", part.name);
+            if let Some(mount_info) = mounts.get(&dev_path) {
+                if let Some((total, available)) = get_space_info(&mount_info.mount_point) {
+                    part.available_space = Some(available);
                     part.total_space     = Some(total);
-                    part.used_space      = Some(total.saturating_sub(avail));
-                    part.file_system     = Some(sd.file_system().to_string_lossy().into());
-                    part.mount_point     = Some(sd.mount_point().to_string_lossy().into());
-                    break;
+                    part.used_space      = Some(total.saturating_sub(available));
                 }
+                part.file_system = Some(mount_info.file_system.clone());
+                part.mount_point = Some(mount_info.mount_point.clone());
             }
         }
     }
