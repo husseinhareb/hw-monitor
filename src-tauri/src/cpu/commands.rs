@@ -1,9 +1,8 @@
 use serde::{Serialize, Deserialize};
 use std::fs;
 use std::process::Command;
-use sysinfo::{RefreshKind, System, CpuRefreshKind};
 use crate::sensors;
-use tokio::time::sleep;
+use tokio::time::{sleep, Duration};
 
 #[derive(Serialize, Deserialize)]
 pub struct CpuInformations {
@@ -73,28 +72,32 @@ fn uptime_to_hms(uptime_seconds: f64) -> String {
     format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
 }
 
+fn read_cpu_total_times() -> Option<(u64, u64)> {
+    let content = fs::read_to_string("/proc/stat").ok()?;
+    let line = content.lines().find(|l| l.starts_with("cpu "))?;
+    let fields: Vec<u64> = line.split_whitespace()
+        .skip(1)
+        .filter_map(|s| s.parse().ok())
+        .collect();
+    let idle = *fields.get(3)?;
+    let total: u64 = fields.iter().sum();
+    Some((idle, total))
+}
+
 async fn get_cpu_usage_percentage() -> Option<i64> {
-    let mut s = System::new_with_specifics(
-        RefreshKind::new().with_cpu(CpuRefreshKind::everything()),
-    );
+    let (idle1, total1) = read_cpu_total_times()?;
+    sleep(Duration::from_millis(200)).await;
+    let (idle2, total2) = read_cpu_total_times()?;
 
-    sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL).await;
-    s.refresh_cpu();
+    let total_diff = total2.saturating_sub(total1);
+    let idle_diff = idle2.saturating_sub(idle1);
 
-    let mut total_usage = 0.0;
-    let mut num_cpus = 0;
-
-    for cpu in s.cpus() {
-        total_usage += cpu.cpu_usage() as f64;
-        num_cpus += 1;
+    if total_diff == 0 {
+        return None;
     }
 
-    if num_cpus > 0 {
-        let average_usage = (total_usage / num_cpus as f64) as i64;
-        Some(average_usage)
-    } else {
-        None
-    }
+    let usage = 100.0 * (1.0 - (idle_diff as f64 / total_diff as f64));
+    Some(usage as i64)
 }
 
 fn get_cpu_temperature() -> Option<String> {
