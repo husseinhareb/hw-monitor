@@ -33,7 +33,8 @@ const TreeContainer = styled.div<{ bgColor: string; color: string }>`
 `;
 
 const TreeHeader = styled.div<{ bgColor: string; color: string }>`
-    display: flex;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1.5fr 1fr 1.5fr 1.5fr;
     align-items: center;
     position: sticky;
     top: 0;
@@ -43,8 +44,7 @@ const TreeHeader = styled.div<{ bgColor: string; color: string }>`
     border-bottom: 1px solid #333;
 `;
 
-const HeaderCell = styled.div<{ flex: number }>`
-    flex: ${props => props.flex};
+const HeaderCell = styled.div`
     padding: 8px;
     font-weight: bold;
     font-size: 13px;
@@ -55,7 +55,8 @@ const HeaderCell = styled.div<{ flex: number }>`
 `;
 
 const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number }>`
-    display: flex;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1.5fr 1fr 1.5fr 1.5fr;
     align-items: center;
     cursor: pointer;
     background-color: ${props => props.selected ? lighten(0.15, props.bgColor) : 'transparent'};
@@ -65,8 +66,7 @@ const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number }
     }
 `;
 
-const TreeCell = styled.div<{ flex: number; color: string }>`
-    flex: ${props => props.flex};
+const TreeCell = styled.div<{ color: string }>`
     padding: 6px 8px;
     font-size: 13px;
     white-space: nowrap;
@@ -74,10 +74,10 @@ const TreeCell = styled.div<{ flex: number; color: string }>`
     text-overflow: ellipsis;
     color: ${props => props.color};
     border-right: 1px solid #2a2a2a;
+    min-width: 0;
 `;
 
-const NameCell = styled.div<{ flex: number; color: string; depth: number }>`
-    flex: ${props => props.flex};
+const NameCell = styled.div<{ color: string; depth: number }>`
     padding: 6px 8px;
     padding-left: ${props => 8 + props.depth * 20}px;
     font-size: 13px;
@@ -89,6 +89,7 @@ const NameCell = styled.div<{ flex: number; color: string; depth: number }>`
     display: flex;
     align-items: center;
     gap: 4px;
+    min-width: 0;
 `;
 
 const ToggleButton = styled.span`
@@ -191,13 +192,13 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
     }, [processes, expandedPids]);
 
     // Column config
-    const columnConfig: { key: string; label: string; flex: number }[] = [
-        { key: 'name', label: t('proc.table_value_name'), flex: 3 },
-        { key: 'pid', label: t('proc.table_value_pid'), flex: 1 },
-        { key: 'user', label: t('proc.table_value_user'), flex: 1.5 },
-        { key: 'cpu_usage', label: t('proc.table_value_cpu_usage'), flex: 1 },
-        { key: 'memory', label: t('proc.table_value_memory'), flex: 1.5 },
-        { key: 'state', label: t('proc.table_value_state'), flex: 1.5 },
+    const columnConfig: { key: string; label: string }[] = [
+        { key: 'name', label: t('proc.table_value_name') },
+        { key: 'pid', label: t('proc.table_value_pid') },
+        { key: 'user', label: t('proc.table_value_user') },
+        { key: 'cpu_usage', label: t('proc.table_value_cpu_usage') },
+        { key: 'memory', label: t('proc.table_value_memory') },
+        { key: 'state', label: t('proc.table_value_state') },
     ];
 
     return (
@@ -212,7 +213,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
             </div>
             <TreeHeader bgColor={processConfig.config.processes_head_background_color} color={processConfig.config.processes_head_color}>
                 {columnConfig.map(col => (
-                    <HeaderCell key={col.key} flex={col.flex}>{col.label}</HeaderCell>
+                    <HeaderCell key={col.key}>{col.label}</HeaderCell>
                 ))}
             </TreeHeader>
             {flattenedNodes.map(node => {
@@ -230,7 +231,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                         {columnConfig.map(col => {
                             if (col.key === 'name') {
                                 return (
-                                    <NameCell key={col.key} flex={col.flex} color={processConfig.config.processes_body_color} depth={node.depth}>
+                                    <NameCell key={col.key} color={processConfig.config.processes_body_color} depth={node.depth}>
                                         {hasChildren ? (
                                             <ToggleButton onClick={(e) => toggleExpand(proc.pid, e)}>
                                                 {isExpanded ? '▼' : '▶'}
@@ -246,7 +247,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                                 ? `${proc[col.key] || '0'} %`
                                 : String(proc[col.key] || '');
                             return (
-                                <TreeCell key={col.key} flex={col.flex} color={processConfig.config.processes_body_color}>
+                                <TreeCell key={col.key} color={processConfig.config.processes_body_color}>
                                     {value}
                                 </TreeCell>
                             );
