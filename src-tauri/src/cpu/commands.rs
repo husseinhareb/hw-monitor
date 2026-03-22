@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use std::fs;
 use std::process::Command;
 use crate::sensors;
-use tokio::time::{sleep, Duration};
+use crate::cpu_utils::PerfCpuState;
 
 #[derive(Serialize, Deserialize)]
 pub struct CpuInformations {
@@ -72,32 +72,8 @@ fn uptime_to_hms(uptime_seconds: f64) -> String {
     format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
 }
 
-fn read_cpu_total_times() -> Option<(u64, u64)> {
-    let content = fs::read_to_string("/proc/stat").ok()?;
-    let line = content.lines().find(|l| l.starts_with("cpu "))?;
-    let fields: Vec<u64> = line.split_whitespace()
-        .skip(1)
-        .filter_map(|s| s.parse().ok())
-        .collect();
-    let idle = *fields.get(3)?;
-    let total: u64 = fields.iter().sum();
-    Some((idle, total))
-}
-
-async fn get_cpu_usage_percentage() -> Option<i64> {
-    let (idle1, total1) = read_cpu_total_times()?;
-    sleep(Duration::from_millis(200)).await;
-    let (idle2, total2) = read_cpu_total_times()?;
-
-    let total_diff = total2.saturating_sub(total1);
-    let idle_diff = idle2.saturating_sub(idle1);
-
-    if total_diff == 0 {
-        return None;
-    }
-
-    let usage = 100.0 * (1.0 - (idle_diff as f64 / total_diff as f64));
-    Some(usage as i64)
+fn get_cpu_usage_percentage(state: &PerfCpuState) -> Option<i64> {
+    crate::cpu_utils::calc_cpu_usage(&state.0).map(|u| u as i64)
 }
 
 fn get_cpu_temperature() -> Option<String> {
@@ -175,7 +151,7 @@ fn parse_cpu_info(cpu_info: &str) -> Option<(String, String, String, Vec<f64>, S
     }
 }
 
-async fn get_cpu_info() -> Option<CpuInformations> {
+fn get_cpu_info(prev_cpu: &PerfCpuState) -> Option<CpuInformations> {
     let base_speed_file = get_base_speed_from_file();
     let max_speed_file = get_max_speed_from_file();
     let (base_speed, max_speed) = if base_speed_file.is_some() && max_speed_file.is_some() {
@@ -204,7 +180,7 @@ async fn get_cpu_info() -> Option<CpuInformations> {
                 name: Some(cpu_name),
                 cores: Some(cores),
                 threads: Some(threads),
-                usage: get_cpu_usage_percentage().await,
+                usage: get_cpu_usage_percentage(prev_cpu),
                 base_speed,
                 current_speed: Some(formatted_speed),
                 max_speed,
@@ -221,6 +197,6 @@ async fn get_cpu_info() -> Option<CpuInformations> {
 
 
 #[tauri::command]
-pub async fn get_cpu_informations() -> Option<CpuInformations> {
-    get_cpu_info().await
+pub async fn get_cpu_informations(prev_cpu: tauri::State<'_, PerfCpuState>) -> Result<Option<CpuInformations>, String> {
+    Ok(get_cpu_info(&prev_cpu))
 }
