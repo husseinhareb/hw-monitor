@@ -1,8 +1,9 @@
 use serde::{Serialize, Deserialize};
-use tokio::time::{sleep, Duration};
 use std::collections::HashMap;
 use std::fs;
 use std::io;
+use std::sync::Mutex;
+use std::time::Instant;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Process {
@@ -163,44 +164,75 @@ fn get_process_cpu_time(pid: i32) -> Option<(u64, u64)> {
     Some((utime, stime))
 }
 
-async fn calculate_cpu_percentage() -> HashMap<i32, f64> {
-    let total_cpu_time_start = match get_total_cpu_time() {
-        Ok(t) => t,
-        Err(_) => return HashMap::new(),
-    };
-    let pids = list_proc_pid();
+pub struct ProcSnapshot {
+    pub total_cpu_time: u64,
+    pub process_cpu_times: HashMap<i32, (u64, u64)>,
+    pub process_io: HashMap<i32, (u64, u64)>,
+    pub time: Instant,
+}
 
-    let mut process_cpu_times: Vec<(i32, (u64, u64))> = Vec::with_capacity(pids.len());
-    for pid_str in &pids {
+fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String]) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>) {
+    let total_cpu_time_now = match get_total_cpu_time() {
+        Ok(t) => t,
+        Err(_) => return (HashMap::new(), HashMap::new()),
+    };
+    let now = Instant::now();
+
+    // Collect current per-process CPU times and I/O
+    let mut cur_cpu: HashMap<i32, (u64, u64)> = HashMap::with_capacity(pids.len());
+    let mut cur_io: HashMap<i32, (u64, u64)> = HashMap::with_capacity(pids.len());
+    for pid_str in pids {
         if let Ok(pid) = pid_str.parse::<i32>() {
             if let Some(cpu_time) = get_process_cpu_time(pid) {
-                process_cpu_times.push((pid, cpu_time));
+                cur_cpu.insert(pid, cpu_time);
+            }
+            if let Some(io_data) = read_proc_io(pid) {
+                cur_io.insert(pid, io_data);
             }
         }
     }
 
-    sleep(Duration::from_secs(1)).await;
+    let mut guard = prev.lock().unwrap_or_else(|e| e.into_inner());
 
-    let total_cpu_time_end = match get_total_cpu_time() {
-        Ok(t) => t,
-        Err(_) => return HashMap::new(),
-    };
+    let mut cpu_results = HashMap::new();
+    let mut disk_results = HashMap::new();
 
-    let total_cpu_time_diff = (total_cpu_time_end - total_cpu_time_start) as f64;
-    if total_cpu_time_diff == 0.0 {
-        return HashMap::new();
-    }
+    if let Some(ref snap) = *guard {
+        let total_cpu_diff = total_cpu_time_now.saturating_sub(snap.total_cpu_time) as f64;
+        let elapsed = now.duration_since(snap.time).as_secs_f64();
 
-    let mut results = HashMap::with_capacity(process_cpu_times.len());
-    for (pid, (utime_start, stime_start)) in process_cpu_times {
-        if let Some((utime_end, stime_end)) = get_process_cpu_time(pid) {
-            let cpu_time_diff = (utime_end + stime_end).saturating_sub(utime_start + stime_start) as f64;
-            let usage = 100.0 * cpu_time_diff / total_cpu_time_diff;
-            results.insert(pid, usage);
+        if total_cpu_diff > 0.0 {
+            for (&pid, &(utime, stime)) in &cur_cpu {
+                if let Some(&(prev_utime, prev_stime)) = snap.process_cpu_times.get(&pid) {
+                    let cpu_time_diff = (utime + stime).saturating_sub(prev_utime + prev_stime) as f64;
+                    let usage = 100.0 * cpu_time_diff / total_cpu_diff;
+                    cpu_results.insert(pid, usage);
+                }
+            }
+        }
+
+        if elapsed > 0.0 {
+            for (&pid, &(read_now, write_now)) in &cur_io {
+                if let Some(&(prev_read, prev_write)) = snap.process_io.get(&pid) {
+                    let delta_read = read_now.saturating_sub(prev_read) as f64 / elapsed;
+                    let delta_write = write_now.saturating_sub(prev_write) as f64 / elapsed;
+                    disk_results.insert(pid, DiskSpeedEntry {
+                        read_speed: format_bytes_per_sec(delta_read),
+                        write_speed: format_bytes_per_sec(delta_write),
+                    });
+                }
+            }
         }
     }
 
-    results
+    *guard = Some(ProcSnapshot {
+        total_cpu_time: total_cpu_time_now,
+        process_cpu_times: cur_cpu,
+        process_io: cur_io,
+        time: now,
+    });
+
+    (cpu_results, disk_results)
 }
 
 struct DiskSpeedEntry {
@@ -222,48 +254,11 @@ fn read_proc_io(pid: i32) -> Option<(u64, u64)> {
     Some((read_bytes, write_bytes))
 }
 
-async fn get_all_disk_speeds(pids: &[String]) -> HashMap<i32, DiskSpeedEntry> {
-    let mut initial: Vec<(i32, u64, u64)> = Vec::with_capacity(pids.len());
-    for pid_str in pids {
-        if let Ok(pid) = pid_str.parse::<i32>() {
-            if let Some((r, w)) = read_proc_io(pid) {
-                initial.push((pid, r, w));
-            }
-        }
-    }
-
-    sleep(Duration::from_secs(1)).await;
-
-    let mut results = HashMap::with_capacity(initial.len());
-    for (pid, initial_read, initial_write) in initial {
-        if let Some((read_now, write_now)) = read_proc_io(pid) {
-            let delta_read = read_now.saturating_sub(initial_read) as f64;
-            let delta_write = write_now.saturating_sub(initial_write) as f64;
-            results.insert(pid, DiskSpeedEntry {
-                read_speed: format_bytes_per_sec(delta_read),
-                write_speed: format_bytes_per_sec(delta_write),
-            });
-        }
-    }
-
-    results
-}
-
 #[tauri::command]
-pub async fn get_processes() -> Vec<Process> {
+pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot>>>) -> Result<Vec<Process>, String> {
     let pids = list_proc_pid();
 
-    let cpu_task = tokio::spawn(async { calculate_cpu_percentage().await });
-
-    let disk_speed_task = tokio::spawn({
-        let pids_clone = pids.clone();
-        async move { get_all_disk_speeds(&pids_clone).await }
-    });
-
-    let (cpu_results, disk_speed_results) = match tokio::try_join!(cpu_task, disk_speed_task) {
-        Ok((cpu, disk)) => (cpu, disk),
-        Err(_) => (HashMap::new(), HashMap::new()),
-    };
+    let (cpu_results, disk_speed_results) = calculate_cpu_percentage(&prev_proc, &pids);
 
     let uid_map = build_uid_map();
 
@@ -320,7 +315,7 @@ pub async fn get_processes() -> Vec<Process> {
         });
     }
 
-    processes
+    Ok(processes)
 }
 
 #[tauri::command]
