@@ -8,10 +8,19 @@ mod sensors;
 mod battery;
 mod config;
 mod gpu;
+mod cpu_utils;
+
+use std::sync::Mutex;
+
 fn main() {
     //let devtools = devtools::init();
     let _ = config::create_config();
     tauri::Builder::default()
+        .manage(cpu_utils::PerfCpuState(Mutex::new(None)))
+        .manage(cpu_utils::TotalCpuState(Mutex::new(None)))
+        .manage(Mutex::new(None::<network::NetSnapshot>))
+        .manage(Mutex::new(None::<disk::DiskSnapshot>))
+        .manage(Mutex::new(None::<proc::ProcSnapshot>))
         .invoke_handler(tauri::generate_handler![
             proc::get_processes,
             proc::kill_process,
