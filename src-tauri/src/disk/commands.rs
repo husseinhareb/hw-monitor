@@ -5,7 +5,8 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
 use std::ffi::CString;
-use tokio::time::{sleep, Duration};
+use std::sync::Mutex;
+use std::time::Instant;
 
 struct DiskStat {
     name: String,
@@ -158,51 +159,58 @@ fn get_disk_partition_info() -> Vec<Disk> {
     disks
 }
 
+pub struct DiskSnapshot {
+    pub stats: HashMap<String, (u64, u64)>,
+    pub time: Instant,
+}
+
 #[tauri::command]
-pub async fn get_disks() -> Result<Vec<Disk>, String> {
-    // 1) snapshot #1 from /proc/diskstats
-    let stats1 = read_diskstats()?;
-    let map1: HashMap<_, _> = stats1
-        .into_iter()
-        .map(|st| (st.name.clone(), st))
-        .collect();
-
-    // 2) build out partition list
-    let mut disks = get_disk_partition_info();
-
-    // 3) wait 1 second
-    sleep(Duration::from_secs(1)).await;
-
-    // 4) snapshot #2
+pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>) -> Result<Vec<Disk>, String> {
+    // 1) current snapshot from /proc/diskstats
     let stats2 = read_diskstats()?;
     let map2: HashMap<_, _> = stats2
         .into_iter()
         .map(|st| (st.name.clone(), st))
         .collect();
+    let now = Instant::now();
 
-    // 5) for each disk, compute delta → speeds & totals
+    // 2) build out partition list
+    let mut disks = get_disk_partition_info();
+
+    // 3) compute delta from cached previous snapshot
+    let mut guard = prev_disk.lock().map_err(|e| e.to_string())?;
+
     for d in &mut disks {
-        if let (Some(s1), Some(s2)) = (map1.get(&d.name), map2.get(&d.name)) {
-            let bytes1_r = s1.sectors_read * BYTES_PER_SECTOR;
+        if let Some(s2) = map2.get(&d.name) {
             let bytes2_r = s2.sectors_read * BYTES_PER_SECTOR;
-            let bytes1_w = s1.sectors_written * BYTES_PER_SECTOR;
             let bytes2_w = s2.sectors_written * BYTES_PER_SECTOR;
 
-            let delta_r = bytes2_r.saturating_sub(bytes1_r);
-            let delta_w = bytes2_w.saturating_sub(bytes1_w);
+            if let Some(ref snap) = *guard {
+                let elapsed = now.duration_since(snap.time).as_secs_f64();
+                if elapsed > 0.0 {
+                    if let Some(&(prev_r, prev_w)) = snap.stats.get(&d.name) {
+                        let delta_r = bytes2_r.saturating_sub(prev_r);
+                        let delta_w = bytes2_w.saturating_sub(prev_w);
+                        let rk = (delta_r as f64 / elapsed / 1024.0 * 10.0).round() / 10.0;
+                        let wk = (delta_w as f64 / elapsed / 1024.0 * 10.0).round() / 10.0;
+                        d.read_speed = format!("{:.1}", rk);
+                        d.write_speed = format!("{:.1}", wk);
+                    }
+                }
+            }
 
-            // KB/s, one decimal
-            let rk = (delta_r as f64 / 1024.0 * 10.0).round() / 10.0;
-            let wk = (delta_w as f64 / 1024.0 * 10.0).round() / 10.0;
-
-            d.read_speed   = format!("{:.1}", rk);
-            d.write_speed  = format!("{:.1}", wk);
-            d.total_read   = bytes2_r;
-            d.total_write  = bytes2_w;
+            d.total_read = bytes2_r;
+            d.total_write = bytes2_w;
         }
     }
 
-    // 6) populate partition mount/fs/usage via /proc/mounts + statvfs
+    *guard = Some(DiskSnapshot {
+        stats: map2.iter().map(|(k, v)| (k.clone(), (v.sectors_read * BYTES_PER_SECTOR, v.sectors_written * BYTES_PER_SECTOR))).collect(),
+        time: now,
+    });
+    drop(guard);
+
+    // 4) populate partition mount/fs/usage via /proc/mounts + statvfs
     let mounts = read_mount_info();
     for d in &mut disks {
         for part in &mut d.partitions {
