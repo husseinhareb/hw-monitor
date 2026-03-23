@@ -1,7 +1,8 @@
 use serde::{Serialize, Deserialize};
 use std::fs;
 use std::collections::HashMap;
-use tokio::time::{sleep, Duration};
+use std::sync::Mutex;
+use std::time::Instant;
 
 #[derive(Serialize, Deserialize)]
 pub struct Network {
@@ -45,6 +46,11 @@ fn read_proc_net_dev() -> HashMap<String, NetDevStats> {
     map
 }
 
+pub struct NetSnapshot {
+    pub stats: HashMap<String, (u64, u64)>,
+    pub time: Instant,
+}
+
 #[tauri::command]
 pub async fn get_interfaces(show_virtual: bool) -> Vec<String> {
     let stats = read_proc_net_dev();
@@ -58,10 +64,11 @@ pub async fn get_interfaces(show_virtual: bool) -> Vec<String> {
 }
 
 #[tauri::command]
-pub async fn get_network(show_virtual: bool) -> Vec<Network> {
-    let stats1 = read_proc_net_dev();
-    sleep(Duration::from_millis(1000)).await;
+pub async fn get_network(show_virtual: bool, prev_net: tauri::State<'_, Mutex<Option<NetSnapshot>>>) -> Result<Vec<Network>, String> {
     let stats2 = read_proc_net_dev();
+    let now = Instant::now();
+
+    let mut guard = prev_net.lock().map_err(|e| e.to_string())?;
 
     let mut names: Vec<&String> = stats2.keys().collect();
     names.sort();
@@ -72,23 +79,36 @@ pub async fn get_network(show_virtual: bool) -> Vec<Network> {
             continue;
         }
         let s2 = &stats2[iface];
-        let (rx_delta, tx_delta) = if let Some(s1) = stats1.get(iface) {
-            (
-                s2.rx_bytes.saturating_sub(s1.rx_bytes),
-                s2.tx_bytes.saturating_sub(s1.tx_bytes),
-            )
+        let (rx_per_sec, tx_per_sec) = if let Some(ref snap) = *guard {
+            let elapsed = now.duration_since(snap.time).as_secs_f64();
+            if elapsed > 0.0 {
+                if let Some(&(prev_rx, prev_tx)) = snap.stats.get(iface) {
+                    let rx_delta = s2.rx_bytes.saturating_sub(prev_rx) as f64;
+                    let tx_delta = s2.tx_bytes.saturating_sub(prev_tx) as f64;
+                    (rx_delta / elapsed, tx_delta / elapsed)
+                } else {
+                    (0.0, 0.0)
+                }
+            } else {
+                (0.0, 0.0)
+            }
         } else {
-            (0, 0)
+            (0.0, 0.0)
         };
 
         result.push(Network {
             interface: iface.clone(),
-            download: format!("{:.1}", rx_delta),
-            upload: format!("{:.1}", tx_delta),
+            download: format!("{:.1}", rx_per_sec),
+            upload: format!("{:.1}", tx_per_sec),
             total_download: s2.rx_bytes,
             total_upload: s2.tx_bytes,
         });
     }
 
-    result
+    *guard = Some(NetSnapshot {
+        stats: stats2.into_iter().map(|(k, v)| (k, (v.rx_bytes, v.tx_bytes))).collect(),
+        time: now,
+    });
+
+    Ok(result)
 }
