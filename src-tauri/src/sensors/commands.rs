@@ -1,9 +1,6 @@
 use serde::{Serialize, Deserialize};
-use libmedium::{
-    parse_hwmons,
-    sensors::sync_sensors::{Sensor, temp::TempSensor},
-    units::Temperature,
-};
+use std::fs;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SensorData {
@@ -21,33 +18,89 @@ pub struct HwMonData {
 
 
 pub fn get_hwmon_data() -> Vec<HwMonData> {
-    let hwmons = match parse_hwmons() {
-        Ok(h) => h,
-        Err(_) => return Vec::new(),
-    };
+    let hwmon_base = Path::new("/sys/class/hwmon");
     let mut hwmon_data = Vec::new();
 
-    for hwmon in &hwmons {
-        let mut sensors = Vec::new();
-        for (_, temp_sensor) in hwmon.temps() {
-            let temperature: Temperature = match temp_sensor.read_input() {
-                Ok(t) => t,
-                Err(_) => continue,
-            };
-            let critical_temp = temp_sensor.read_crit().ok();
+    let entries = match fs::read_dir(hwmon_base) {
+        Ok(e) => e,
+        Err(_) => return hwmon_data,
+    };
 
-            sensors.push(SensorData {
-                name: temp_sensor.name().to_string(),
-                value: temperature.as_degrees_celsius() as f32,
-                critical: critical_temp.map(|t| t.as_degrees_celsius() as f32),
-            });
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let dir_name = match entry.file_name().into_string() {
+            Ok(n) => n,
+            Err(_) => continue,
+        };
+
+        // Parse index from "hwmonN"
+        let index: u32 = match dir_name.strip_prefix("hwmon").and_then(|s| s.parse().ok()) {
+            Some(i) => i,
+            None => continue,
+        };
+
+        // Read hwmon name
+        let name = fs::read_to_string(path.join("name"))
+            .map(|s| s.trim().to_string())
+            .unwrap_or_else(|_| dir_name.clone());
+
+        let mut sensors = Vec::new();
+
+        // Find all temp*_input files
+        if let Ok(files) = fs::read_dir(&path) {
+            let mut temp_indices: Vec<u32> = Vec::new();
+            for file in files.flatten() {
+                let fname = file.file_name();
+                let fname_str = fname.to_string_lossy();
+                if fname_str.starts_with("temp") && fname_str.ends_with("_input") {
+                    if let Some(idx_str) = fname_str.strip_prefix("temp").and_then(|s| s.strip_suffix("_input")) {
+                        if let Ok(idx) = idx_str.parse::<u32>() {
+                            temp_indices.push(idx);
+                        }
+                    }
+                }
+            }
+            temp_indices.sort();
+
+            for idx in temp_indices {
+                // Read temperature (millidegrees -> degrees)
+                let input_path = path.join(format!("temp{}_input", idx));
+                let temp_value = match fs::read_to_string(&input_path) {
+                    Ok(s) => match s.trim().parse::<f32>() {
+                        Ok(v) => v / 1000.0,
+                        Err(_) => continue,
+                    },
+                    Err(_) => continue,
+                };
+
+                // Read label (or fallback to "tempN")
+                let label_path = path.join(format!("temp{}_label", idx));
+                let sensor_name = fs::read_to_string(&label_path)
+                    .map(|s| s.trim().to_string())
+                    .unwrap_or_else(|_| format!("temp{}", idx));
+
+                // Read critical threshold
+                let crit_path = path.join(format!("temp{}_crit", idx));
+                let critical = fs::read_to_string(&crit_path)
+                    .ok()
+                    .and_then(|s| s.trim().parse::<f32>().ok())
+                    .map(|v| v / 1000.0);
+
+                sensors.push(SensorData {
+                    name: sensor_name,
+                    value: temp_value,
+                    critical,
+                });
+            }
         }
+
         hwmon_data.push(HwMonData {
-            index: hwmon.index() as u32, // Convert u16 to u32
-            name: hwmon.name().to_string(),
+            index,
+            name,
             sensors,
         });
     }
+
     hwmon_data
 }
 
