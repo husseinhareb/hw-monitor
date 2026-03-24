@@ -14,6 +14,5 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1.37.0", features = ["full"] }
-libmedium = "0.8.1"
 nvml-wrapper = "0.10.0"
 ash = "0.37.3"
