@@ -32,20 +32,6 @@ fn read_diskstats() -> Result<Vec<DiskStat>, String> {
 const KILO_BYTE: u64 = 1000;
 const BYTES_PER_SECTOR: u64 = 512;
 
-#[repr(C)]
-struct Statvfs {
-    f_bsize: u64,
-    f_frsize: u64,
-    f_blocks: u64,
-    f_bfree: u64,
-    f_bavail: u64,
-    _padding: [u8; 200],
-}
-
-extern "C" {
-    fn statvfs(path: *const std::os::raw::c_char, buf: *mut Statvfs) -> std::os::raw::c_int;
-}
-
 struct MountInfo {
     mount_point: String,
     file_system: String,
@@ -72,11 +58,11 @@ fn read_mount_info() -> HashMap<String, MountInfo> {
 
 fn get_space_info(mount_point: &str) -> Option<(u64, u64)> {
     let c_path = CString::new(mount_point).ok()?;
-    let mut buf: Statvfs = unsafe { std::mem::zeroed() };
-    let ret = unsafe { statvfs(c_path.as_ptr(), &mut buf) };
+    let mut buf: libc::statvfs = unsafe { std::mem::zeroed() };
+    let ret = unsafe { libc::statvfs(c_path.as_ptr(), &mut buf) };
     if ret == 0 {
-        let total = buf.f_blocks * buf.f_frsize;
-        let available = buf.f_bavail * buf.f_frsize;
+        let total = buf.f_blocks as u64 * buf.f_frsize as u64;
+        let available = buf.f_bavail as u64 * buf.f_frsize as u64;
         Some((total, available))
     } else {
         None
