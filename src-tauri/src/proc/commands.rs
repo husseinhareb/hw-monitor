@@ -321,14 +321,10 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
 #[tauri::command]
 pub fn kill_process(process: Process) -> Result<(), String> {
     let pid_str = process.pid;
-    let _pid: u32 = pid_str.parse().map_err(|_| format!("Invalid PID: {}", pid_str))?;
+    let pid: i32 = pid_str.parse().map_err(|_| format!("Invalid PID: {}", pid_str))?;
 
-    let output = std::process::Command::new("kill")
-        .arg(&pid_str)
-        .output()
-        .map_err(|e| format!("Failed to execute kill: {}", e))?;
-
-    if output.status.success() {
+    let ret = unsafe { libc::kill(pid, libc::SIGTERM) };
+    if ret == 0 {
         Ok(())
     } else {
         Err(format!("Failed to kill process with PID {}", pid_str))
