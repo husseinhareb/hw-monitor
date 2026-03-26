@@ -2,10 +2,6 @@ use serde::{Deserialize, Serialize};
 use nvml_wrapper::Nvml;
 use std::fs::{read_dir, read_to_string};
 use std::path::PathBuf;
-use ash::vk;
-use ash::Entry;
-use std::ffi::CStr;
-use std::ptr;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GpuInformations {
@@ -124,7 +120,7 @@ fn read_hwmon_info(
 }
 
 fn get_amd_gpu_name() -> String {
-    get_vulkan_gpu_name_by_vendor(0x1002).unwrap_or_else(|| "AMD GPU".to_string())
+    get_gpu_name_from_sysfs(0x1002).unwrap_or_else(|| "AMD GPU".to_string())
 }
 
 fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
@@ -236,8 +232,7 @@ fn detect_intel_gpu_paths() -> Vec<PathBuf> {
 }
 
 fn get_intel_gpu_name(device_path: &PathBuf) -> String {
-    // Try to read from Vulkan first
-    if let Some(name) = get_vulkan_gpu_name_by_vendor(0x8086) {
+    if let Some(name) = get_gpu_name_from_sysfs(0x8086) {
         return name;
     }
     // Fallback: read from DRM device name or product file
@@ -247,52 +242,77 @@ fn get_intel_gpu_name(device_path: &PathBuf) -> String {
     "Intel GPU".to_string()
 }
 
-fn get_vulkan_gpu_name_by_vendor(vendor_id: u32) -> Option<String> {
-    let entry = unsafe { Entry::load().ok()? };
-    let app_name = CStr::from_bytes_with_nul(b"GPU Detector\0").unwrap();
-    let engine_name = CStr::from_bytes_with_nul(b"No Engine\0").unwrap();
-
-    let app_info = vk::ApplicationInfo {
-        s_type: vk::StructureType::APPLICATION_INFO,
-        p_next: ptr::null(),
-        p_application_name: app_name.as_ptr(),
-        p_engine_name: engine_name.as_ptr(),
-        application_version: vk::make_api_version(0, 1, 0, 0),
-        engine_version: vk::make_api_version(0, 1, 0, 0),
-        api_version: vk::make_api_version(0, 1, 0, 0),
-    };
-
-    let create_info = vk::InstanceCreateInfo {
-        s_type: vk::StructureType::INSTANCE_CREATE_INFO,
-        p_next: ptr::null(),
-        flags: vk::InstanceCreateFlags::empty(),
-        p_application_info: &app_info,
-        enabled_layer_count: 0,
-        pp_enabled_layer_names: ptr::null(),
-        enabled_extension_count: 0,
-        pp_enabled_extension_names: ptr::null(),
-    };
-
-    let instance = unsafe { entry.create_instance(&create_info, None).ok()? };
-
-    let physical_devices = unsafe { instance.enumerate_physical_devices().ok()? };
-
-    let mut result = None;
-    for &device in &physical_devices {
-        let properties = unsafe { instance.get_physical_device_properties(device) };
-        if properties.vendor_id == vendor_id {
-            let name = unsafe {
-                CStr::from_ptr(properties.device_name.as_ptr())
-                    .to_string_lossy()
-                    .into_owned()
-            };
-            result = Some(name);
-            break;
+fn get_gpu_name_from_sysfs(vendor_id: u32) -> Option<String> {
+    let vendor_str = format!("0x{:04x}", vendor_id);
+    let drm_path = PathBuf::from("/sys/class/drm/");
+    let entries = read_dir(&drm_path).ok()?;
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_dir() {
+            continue;
+        }
+        let name = path.file_name()?.to_str()?;
+        if !name.starts_with("card") || name.contains('-') {
+            continue;
+        }
+        let device_path = path.join("device");
+        let vendor = read_to_string(device_path.join("vendor")).ok()?;
+        if vendor.trim() != vendor_str {
+            continue;
+        }
+        // Try product_name first (available on some drivers)
+        if let Ok(product) = read_to_string(device_path.join("product_name")) {
+            let product = product.trim();
+            if !product.is_empty() {
+                return Some(product.to_string());
+            }
+        }
+        // Try label
+        if let Ok(label) = read_to_string(device_path.join("label")) {
+            let label = label.trim();
+            if !label.is_empty() {
+                return Some(label.to_string());
+            }
+        }
+        // Fallback: read PCI device ID and look up in pci.ids
+        if let Ok(device_id_str) = read_to_string(device_path.join("device")) {
+            let device_id_str = device_id_str.trim().trim_start_matches("0x");
+            if let Some(name) = lookup_pci_name(&vendor_str[2..], device_id_str) {
+                return Some(name);
+            }
         }
     }
+    None
+}
 
-    unsafe { instance.destroy_instance(None) };
-    result
+fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {
+    let content = read_to_string("/usr/share/misc/pci.ids")
+        .or_else(|_| read_to_string("/usr/share/hwdata/pci.ids"))
+        .ok()?;
+    let mut in_vendor = false;
+    for line in content.lines() {
+        if line.starts_with('#') || line.is_empty() {
+            continue;
+        }
+        if !line.starts_with('\t') {
+            // Vendor line
+            if line.starts_with(vendor_id) {
+                in_vendor = true;
+            } else if in_vendor {
+                break;
+            }
+        } else if in_vendor && !line.starts_with("\t\t") {
+            // Device line (one tab)
+            let trimmed = line.trim();
+            if trimmed.starts_with(device_id) {
+                let name = trimmed[device_id.len()..].trim();
+                if !name.is_empty() {
+                    return Some(name.to_string());
+                }
+            }
+        }
+    }
+    None
 }
 
 fn get_intel_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
