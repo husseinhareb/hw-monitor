@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();
-  const battery = useBatteryData();
+  const { batteries: battery } = useBatteryData();
   const { t } = useTranslation();
 
   const sortedSensors = useMemo(() => {

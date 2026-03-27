@@ -7,12 +7,14 @@ import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 import { useTranslation } from 'react-i18next';
 
 const Battery: React.FC = () => {
-    const batteries = useBatteryData();
+    const { batteries, error } = useBatteryData();
     const sensorsConfig = useSensorsConfig();
     const { t } = useTranslation();
     return (
         <>
-            {batteries.length > 0 ? (
+            {error ? (
+                <p>{t('error.battery_failed')}</p>
+            ) : batteries.length > 0 ? (
                 batteries.map((battery, index) => (
                     <SensorGroup key={index}>
                         <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>{t('sensors.battery')} {index + 1}</SensorName>
@@ -41,7 +43,7 @@ const Battery: React.FC = () => {
                     </SensorGroup>
                 ))
             ) : (
-                <p>Loading battery data...</p>
+                <p>{t('loading.battery')}</p>
             )}
         </>
     );

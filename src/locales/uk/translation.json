@@ -174,5 +174,11 @@
     "disk.usage": "Використання",
     "disk.read": "Читання",
     "disk.write": "Запис",
-    "disk.speed": "Швидкість"
+    "disk.speed": "Швидкість",
+
+    "error.fetch_failed": "Не вдалося завантажити дані",
+    "error.battery_failed": "Не вдалося завантажити дані акумулятора",
+    "error.disks_failed": "Не вдалося завантажити дані дисків",
+    "loading.generic": "Завантаження...",
+    "loading.battery": "Завантаження даних акумулятора..."
 }

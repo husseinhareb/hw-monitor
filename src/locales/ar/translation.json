@@ -175,5 +175,11 @@
     "disk.usage": "الاستخدام",
     "disk.read": "قراءة",
     "disk.write": "كتابة",
-    "disk.speed": "السرعة"
+    "disk.speed": "السرعة",
+
+    "error.fetch_failed": "فشل في تحميل البيانات",
+    "error.battery_failed": "فشل في تحميل بيانات البطارية",
+    "error.disks_failed": "فشل في تحميل بيانات الأقراص",
+    "loading.generic": "جاري التحميل...",
+    "loading.battery": "جاري تحميل بيانات البطارية..."
 }

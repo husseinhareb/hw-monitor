@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useDataConverter from "../../helpers/useDataConverter";
 import useDisksConfig from "./useDisksConfig";
+import { usePaused } from "../../services/store";
 
 interface PartitionData {
     name: string;
@@ -21,16 +22,21 @@ interface DiskData {
 
 const useDiskData = () => {
     const [diskData, setDiskData] = useState<DiskData[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const convertData = useDataConverter();
     const disksConfig = useDisksConfig();
+    const paused = usePaused();
     useEffect(() => {
+        if (paused) return;
         const fetchDiskData = async () => {
             try {
                 const fetchedDiskData: DiskData[] = await invoke("get_disks");
                 setDiskData(fetchedDiskData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                setDiskData([]); // Clear data if error occurs
+                setError(null);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError(String(err));
+                setDiskData([]);
             }
         };
 
@@ -38,9 +44,9 @@ const useDiskData = () => {
         const intervalId = setInterval(fetchDiskData, disksConfig.config.disks_update_time);
         return () => clearInterval(intervalId);
 
-    }, [disksConfig.config.disks_update_time]);
+    }, [disksConfig.config.disks_update_time, paused]);
 
-    return { diskData, convertData };
+    return { diskData, convertData, error };
 };
 
 export default useDiskData;

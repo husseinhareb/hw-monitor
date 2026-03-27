@@ -21,7 +21,7 @@ interface DisksProps {
 }
 
 const Disks: React.FC<DisksProps> = ({ hidden }) => {
-  const { diskData, convertData } = useDiskData();
+  const { diskData, convertData, error } = useDiskData();
   const disksConfig = useDisksConfig();
   const { t } =useTranslation(); 
 
@@ -35,8 +35,10 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
       hidden={hidden}
       bodyBackgroundColor={disksConfig.config.disks_background_color}
     >
-      {diskData.length === 0 ? (
-        <p >Loading...</p>
+      {error ? (
+        <p>{t('error.disks_failed')}</p>
+      ) : diskData.length === 0 ? (
+        <p>{t('loading.generic')}</p>
       ) : (
         diskData.map((disk) => (
           <DiskCard
