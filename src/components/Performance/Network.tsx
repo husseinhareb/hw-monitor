@@ -5,10 +5,8 @@ import useNetworkData from '../../hooks/Performance/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
-import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface NetworkProps {
-    hidden: boolean;
     interfaceName: string;
     performanceConfig: {
         config: {
@@ -24,14 +22,14 @@ interface NetworkProps {
             performance_sec_graph_color: string;
         }
     };
+    tick: number;
 }
 
-const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceConfig }) => {
+const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tick }) => {
     const { download = [], upload = [], totalDownload, totalUpload } = useNetworkData(interfaceName);
     const setNetworkSpeed = useSetNetworkSpeed();
     const convertData = useDataConverter();
     const { t } = useTranslation();
-    const tick = usePerformanceTicker();
 
     const downloadValues = useMemo(() => download.map(d => d.value), [download]);
     const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
@@ -56,7 +54,6 @@ const Network: React.FC<NetworkProps> = ({ hidden, interfaceName, performanceCon
     return (
         <MemoryContainer
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
-            hidden={hidden}
         >
             <>
                 <NameContainer>

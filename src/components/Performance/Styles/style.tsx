@@ -104,7 +104,7 @@ min-width: 0;
 `;
 
 // Memory Specific Styles
-export const MemoryContainer = styled.div<{ hidden: boolean; performanceBackgroundColor: string }>`
+export const MemoryContainer = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
 height:100%;
