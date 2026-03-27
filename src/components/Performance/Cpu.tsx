@@ -18,10 +18,8 @@ import {
 } from "./Styles/style";
 import useTotalUsagesData from "../../hooks/Proc/useTotalUsagesData";
 import { useTranslation } from "react-i18next";
-import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface CpuProps {
-    hidden: boolean;
     performanceConfig: {
         config: {
             performance_update_time: number;
@@ -36,15 +34,15 @@ interface CpuProps {
             performance_sec_graph_color: string;
         }
     };
+    tick: number;
 }
 
-const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
+const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick }) => {
     const { cpuData } = useCpuData();
     const [cpuUsage, setCpuUsage] = useState<number[]>([]);
     const totalUsages = useTotalUsagesData();
     const setCpu = useSetCpu();
     const { t } = useTranslation();
-    const tick = usePerformanceTicker();
 
     useEffect(() => {
         if (cpuData !== null && cpuData.usage !== undefined) {
@@ -69,7 +67,7 @@ const Cpu: React.FC<CpuProps> = ({ hidden, performanceConfig }) => {
     return (
         <CPU
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
-            style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}
+            style={{ height: '100%', width: '100%' }}
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.cpu')}</NameLabel>

@@ -8,6 +8,7 @@ import {
   useMaxMemory,
   useMemory,
   useNetworkSpeeds,
+  usePaused,
 } from '../../services/store';
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
@@ -31,13 +32,15 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // shared tick for all graphs
   const perf = usePerformanceConfig();
   const updateInterval = perf.config.performance_update_time;
+  const paused = usePaused();
   const [tick, setTick] = useState(0);
   useEffect(() => {
+    if (paused) return;
     const id = window.setInterval(() => {
       setTick((t) => t + 1);
     }, updateInterval);
     return () => window.clearInterval(id);
-  }, [updateInterval]);
+  }, [updateInterval, paused]);
 
   // raw metrics from hooks
   const cpuUsage = useCpu();
@@ -58,6 +61,34 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   const handleItemClick = (name: string) => {
     setSelectedItem(name);
+  };
+
+  // Render only the selected detail component
+  const renderDetailPane = () => {
+    if (selectedItem === 'CPU') {
+      return <Cpu performanceConfig={perf} tick={tick} />;
+    }
+    if (selectedItem === 'Memory') {
+      return <Memory performanceConfig={perf} tick={tick} />;
+    }
+    for (let i = 0; i < gpuList.length; i++) {
+      const gpuKey = `GPU-${gpuList[i].id || i}`;
+      if (selectedItem === gpuKey) {
+        return <Gpu gpuData={gpuList[i]} gpuIndex={i} performanceConfig={perf} tick={tick} />;
+      }
+    }
+    for (const name of interfaceNames) {
+      const netKey = `Net-${name}`;
+      if (selectedItem === netKey) {
+        return <Network interfaceName={name} performanceConfig={perf} tick={tick} />;
+      }
+    }
+    for (const name of diskNames) {
+      if (selectedItem === name) {
+        return <Disk diskName={name} performanceConfig={perf} tick={tick} />;
+      }
+    }
+    return null;
   };
 
   return (
@@ -175,41 +206,9 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         </List>
       </SidebarContainer>
 
-      {/* Detail Pane (always rendered, just hidden via `hidden`) */}
+      {/* Detail Pane — only the selected component is rendered */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Cpu hidden={selectedItem !== 'CPU'} performanceConfig={perf} />
-        <Memory hidden={selectedItem !== 'Memory'} performanceConfig={perf} />
-        {gpuList.map((gpu, index) => {
-          const gpuKey = `GPU-${gpu.id || index}`;
-          return (
-            <Gpu
-              key={gpuKey}
-              hidden={selectedItem !== gpuKey}
-              gpuData={gpu}
-              gpuIndex={index}
-              performanceConfig={perf}
-            />
-          );
-        })}
-        {interfaceNames.map((name) => {
-          const netKey = `Net-${name}`;
-          return (
-            <Network
-              key={netKey}
-              hidden={selectedItem !== netKey}
-              interfaceName={name}
-              performanceConfig={perf}
-            />
-          );
-        })}
-        {diskNames.map((name) => (
-          <Disk
-            key={name}
-            hidden={selectedItem !== name}
-            diskName={name}
-            performanceConfig={perf}
-          />
-        ))}
+        {renderDetailPane()}
       </div>
     </div>
   );

@@ -17,10 +17,8 @@ import {
     NameContainer
 } from "./Styles/style";
 import { useTranslation } from "react-i18next";
-import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface GpuProps {
-    hidden: boolean;
     gpuData: GpuData | null;
     gpuIndex: number;
     performanceConfig: {
@@ -37,13 +35,13 @@ interface GpuProps {
             performance_sec_graph_color: string;
         }
     };
+    tick: number;
 }
 
-const Gpu: React.FC<GpuProps> = ({ hidden, gpuData, gpuIndex, performanceConfig }) => {
+const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick }) => {
     const [gpuUsage, setGpuUsage] = useState<number[]>([]);
     const setGpuUsageStore = useSetGpuUsage();
     const { t } = useTranslation();
-    const tick = usePerformanceTicker();
 
     useEffect(() => {
         if (gpuData && gpuData.utilization !== undefined) {
@@ -67,7 +65,7 @@ const Gpu: React.FC<GpuProps> = ({ hidden, gpuData, gpuIndex, performanceConfig 
     return (
         <CPU
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
-            style={{ height: '100%', width: '100%', display: hidden ? 'none' : 'block' }}
+            style={{ height: '100%', width: '100%' }}
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.gpu')}</NameLabel>

@@ -19,15 +19,14 @@ import {
   RightValue,
 } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
-import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface DiskProps {
-  hidden: boolean;
   diskName: string;
   performanceConfig: any;
+  tick: number;
 }
 
-const Disk: React.FC<DiskProps> = ({ hidden, diskName, performanceConfig }) => {
+const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick }) => {
   const updateTime = performanceConfig.config.performance_update_time;
   const hist = useDiskData(updateTime)[diskName] || {
     readHistory: [],
@@ -37,7 +36,6 @@ const Disk: React.FC<DiskProps> = ({ hidden, diskName, performanceConfig }) => {
   };
   const convertData = useDataConverter();
   const { t } = useTranslation();
-  const tick = usePerformanceTicker();
 
   const readValues  = hist.readHistory;
   const writeValues = hist.writeHistory;
@@ -55,7 +53,6 @@ const Disk: React.FC<DiskProps> = ({ hidden, diskName, performanceConfig }) => {
   return (
     <MemoryContainer
       performanceBackgroundColor={performanceConfig.config.performance_background_color}
-      hidden={hidden}
     >
       <NameContainer>
         <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>

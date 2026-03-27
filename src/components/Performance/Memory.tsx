@@ -8,10 +8,8 @@ import { NameContainer } from "../../styles/general-style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
 import { useTranslation } from "react-i18next";
-import usePerformanceTicker from '../../hooks/Performance/usePerformanceTicker';
 
 interface MemoryProps {
-    hidden: boolean;
     performanceConfig: {
         config: {
             performance_update_time: number;
@@ -26,15 +24,15 @@ interface MemoryProps {
             performance_sec_graph_color: string;
         }
     };
+    tick: number;
 }
 
-const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
+const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick }) => {
     const memoryUsage = useMemoryData();
     const [activeMem, setActiveMem] = useState<number[]>([]);
     const setMemory = useSetMemory();
     const convertData = useDataConverter();
     const { t } = useTranslation();
-    const tick = usePerformanceTicker();
 
     const [memoryData, setMemoryData] = useState<{
         total: { value: number, unit: string },
@@ -80,7 +78,6 @@ const Memory: React.FC<MemoryProps> = ({ hidden, performanceConfig }) => {
     return (
         <MemoryContainer 
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
-            hidden={hidden}
         >
             {memoryData && (
                 <>
