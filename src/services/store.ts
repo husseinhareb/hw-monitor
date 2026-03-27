@@ -105,6 +105,9 @@ interface Store {
 
   heatbarConfig: HeatbarConfig;
   setHeatbarConfig: (heatbarConfig: HeatbarConfig) => void;
+
+  paused: boolean;
+  setPaused: (paused: boolean) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -203,6 +206,9 @@ export const useStore = create<Store>((set) => ({
     heatbar_color_ten: "#FF0000",
   },
   setHeatbarConfig: (heatbarConfig) => set({ heatbarConfig }),
+
+  paused: false,
+  setPaused: (paused) => set({ paused }),
 }));
 
 
@@ -242,3 +248,6 @@ export const useSetNavbarConfig = () => useStore((state) => state.setNavbarConfi
 
 export const useZuHeatbarConfig = () => useStore((state) => state.heatbarConfig);
 export const useSetHeatbarConfig = () => useStore((state) => state.setHeatbarConfig);
+
+export const usePaused = () => useStore((state) => state.paused);
+export const useSetPaused = () => useStore((state) => state.setPaused);
