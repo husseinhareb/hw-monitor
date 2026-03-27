@@ -174,5 +174,11 @@
     "disk.usage": "Использование",
     "disk.read": "Чтение",
     "disk.write": "Запись",
-    "disk.speed": "Скорость"
+    "disk.speed": "Скорость",
+
+    "error.fetch_failed": "Не удалось загрузить данные",
+    "error.battery_failed": "Не удалось загрузить данные аккумулятора",
+    "error.disks_failed": "Не удалось загрузить данные дисков",
+    "loading.generic": "Загрузка...",
+    "loading.battery": "Загрузка данных аккумулятора..."
 }

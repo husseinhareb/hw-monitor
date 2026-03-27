@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from '../Sensors/useSensorsConfig';
+import { usePaused } from '../../services/store';
 
 interface BatteryData {
     model: string | null;
@@ -15,16 +16,21 @@ interface BatteryData {
     percentage: number,
 }
 
-const useBatteryData = (): BatteryData[] => {
+const useBatteryData = (): { batteries: BatteryData[]; error: string | null } => {
     const [batteryData, setBatteryData] = useState<BatteryData[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const sensorsConfig = useSensorsConfig();
+    const paused = usePaused();
     useEffect(() => {
+        if (paused) return;
         const fetchData = async () => {
             try {
                 const fetchedBatteryData: BatteryData[] = await invoke("get_batteries");
                 setBatteryData(fetchedBatteryData);
-            } catch (error) {
-                console.error("Error fetching battery data:", error);
+                setError(null);
+            } catch (err) {
+                console.error("Error fetching battery data:", err);
+                setError(String(err));
             }
         };
 
@@ -32,9 +38,9 @@ const useBatteryData = (): BatteryData[] => {
         const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
 
         return () => clearInterval(intervalId);
-    }, [sensorsConfig.config.sensors_update_time]);
+    }, [sensorsConfig.config.sensors_update_time, paused]);
 
-    return batteryData;
+    return { batteries: batteryData, error };
 };
 
 export default useBatteryData;

@@ -174,5 +174,11 @@
     "disk.usage": "Uso",
     "disk.read": "Lectura",
     "disk.write": "Escritura",
-    "disk.speed": "Velocidad"
+    "disk.speed": "Velocidad",
+
+    "error.fetch_failed": "Error al cargar los datos",
+    "error.battery_failed": "Error al cargar los datos de la batería",
+    "error.disks_failed": "Error al cargar los datos del disco",
+    "loading.generic": "Cargando...",
+    "loading.battery": "Cargando datos de batería..."
 }

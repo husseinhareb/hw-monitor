@@ -175,6 +175,12 @@
     "disk.usage": "Usage",
     "disk.read": "Read",
     "disk.write": "Write",
-    "disk.speed": "Speed"
+    "disk.speed": "Speed",
+
+    "error.fetch_failed": "Failed to load data",
+    "error.battery_failed": "Failed to load battery data",
+    "error.disks_failed": "Failed to load disk data",
+    "loading.generic": "Loading...",
+    "loading.battery": "Loading battery data..."
 }
   

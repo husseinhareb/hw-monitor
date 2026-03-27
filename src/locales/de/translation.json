@@ -168,6 +168,12 @@
     "sidebar.gpu": "GPU",
     "sidebar.wifi": "WLAN",
     "sidebar.ethernet": "Ethernet",
-    "sidebar.no_gpu_detected": "Keine GPU erkannt"
+    "sidebar.no_gpu_detected": "Keine GPU erkannt",
+
+    "error.fetch_failed": "Daten konnten nicht geladen werden",
+    "error.battery_failed": "Batteriedaten konnten nicht geladen werden",
+    "error.disks_failed": "Festplattendaten konnten nicht geladen werden",
+    "loading.generic": "Laden...",
+    "loading.battery": "Batteriedaten werden geladen..."
 }
 
