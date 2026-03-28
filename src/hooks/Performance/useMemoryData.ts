@@ -1,7 +1,7 @@
 //useMemoryData.ts
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useSetMemory, useSetMaxMemory } from "../../services/store";
+import { useSetMemory, useSetMaxMemory, usePaused } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
 import usePerformanceConfig from "../Performance/usePerformanceConfig";
 
@@ -21,7 +21,9 @@ const useMemoryData = () => {
     const setMaxMemory = useSetMaxMemory();
     const convertData = useDataConverter();
     const performanceConfig = usePerformanceConfig();
+    const paused = usePaused();
     useEffect(() => {
+        if (paused) return;
         const fetchData = async () => {
             try {
                 const fetchedMemory: Memory = await invoke("get_mem_info");
@@ -36,7 +38,7 @@ const useMemoryData = () => {
         const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time);
 
         return () => clearInterval(intervalId);
-    }, [setMaxMemory, setMemory, performanceConfig.config.performance_update_time]);
+    }, [setMaxMemory, setMemory, performanceConfig.config.performance_update_time, paused]);
     return memoryUsage;
 };
 
