@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from "../Sensors/useSensorsConfig";
+import { usePaused } from "../../services/store";
 
 interface SensorData {
   name: string;
@@ -17,8 +18,10 @@ interface HwMonData {
 const useSensorsData = (): HwMonData[] => {
   const [sensors, setSensors] = useState<HwMonData[]>([]);
   const sensorsConfig = useSensorsConfig();
+  const paused = usePaused();
 
   useEffect(() => {
+    if (paused) return;
     const fetchData = async () => {
       try {
         const fetchedSensorsData: HwMonData[] = await invoke("get_sensors");
@@ -32,7 +35,7 @@ const useSensorsData = (): HwMonData[] => {
     const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
 
     return () => clearInterval(intervalId);
-  }, [sensorsConfig.config.sensors_update_time]);
+  }, [sensorsConfig.config.sensors_update_time, paused]);
 
   return sensors;
 };

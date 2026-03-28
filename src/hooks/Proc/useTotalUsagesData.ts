@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useProcessConfig from '../Proc/useProcessConfig';
+import { usePaused } from '../../services/store';
 
 interface TotalUsages {
     memory: number | null;
@@ -11,7 +12,9 @@ interface TotalUsages {
 const useTotalUsagesData = (): TotalUsages => {
     const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null, processes: null });
     const processConfig = useProcessConfig();
+    const paused = usePaused();
     useEffect(() => {
+        if (paused) return;
         const fetchData = async () => {
             try {
                 const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
@@ -25,7 +28,7 @@ const useTotalUsagesData = (): TotalUsages => {
         const intervalId = setInterval(fetchData, processConfig.config.processes_update_time);
 
         return () => clearInterval(intervalId);
-    }, [processConfig.config.processes_update_time]);
+    }, [processConfig.config.processes_update_time, paused]);
 
     return totalUsages;
 };

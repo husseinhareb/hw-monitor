@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useProcessConfig from "../Proc/useProcessConfig";
+import { usePaused } from "../../services/store";
 
 export interface Process {
     user: string;
@@ -21,7 +22,9 @@ export interface Process {
 const useProcessData = () => {
     const [processes, setProcesses] = useState<Process[]>([]);
     const processConfig = useProcessConfig();
+    const paused = usePaused();
     useEffect(() => {
+        if (paused) return;
         const fetchProcess = async () => {
             try {
                 //console.time("Data Fetch Time");
@@ -37,7 +40,7 @@ const useProcessData = () => {
         const intervalId = setInterval(fetchProcess, processConfig.config.processes_update_time);
 
         return () => clearInterval(intervalId);
-    }, [processConfig.config.processes_update_time]);
+    }, [processConfig.config.processes_update_time, paused]);
 
     return { processes };
 }
