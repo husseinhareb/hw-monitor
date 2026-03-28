@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import usePerformanceConfig from "./usePerformanceConfig";
+import { usePaused } from "../../services/store";
 
 export interface GpuData {
     id: string;
@@ -20,8 +21,10 @@ export interface GpuData {
 const useGpuData = () => {
     const [gpuList, setGpuList] = useState<GpuData[]>([]);
     const performanceConfig = usePerformanceConfig();  
+    const paused = usePaused();
 
     useEffect(() => {
+        if (paused) return;
         const fetchGpuData = async () => {
             try {
                 const fetched: GpuData[] = await invoke("get_gpu_informations");
@@ -35,7 +38,7 @@ const useGpuData = () => {
         const intervalId = setInterval(fetchGpuData, performanceConfig.config.performance_update_time); 
 
         return () => clearInterval(intervalId);
-    }, [performanceConfig.config.performance_update_time]);
+    }, [performanceConfig.config.performance_update_time, paused]);
 
     // Backwards-compatible: expose first GPU as gpuData
     const gpuData = gpuList.length > 0 ? gpuList[0] : null;

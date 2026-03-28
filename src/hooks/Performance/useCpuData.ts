@@ -2,6 +2,7 @@
 import  { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import usePerformanceConfig from "./usePerformanceConfig";
+import { usePaused } from "../../services/store";
 
 
 interface CpuData {
@@ -22,8 +23,10 @@ interface CpuData {
 const useCpuData = () => {
     const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a", temperature: "0 C" });
     const performanceConfig = usePerformanceConfig();  
+    const paused = usePaused();
 
     useEffect(() => {
+        if (paused) return;
         const fetchCpuData = async () => {
             try {
                 const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
@@ -37,7 +40,7 @@ const useCpuData = () => {
         const intervalId = setInterval(fetchCpuData, performanceConfig.config.performance_update_time);
 
         return () => clearInterval(intervalId);
-    }, [performanceConfig.config.performance_update_time]);
+    }, [performanceConfig.config.performance_update_time, paused]);
 
     return { cpuData };
 }
