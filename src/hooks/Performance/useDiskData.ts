@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { invoke } from '@tauri-apps/api/core'
+import { usePaused } from '../../services/store'
 
 export interface DiskRaw {
   name: string
@@ -21,8 +22,10 @@ interface Hist {
 export default function useDiskData(updateInterval: number): Record<string,Hist> {
   const [historyMap, setHistoryMap] = useState<Record<string,Hist>>({})
   const mounted = useRef(true)
+  const paused = usePaused()
 
   useEffect(() => {
+    if (paused) return
     mounted.current = true
     let timerId: number
 
@@ -74,7 +77,7 @@ export default function useDiskData(updateInterval: number): Record<string,Hist>
       mounted.current = false
       window.clearInterval(timerId)
     }
-  }, [updateInterval])
+  }, [updateInterval, paused])
 
   return historyMap
 }
