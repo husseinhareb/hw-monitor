@@ -11,6 +11,7 @@ type HeatbarConfig = {
     heatbar_color_eight: string;
     heatbar_color_nine: string;
     heatbar_color_ten: string;
+    heatbar_background_color: string;
 };
 
 const initialHeatbarConfig: HeatbarConfig = {
@@ -24,6 +25,7 @@ const initialHeatbarConfig: HeatbarConfig = {
     heatbar_color_eight: "#FF9900",
     heatbar_color_nine: "#FF6600",
     heatbar_color_ten: "#FF0000",
+    heatbar_background_color: "#eeeeee",
 };
 
 const useHeatbarConfig = () => {

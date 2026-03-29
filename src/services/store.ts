@@ -6,7 +6,10 @@ interface ProcessConfig {
   processes_body_color: string;
   processes_head_background_color: string;
   processes_head_color: string;
-  processes_table_values: string[]; 
+  processes_table_values: string[];
+  processes_border_color: string;
+  processes_tree_toggle_color: string;
+  processes_monitor_border_color: string;
 }
 
 interface PerformanceConfig {
@@ -21,6 +24,7 @@ interface PerformanceConfig {
   performance_graph_color: string;
   performance_sec_graph_color: string;
   show_virtual_interfaces: boolean;
+  performance_scrollbar_color: string;
 }
 
 interface SensorsConfig {
@@ -32,6 +36,7 @@ interface SensorsConfig {
   sensors_boxes_title_foreground_color: string;
   sensors_battery_background_color: string;
   sensors_battery_frame_color: string;
+  sensors_battery_case_color: string;
 }
 
 interface DisksConfig {
@@ -66,6 +71,16 @@ interface HeatbarConfig {
   heatbar_color_eight: string;
   heatbar_color_nine: string;
   heatbar_color_ten: string;
+  heatbar_background_color: string;
+}
+
+interface ConfigPanelConfig {
+  config_background_color: string;
+  config_container_background_color: string;
+  config_input_background_color: string;
+  config_input_border_color: string;
+  config_button_background_color: string;
+  config_button_foreground_color: string;
 }
 
 interface Store {
@@ -106,6 +121,9 @@ interface Store {
   heatbarConfig: HeatbarConfig;
   setHeatbarConfig: (heatbarConfig: HeatbarConfig) => void;
 
+  configPanelConfig: ConfigPanelConfig;
+  setConfigPanelConfig: (configPanelConfig: ConfigPanelConfig) => void;
+
   paused: boolean;
   setPaused: (paused: boolean) => void;
 }
@@ -140,6 +158,9 @@ export const useStore = create<Store>((set) => ({
     processes_head_background_color: "#252526",
     processes_head_color: "#ffffff",
     processes_table_values: ["user","pid","ppid","name","state","memory","cpu"],
+    processes_border_color: "#333333",
+    processes_tree_toggle_color: "#888888",
+    processes_monitor_border_color: "#555555",
   },
   setProcessesConfig: (processesConfig) => set({ processesConfig }),
 
@@ -155,6 +176,7 @@ export const useStore = create<Store>((set) => ({
     performance_graph_color: "#09ffff",
     performance_sec_graph_color: '#ff6384',
     show_virtual_interfaces: false,
+    performance_scrollbar_color: "#888888",
   },
   setPerformanceConfig: (performanceConfig) => set({ performanceConfig }),
 
@@ -167,6 +189,7 @@ export const useStore = create<Store>((set) => ({
     sensors_boxes_title_foreground_color: "#9A9A9A",
     sensors_battery_background_color: "#1E1E1E",
     sensors_battery_frame_color: "#FFFFFF",
+    sensors_battery_case_color: "#060606",
   },
   setSensorsConfig: (sensorsConfig) => set({ sensorsConfig }),
 
@@ -204,8 +227,19 @@ export const useStore = create<Store>((set) => ({
     heatbar_color_eight: "#FF9900",
     heatbar_color_nine: "#FF6600",
     heatbar_color_ten: "#FF0000",
+    heatbar_background_color: "#eeeeee",
   },
   setHeatbarConfig: (heatbarConfig) => set({ heatbarConfig }),
+
+  configPanelConfig: {
+    config_background_color: "#2b2b2b",
+    config_container_background_color: "#3a3a3a",
+    config_input_background_color: "#333333",
+    config_input_border_color: "#444444",
+    config_button_background_color: "#f3eae8",
+    config_button_foreground_color: "#212830",
+  },
+  setConfigPanelConfig: (configPanelConfig) => set({ configPanelConfig }),
 
   paused: false,
   setPaused: (paused) => set({ paused }),
@@ -248,6 +282,9 @@ export const useSetNavbarConfig = () => useStore((state) => state.setNavbarConfi
 
 export const useZuHeatbarConfig = () => useStore((state) => state.heatbarConfig);
 export const useSetHeatbarConfig = () => useStore((state) => state.setHeatbarConfig);
+
+export const useZuConfigPanelConfig = () => useStore((state) => state.configPanelConfig);
+export const useSetConfigPanelConfig = () => useStore((state) => state.setConfigPanelConfig);
 
 export const usePaused = () => useStore((state) => state.paused);
 export const useSetPaused = () => useStore((state) => state.setPaused);

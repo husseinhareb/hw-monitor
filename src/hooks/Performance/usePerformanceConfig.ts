@@ -12,20 +12,22 @@ export type PerformanceConfig = {
     performance_graph_color: string;
     performance_sec_graph_color: string;
     show_virtual_interfaces: boolean;
+    performance_scrollbar_color: string;
 };
 
 const initialPerformanceConfig: PerformanceConfig = {
     performance_update_time: 1000,
-    performance_sidebar_background_color: "#333",
+    performance_sidebar_background_color: "#333333",
     performance_sidebar_color: "#ffffff",
     performance_sidebar_selected_color: "#ffffff",
-    performance_background_color: "#2B2B2B",
+    performance_background_color: "#2d2d2d",
     performance_title_color: "#ffffff",
     performance_label_color: "#6d6d6d",
-    performance_value_color: "#fff",
+    performance_value_color: "#ffffff",
     performance_graph_color: "#09ffff",
     performance_sec_graph_color: '#ff6384',
     show_virtual_interfaces: false,
+    performance_scrollbar_color: "#888888",
 };
 
 const usePerformanceConfig = () => {
