@@ -40,6 +40,7 @@ fn main() {
             config::set_heatbar_configs,
             config::set_disks_configs,
             config::set_navbar_configs,
+            config::set_config_panel_configs,
             config::set_language_config,
             gpu::get_gpu_informations,
 

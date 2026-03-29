@@ -66,6 +66,9 @@ define_config! {
     processes_head_background_color: String = "#252526".into(),
     processes_head_color: String = "#ffffff".into(),
     processes_table_values: Vec<String> = vec!["user".into(), "pid".into(), "ppid".into(), "name".into(), "state".into(), "cpu_usage".into(), "memory".into()],
+    processes_border_color: String = "#333333".into(),
+    processes_tree_toggle_color: String = "#888888".into(),
+    processes_monitor_border_color: String = "#555555".into(),
     performance_update_time: u32 = 1000,
     performance_sidebar_background_color: String = "#333333".into(),
     performance_sidebar_color: String = "#ffffff".into(),
@@ -76,6 +79,7 @@ define_config! {
     performance_value_color: String = "#ffffff".into(),
     performance_graph_color: String = "#09ffff".into(),
     performance_sec_graph_color: String = "#ff6384".into(),
+    performance_scrollbar_color: String = "#888888".into(),
     sensors_update_time: u32 = 2000,
     sensors_background_color: String = "#2b2b2b".into(),
     sensors_foreground_color: String = "#ffffff".into(),
@@ -84,6 +88,7 @@ define_config! {
     sensors_battery_background_color: String = "#38e740".into(),
     sensors_battery_frame_color: String = "#ffffff".into(),
     sensors_boxes_title_foreground_color: String = "#0088dd".into(),
+    sensors_battery_case_color: String = "#060606".into(),
     disks_update_time: u32 = 5000,
     disks_background_color: String = "#2b2b2b".into(),
     disks_boxes_background_color: String = "#3a3a3a".into(),
@@ -109,6 +114,13 @@ define_config! {
     heatbar_color_eight: String = "#FF9900".into(),
     heatbar_color_nine: String = "#FF6600".into(),
     heatbar_color_ten: String = "#FF0000".into(),
+    heatbar_background_color: String = "#eeeeee".into(),
+    config_background_color: String = "#2b2b2b".into(),
+    config_container_background_color: String = "#3a3a3a".into(),
+    config_input_background_color: String = "#333333".into(),
+    config_input_border_color: String = "#444444".into(),
+    config_button_background_color: String = "#f3eae8".into(),
+    config_button_foreground_color: String = "#212830".into(),
     language: String = "en".into(),
     show_virtual_interfaces: bool = false,
 }
@@ -214,6 +226,9 @@ set_config_command!(set_processes_configs, ProcessesConfig {
     processes_head_background_color: String,
     processes_head_color: String,
     processes_table_values: Vec<String>,
+    processes_border_color: String,
+    processes_tree_toggle_color: String,
+    processes_monitor_border_color: String,
 });
 
 set_config_command!(set_performance_configs, PerformanceConfig {
@@ -228,6 +243,7 @@ set_config_command!(set_performance_configs, PerformanceConfig {
     performance_graph_color: String,
     performance_sec_graph_color: String,
     show_virtual_interfaces: bool,
+    performance_scrollbar_color: String,
 });
 
 set_config_command!(set_sensors_configs, SensorsConfig {
@@ -239,6 +255,7 @@ set_config_command!(set_sensors_configs, SensorsConfig {
     sensors_battery_background_color: String,
     sensors_battery_frame_color: String,
     sensors_boxes_title_foreground_color: String,
+    sensors_battery_case_color: String,
 });
 
 set_config_command!(set_disks_configs, DisksConfig {
@@ -273,6 +290,16 @@ set_config_command!(set_heatbar_configs, HeatbarConfig {
     heatbar_color_eight: String,
     heatbar_color_nine: String,
     heatbar_color_ten: String,
+    heatbar_background_color: String,
+});
+
+set_config_command!(set_config_panel_configs, ConfigPanelConfig {
+    config_background_color: String,
+    config_container_background_color: String,
+    config_input_background_color: String,
+    config_input_border_color: String,
+    config_button_background_color: String,
+    config_button_foreground_color: String,
 });
 
 set_config_command!(set_language_config, LanguageConfig {
