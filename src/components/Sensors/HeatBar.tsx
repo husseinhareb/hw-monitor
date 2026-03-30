@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import useHeatbarConfig from '../../hooks/Sensors/useHeatbarConfig';
 
 // Style for the heat bar container
-const BarContainer = styled.div`
+const BarContainer = styled.div<{ bgColor: string }>`
     width: 100px;
     height: 15px;
-    background-color: #eee;
+    background-color: ${props => props.bgColor};
     position: relative;
     display: flex;
     margin-left: 10px;
@@ -50,7 +50,7 @@ const HeatBar: React.FC<HeatBarProps> = ({ value, critical }) => {
     });
 
     return (
-        <BarContainer>
+        <BarContainer bgColor={heatbarConfig.config.heatbar_background_color}>
             {filledSections}
         </BarContainer>
     );

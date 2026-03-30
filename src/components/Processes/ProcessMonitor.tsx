@@ -15,14 +15,14 @@ interface ProcessMonitorProps {
 
 const MAX_POINTS = 20;
 
-const MonitorOverlay = styled.div<{ bgColor: string }>`
+const MonitorOverlay = styled.div<{ bgColor: string; borderColor: string }>`
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     height: 45vh;
     background-color: ${props => props.bgColor};
-    border-top: 2px solid #555;
+    border-top: 2px solid ${props => props.borderColor};
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -149,7 +149,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
     const currentMem = memHistory.length > 0 ? memHistory[memHistory.length - 1] : 0;
 
     return (
-        <MonitorOverlay bgColor={performanceConfig.config.performance_background_color}>
+        <MonitorOverlay bgColor={performanceConfig.config.performance_background_color} borderColor={processConfig.config.processes_monitor_border_color}>
             <MonitorHeader
                 bgColor={processConfig.config.processes_head_background_color}
                 color={processConfig.config.processes_head_color}

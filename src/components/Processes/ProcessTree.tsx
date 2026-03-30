@@ -13,6 +13,8 @@ interface ProcessTreeProps {
             processes_head_background_color: string;
             processes_head_color: string;
             processes_table_values: string[];
+            processes_border_color: string;
+            processes_tree_toggle_color: string;
         };
     };
     onSelectProcess: (process: Process) => void;
@@ -32,7 +34,7 @@ const TreeContainer = styled.div<{ bgColor: string; color: string }>`
     color: ${props => props.color};
 `;
 
-const TreeHeader = styled.div<{ bgColor: string; color: string }>`
+const TreeHeader = styled.div<{ bgColor: string; color: string; borderColor: string }>`
     display: grid;
     grid-template-columns: 3fr 1fr 1.5fr 1fr 1.5fr 1.5fr;
     align-items: center;
@@ -41,43 +43,43 @@ const TreeHeader = styled.div<{ bgColor: string; color: string }>`
     z-index: 1;
     background-color: ${props => props.bgColor};
     color: ${props => props.color};
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid ${props => props.borderColor};
 `;
 
-const HeaderCell = styled.div`
+const HeaderCell = styled.div<{ borderColor: string }>`
     padding: 8px;
     font-weight: bold;
     font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border-right: 1px solid #333;
+    border-right: 1px solid ${props => props.borderColor};
 `;
 
-const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number }>`
+const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number; borderColor: string }>`
     display: grid;
     grid-template-columns: 3fr 1fr 1.5fr 1fr 1.5fr 1.5fr;
     align-items: center;
     cursor: pointer;
     background-color: ${props => props.selected ? lighten(0.15, props.bgColor) : 'transparent'};
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 1px solid ${props => props.borderColor};
     &:hover {
         background-color: ${props => lighten(0.08, props.bgColor)};
     }
 `;
 
-const TreeCell = styled.div<{ color: string }>`
+const TreeCell = styled.div<{ color: string; borderColor: string }>`
     padding: 6px 8px;
     font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     color: ${props => props.color};
-    border-right: 1px solid #2a2a2a;
+    border-right: 1px solid ${props => props.borderColor};
     min-width: 0;
 `;
 
-const NameCell = styled.div<{ color: string; depth: number }>`
+const NameCell = styled.div<{ color: string; depth: number; borderColor: string }>`
     padding: 6px 8px;
     padding-left: ${props => 8 + props.depth * 20}px;
     font-size: 13px;
@@ -85,14 +87,14 @@ const NameCell = styled.div<{ color: string; depth: number }>`
     overflow: hidden;
     text-overflow: ellipsis;
     color: ${props => props.color};
-    border-right: 1px solid #2a2a2a;
+    border-right: 1px solid ${props => props.borderColor};
     display: flex;
     align-items: center;
     gap: 4px;
     min-width: 0;
 `;
 
-const ToggleButton = styled.span`
+const ToggleButton = styled.span<{ toggleColor: string; bodyColor: string }>`
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -102,9 +104,9 @@ const ToggleButton = styled.span`
     cursor: pointer;
     user-select: none;
     flex-shrink: 0;
-    color: #888;
+    color: ${props => props.toggleColor};
     &:hover {
-        color: #fff;
+        color: ${props => props.bodyColor};
     }
 `;
 
@@ -211,9 +213,9 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                     {t('proc.collapse_all')}
                 </ExpandCollapseBtn>
             </div>
-            <TreeHeader bgColor={processConfig.config.processes_head_background_color} color={processConfig.config.processes_head_color}>
+            <TreeHeader bgColor={processConfig.config.processes_head_background_color} color={processConfig.config.processes_head_color} borderColor={processConfig.config.processes_border_color}>
                 {columnConfig.map(col => (
-                    <HeaderCell key={col.key}>{col.label}</HeaderCell>
+                    <HeaderCell key={col.key} borderColor={processConfig.config.processes_border_color}>{col.label}</HeaderCell>
                 ))}
             </TreeHeader>
             {flattenedNodes.map(node => {
@@ -226,14 +228,15 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                         bgColor={processConfig.config.processes_body_background_color}
                         selected={selectedPid === proc.pid}
                         depth={node.depth}
+                        borderColor={processConfig.config.processes_border_color}
                         onClick={() => onSelectProcess(proc)}
                     >
                         {columnConfig.map(col => {
                             if (col.key === 'name') {
                                 return (
-                                    <NameCell key={col.key} color={processConfig.config.processes_body_color} depth={node.depth}>
+                                    <NameCell key={col.key} color={processConfig.config.processes_body_color} depth={node.depth} borderColor={processConfig.config.processes_border_color}>
                                         {hasChildren ? (
-                                            <ToggleButton onClick={(e) => toggleExpand(proc.pid, e)}>
+                                            <ToggleButton toggleColor={processConfig.config.processes_tree_toggle_color} bodyColor={processConfig.config.processes_body_color} onClick={(e) => toggleExpand(proc.pid, e)}>
                                                 {isExpanded ? '▼' : '▶'}
                                             </ToggleButton>
                                         ) : (
@@ -247,7 +250,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                                 ? `${proc[col.key] || '0'} %`
                                 : String(proc[col.key] || '');
                             return (
-                                <TreeCell key={col.key} color={processConfig.config.processes_body_color}>
+                                <TreeCell key={col.key} color={processConfig.config.processes_body_color} borderColor={processConfig.config.processes_border_color}>
                                     {value}
                                 </TreeCell>
                             );

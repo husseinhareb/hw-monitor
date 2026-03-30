@@ -97,6 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
       <SidebarContainer
         performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
         performanceSidebarColor={perf.config.performance_sidebar_color}
+        performanceScrollbarColor={perf.config.performance_scrollbar_color}
       >
         <Title>{t('sidebar.performance')}</Title>
         <List>

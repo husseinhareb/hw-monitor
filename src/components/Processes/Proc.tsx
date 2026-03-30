@@ -202,7 +202,7 @@ const Proc: React.FC = () => {
     const hasSelection = selectedPid !== null;
 
     return (
-        <TableContainer style={{ backgroundColor: '#1e1e1e', minHeight: '100vh', color: 'white', position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
+        <TableContainer style={{ backgroundColor: processConfig.config.processes_body_background_color, minHeight: '100vh', color: processConfig.config.processes_body_color, position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
             {processes.length === 0 ? (<Spinner />) : (
                 <>
                     <div style={{
@@ -216,6 +216,7 @@ const Proc: React.FC = () => {
                             active={viewMode === 'table'}
                             bgColor={processConfig.config.processes_body_background_color}
                             color={processConfig.config.processes_body_color}
+                            borderColor={processConfig.config.processes_border_color}
                             onClick={() => { setViewMode('table'); }}
                         >
                             {t('proc.table_view')}
@@ -224,6 +225,7 @@ const Proc: React.FC = () => {
                             active={viewMode === 'tree'}
                             bgColor={processConfig.config.processes_body_background_color}
                             color={processConfig.config.processes_body_color}
+                            borderColor={processConfig.config.processes_border_color}
                             onClick={() => { setViewMode('tree'); }}
                         >
                             {t('proc.tree_view')}
@@ -247,6 +249,7 @@ const Proc: React.FC = () => {
                                     onClick={() => sortProcesses(column)}
                                     headBackgroundColor={processConfig.config.processes_head_background_color}
                                     headColor={processConfig.config.processes_head_color}
+                                    borderColor={processConfig.config.processes_border_color}
                                     aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                                     columnCount={displayedColumns.length}
                                 >
@@ -288,6 +291,7 @@ const Proc: React.FC = () => {
                                         )}
                                         bodyBackgroundColor={processConfig.config.processes_body_background_color}
                                         bodyColor={processConfig.config.processes_body_color}
+                                        borderColor={processConfig.config.processes_border_color}
                                         columnCount={displayedColumns.length}
                                     >
                                         {column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
@@ -336,10 +340,10 @@ const Proc: React.FC = () => {
     );
 };
 
-const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: string }>`
+const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: string; borderColor: string }>`
     background-color: ${props => props.active ? lighten(0.15, props.bgColor) : props.bgColor};
     color: ${props => props.color};
-    border: ${props => props.active ? '1px solid #666' : '1px solid transparent'};
+    border: ${props => props.active ? `1px solid ${props.borderColor}` : '1px solid transparent'};
     padding: 3px 12px;
     font-size: 11px;
     cursor: pointer;
