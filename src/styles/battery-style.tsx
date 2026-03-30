@@ -5,6 +5,7 @@ interface DesignProps {
     percentage: number;
     sensorsBatteryBackgroundColor: string;
     sensorsBatteryFrameColor: string;
+    sensorsBatteryCaseColor: string;
 }
 
 const realPerc = (percentage: number) => {
@@ -40,7 +41,7 @@ const calculatePercentage = (percentage: number) => css`
 `;
 
 export const Design = styled.div<DesignProps>`
-  background-color: rgb(6, 6, 6);
+  background-color: ${(props) => props.sensorsBatteryCaseColor};
   position: relative;
   margin: 20px auto;
   width: 130px;

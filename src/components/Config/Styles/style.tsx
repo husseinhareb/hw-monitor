@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-export const Wrapper = styled.div`
-  background-color: #2b2b2b;
+export const Wrapper = styled.div<{ bgColor: string }>`
+  background-color: ${(props) => props.bgColor};
   height: 100%;
   width: 100%;
   overflow:auto;
@@ -14,21 +14,21 @@ export const Header = styled.div`
   margin-bottom: 20px;
 `;
 
-export const Select = styled.select`
+export const Select = styled.select<{ inputBgColor: string; borderColor: string; textColor: string }>`
   margin-top:10px;
   flex: 1;
   width: auto;
   height: 34px;
-  border: 1px solid #444;
+  border: 1px solid ${(props) => props.borderColor};
   border-radius: 5px;
-  background: #333;
-  color: #212830;
+  background: ${(props) => props.inputBgColor};
+  color: ${(props) => props.textColor};
   margin-left: 10px;
   margin-right: 15px;
 `;
 
-export const Container = styled.div`
-  background-color: #2b2b2b;
+export const Container = styled.div<{ bgColor: string }>`
+  background-color: ${(props) => props.bgColor};
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -36,9 +36,9 @@ export const Container = styled.div`
   row-gap: 0px;
 `;
 
-export const StyledButton = styled.button`
-  background-color: #f3eae8;
-  color: #212830;
+export const StyledButton = styled.button<{ buttonBgColor: string; buttonTextColor: string }>`
+  background-color: ${(props) => props.buttonBgColor};
+  color: ${(props) => props.buttonTextColor};
   border-radius: 5px;
   border: none;
   font-size: 12px;
@@ -51,12 +51,12 @@ export const StyledButton = styled.button`
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    background-color: #e5d8d4;
+    filter: brightness(0.92);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   }
 
   &:active {
-    background-color: #d4c3c0;
+    filter: brightness(0.85);
   }
 
   svg {
@@ -64,9 +64,9 @@ export const StyledButton = styled.button`
   }
 `;
 
-export const ConfigContainer = styled.div`
+export const ConfigContainer = styled.div<{ containerBgColor: string }>`
   padding: 20px;
-  background-color: #3a3a3a;
+  background-color: ${(props) => props.containerBgColor};
   color: white;
   border-radius: 10px;
   margin: 20px;
@@ -82,10 +82,10 @@ export const SectionTitle = styled.h3`
   margin-bottom: 10px;
 `;
 
-export const Separator = styled.hr`
+export const Separator = styled.hr<{ borderColor: string }>`
   border: 0;
   height: 1px;
-  background: #444;
+  background: ${(props) => props.borderColor};
   margin: 20px 0;
 `;
 
@@ -94,12 +94,12 @@ export const Label = styled.label`
   margin: 10px 0;
 `;
 
-export const Input = styled.input`
+export const Input = styled.input<{ inputBgColor: string; borderColor: string }>`
   width: 100%;
   padding: 10px;
-  border: 1px solid #444;
+  border: 1px solid ${(props) => props.borderColor};
   border-radius: 5px;
-  background: #333;
+  background: ${(props) => props.inputBgColor};
   color: white;
   margin-top: 5px;
 `;

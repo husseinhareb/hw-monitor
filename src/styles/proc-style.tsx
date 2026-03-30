@@ -33,9 +33,9 @@ export const Thead = styled.thead<{ headBackgroundColor: string; headColor: stri
     z-index: 1; 
 `;
 
-export const Th = styled.th<{ headBackgroundColor: string; headColor: string; columnCount: number; }>`
+export const Th = styled.th<{ headBackgroundColor: string; headColor: string; columnCount: number; borderColor: string; }>`
     padding: 8px;
-    border: 1px solid #2d2d2d;
+    border: 1px solid ${(props) => props.borderColor};
     cursor: pointer;
     font-weight: bold;
     white-space: nowrap;
@@ -79,13 +79,13 @@ export const Tbody = styled.tbody<{ bodyBackgroundColor: string; bodyColor: stri
 
 export const Tr = styled.tr``;
 
-export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; columnCount: number; }>`
+export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; columnCount: number; borderColor: string; }>`
     padding: 8px;
     font-size: ${(props) => calculateFontSize(props.columnCount)}px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: 1px solid #333;
+    border: 1px solid ${(props) => props.borderColor};
 
     &:hover {
         background-color: ${(props) => lighten(0.1, props.bodyBackgroundColor)};

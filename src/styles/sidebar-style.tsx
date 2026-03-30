@@ -2,7 +2,7 @@
 import styled from 'styled-components';
 import { lighten } from 'polished';
 // Styled SidebarContainer component
-export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string }>`
+export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string; performanceScrollbarColor: string }>`
   width: 240px;
   height: 100%;
   background-color: ${(props) => props.performanceSidebarBackgroundColor};
@@ -21,13 +21,13 @@ export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: 
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #888;
+    background-color: ${(props) => props.performanceScrollbarColor};
     border-radius: 4px;
     cursor: pointer;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: ${(props) => lighten(0.1, props.performanceScrollbarColor)};
     cursor: pointer;
   }
 
@@ -43,7 +43,7 @@ export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: 
   
   &:hover {
     scrollbar-width: thin; 
-    scrollbar-color: #888 transparent; 
+    scrollbar-color: ${(props) => props.performanceScrollbarColor} transparent; 
   }
 
   &::-webkit-scrollbar-thumb {
