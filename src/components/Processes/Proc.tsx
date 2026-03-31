@@ -60,9 +60,9 @@ const Proc: React.FC = () => {
         }, 0);
     };
 
-    const totalMemoryUsage = calculateTotalUsage(processes, 'memory');
-    const totalReadDiskUsage = calculateTotalUsage(processes, 'read_disk_usage');
-    const totalWriteDiskUsage = calculateTotalUsage(processes, 'write_disk_usage');
+    const totalMemoryUsage = useMemo(() => calculateTotalUsage(processes, 'memory'), [processes]);
+    const totalReadDiskUsage = useMemo(() => calculateTotalUsage(processes, 'read_disk_usage'), [processes]);
+    const totalWriteDiskUsage = useMemo(() => calculateTotalUsage(processes, 'write_disk_usage'), [processes]);
     const totalCpuUsage = processes.reduce((total, process) => {
         const cpuUsage = typeof process.cpu_usage === 'string' ? parseFloat(process.cpu_usage) : 0;
         return total + (cpuUsage || 0);

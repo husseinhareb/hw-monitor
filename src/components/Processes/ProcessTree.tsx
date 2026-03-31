@@ -34,9 +34,9 @@ const TreeContainer = styled.div<{ bgColor: string; color: string }>`
     color: ${props => props.color};
 `;
 
-const TreeHeader = styled.div<{ bgColor: string; color: string; borderColor: string }>`
+const TreeHeader = styled.div<{ bgColor: string; color: string; borderColor: string; gridCols: string }>`
     display: grid;
-    grid-template-columns: 3fr 1fr 1.5fr 1fr 1.5fr 1.5fr;
+    grid-template-columns: ${props => props.gridCols};
     align-items: center;
     position: sticky;
     top: 0;
@@ -56,9 +56,9 @@ const HeaderCell = styled.div<{ borderColor: string }>`
     border-right: 1px solid ${props => props.borderColor};
 `;
 
-const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number; borderColor: string }>`
+const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number; borderColor: string; gridCols: string }>`
     display: grid;
-    grid-template-columns: 3fr 1fr 1.5fr 1fr 1.5fr 1.5fr;
+    grid-template-columns: ${props => props.gridCols};
     align-items: center;
     cursor: pointer;
     background-color: ${props => props.selected ? lighten(0.15, props.bgColor) : 'transparent'};
@@ -193,15 +193,24 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
         return { flattenedNodes };
     }, [processes, expandedPids]);
 
-    // Column config
-    const columnConfig: { key: string; label: string }[] = [
-        { key: 'name', label: t('proc.table_value_name') },
-        { key: 'pid', label: t('proc.table_value_pid') },
-        { key: 'user', label: t('proc.table_value_user') },
-        { key: 'cpu_usage', label: t('proc.table_value_cpu_usage') },
-        { key: 'memory', label: t('proc.table_value_memory') },
-        { key: 'state', label: t('proc.table_value_state') },
+    // Column config derived from user settings
+    const columnMapping: { key: string; label: string; fr: number }[] = [
+        { key: 'name',            label: t('proc.table_value_name'),            fr: 3   },
+        { key: 'pid',             label: t('proc.table_value_pid'),             fr: 1   },
+        { key: 'ppid',            label: t('proc.table_value_ppid'),            fr: 1   },
+        { key: 'user',            label: t('proc.table_value_user'),            fr: 1.5 },
+        { key: 'state',           label: t('proc.table_value_state'),           fr: 1   },
+        { key: 'memory',          label: t('proc.table_value_memory'),          fr: 1.5 },
+        { key: 'cpu_usage',       label: t('proc.table_value_cpu_usage'),       fr: 1   },
+        { key: 'read_disk_usage', label: t('proc.table_value_read_disk_usage'), fr: 2   },
+        { key: 'write_disk_usage',label: t('proc.table_value_write_disk_usage'),fr: 2   },
+        { key: 'read_disk_speed', label: t('proc.table_value_read_disk_speed'), fr: 2   },
+        { key: 'write_disk_speed',label: t('proc.table_value_write_disk_speed'),fr: 2   },
     ];
+    const columnConfig = columnMapping.filter(col =>
+        processConfig.config.processes_table_values.includes(col.key)
+    );
+    const gridTemplateColumns = columnConfig.map(col => `${col.fr}fr`).join(' ');
 
     return (
         <TreeContainer bgColor={processConfig.config.processes_body_background_color} color={processConfig.config.processes_body_color}>
@@ -213,7 +222,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                     {t('proc.collapse_all')}
                 </ExpandCollapseBtn>
             </div>
-            <TreeHeader bgColor={processConfig.config.processes_head_background_color} color={processConfig.config.processes_head_color} borderColor={processConfig.config.processes_border_color}>
+            <TreeHeader bgColor={processConfig.config.processes_head_background_color} color={processConfig.config.processes_head_color} borderColor={processConfig.config.processes_border_color} gridCols={gridTemplateColumns}>
                 {columnConfig.map(col => (
                     <HeaderCell key={col.key} borderColor={processConfig.config.processes_border_color}>{col.label}</HeaderCell>
                 ))}
@@ -229,6 +238,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                         selected={selectedPid === proc.pid}
                         depth={node.depth}
                         borderColor={processConfig.config.processes_border_color}
+                        gridCols={gridTemplateColumns}
                         onClick={() => onSelectProcess(proc)}
                     >
                         {columnConfig.map(col => {
