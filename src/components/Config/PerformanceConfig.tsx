@@ -1,5 +1,6 @@
 import React from "react";
 import usePerformanceConfig from "../../hooks/Performance/usePerformanceConfig";
+import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 import {
     ConfigContainer,
     Title,
@@ -26,10 +27,12 @@ interface PerformanceConfig {
     performance_graph_color: string;
     performance_sec_graph_color: string;
     show_virtual_interfaces: boolean;
+    performance_scrollbar_color: string;
 }
 
 const PerformanceConfig: React.FC = () => {
     const { config, updateConfig } = usePerformanceConfig();
+    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof PerformanceConfig, value: string | number | boolean) => {
@@ -46,9 +49,9 @@ const PerformanceConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer>
+        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
             <Title>{t('performance_config.title')}</Title>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <Label>
                 {t('performance_config.update_time')}
                 <Input
@@ -57,10 +60,12 @@ const PerformanceConfig: React.FC = () => {
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
+                    inputBgColor={panelConfig.config_input_background_color}
+                    borderColor={panelConfig.config_input_border_color}
                 />
             </Label>
             <h3>{t('performance_config.sidebar')}</h3>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <ColorLabel>
                 <ColorLabelText>{t('performance_config.sidebar_background_color')}</ColorLabelText>
                 <ColorInput
@@ -86,7 +91,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <h3>{t('performance_config.content')}</h3>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <ColorLabel>
                 <ColorLabelText>{t('performance_config.background_color')}</ColorLabelText>
                 <ColorInput
@@ -136,7 +141,7 @@ const PerformanceConfig: React.FC = () => {
                 />
             </ColorLabel>
             <h3>{t('performance_config.network')}</h3>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <CheckboxLabel>
                 <CheckboxInput
                     type="checkbox"
@@ -145,6 +150,14 @@ const PerformanceConfig: React.FC = () => {
                 />
                 {t('performance_config.show_virtual_interfaces')}
             </CheckboxLabel>
+            <ColorLabel>
+                <ColorLabelText>{t('performance_config.scrollbar_color')}</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.performance_scrollbar_color}
+                    onChange={(e) => handleConfigChange("performance_scrollbar_color", e.target.value)}
+                />
+            </ColorLabel>
         </ConfigContainer>
     );
 };

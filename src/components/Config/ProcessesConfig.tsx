@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import useProcessConfig from "../../hooks/Proc/useProcessConfig";
+import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 import {
     ConfigContainer,
     Title,
@@ -53,10 +54,14 @@ interface ProcessConfig {
     processes_head_background_color: string;
     processes_head_color: string;
     processes_table_values: string[];
+    processes_border_color: string;
+    processes_tree_toggle_color: string;
+    processes_monitor_border_color: string;
 }
 
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
+    const { config: panelConfig } = useConfigPanelConfig();
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
     const { t } = useTranslation();
 
@@ -96,9 +101,9 @@ const ProcessesConfig: React.FC = () => {
     const secondHalf = tableValues.slice(half);
 
     return (
-        <ConfigContainer>
+        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
             <Title>{t('processes_config.title')}</Title>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <Label>
                 {t('processes_config.update_time')}
                 <Input
@@ -107,6 +112,8 @@ const ProcessesConfig: React.FC = () => {
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
+                    inputBgColor={panelConfig.config_input_background_color}
+                    borderColor={panelConfig.config_input_border_color}
                 />
             </Label>
             <ColorLabel>
@@ -139,6 +146,30 @@ const ProcessesConfig: React.FC = () => {
                     type="color"
                     value={config.processes_head_color}
                     onChange={(e) => handleConfigChange("processes_head_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>{t('processes_config.border_color')}</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.processes_border_color}
+                    onChange={(e) => handleConfigChange("processes_border_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>{t('processes_config.tree_toggle_color')}</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.processes_tree_toggle_color}
+                    onChange={(e) => handleConfigChange("processes_tree_toggle_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>{t('processes_config.monitor_border_color')}</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.processes_monitor_border_color}
+                    onChange={(e) => handleConfigChange("processes_monitor_border_color", e.target.value)}
                 />
             </ColorLabel>
             <SectionTitle>{t('processes_config.table_values')}</SectionTitle>

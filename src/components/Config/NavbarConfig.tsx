@@ -1,5 +1,6 @@
 import React from "react";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
+import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 import {
     ConfigContainer,
     Title,
@@ -20,6 +21,7 @@ interface NavbarConfig {
 
 const NavbarConfig: React.FC = () => {
     const { config, updateConfig } = useNavbarConfig();
+    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof NavbarConfig, value: string | number) => {
@@ -29,9 +31,9 @@ const NavbarConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer>
+        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
             <Title>{t('navbar_config.title')}</Title>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <ColorLabel>
                 <ColorLabelText>{t('navbar_config.background_color')}</ColorLabelText>
                 <ColorInput

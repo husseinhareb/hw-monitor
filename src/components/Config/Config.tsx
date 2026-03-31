@@ -8,6 +8,8 @@ import SensorsConfig from "./SensorsConfig";
 import DisksConfig from "./DisksConfig";
 import NavbarConfig from "./NavbarConfig";
 import HeatbarConfig from "./HeatbarConfig";
+import ConfigPanelConfigSection from "./ConfigPanelConfig";
+import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 
 import {
   Wrapper,
@@ -21,11 +23,12 @@ import {
 const Config: React.FC = () => {
   const { i18n } = useTranslation();
   const [reloadFlag, setReloadFlag] = React.useState(false);
+  const { config: panelConfig } = useConfigPanelConfig();
 
   const { config, updateConfig } = useFetchAndSetConfig<{ language: string }>(
-    { language: i18n.language }, // Initial config
-    "get_configs",        // Command to fetch config
-    "set_language_config"         // Command to update config
+    { language: i18n.language },
+    "get_configs",
+    "set_language_config"
   );
 
   const load_default_config = async () => {
@@ -40,19 +43,26 @@ const Config: React.FC = () => {
   const handleLanguageChange = async (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedLanguage = event.target.value;
     i18n.changeLanguage(selectedLanguage);
-    await updateConfig("language", selectedLanguage); // Use the hook to update the language
+    await updateConfig("language", selectedLanguage);
   };
 
   return (
-    <Wrapper>
+    <Wrapper bgColor={panelConfig.config_background_color}>
       <Header>
-        <StyledButton onClick={load_default_config}>
+        <StyledButton
+          buttonBgColor={panelConfig.config_button_background_color}
+          buttonTextColor={panelConfig.config_button_foreground_color}
+          onClick={load_default_config}
+        >
           Load Default Config
         </StyledButton>
         <Label htmlFor="language-select" style={{ color: "white" }}>
           Lang:
           <Select
             id="language-select"
+            inputBgColor={panelConfig.config_input_background_color}
+            borderColor={panelConfig.config_input_border_color}
+            textColor={panelConfig.config_button_foreground_color}
             onChange={handleLanguageChange}
             value={config.language}
           >
@@ -67,13 +77,14 @@ const Config: React.FC = () => {
           </Select>
         </Label>
       </Header>
-      <Container key={reloadFlag ? "reload" : "no-reload"}>
+      <Container bgColor={panelConfig.config_background_color} key={reloadFlag ? "reload" : "no-reload"}>
         <ProcessesConfig />
         <PerformanceConfig />
         <SensorsConfig />
         <DisksConfig />
         <HeatbarConfig />
         <NavbarConfig />
+        <ConfigPanelConfigSection />
       </Container>
     </Wrapper>
   );

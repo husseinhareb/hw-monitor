@@ -1,5 +1,6 @@
 import React from "react";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
+import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 import {
     ConfigContainer,
     Title,
@@ -27,6 +28,7 @@ interface DisksConfig {
 
 const DisksConfig: React.FC = () => {
     const { config, updateConfig } = useDisksConfig();
+    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
     const handleConfigChange = (key: keyof DisksConfig, value: string | number) => {
         if (config) {
@@ -42,9 +44,9 @@ const DisksConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer>
+        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
             <Title> {t('disks_config.title')}</Title>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <Label>
                 {t('disks_config.update_time')}
                 <Input
@@ -53,6 +55,8 @@ const DisksConfig: React.FC = () => {
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
+                    inputBgColor={panelConfig.config_input_background_color}
+                    borderColor={panelConfig.config_input_border_color}
                 />
             </Label>
             <ColorLabel>

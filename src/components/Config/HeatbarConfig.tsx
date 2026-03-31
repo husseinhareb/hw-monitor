@@ -1,5 +1,6 @@
 import React from "react";
 import useHeatbarConfig from "../../hooks/Sensors/useHeatbarConfig";
+import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 import {
     ConfigContainer,
     Title,
@@ -21,10 +22,12 @@ interface HeatbarConfig {
     heatbar_color_eight: string;
     heatbar_color_nine: string;
     heatbar_color_ten: string;
+    heatbar_background_color: string;
 }
 
 const HeatbarConfig: React.FC = () => {
     const { config, updateConfig } = useHeatbarConfig();
+    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
@@ -34,9 +37,9 @@ const HeatbarConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer>
+        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
             <Title>{t('heatbar_config.title')}</Title>
-            <Separator />
+            <Separator borderColor={panelConfig.config_input_border_color} />
             <ColorLabel>
                 <ColorLabelText>{t('heatbar_config.color_one')}</ColorLabelText>
                 <ColorInput
@@ -115,6 +118,14 @@ const HeatbarConfig: React.FC = () => {
                     type="color"
                     value={config.heatbar_color_ten}
                     onChange={(e) => handleConfigChange("heatbar_color_ten", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>{t('heatbar_config.background_color')}</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.heatbar_background_color}
+                    onChange={(e) => handleConfigChange("heatbar_background_color", e.target.value)}
                 />
             </ColorLabel>
         </ConfigContainer>
