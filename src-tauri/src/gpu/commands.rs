@@ -100,7 +100,9 @@ fn read_hwmon_info(
                     temperature = Some(format!("{} °C", temp_celsius));
                 }
 
-                if let Ok(freq_input) = read_to_string(hwmon_path.join("freq1_input")) {
+                let freq_result = read_to_string(hwmon_path.join("freq2_input"))
+                    .or_else(|_| read_to_string(hwmon_path.join("freq1_input")));
+                if let Ok(freq_input) = freq_result {
                     let freq_mhz = freq_input.trim().parse::<u64>().unwrap_or(0) / 1_000_000;
                     clock_speed = Some(format!("{} MHz", freq_mhz));
                 }
@@ -151,7 +153,9 @@ fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations>
     Some(GpuInformations {
         id: Some(format!("amd-{}", index)),
         name: Some(get_amd_gpu_name()),
-        driver_version: None,
+        driver_version: read_to_string("/sys/module/amdgpu/version")
+            .ok()
+            .map(|s| s.trim().to_string()),
         memory_total,
         memory_used,
         memory_free,
@@ -197,7 +201,7 @@ fn get_nvidia_gpu_info(device_index: u32) -> Option<GpuInformations> {
         memory_used: memory_info.as_ref().map(|m| add_memory_unit(m.used)),
         memory_free: memory_info.as_ref().map(|m| add_memory_unit(m.free)),
         temperature: temperature.map(|t| format!("{} °C", t)),
-        utilization: utilization.map(|u| format!("{} %", u)),
+        utilization: utilization.map(|u| format!("{}%", u)),
         clock_speed: clock_speed.map(add_clock_speed_unit),
         wattage: wattage.map(|w| format!("{:.1} W", w as f64 / 1000.0)),
         fan_speed: fan_speed.map(|f| format!("{} %", f)),

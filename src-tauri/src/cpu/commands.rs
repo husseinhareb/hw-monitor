@@ -53,9 +53,13 @@ fn get_speeds_from_lscpu() -> (Option<String>, Option<String>) {
 
     for line in output_str.lines() {
         if let Some(speed_str) = line.strip_prefix("CPU min MHz:") {
-            base_speed = Some(speed_str.trim().to_string());
+            if let Ok(mhz) = speed_str.trim().parse::<f64>() {
+                base_speed = Some(format!("{}", (mhz * 1000.0) as u64));
+            }
         } else if let Some(speed_str) = line.strip_prefix("CPU max MHz:") {
-            max_speed = Some(speed_str.trim().to_string());
+            if let Ok(mhz) = speed_str.trim().parse::<f64>() {
+                max_speed = Some(format!("{}", (mhz * 1000.0) as u64));
+            }
         }
         if base_speed.is_some() && max_speed.is_some() {
             break;
