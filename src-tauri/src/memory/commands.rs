@@ -61,7 +61,7 @@ fn read_meminfo() -> io::Result<Memory> {
             memory.active = Some(value * KILO_BYTE);
         }else if let Some(value) = parse_meminfo_line(line, "SwapTotal:") {
             memory.swap_total = Some(value * KILO_BYTE);
-        }else if let Some(value) = parse_meminfo_line(line, "SwapCache:") {
+        }else if let Some(value) = parse_meminfo_line(line, "SwapCached:") {
             memory.swap_cache = Some(value * KILO_BYTE);
         }
     }

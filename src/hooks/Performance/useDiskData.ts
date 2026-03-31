@@ -51,8 +51,8 @@ export default function useDiskData(updateInterval: number): Record<string,Hist>
             const writeSpeed = parseFloat(d.write_speed) || 0
 
             next[d.name] = {
-              readHistory:  [...prevH.readHistory,  readSpeed ].slice(-100),
-              writeHistory: [...prevH.writeHistory, writeSpeed].slice(-100),
+              readHistory:  [...prevH.readHistory,  readSpeed ].slice(-20),
+              writeHistory: [...prevH.writeHistory, writeSpeed].slice(-20),
               total_read:   d.total_read,
               total_write:  d.total_write,
             }
