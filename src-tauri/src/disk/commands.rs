@@ -30,7 +30,14 @@ fn read_diskstats() -> Result<Vec<DiskStat>, String> {
 }
 
 const KILO_BYTE: u64 = 1000;
-const BYTES_PER_SECTOR: u64 = 512;
+
+fn get_sector_size(disk_name: &str) -> u64 {
+    let path = format!("/sys/block/{}/queue/hw_sector_size", disk_name);
+    fs::read_to_string(&path)
+        .ok()
+        .and_then(|s| s.trim().parse().ok())
+        .unwrap_or(512)
+}
 
 struct MountInfo {
     mount_point: String,
@@ -168,8 +175,9 @@ pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>)
 
     for d in &mut disks {
         if let Some(s2) = map2.get(&d.name) {
-            let bytes2_r = s2.sectors_read * BYTES_PER_SECTOR;
-            let bytes2_w = s2.sectors_written * BYTES_PER_SECTOR;
+            let sector_size = get_sector_size(&d.name);
+            let bytes2_r = s2.sectors_read * sector_size;
+            let bytes2_w = s2.sectors_written * sector_size;
 
             if let Some(ref snap) = *guard {
                 let elapsed = now.duration_since(snap.time).as_secs_f64();
@@ -191,7 +199,10 @@ pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>)
     }
 
     *guard = Some(DiskSnapshot {
-        stats: map2.iter().map(|(k, v)| (k.clone(), (v.sectors_read * BYTES_PER_SECTOR, v.sectors_written * BYTES_PER_SECTOR))).collect(),
+        stats: map2.iter().map(|(k, v)| {
+            let sector_size = get_sector_size(k);
+            (k.clone(), (v.sectors_read * sector_size, v.sectors_written * sector_size))
+        }).collect(),
         time: now,
     });
     drop(guard);
