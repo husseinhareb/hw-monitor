@@ -12,16 +12,16 @@ interface CpuData {
     threads: number;
     usage: number;
     current_speed: number;
-    base_speed: number;
-    max_speed: number;
+    base_speed: string | null;
+    max_speed: string | null;
     virtualization: string;
     uptime: string;
-    temperature:string;
+    temperature: string;
 }
 
 
 const useCpuData = () => {
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: 0.0, max_speed: 0.0, virtualization: "enabled", socket: 0, uptime: "N/a", temperature: "0 C" });
+    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: null, max_speed: null, virtualization: "enabled", socket: 0, uptime: "N/a", temperature: "0 C" });
     const performanceConfig = usePerformanceConfig();  
     const paused = usePaused();
 

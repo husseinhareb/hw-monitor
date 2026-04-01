@@ -4,18 +4,18 @@ import usePerformanceConfig from "./usePerformanceConfig";
 import { usePaused } from "../../services/store";
 
 export interface GpuData {
-    id: string;
-    name: string;
-    driver_version: string;
-    memory_total: string;
-    memory_used: string;
-    memory_free: string;
-    temperature: string;
-    utilization: string;
-    clock_speed: string;
-    wattage: string;
-    fan_speed: string;
-    performance_state: string;
+    id: string | null;
+    name: string | null;
+    driver_version: string | null;
+    memory_total: string | null;
+    memory_used: string | null;
+    memory_free: string | null;
+    temperature: string | null;
+    utilization: string | null;
+    clock_speed: string | null;
+    wattage: string | null;
+    fan_speed: string | null;
+    performance_state: string | null;
 }
 
 const useGpuData = () => {
