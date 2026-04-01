@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "Восьмий колір",
     "heatbar_config.color_nine": "Дев'ятий колір",
     "heatbar_config.color_ten": "Десятий колір",
+    "heatbar_config.background_color": "Колір фону",
 
     "navbar_config.title": "Конфігурація панелі навігації",
     "navbar_config.background_color": "Колір фону",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "Колір тексту заголовків блоків",
     "sensors_config.battery_background_color": "Колір фону батареї",
     "sensors_config.battery_frame_color": "Колір рамки батареї",
+    "sensors_config.battery_case_color": "Колір корпусу батареї",
 
     "performance_config.title": "Конфігурація продуктивності",
     "performance_config.update_time": "Час оновлення",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "Колір другого графіка",
     "performance_config.network": "Мережа",
     "performance_config.show_virtual_interfaces": "Показати віртуальні інтерфейси (docker0, veth, br-, lo…)",
+    "performance_config.scrollbar_color": "Колір смуги прокрутки",
 
     "processes_config.title": "Конфігурація процесів",
     "processes_config.update_time": "Час оновлення",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "Використання диска (запис)",
     "processes_config.table_value_read_disk_speed": "Швидкість диска (читання)",
     "processes_config.table_value_write_disk_speed": "Швидкість диска (запис)",
+    "processes_config.border_color": "Колір межі",
+    "processes_config.tree_toggle_color": "Колір перемикача дерева",
+    "processes_config.monitor_border_color": "Колір межі монітора",
 
     "proc.table_value_user": "Користувач",
     "proc.table_value_pid": "PID",
@@ -175,6 +181,14 @@
     "disk.read": "Читання",
     "disk.write": "Запис",
     "disk.speed": "Швидкість",
+
+    "config_panel_config.title": "Налаштування панелі конфігурації",
+    "config_panel_config.background_color": "Колір фону",
+    "config_panel_config.container_background_color": "Колір фону контейнера",
+    "config_panel_config.input_background_color": "Колір фону полів",
+    "config_panel_config.input_border_color": "Колір межі полів",
+    "config_panel_config.button_background_color": "Колір фону кнопок",
+    "config_panel_config.button_foreground_color": "Колір тексту кнопок",
 
     "error.fetch_failed": "Не вдалося завантажити дані",
     "error.battery_failed": "Не вдалося завантажити дані акумулятора",

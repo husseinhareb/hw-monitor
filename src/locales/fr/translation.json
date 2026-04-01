@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "Huitième Couleur",
     "heatbar_config.color_nine": "Neuvième Couleur",
     "heatbar_config.color_ten": "Dixième Couleur",
+    "heatbar_config.background_color": "Couleur de Fond",
 
     "navbar_config.title": "Configuration de la Barre de Navigation",
     "navbar_config.background_color": "Couleur de Fond",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "Couleur du Titre des Boîtes",
     "sensors_config.battery_background_color": "Couleur de Fond de la Batterie",
     "sensors_config.battery_frame_color": "Couleur du Cadre de la Batterie",
+    "sensors_config.battery_case_color": "Couleur du Boîtier de la Batterie",
     
     "performance_config.title": "Configuration de la Performance",
     "performance_config.update_time": "Temps de Mise à Jour",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "Deuxième Couleur du Graphique",
     "performance_config.network": "Réseau",
     "performance_config.show_virtual_interfaces": "Afficher les interfaces virtuelles (docker0, veth, br-, lo…)",
+    "performance_config.scrollbar_color": "Couleur de la Barre de Défilement",
     
     "processes_config.title": "Configuration des Processus",
     "processes_config.update_time": "Temps de Mise à Jour",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "Utilisation d'Écriture du Disque",
     "processes_config.table_value_read_disk_speed": "Vitesse de Lecture du Disque",
     "processes_config.table_value_write_disk_speed": "Vitesse d'Écriture du Disque",
+    "processes_config.border_color": "Couleur de Bordure",
+    "processes_config.tree_toggle_color": "Couleur du Bouton Arborescence",
+    "processes_config.monitor_border_color": "Couleur de Bordure du Moniteur",
 
     "proc.table_value_user": "Utilisateur",
     "proc.table_value_pid": "PID",
@@ -174,6 +180,14 @@
     "disk.read": "Lecture",
     "disk.write": "Écriture",
     "disk.speed": "Vitesse",
+
+    "config_panel_config.title": "Configuration du Panneau de Config",
+    "config_panel_config.background_color": "Couleur de Fond",
+    "config_panel_config.container_background_color": "Couleur de Fond du Conteneur",
+    "config_panel_config.input_background_color": "Couleur de Fond des Champs",
+    "config_panel_config.input_border_color": "Couleur de Bordure des Champs",
+    "config_panel_config.button_background_color": "Couleur de Fond des Boutons",
+    "config_panel_config.button_foreground_color": "Couleur du Texte des Boutons",
 
     "error.fetch_failed": "Échec du chargement des données",
     "error.battery_failed": "Échec du chargement des données de batterie",

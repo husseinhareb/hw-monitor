@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "اللون الثامن",
     "heatbar_config.color_nine": "اللون التاسع",
     "heatbar_config.color_ten": "اللون العاشر",
+    "heatbar_config.background_color": "لون الخلفية",
 
     "navbar_config.title": "إعدادات شريط التنقل",
     "navbar_config.background_color": "لون الخلفية",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "لون نص عنوان الصناديق",
     "sensors_config.battery_background_color": "لون خلفية البطارية",
     "sensors_config.battery_frame_color": "لون إطار البطارية",
+    "sensors_config.battery_case_color": "لون غلاف البطارية",
 
     "performance_config.title": "إعدادات الأداء",
     "performance_config.update_time": "وقت التحديث",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "لون الرسم البياني الثاني",
     "performance_config.network": "الشبكة",
     "performance_config.show_virtual_interfaces": "إظهار الواجهات الافتراضية (docker0، veth، br-، lo…)",
+    "performance_config.scrollbar_color": "لون شريط التمرير",
 
     "processes_config.title": "إعدادات العمليات",
     "processes_config.update_time": "وقت التحديث",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "استخدام قرص الكتابة",
     "processes_config.table_value_read_disk_speed": "سرعة قراءة القرص",
     "processes_config.table_value_write_disk_speed": "سرعة كتابة القرص",
+    "processes_config.border_color": "لون الحدود",
+    "processes_config.tree_toggle_color": "لون زر الشجرة",
+    "processes_config.monitor_border_color": "لون حدود المراقب",
 
     "proc.table_value_user": "المستخدم",
     "proc.table_value_pid": "PID",
@@ -176,6 +182,14 @@
     "disk.read": "قراءة",
     "disk.write": "كتابة",
     "disk.speed": "السرعة",
+
+    "config_panel_config.title": "إعدادات لوحة التكوين",
+    "config_panel_config.background_color": "لون الخلفية",
+    "config_panel_config.container_background_color": "لون خلفية الحاوية",
+    "config_panel_config.input_background_color": "لون خلفية الحقول",
+    "config_panel_config.input_border_color": "لون حدود الحقول",
+    "config_panel_config.button_background_color": "لون خلفية الأزرار",
+    "config_panel_config.button_foreground_color": "لون نص الأزرار",
 
     "error.fetch_failed": "فشل في تحميل البيانات",
     "error.battery_failed": "فشل في تحميل بيانات البطارية",

@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "Ósmy Kolor",
     "heatbar_config.color_nine": "Dziewiąty Kolor",
     "heatbar_config.color_ten": "Dziesiąty Kolor",
+    "heatbar_config.background_color": "Kolor Tła",
     
     "navbar_config.title": "Konfiguracja Paska Nawigacyjnego",
     "navbar_config.background_color": "Kolor Tła",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "Kolor Tekstu Tytułów Pudełek",
     "sensors_config.battery_background_color": "Kolor Tła Baterii",
     "sensors_config.battery_frame_color": "Kolor Ramki Baterii",
+    "sensors_config.battery_case_color": "Kolor Obudowy Baterii",
     
     "performance_config.title": "Konfiguracja Wydajności",
     "performance_config.update_time": "Czas Aktualizacji",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "Drugi Kolor Wykresu",
     "performance_config.network": "Sieć",
     "performance_config.show_virtual_interfaces": "Pokaż interfejsy wirtualne (docker0, veth, br-, lo…)",
+    "performance_config.scrollbar_color": "Kolor Paska Przewijania",
     
     "processes_config.title": "Konfiguracja Procesów",
     "processes_config.update_time": "Czas Aktualizacji",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "Zużycie Dysku (Zapis)",
     "processes_config.table_value_read_disk_speed": "Prędkość Dysku (Odczyt)",
     "processes_config.table_value_write_disk_speed": "Prędkość Dysku (Zapis)",
+    "processes_config.border_color": "Kolor Ramki",
+    "processes_config.tree_toggle_color": "Kolor Przełącznika Drzewa",
+    "processes_config.monitor_border_color": "Kolor Ramki Monitora",
     
     "proc.table_value_user": "Użytkownik",
     "proc.table_value_pid": "PID",
@@ -169,6 +175,14 @@
     "sidebar.wifi": "WiFi",
     "sidebar.ethernet": "Ethernet",
     "sidebar.no_gpu_detected": "Brak Wykrytego GPU",
+
+    "config_panel_config.title": "Konfiguracja Panelu Ustawień",
+    "config_panel_config.background_color": "Kolor Tła",
+    "config_panel_config.container_background_color": "Kolor Tła Kontenera",
+    "config_panel_config.input_background_color": "Kolor Tła Pól",
+    "config_panel_config.input_border_color": "Kolor Ramki Pól",
+    "config_panel_config.button_background_color": "Kolor Tła Przycisków",
+    "config_panel_config.button_foreground_color": "Kolor Tekstu Przycisków",
 
     "error.fetch_failed": "Nie udało się załadować danych",
     "error.battery_failed": "Nie udało się załadować danych baterii",

@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "Eighth Color",
     "heatbar_config.color_nine": "Nineth Color",
     "heatbar_config.color_ten": "Tenth Color",
+    "heatbar_config.background_color": "Background Color",
 
     "navbar_config.title": "Navbar Config",
     "navbar_config.background_color": "Background Color",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "Boxes Title Foreground Color",
     "sensors_config.battery_background_color": "Battery Background Color",
     "sensors_config.battery_frame_color": "Battery Frame Color",
+    "sensors_config.battery_case_color": "Battery Case Color",
     
     "performance_config.title": "Performance Configuration",
     "performance_config.update_time": "Update Time",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "Second Graph Color",
     "performance_config.network": "Network",
     "performance_config.show_virtual_interfaces": "Show virtual interfaces (docker0, veth, br-, lo…)",
+    "performance_config.scrollbar_color": "Scrollbar Color",
     
     "processes_config.title": "Processes Configuration",
     "processes_config.update_time": "Update Time",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "Write Disk Usage",
     "processes_config.table_value_read_disk_speed": "Read Disk Speed",
     "processes_config.table_value_write_disk_speed": "Write Disk Speed",
+    "processes_config.border_color": "Border Color",
+    "processes_config.tree_toggle_color": "Tree Toggle Color",
+    "processes_config.monitor_border_color": "Monitor Border Color",
 
     "proc.table_value_user": "User",
     "proc.table_value_pid": "PID",
@@ -176,6 +182,14 @@
     "disk.read": "Read",
     "disk.write": "Write",
     "disk.speed": "Speed",
+
+    "config_panel_config.title": "Config Panel Configuration",
+    "config_panel_config.background_color": "Background Color",
+    "config_panel_config.container_background_color": "Container Background Color",
+    "config_panel_config.input_background_color": "Input Background Color",
+    "config_panel_config.input_border_color": "Input Border Color",
+    "config_panel_config.button_background_color": "Button Background Color",
+    "config_panel_config.button_foreground_color": "Button Foreground Color",
 
     "error.fetch_failed": "Failed to load data",
     "error.battery_failed": "Failed to load battery data",

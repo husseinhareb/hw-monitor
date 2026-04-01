@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "Восьмой цвет",
     "heatbar_config.color_nine": "Девятый цвет",
     "heatbar_config.color_ten": "Десятый цвет",
+    "heatbar_config.background_color": "Цвет фона",
 
     "navbar_config.title": "Настройки панели навигации",
     "navbar_config.background_color": "Цвет фона",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "Цвет текста заголовка блоков",
     "sensors_config.battery_background_color": "Цвет фона аккумулятора",
     "sensors_config.battery_frame_color": "Цвет рамки аккумулятора",
+    "sensors_config.battery_case_color": "Цвет корпуса аккумулятора",
 
     "performance_config.title": "Настройки производительности",
     "performance_config.update_time": "Время обновления",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "Цвет второго графика",
     "performance_config.network": "Сеть",
     "performance_config.show_virtual_interfaces": "Показать виртуальные интерфейсы (docker0, veth, br-, lo…)",
+    "performance_config.scrollbar_color": "Цвет полосы прокрутки",
 
     "processes_config.title": "Настройки процессов",
     "processes_config.update_time": "Время обновления",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "Запись дискового пространства",
     "processes_config.table_value_read_disk_speed": "Скорость чтения диска",
     "processes_config.table_value_write_disk_speed": "Скорость записи диска",
+    "processes_config.border_color": "Цвет границы",
+    "processes_config.tree_toggle_color": "Цвет переключателя дерева",
+    "processes_config.monitor_border_color": "Цвет границы монитора",
 
     "proc.table_value_user": "Пользователь",
     "proc.table_value_pid": "PID",
@@ -175,6 +181,14 @@
     "disk.read": "Чтение",
     "disk.write": "Запись",
     "disk.speed": "Скорость",
+
+    "config_panel_config.title": "Настройки панели конфигурации",
+    "config_panel_config.background_color": "Цвет фона",
+    "config_panel_config.container_background_color": "Цвет фона контейнера",
+    "config_panel_config.input_background_color": "Цвет фона полей",
+    "config_panel_config.input_border_color": "Цвет границы полей",
+    "config_panel_config.button_background_color": "Цвет фона кнопок",
+    "config_panel_config.button_foreground_color": "Цвет текста кнопок",
 
     "error.fetch_failed": "Не удалось загрузить данные",
     "error.battery_failed": "Не удалось загрузить данные аккумулятора",

@@ -85,6 +85,9 @@ processes_body_color=#CDD6F4
 processes_head_background_color=#313244
 processes_head_color=#CDD6F4
 processes_table_values=user,pid,ppid,name,state,cpu_usage,memory
+processes_border_color=#313244
+processes_tree_toggle_color=#6C7086
+processes_monitor_border_color=#585B70
 
 ####################
 ### performance ###
@@ -99,6 +102,7 @@ performance_label_color=#A6E3A1
 performance_value_color=#89B4FA
 performance_graph_color=#A6E3A1
 performance_sec_graph_color=#FAB387
+performance_scrollbar_color=#6C7086
 
 ################
 ### sensors ###
@@ -110,6 +114,7 @@ sensors_boxes_background_color=#313244
 sensors_boxes_foreground_color=#A6ADC8
 sensors_battery_background_color=#7dcfff
 sensors_battery_frame_color=#45475A
+sensors_battery_case_color=#11111B
 sensors_boxes_title_foreground_color=#BAC2DE
 
 ##############
@@ -148,6 +153,17 @@ heatbar_color_seven=#bb9af7
 heatbar_color_eight=#7aa2f7
 heatbar_color_nine=#2ac3de
 heatbar_color_ten=#a9b1d6
+heatbar_background_color=#313244
+
+#####################
+### config panel ###
+####################
+config_background_color=#1E1E2E
+config_container_background_color=#313244
+config_input_background_color=#45475A
+config_input_border_color=#585B70
+config_button_background_color=#F38BA8
+config_button_foreground_color=#1E1E2E
 language=en
 ```
 ### Gruvbox Alike Theme
@@ -166,6 +182,9 @@ processes_body_color=#ebdbb2
 processes_head_background_color=#3c3836
 processes_head_color=#ebdbb2
 processes_table_values=user,pid,ppid,name,state,cpu_usage,memory
+processes_border_color=#504945
+processes_tree_toggle_color=#928374
+processes_monitor_border_color=#665c54
 
 ####################
 ### performance ###
@@ -180,6 +199,7 @@ performance_label_color=#98971a
 performance_value_color=#458588
 performance_graph_color=#98971a
 performance_sec_graph_color=#d65d0e
+performance_scrollbar_color=#928374
 
 ################
 ### sensors ###
@@ -191,6 +211,7 @@ sensors_boxes_background_color=#3c3836
 sensors_boxes_foreground_color=#928374
 sensors_battery_background_color=#689d6a
 sensors_battery_frame_color=#45475A
+sensors_battery_case_color=#1d2021
 sensors_boxes_title_foreground_color=#928374
 
 ##############
@@ -229,6 +250,17 @@ heatbar_color_seven=#689d6a
 heatbar_color_eight=#458588
 heatbar_color_nine=#98971a
 heatbar_color_ten=#928374
+heatbar_background_color=#3c3836
+
+#####################
+### config panel ###
+####################
+config_background_color=#282828
+config_container_background_color=#3c3836
+config_input_background_color=#504945
+config_input_border_color=#665c54
+config_button_background_color=#d65d0e
+config_button_foreground_color=#282828
 language=en
 ```
 

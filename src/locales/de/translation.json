@@ -46,6 +46,7 @@
     "heatbar_config.color_eight": "Achte Farbe",
     "heatbar_config.color_nine": "Neunte Farbe",
     "heatbar_config.color_ten": "Zehnte Farbe",
+    "heatbar_config.background_color": "Hintergrundfarbe",
 
     "navbar_config.title": "Navigationsleiste-Konfiguration",
     "navbar_config.background_color": "Hintergrundfarbe",
@@ -63,6 +64,7 @@
     "sensors_config.boxes_title_foreground_color": "Boxen-Titel-Vordergrundfarbe",
     "sensors_config.battery_background_color": "Batterie-Hintergrundfarbe",
     "sensors_config.battery_frame_color": "Batterie-Rahmenfarbe",
+    "sensors_config.battery_case_color": "Batterie-Gehäusefarbe",
 
     "performance_config.title": "Leistungs-Konfiguration",
     "performance_config.update_time": "Aktualisierungszeit",
@@ -79,6 +81,7 @@
     "performance_config.sec_graph_color": "Zweite Grafik-Farbe",
     "performance_config.network": "Netzwerk",
     "performance_config.show_virtual_interfaces": "Virtuelle Schnittstellen anzeigen (docker0, veth, br-, lo…)",
+    "performance_config.scrollbar_color": "Scrollleistenfarbe",
 
     "processes_config.title": "Prozesskonfiguration",
     "processes_config.update_time": "Aktualisierungszeit",
@@ -98,6 +101,9 @@
     "processes_config.table_value_write_disk_usage": "Festplattennutzung Schreiben",
     "processes_config.table_value_read_disk_speed": "Lesegeschwindigkeit",
     "processes_config.table_value_write_disk_speed": "Schreibgeschwindigkeit",
+    "processes_config.border_color": "Rahmenfarbe",
+    "processes_config.tree_toggle_color": "Baum-Umschaltfarbe",
+    "processes_config.monitor_border_color": "Monitor-Rahmenfarbe",
 
     "proc.table_value_user": "Benutzer",
     "proc.table_value_pid": "PID",
@@ -169,6 +175,14 @@
     "sidebar.wifi": "WLAN",
     "sidebar.ethernet": "Ethernet",
     "sidebar.no_gpu_detected": "Keine GPU erkannt",
+
+    "config_panel_config.title": "Konfigurationspanel-Einstellungen",
+    "config_panel_config.background_color": "Hintergrundfarbe",
+    "config_panel_config.container_background_color": "Container-Hintergrundfarbe",
+    "config_panel_config.input_background_color": "Eingabefeld-Hintergrundfarbe",
+    "config_panel_config.input_border_color": "Eingabefeld-Rahmenfarbe",
+    "config_panel_config.button_background_color": "Schaltflächen-Hintergrundfarbe",
+    "config_panel_config.button_foreground_color": "Schaltflächen-Textfarbe",
 
     "error.fetch_failed": "Daten konnten nicht geladen werden",
     "error.battery_failed": "Batteriedaten konnten nicht geladen werden",
