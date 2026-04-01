@@ -44,14 +44,11 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick })
     const { t } = useTranslation();
 
     useEffect(() => {
-        if (gpuData && gpuData.utilization !== undefined) {
+        if (gpuData && gpuData.utilization != null) {
             setGpuUsage(prevGpuUsage => {
-                const newActiveMem = [...prevGpuUsage, parseInt(gpuData.utilization) as number];
-                if (newActiveMem.length > 20) {
-                    return newActiveMem.slice(newActiveMem.length - 20);
-                } else {
-                    return newActiveMem;
-                }
+                const parsed = parseInt(gpuData.utilization as string);
+                const val = isNaN(parsed) ? 0 : parsed;
+                return [...prevGpuUsage, val].slice(-20);
             });
         }
     }, [gpuData]);

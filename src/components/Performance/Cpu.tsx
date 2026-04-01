@@ -46,14 +46,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick }) => {
 
     useEffect(() => {
         if (cpuData !== null && cpuData.usage !== undefined) {
-            setCpuUsage(prevCpuUsage => {
-                const newCpuUsage = [...prevCpuUsage, cpuData.usage as number];
-                if (newCpuUsage.length > 20) {
-                    return newCpuUsage.slice(newCpuUsage.length - 20);
-                } else {
-                    return newCpuUsage;
-                }
-            });
+            setCpuUsage(prevCpuUsage => [...prevCpuUsage, cpuData.usage as number].slice(-20));
         }
     }, [cpuData]);
 
@@ -123,13 +116,13 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick }) => {
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.base_speed')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                            {(cpuData.base_speed / 1000000).toFixed(1)} GHz
+                            {cpuData.base_speed != null ? (parseFloat(cpuData.base_speed) / 1000000).toFixed(1) + ' GHz' : 'N/A'}
                         </RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.max_speed')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                            {(cpuData.max_speed / 1000000).toFixed(1)} GHz
+                            {cpuData.max_speed != null ? (parseFloat(cpuData.max_speed) / 1000000).toFixed(1) + ' GHz' : 'N/A'}
                         </RightValue>
                     </FixedValueItem>
 
