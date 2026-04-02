@@ -164,6 +164,7 @@ config_input_background_color=#45475A
 config_input_border_color=#585B70
 config_button_background_color=#F38BA8
 config_button_foreground_color=#1E1E2E
+config_text_color=#CDD6F4
 language=en
 ```
 ### Gruvbox Alike Theme
@@ -261,6 +262,7 @@ config_input_background_color=#504945
 config_input_border_color=#665c54
 config_button_background_color=#d65d0e
 config_button_foreground_color=#282828
+config_text_color=#ebdbb2
 language=en
 ```
 

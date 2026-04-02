@@ -183,6 +183,7 @@
     "config_panel_config.input_border_color": "Kolor Ramki Pól",
     "config_panel_config.button_background_color": "Kolor Tła Przycisków",
     "config_panel_config.button_foreground_color": "Kolor Tekstu Przycisków",
+    "config_panel_config.text_color": "Kolor Tekstu",
 
     "error.fetch_failed": "Nie udało się załadować danych",
     "error.battery_failed": "Nie udało się załadować danych baterii",

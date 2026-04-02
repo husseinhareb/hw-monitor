@@ -189,6 +189,7 @@
     "config_panel_config.input_border_color": "Цвет границы полей",
     "config_panel_config.button_background_color": "Цвет фона кнопок",
     "config_panel_config.button_foreground_color": "Цвет текста кнопок",
+    "config_panel_config.text_color": "Цвет текста",
 
     "error.fetch_failed": "Не удалось загрузить данные",
     "error.battery_failed": "Не удалось загрузить данные аккумулятора",

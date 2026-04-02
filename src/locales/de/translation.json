@@ -183,6 +183,7 @@
     "config_panel_config.input_border_color": "Eingabefeld-Rahmenfarbe",
     "config_panel_config.button_background_color": "Schaltflächen-Hintergrundfarbe",
     "config_panel_config.button_foreground_color": "Schaltflächen-Textfarbe",
+    "config_panel_config.text_color": "Textfarbe",
 
     "error.fetch_failed": "Daten konnten nicht geladen werden",
     "error.battery_failed": "Batteriedaten konnten nicht geladen werden",

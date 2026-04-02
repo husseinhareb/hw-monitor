@@ -190,6 +190,7 @@
     "config_panel_config.input_border_color": "لون حدود الحقول",
     "config_panel_config.button_background_color": "لون خلفية الأزرار",
     "config_panel_config.button_foreground_color": "لون نص الأزرار",
+    "config_panel_config.text_color": "لون النص",
 
     "error.fetch_failed": "فشل في تحميل البيانات",
     "error.battery_failed": "فشل في تحميل بيانات البطارية",

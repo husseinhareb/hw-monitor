@@ -189,6 +189,7 @@
     "config_panel_config.input_border_color": "Колір межі полів",
     "config_panel_config.button_background_color": "Колір фону кнопок",
     "config_panel_config.button_foreground_color": "Колір тексту кнопок",
+    "config_panel_config.text_color": "Колір тексту",
 
     "error.fetch_failed": "Не вдалося завантажити дані",
     "error.battery_failed": "Не вдалося завантажити дані акумулятора",

@@ -188,6 +188,7 @@
     "config_panel_config.input_border_color": "Couleur de Bordure des Champs",
     "config_panel_config.button_background_color": "Couleur de Fond des Boutons",
     "config_panel_config.button_foreground_color": "Couleur du Texte des Boutons",
+    "config_panel_config.text_color": "Couleur du Texte",
 
     "error.fetch_failed": "Échec du chargement des données",
     "error.battery_failed": "Échec du chargement des données de batterie",

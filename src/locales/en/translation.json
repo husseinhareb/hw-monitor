@@ -190,6 +190,7 @@
     "config_panel_config.input_border_color": "Input Border Color",
     "config_panel_config.button_background_color": "Button Background Color",
     "config_panel_config.button_foreground_color": "Button Foreground Color",
+    "config_panel_config.text_color": "Text Color",
 
     "error.fetch_failed": "Failed to load data",
     "error.battery_failed": "Failed to load battery data",
