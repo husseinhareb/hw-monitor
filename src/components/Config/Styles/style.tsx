@@ -1,7 +1,9 @@
 import styled from "styled-components";
 
-export const Wrapper = styled.div<{ bgColor: string }>`
+export const Wrapper = styled.div<{ bgColor: string; textColor: string; inputBorderColor: string }>`
   background-color: ${(props) => props.bgColor};
+  --config-text-color: ${(props) => props.textColor};
+  --config-input-border-color: ${(props) => props.inputBorderColor};
   height: 100%;
   width: 100%;
   overflow:auto;
@@ -64,10 +66,10 @@ export const StyledButton = styled.button<{ buttonBgColor: string; buttonTextCol
   }
 `;
 
-export const ConfigContainer = styled.div<{ containerBgColor: string }>`
+export const ConfigContainer = styled.div<{ containerBgColor: string; textColor?: string }>`
   padding: 20px;
   background-color: ${(props) => props.containerBgColor};
-  color: white;
+  color: ${(props) => props.textColor ?? 'var(--config-text-color, white)'};
   border-radius: 10px;
   margin: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -94,21 +96,21 @@ export const Label = styled.label`
   margin: 10px 0;
 `;
 
-export const Input = styled.input<{ inputBgColor: string; borderColor: string }>`
+export const Input = styled.input<{ inputBgColor: string; borderColor: string; textColor?: string }>`
   width: 100%;
   padding: 10px;
   border: 1px solid ${(props) => props.borderColor};
   border-radius: 5px;
   background: ${(props) => props.inputBgColor};
-  color: white;
+  color: ${(props) => props.textColor ?? 'var(--config-text-color, white)'};
   margin-top: 5px;
 `;
 
-export const ColorInput = styled.input`
+export const ColorInput = styled.input<{ borderColor?: string }>`
   width: 50px;
   height: 30px;
   margin-left: 10px;
-  border: 2px solid #bbbbbb;
+  border: 2px solid ${(props) => props.borderColor ?? 'var(--config-input-border-color, #bbbbbb)'};
   border-radius: 8px;
   padding: 0;
   cursor: pointer;

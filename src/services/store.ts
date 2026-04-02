@@ -81,6 +81,7 @@ interface ConfigPanelConfig {
   config_input_border_color: string;
   config_button_background_color: string;
   config_button_foreground_color: string;
+  config_text_color: string;
 }
 
 interface Store {
@@ -157,7 +158,7 @@ export const useStore = create<Store>((set) => ({
     processes_body_color: "#ffffff",
     processes_head_background_color: "#252526",
     processes_head_color: "#ffffff",
-    processes_table_values: ["user","pid","ppid","name","state","memory","cpu"],
+    processes_table_values: ["user","pid","ppid","name","state","memory","cpu_usage"],
     processes_border_color: "#333333",
     processes_tree_toggle_color: "#888888",
     processes_monitor_border_color: "#555555",
@@ -166,10 +167,10 @@ export const useStore = create<Store>((set) => ({
 
   performanceConfig: {
     performance_update_time: 1000,
-    performance_sidebar_background_color: "#ffffff",
+    performance_sidebar_background_color: "#333333",
     performance_sidebar_color: "#ffffff",
     performance_sidebar_selected_color: "#ffffff",
-    performance_background_color: "#ffffff",
+    performance_background_color: "#2d2d2d",
     performance_title_color: "#ffffff",
     performance_label_color: "#6d6d6d",
     performance_value_color: "#ffffff",
@@ -182,13 +183,13 @@ export const useStore = create<Store>((set) => ({
 
   sensorsConfig: {
     sensors_update_time: 2000,
-    sensors_background_color: "#333",
+    sensors_background_color: "#2b2b2b",
     sensors_foreground_color: "#ffffff",
-    sensors_boxes_background_color: "#2B2B2B",
-    sensors_boxes_foreground_color: "#6d6d6d",
-    sensors_boxes_title_foreground_color: "#9A9A9A",
-    sensors_battery_background_color: "#1E1E1E",
-    sensors_battery_frame_color: "#FFFFFF",
+    sensors_boxes_background_color: "#3a3a3a",
+    sensors_boxes_foreground_color: "#ffffff",
+    sensors_boxes_title_foreground_color: "#0088dd",
+    sensors_battery_background_color: "#38e740",
+    sensors_battery_frame_color: "#ffffff",
     sensors_battery_case_color: "#060606",
   },
   setSensorsConfig: (sensorsConfig) => set({ sensorsConfig }),
@@ -238,6 +239,7 @@ export const useStore = create<Store>((set) => ({
     config_input_border_color: "#444444",
     config_button_background_color: "#f3eae8",
     config_button_foreground_color: "#212830",
+    config_text_color: "#ffffff",
   },
   setConfigPanelConfig: (configPanelConfig) => set({ configPanelConfig }),
 

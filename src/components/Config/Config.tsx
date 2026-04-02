@@ -47,7 +47,11 @@ const Config: React.FC = () => {
   };
 
   return (
-    <Wrapper bgColor={panelConfig.config_background_color}>
+    <Wrapper
+      bgColor={panelConfig.config_background_color}
+      textColor={panelConfig.config_text_color}
+      inputBorderColor={panelConfig.config_input_border_color}
+    >
       <Header>
         <StyledButton
           buttonBgColor={panelConfig.config_button_background_color}
@@ -56,7 +60,7 @@ const Config: React.FC = () => {
         >
           Load Default Config
         </StyledButton>
-        <Label htmlFor="language-select" style={{ color: "white" }}>
+        <Label htmlFor="language-select" style={{ color: panelConfig.config_text_color }}>
           Lang:
           <Select
             id="language-select"

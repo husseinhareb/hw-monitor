@@ -7,6 +7,7 @@ type ConfigPanelConfig = {
     config_input_border_color: string;
     config_button_background_color: string;
     config_button_foreground_color: string;
+    config_text_color: string;
 };
 
 const initialConfigPanelConfig: ConfigPanelConfig = {
@@ -16,6 +17,7 @@ const initialConfigPanelConfig: ConfigPanelConfig = {
     config_input_border_color: "#444444",
     config_button_background_color: "#f3eae8",
     config_button_foreground_color: "#212830",
+    config_text_color: "#ffffff",
 };
 
 const useConfigPanelConfig = () => {

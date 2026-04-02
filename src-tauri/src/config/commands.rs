@@ -121,6 +121,7 @@ define_config! {
     config_input_border_color: String = "#444444".into(),
     config_button_background_color: String = "#f3eae8".into(),
     config_button_foreground_color: String = "#212830".into(),
+    config_text_color: String = "#ffffff".into(),
     language: String = "en".into(),
     show_virtual_interfaces: bool = false,
 }
@@ -300,6 +301,7 @@ set_config_command!(set_config_panel_configs, ConfigPanelConfig {
     config_input_border_color: String,
     config_button_background_color: String,
     config_button_foreground_color: String,
+    config_text_color: String,
 });
 
 set_config_command!(set_language_config, LanguageConfig {

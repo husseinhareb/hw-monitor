@@ -17,6 +17,7 @@ interface ConfigPanelConfig {
     config_input_border_color: string;
     config_button_background_color: string;
     config_button_foreground_color: string;
+    config_text_color: string;
 }
 
 const ConfigPanelConfigSection: React.FC = () => {
@@ -79,6 +80,14 @@ const ConfigPanelConfigSection: React.FC = () => {
                     type="color"
                     value={config.config_button_foreground_color}
                     onChange={(e) => handleConfigChange("config_button_foreground_color", e.target.value)}
+                />
+            </ColorLabel>
+            <ColorLabel>
+                <ColorLabelText>{t('config_panel_config.text_color')}</ColorLabelText>
+                <ColorInput
+                    type="color"
+                    value={config.config_text_color}
+                    onChange={(e) => handleConfigChange("config_text_color", e.target.value)}
                 />
             </ColorLabel>
         </ConfigContainer>
