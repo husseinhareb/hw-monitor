@@ -6,7 +6,7 @@ import { usePaused } from "../../services/store";
 export interface Process {
     user: string;
     pid: number;
-    ppid: number;
+    ppid: number | null;
     name: string;
     state: string;
     memory: string;
@@ -15,7 +15,7 @@ export interface Process {
     write_disk_usage: string;
     read_disk_speed: string;
     write_disk_speed: string;
-    [key: string]: string | number; // Index signature
+    [key: string]: string | number | null;
 }
 
 

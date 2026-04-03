@@ -7,9 +7,9 @@ use std::time::Instant;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Process {
-    pid: String,
+    pid: u32,
     name: Option<String>,
-    ppid: Option<String>,
+    ppid: Option<u32>,
     state: Option<String>,
     user: Option<String>,
     memory: Option<String>,
@@ -171,7 +171,7 @@ pub struct ProcSnapshot {
     pub time: Instant,
 }
 
-fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String]) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>) {
+fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String]) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>, HashMap<i32, (u64, u64)>) {
     let total_cpu_time_now = match get_total_cpu_time() {
         Ok(t) => t,
         Err(_) => return (HashMap::new(), HashMap::new()),
@@ -232,7 +232,7 @@ fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String])
         time: now,
     });
 
-    (cpu_results, disk_results)
+    (cpu_results, disk_results, cur_io)
 }
 
 struct DiskSpeedEntry {
@@ -258,40 +258,34 @@ fn read_proc_io(pid: i32) -> Option<(u64, u64)> {
 pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot>>>) -> Result<Vec<Process>, String> {
     let pids = list_proc_pid();
 
-    let (cpu_results, disk_speed_results) = calculate_cpu_percentage(&prev_proc, &pids);
+    let (cpu_results, disk_speed_results, cur_io) = calculate_cpu_percentage(&prev_proc, &pids);
 
     let uid_map = build_uid_map();
 
     let mut processes = Vec::with_capacity(pids.len());
     for pid in &pids {
+        let pid_u32 = match pid.parse::<u32>() {
+            Ok(v) => v,
+            Err(_) => continue,
+        };
+        let pid_i32 = pid_u32 as i32;
+
         let (name, ppid, user) = match read_proc_status_file(pid, &uid_map) {
             Some(info) => info,
             None => continue,
         };
+        let ppid_u32: Option<u32> = ppid.parse().ok();
 
         let state = get_proc_state(pid).unwrap_or_else(|| "N/A".to_string());
         let memory = get_proc_mem(pid).unwrap_or_else(|| "N/A".to_string());
 
-        let pid_i32 = pid.parse::<i32>().unwrap_or_default();
-
         let cpu_usage = cpu_results.get(&pid_i32).map(|u| format!("{:.2}", u));
 
-        let (read_disk_usage, write_disk_usage) = {
-            let io_path = format!("/proc/{}/io", pid);
-            if let Ok(io_content) = fs::read_to_string(&io_path) {
-                let mut read_bytes: u64 = 0;
-                let mut write_bytes: u64 = 0;
-                for line in io_content.lines() {
-                    if let Some(val) = line.strip_prefix("read_bytes: ") {
-                        read_bytes = val.trim().parse().unwrap_or(0);
-                    } else if let Some(val) = line.strip_prefix("write_bytes: ") {
-                        write_bytes = val.trim().parse().unwrap_or(0);
-                    }
-                }
-                (format_bytes(read_bytes as f64), format_bytes(write_bytes as f64))
-            } else {
-                ("N/A".to_string(), "N/A".to_string())
-            }
+        // Reuse the io snapshot already collected in calculate_cpu_percentage
+        let (read_disk_usage, write_disk_usage) = if let Some(&(read_bytes, write_bytes)) = cur_io.get(&pid_i32) {
+            (format_bytes(read_bytes as f64), format_bytes(write_bytes as f64))
+        } else {
+            ("N/A".to_string(), "N/A".to_string())
         };
 
         let (read_disk_speed, write_disk_speed) = if let Some(entry) = disk_speed_results.get(&pid_i32) {
@@ -301,9 +295,9 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
         };
 
         processes.push(Process {
-            pid: pid.clone(),
+            pid: pid_u32,
             name: Some(name),
-            ppid: Some(ppid),
+            ppid: ppid_u32,
             state: Some(state),
             user: Some(user),
             memory: Some(memory),
@@ -320,13 +314,11 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
 
 #[tauri::command]
 pub fn kill_process(process: Process) -> Result<(), String> {
-    let pid_str = process.pid;
-    let pid: i32 = pid_str.parse().map_err(|_| format!("Invalid PID: {}", pid_str))?;
-
+    let pid = process.pid as i32;
     let ret = unsafe { libc::kill(pid, libc::SIGTERM) };
     if ret == 0 {
         Ok(())
     } else {
-        Err(format!("Failed to kill process with PID {}", pid_str))
+        Err(format!("Failed to kill process with PID {}", pid))
     }
 }
