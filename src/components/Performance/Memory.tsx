@@ -57,15 +57,10 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick }) => {
             };
             setMemoryData(newMemoryData);
 
-            const activeValue = newMemoryData.active.value as number;
-            setActiveMem(prevActiveMem => {
-                const newActiveMem = [...prevActiveMem, activeValue];
-                if (newActiveMem.length > 20) {
-                    return newActiveMem.slice(newActiveMem.length - 20);
-                } else {
-                    return newActiveMem;
-                }
-            });
+            const activeValue = memoryUsage.total
+                ? ((memoryUsage.active ?? 0) / memoryUsage.total) * newMemoryData.total.value
+                : newMemoryData.active.value;
+            setActiveMem(prev => [...prev, activeValue].slice(-20));
         }
     }, [memoryUsage, convertData]);
 

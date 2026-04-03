@@ -28,7 +28,9 @@ const useMemoryData = () => {
             try {
                 const fetchedMemory: Memory = await invoke("get_mem_info");
                 setMemoryUsage(fetchedMemory);
-                setMaxMemory(Math.floor(convertData(fetchedMemory.total).value));
+                if (fetchedMemory.total != null) {
+                    setMaxMemory(Math.floor(convertData(fetchedMemory.total).value));
+                }
             } catch (error) {
                 console.error("Error fetching memory data:", error);
             }
