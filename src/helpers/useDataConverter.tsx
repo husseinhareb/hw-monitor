@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
+
 const useDataConverter = () => {
     const kiloBytes = 1000;
 
-    const convertData = (data: number | null): { value: number, unit: string } => {
+    const convertData = useCallback((data: number | null): { value: number, unit: string } => {
         let unit = "B";
         let convertedData = data || 0;
 
@@ -19,7 +21,7 @@ const useDataConverter = () => {
         }
 
         return { value: convertedData, unit };
-    };
+    }, []);
 
     return convertData;
 };
