@@ -29,7 +29,8 @@ fn read_diskstats() -> Result<Vec<DiskStat>, String> {
     Ok(stats)
 }
 
-const KILO_BYTE: u64 = 1000;
+// /proc/partitions reports size in 1024-byte blocks
+const BLOCK_SIZE: u64 = 1024;
 
 fn get_sector_size(disk_name: &str) -> u64 {
     let path = format!("/sys/block/{}/queue/hw_sector_size", disk_name);
@@ -111,7 +112,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
                 let parts: Vec<&str> = line.split_whitespace().collect();
                 if parts.len() >= 4 {
                     let name = parts[3].to_string();
-                    let size: u64 = parts[2].parse().unwrap_or(0) * KILO_BYTE;
+                    let size: u64 = parts[2].parse().unwrap_or(0) * BLOCK_SIZE;
 
                     // new "base" disk?
                     if current_disk.is_none()

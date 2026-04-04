@@ -6,7 +6,6 @@ import { usePaused } from "../../services/store";
 interface SensorData {
   name: string;
   value: number;
-  max: number;
   critical: number | null;
 }
 
