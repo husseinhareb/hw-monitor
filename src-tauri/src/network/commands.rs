@@ -7,8 +7,8 @@ use std::time::Instant;
 #[derive(Serialize, Deserialize)]
 pub struct Network {
     interface: String,
-    upload: String, 
-    download: String,
+    upload: f64,
+    download: f64,
     total_upload: u64,
     total_download: u64,
 }
@@ -98,8 +98,8 @@ pub async fn get_network(show_virtual: bool, prev_net: tauri::State<'_, Mutex<Op
 
         result.push(Network {
             interface: iface.clone(),
-            download: format!("{:.1}", rx_per_sec),
-            upload: format!("{:.1}", tx_per_sec),
+            download: rx_per_sec,
+            upload: tx_per_sec,
             total_download: s2.rx_bytes,
             total_upload: s2.tx_bytes,
         });

@@ -4,9 +4,9 @@ use crate::cpu_utils::TotalCpuState;
 
 #[derive(Serialize, Deserialize)]
 pub struct TotalUsage {
-    memory: Option<String>,
-    cpu: Option<String>,
-    processes: Option<String>
+    memory: Option<u64>,
+    cpu: Option<u64>,
+    processes: Option<usize>,
 }
 
 fn get_cpu_usage_percentage(state: &TotalCpuState) -> Option<u64> {
@@ -62,9 +62,9 @@ fn get_running_processes_count() -> Option<usize> {
 
 #[tauri::command]
 pub async fn get_total_usages(prev_total_cpu: tauri::State<'_, TotalCpuState>) -> Result<Option<TotalUsage>, String> {
-    let memory = get_memory_usage_percentage().map(|v| v.to_string());
-    let cpu = get_cpu_usage_percentage(&prev_total_cpu).map(|v| v.to_string());
-    let processes = get_running_processes_count().map(|v| v.to_string());
+    let memory = get_memory_usage_percentage();
+    let cpu = get_cpu_usage_percentage(&prev_total_cpu);
+    let processes = get_running_processes_count();
 
     Ok(Some(TotalUsage {
         memory,
