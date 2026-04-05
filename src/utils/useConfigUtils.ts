@@ -9,7 +9,11 @@ let sharedConfigPromise: Promise<Record<string, unknown>> | null = null;
 
 function fetchAllConfigs(): Promise<Record<string, unknown>> {
     if (!sharedConfigPromise) {
-        sharedConfigPromise = invoke("get_configs");
+        sharedConfigPromise = (invoke("get_configs") as Promise<Record<string, unknown>>)
+            .catch((err) => {
+                sharedConfigPromise = null; // allow retry on next mount
+                return Promise.reject(err);
+            });
     }
     return sharedConfigPromise;
 }
