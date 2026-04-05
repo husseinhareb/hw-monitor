@@ -6,22 +6,22 @@ import { usePaused } from "../../services/store";
 
 
 interface CpuData {
-    name: string;
-    socket: number;
-    cores: number;
-    threads: number;
-    usage: number;
-    current_speed: number;
+    name: string | null;
+    socket: string | null;
+    cores: string | null;
+    threads: string | null;
+    usage: number | null;
+    current_speed: string | null;
     base_speed: string | null;
     max_speed: string | null;
-    virtualization: string;
-    uptime: string;
-    temperature: string;
+    virtualization: string | null;
+    uptime: string | null;
+    temperature: string | null;
 }
 
 
 const useCpuData = () => {
-    const [cpuData, setCpuData] = useState<CpuData>({ name: "Fetching CPU data...", cores: 0, threads: 0, usage: 0, current_speed: 0.0, base_speed: null, max_speed: null, virtualization: "enabled", socket: 0, uptime: "N/a", temperature: "0 C" });
+    const [cpuData, setCpuData] = useState<CpuData>({ name: null, cores: null, threads: null, usage: null, current_speed: null, base_speed: null, max_speed: null, virtualization: null, socket: null, uptime: null, temperature: null });
     const performanceConfig = usePerformanceConfig();  
     const paused = usePaused();
 
@@ -29,8 +29,8 @@ const useCpuData = () => {
         if (paused) return;
         const fetchCpuData = async () => {
             try {
-                const fetchedCpuData: CpuData = await invoke("get_cpu_informations");
-                setCpuData(fetchedCpuData);
+                const fetchedCpuData: CpuData | null = await invoke("get_cpu_informations");
+                if (fetchedCpuData) setCpuData(fetchedCpuData);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
