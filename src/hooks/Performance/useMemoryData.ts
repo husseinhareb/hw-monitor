@@ -40,7 +40,7 @@ const useMemoryData = () => {
         const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time);
 
         return () => clearInterval(intervalId);
-    }, [setMaxMemory, setMemory, performanceConfig.config.performance_update_time, paused]);
+    }, [setMaxMemory, performanceConfig.config.performance_update_time, paused]);
     return memoryUsage;
 };
 

@@ -72,7 +72,7 @@ fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(S
         } else if line.starts_with("Uid:") {
             if let Some(uid_str) = line.split_whitespace().nth(1) {
                 if let Ok(parsed_uid) = uid_str.parse::<u32>() {
-                    user = uid_map.get(&parsed_uid).cloned();
+                    user = Some(uid_map.get(&parsed_uid).cloned().unwrap_or_else(|| uid_str.to_string()));
                 }
             }
         }
@@ -109,9 +109,9 @@ fn get_proc_mem(pid: &str) -> Option<String> {
     let resident = resident_str.parse::<u64>().ok()?;
     let mem = resident * 4;
 
-    let mem_str = if mem > 1_000_000 {
+    let mem_str = if mem > 1_024 * 1_024 {
         format!("{:.2} Gb", mem as f64 / 1_024.0 / 1_024.0)
-    } else if mem > 1_000 {
+    } else if mem > 1_024 {
         format!("{:.2} Mb", mem as f64 / 1_024.0)
     } else {
         format!("{:.2} Kb", mem)
