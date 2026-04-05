@@ -146,7 +146,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
     // Build tree from flat list
     const { flattenedNodes } = useMemo(() => {
         const pidMap = new Map<number, Process>();
-        const childrenMap = new Map<number, Process[]>();
+        const childrenMap = new Map<number | null, Process[]>();
 
         for (const proc of processes) {
             pidMap.set(proc.pid, proc);
@@ -160,10 +160,10 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
             childrenMap.get(ppid)!.push(proc);
         }
 
-        // Roots: processes whose parent is not in the process list (or ppid=0)
+        // Roots: processes whose parent is not in the process list (or ppid is null/0)
         const roots: TreeNode[] = [];
         for (const proc of processes) {
-            if (proc.ppid === 0 || !pidMap.has(proc.ppid)) {
+            if (proc.ppid === null || proc.ppid === 0 || !pidMap.has(proc.ppid)) {
                 roots.push(buildNode(proc, 0));
             }
         }
