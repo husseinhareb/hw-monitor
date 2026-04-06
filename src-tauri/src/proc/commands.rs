@@ -228,7 +228,7 @@ fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String])
     *guard = Some(ProcSnapshot {
         total_cpu_time: total_cpu_time_now,
         process_cpu_times: cur_cpu,
-        process_io: cur_io,
+        process_io: cur_io.clone(),
         time: now,
     });
 
