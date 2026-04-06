@@ -1,6 +1,6 @@
 // src/components/Performance/Sidebar.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import {
   useCpu,
@@ -9,6 +9,10 @@ import {
   useMemory,
   useNetworkSpeeds,
   usePaused,
+  useSetCpu,
+  useSetGpuUsage,
+  useSetMemory,
+  useSetNetworkSpeed,
 } from '../../services/store';
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
@@ -18,8 +22,24 @@ import Network from './Network';
 import Disk from './Disk';
 import useDiskData from '../../hooks/Performance/useDiskData';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
+import useCpuData from '../../hooks/Performance/useCpuData';
+import useMemoryData from '../../hooks/Performance/useMemoryData';
 import useGpuData from '../../hooks/Performance/useGpuData';
+import useNetworkData from '../../hooks/Performance/useNetworkData';
+import useDataConverter from '../../helpers/useDataConverter';
 import { useTranslation } from 'react-i18next';
+
+/** Null-rendering component — keeps one network interface polled and pushed to the store. */
+const NetworkPoller: React.FC<{ interfaceName: string }> = ({ interfaceName }) => {
+  const { download, upload } = useNetworkData(interfaceName);
+  const setNetworkSpeed = useSetNetworkSpeed();
+  const downloadValues = useMemo(() => download.map(d => d.value), [download]);
+  const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
+  useEffect(() => {
+    setNetworkSpeed(interfaceName, downloadValues, uploadValues);
+  }, [interfaceName, downloadValues, uploadValues, setNetworkSpeed]);
+  return null;
+};
 
 interface SidebarProps {
   interfaceNames: string[];
@@ -42,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     return () => window.clearInterval(id);
   }, [updateInterval, paused]);
 
-  // raw metrics from hooks
+  // raw metrics from store (for sidebar mini-graphs)
   const cpuUsage = useCpu();
   const memory = useMemory();
   const maxMemory = useMaxMemory();
@@ -59,6 +79,61 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   const isMaxMemSet = maxMemory > 0;
 
+  // --- Always-running data pumps (keep all sidebar mini-graphs updated) ---
+
+  // CPU pump: fetch raw data → accumulate history → push to store
+  const { cpuData } = useCpuData();
+  const [cpuUsageHistory, setCpuUsageHistory] = useState<number[]>([]);
+  const setCpuStore = useSetCpu();
+  useEffect(() => {
+    if (cpuData?.usage != null) {
+      setCpuUsageHistory(prev => [...prev, cpuData.usage as number].slice(-20));
+    }
+  }, [cpuData]);
+  useEffect(() => {
+    if (cpuUsageHistory.length > 0) setCpuStore(cpuUsageHistory);
+  }, [cpuUsageHistory, setCpuStore]);
+
+  // Memory pump: fetch raw data → accumulate history → push to store
+  const memoryRaw = useMemoryData();
+  const convertData = useDataConverter();
+  const [activeMemHistory, setActiveMemHistory] = useState<number[]>([]);
+  const setMemoryStore = useSetMemory();
+  useEffect(() => {
+    if (memoryRaw?.total != null && memoryRaw.active != null) {
+      const totalConverted = convertData(memoryRaw.total).value;
+      const activeValue = (memoryRaw.active / memoryRaw.total) * totalConverted;
+      setActiveMemHistory(prev => [...prev, activeValue].slice(-20));
+    }
+  }, [memoryRaw, convertData]);
+  useEffect(() => {
+    if (activeMemHistory.length > 0) setMemoryStore(activeMemHistory);
+  }, [activeMemHistory, setMemoryStore]);
+
+  // GPU pump: gpuList already fetched by useGpuData above → accumulate per-GPU history → push to store
+  const [gpuUsageHistories, setGpuUsageHistories] = useState<Record<string, number[]>>({});
+  const setGpuUsageStore = useSetGpuUsage();
+  useEffect(() => {
+    if (gpuList.length === 0) return;
+    setGpuUsageHistories(prev => {
+      const updated = { ...prev };
+      gpuList.forEach(gpu => {
+        if (gpu.id && gpu.utilization != null) {
+          const parsed = parseInt(gpu.utilization as string);
+          const val = isNaN(parsed) ? 0 : parsed;
+          const history = updated[gpu.id] ?? [];
+          updated[gpu.id] = [...history, val].slice(-20);
+        }
+      });
+      return updated;
+    });
+  }, [gpuList]);
+  useEffect(() => {
+    Object.entries(gpuUsageHistories).forEach(([id, history]) => {
+      if (history.length > 0) setGpuUsageStore(id, history);
+    });
+  }, [gpuUsageHistories, setGpuUsageStore]);
+
   const handleItemClick = (name: string) => {
     setSelectedItem(name);
   };
@@ -66,15 +141,15 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // Render only the selected detail component
   const renderDetailPane = () => {
     if (selectedItem === 'CPU') {
-      return <Cpu performanceConfig={perf} tick={tick} />;
+      return <Cpu performanceConfig={perf} tick={tick} cpuData={cpuData} cpuUsage={cpuUsageHistory} />;
     }
     if (selectedItem === 'Memory') {
-      return <Memory performanceConfig={perf} tick={tick} />;
+      return <Memory performanceConfig={perf} tick={tick} memoryUsage={memoryRaw} activeMem={activeMemHistory} />;
     }
     for (let i = 0; i < gpuList.length; i++) {
       const gpuKey = `GPU-${gpuList[i].id || i}`;
       if (selectedItem === gpuKey) {
-        return <Gpu gpuData={gpuList[i]} gpuIndex={i} performanceConfig={perf} tick={tick} />;
+        return <Gpu gpuData={gpuList[i]} gpuIndex={i} performanceConfig={perf} tick={tick} gpuUsage={gpuUsageHistories[gpuList[i].id ?? ''] ?? []} />;
       }
     }
     for (const name of interfaceNames) {
@@ -93,6 +168,8 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%' }}>
+      {/* Background network pollers — render null, keep all interfaces polled */}
+      {interfaceNames.map(name => <NetworkPoller key={name} interfaceName={name} />)}
       {/* Sidebar List */}
       <SidebarContainer
         performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
