@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Graph from "../Graph/Graph";
-import useMemoryData from "../../hooks/Performance/useMemoryData";
-import { useSetMemory } from "../../services/store";
+import { MemoryUsage } from "../../hooks/Performance/useMemoryData";
 import useDataConverter from "../../helpers/useDataConverter";
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "./Styles/style";
 import { NameContainer } from "../../styles/general-style";
@@ -25,12 +24,11 @@ interface MemoryProps {
         }
     };
     tick: number;
+    memoryUsage: MemoryUsage | null;
+    activeMem: number[];
 }
 
-const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick }) => {
-    const memoryUsage = useMemoryData();
-    const [activeMem, setActiveMem] = useState<number[]>([]);
-    const setMemory = useSetMemory();
+const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, activeMem }) => {
     const convertData = useDataConverter();
     const { t } = useTranslation();
 
@@ -56,19 +54,8 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick }) => {
                 swapCache: convertData(memoryUsage.swap_cache)
             };
             setMemoryData(newMemoryData);
-
-            const activeValue = memoryUsage.total
-                ? ((memoryUsage.active ?? 0) / memoryUsage.total) * newMemoryData.total.value
-                : newMemoryData.active.value;
-            setActiveMem(prev => [...prev, activeValue].slice(-20));
         }
     }, [memoryUsage, convertData]);
-
-    useEffect(() => {
-        if (activeMem.length > 0) {
-            setMemory(activeMem);
-        }
-    }, [activeMem, setMemory]);
 
     return (
         <MemoryContainer 

@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
-import { useSetNetworkSpeed } from '../../services/store';
+import React, { useMemo } from 'react';
 import Graph from '../Graph/Graph';
 import useNetworkData from '../../hooks/Performance/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
@@ -27,18 +26,11 @@ interface NetworkProps {
 
 const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tick }) => {
     const { download = [], upload = [], totalDownload, totalUpload } = useNetworkData(interfaceName);
-    const setNetworkSpeed = useSetNetworkSpeed();
     const convertData = useDataConverter();
     const { t } = useTranslation();
 
     const downloadValues = useMemo(() => download.map(d => d.value), [download]);
     const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
-
-    useEffect(() => {
-        if (interfaceName) {
-            setNetworkSpeed(interfaceName, downloadValues, uploadValues);
-        }
-    }, [interfaceName, downloadValues, uploadValues, setNetworkSpeed]);
 
     // inside your component:
     const formatSpeed = (arr: Array<{ value: number; unit: string }>) => {

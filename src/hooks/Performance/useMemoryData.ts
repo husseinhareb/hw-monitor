@@ -5,7 +5,7 @@ import { useSetMemory, useSetMaxMemory, usePaused } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
 import usePerformanceConfig from "../Performance/usePerformanceConfig";
 
-interface Memory {
+export interface MemoryUsage {
     total: number | null;
     free: number | null;
     available: number | null;
@@ -16,7 +16,7 @@ interface Memory {
 }
 
 const useMemoryData = () => {
-    const [memoryUsage, setMemoryUsage] = useState<Memory | null>(null);
+    const [memoryUsage, setMemoryUsage] = useState<MemoryUsage | null>(null);
     const setMemory = useSetMemory();
     const setMaxMemory = useSetMaxMemory();
     const convertData = useDataConverter();
@@ -26,7 +26,7 @@ const useMemoryData = () => {
         if (paused) return;
         const fetchData = async () => {
             try {
-                const fetchedMemory: Memory = await invoke("get_mem_info");
+                const fetchedMemory: MemoryUsage = await invoke("get_mem_info");
                 setMemoryUsage(fetchedMemory);
                 if (fetchedMemory.total != null) {
                     setMaxMemory(Math.floor(convertData(fetchedMemory.total).value));

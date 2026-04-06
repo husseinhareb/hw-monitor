@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Graph from "../Graph/Graph";
-import { useSetCpu } from "../../services/store";
-import useCpuData from "../../hooks/Performance/useCpuData";
+import { CpuData } from "../../hooks/Performance/useCpuData";
 import {
     CPU, LeftLabel,
     RightLabel,
@@ -35,26 +34,13 @@ interface CpuProps {
         }
     };
     tick: number;
+    cpuData: CpuData;
+    cpuUsage: number[];
 }
 
-const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick }) => {
-    const { cpuData } = useCpuData();
-    const [cpuUsage, setCpuUsage] = useState<number[]>([]);
+const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage }) => {
     const totalUsages = useTotalUsagesData();
-    const setCpu = useSetCpu();
     const { t } = useTranslation();
-
-    useEffect(() => {
-        if (cpuData !== null && cpuData.usage != null) {
-            setCpuUsage(prevCpuUsage => [...prevCpuUsage, cpuData.usage as number].slice(-20));
-        }
-    }, [cpuData]);
-
-    useEffect(() => {
-        if (cpuUsage.length > 0) {
-            setCpu(cpuUsage);
-        }
-    }, [cpuUsage, setCpu]);
 
 
     return (

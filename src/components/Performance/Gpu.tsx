@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Graph from "../Graph/Graph";
-import { useSetGpuUsage } from "../../services/store";
 import { GpuData } from "../../hooks/Performance/useGpuData";
 import {
     CPU, LeftLabel,
@@ -36,28 +35,11 @@ interface GpuProps {
         }
     };
     tick: number;
+    gpuUsage: number[];
 }
 
-const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick }) => {
-    const [gpuUsage, setGpuUsage] = useState<number[]>([]);
-    const setGpuUsageStore = useSetGpuUsage();
+const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick, gpuUsage }) => {
     const { t } = useTranslation();
-
-    useEffect(() => {
-        if (gpuData && gpuData.utilization != null) {
-            setGpuUsage(prevGpuUsage => {
-                const parsed = parseInt(gpuData.utilization as string);
-                const val = isNaN(parsed) ? 0 : parsed;
-                return [...prevGpuUsage, val].slice(-20);
-            });
-        }
-    }, [gpuData]);
-
-    useEffect(() => {
-        if (gpuData && gpuUsage.length > 0 && gpuData.id) {
-            setGpuUsageStore(gpuData.id, gpuUsage);
-        }
-    }, [gpuUsage, gpuData, gpuIndex, setGpuUsageStore]);
 
     return (
         <CPU

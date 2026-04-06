@@ -5,7 +5,7 @@ import usePerformanceConfig from "./usePerformanceConfig";
 import { usePaused } from "../../services/store";
 
 
-interface CpuData {
+export interface CpuData {
     name: string | null;
     socket: string | null;
     cores: string | null;
