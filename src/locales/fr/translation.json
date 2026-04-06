@@ -190,6 +190,8 @@
     "config_panel_config.button_foreground_color": "Couleur du Texte des Boutons",
     "config_panel_config.text_color": "Couleur du Texte",
 
+    "config.load_default": "Charger la config par défaut",
+
     "error.fetch_failed": "Échec du chargement des données",
     "error.battery_failed": "Échec du chargement des données de batterie",
     "error.disks_failed": "Échec du chargement des données de disques",

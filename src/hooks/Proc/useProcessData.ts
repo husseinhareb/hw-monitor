@@ -4,17 +4,17 @@ import useProcessConfig from "../Proc/useProcessConfig";
 import { usePaused } from "../../services/store";
 
 export interface Process {
-    user: string;
+    user: string | null;
     pid: number;
     ppid: number | null;
-    name: string;
-    state: string;
-    memory: string;
-    cpu_usage: number;
-    read_disk_usage: string;
-    write_disk_usage: string;
-    read_disk_speed: string;
-    write_disk_speed: string;
+    name: string | null;
+    state: string | null;
+    memory: string | null;
+    cpu_usage: string | null;
+    read_disk_usage: string | null;
+    write_disk_usage: string | null;
+    read_disk_speed: string | null;
+    write_disk_speed: string | null;
     [key: string]: string | number | null;
 }
 

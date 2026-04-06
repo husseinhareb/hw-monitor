@@ -21,7 +21,7 @@ import {
 } from "./Styles/style";
 
 const Config: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [reloadFlag, setReloadFlag] = React.useState(false);
   const { config: panelConfig } = useConfigPanelConfig();
 
@@ -58,7 +58,7 @@ const Config: React.FC = () => {
           buttonTextColor={panelConfig.config_button_foreground_color}
           onClick={load_default_config}
         >
-          Load Default Config
+          {t('config.load_default')}
         </StyledButton>
         <Label htmlFor="language-select" style={{ color: panelConfig.config_text_color }}>
           Lang:

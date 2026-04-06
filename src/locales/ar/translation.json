@@ -192,6 +192,8 @@
     "config_panel_config.button_foreground_color": "لون نص الأزرار",
     "config_panel_config.text_color": "لون النص",
 
+    "config.load_default": "تحميل الإعدادات الافتراضية",
+
     "error.fetch_failed": "فشل في تحميل البيانات",
     "error.battery_failed": "فشل في تحميل بيانات البطارية",
     "error.disks_failed": "فشل في تحميل بيانات الأقراص",

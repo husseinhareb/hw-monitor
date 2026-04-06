@@ -174,7 +174,7 @@ pub struct ProcSnapshot {
 fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String]) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>, HashMap<i32, (u64, u64)>) {
     let total_cpu_time_now = match get_total_cpu_time() {
         Ok(t) => t,
-        Err(_) => return (HashMap::new(), HashMap::new()),
+        Err(_) => return (HashMap::new(), HashMap::new(), HashMap::new()),
     };
     let now = Instant::now();
 

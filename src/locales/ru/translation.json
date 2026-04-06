@@ -191,6 +191,8 @@
     "config_panel_config.button_foreground_color": "Цвет текста кнопок",
     "config_panel_config.text_color": "Цвет текста",
 
+    "config.load_default": "Загрузить конфигурацию по умолчанию",
+
     "error.fetch_failed": "Не удалось загрузить данные",
     "error.battery_failed": "Не удалось загрузить данные аккумулятора",
     "error.disks_failed": "Не удалось загрузить данные дисков",

@@ -185,6 +185,8 @@
     "config_panel_config.button_foreground_color": "Kolor Tekstu Przycisków",
     "config_panel_config.text_color": "Kolor Tekstu",
 
+    "config.load_default": "Załaduj domyślną konfigurację",
+
     "error.fetch_failed": "Nie udało się załadować danych",
     "error.battery_failed": "Nie udało się załadować danych baterii",
     "error.disks_failed": "Nie udało się załadować danych dysków",

@@ -191,6 +191,8 @@
     "config_panel_config.button_foreground_color": "Колір тексту кнопок",
     "config_panel_config.text_color": "Колір тексту",
 
+    "config.load_default": "Завантажити типову конфігурацію",
+
     "error.fetch_failed": "Не вдалося завантажити дані",
     "error.battery_failed": "Не вдалося завантажити дані акумулятора",
     "error.disks_failed": "Не вдалося завантажити дані дисків",

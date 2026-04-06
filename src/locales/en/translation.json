@@ -196,6 +196,8 @@
     "error.battery_failed": "Failed to load battery data",
     "error.disks_failed": "Failed to load disk data",
     "loading.generic": "Loading...",
-    "loading.battery": "Loading battery data..."
+    "loading.battery": "Loading battery data...",
+
+    "config.load_default": "Load Default Config"
 }
   

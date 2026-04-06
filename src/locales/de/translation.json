@@ -185,6 +185,8 @@
     "config_panel_config.button_foreground_color": "Schaltflächen-Textfarbe",
     "config_panel_config.text_color": "Textfarbe",
 
+    "config.load_default": "Standardkonfiguration laden",
+
     "error.fetch_failed": "Daten konnten nicht geladen werden",
     "error.battery_failed": "Batteriedaten konnten nicht geladen werden",
     "error.disks_failed": "Festplattendaten konnten nicht geladen werden",
