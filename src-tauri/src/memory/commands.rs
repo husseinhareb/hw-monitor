@@ -50,19 +50,19 @@ fn read_meminfo() -> io::Result<Memory> {
     //Fetched data is in kilobytes
     for line in meminfo.lines() {
         if let Some(value) = parse_meminfo_line(line, "MemTotal:") {
-            memory.total = Some(value * KILO_BYTE);
+            memory.total = Some(value.saturating_mul(KILO_BYTE));
         } else if let Some(value) = parse_meminfo_line(line, "MemFree:") {
-            memory.free = Some(value * KILO_BYTE)  ;
+            memory.free = Some(value.saturating_mul(KILO_BYTE));
         } else if let Some(value) = parse_meminfo_line(line, "MemAvailable:") {
-            memory.available = Some(value * KILO_BYTE);
+            memory.available = Some(value.saturating_mul(KILO_BYTE));
         } else if let Some(value) = parse_meminfo_line(line, "Cached:") {
-            memory.cached = Some(value * KILO_BYTE);
+            memory.cached = Some(value.saturating_mul(KILO_BYTE));
         } else if let Some(value) = parse_meminfo_line(line, "Active:") {
-            memory.active = Some(value * KILO_BYTE);
-        }else if let Some(value) = parse_meminfo_line(line, "SwapTotal:") {
-            memory.swap_total = Some(value * KILO_BYTE);
-        }else if let Some(value) = parse_meminfo_line(line, "SwapCached:") {
-            memory.swap_cache = Some(value * KILO_BYTE);
+            memory.active = Some(value.saturating_mul(KILO_BYTE));
+        } else if let Some(value) = parse_meminfo_line(line, "SwapTotal:") {
+            memory.swap_total = Some(value.saturating_mul(KILO_BYTE));
+        } else if let Some(value) = parse_meminfo_line(line, "SwapCached:") {
+            memory.swap_cache = Some(value.saturating_mul(KILO_BYTE));
         }
     }
 
