@@ -186,8 +186,8 @@ pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>)
                     if let Some(&(prev_r, prev_w)) = snap.stats.get(&d.name) {
                         let delta_r = bytes2_r.saturating_sub(prev_r);
                         let delta_w = bytes2_w.saturating_sub(prev_w);
-                        let rk = (delta_r as f64 / elapsed / 1024.0 * 10.0).round() / 10.0;
-                        let wk = (delta_w as f64 / elapsed / 1024.0 * 10.0).round() / 10.0;
+                        let rk = (delta_r as f64 / elapsed / 1000.0 * 10.0).round() / 10.0;
+                        let wk = (delta_w as f64 / elapsed / 1000.0 * 10.0).round() / 10.0;
                         d.read_speed = format!("{:.1}", rk);
                         d.write_speed = format!("{:.1}", wk);
                     }

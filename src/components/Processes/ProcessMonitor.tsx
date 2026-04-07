@@ -100,10 +100,10 @@ const parseMemoryToMb = (memStr: string): number => {
     if (!match) return 0;
     const value = parseFloat(match[1]);
     const unit = match[2].toLowerCase();
-    if (unit === 'gb') return value * 1024;
+    if (unit === 'gb') return value * 1000;
     if (unit === 'mb') return value;
-    if (unit === 'kb') return value / 1024;
-    return value / (1024 * 1024);
+    if (unit === 'kb') return value / 1000;
+    return value / (1000 * 1000);
 };
 
 const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, onClose }) => {

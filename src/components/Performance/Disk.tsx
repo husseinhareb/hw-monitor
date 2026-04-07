@@ -45,8 +45,8 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick, diskHist
 
   // Convert a speed in KB/s into human-readable unit per second
   const formatSpeed = (kbPerSec: number) => {
-    // kbPerSec * 1024 = bytes per second
-    const bytesPerSec = Math.round(kbPerSec * 1024);
+    // kbPerSec * 1000 = bytes per second (decimal KB, consistent with useDataConverter)
+    const bytesPerSec = Math.round(kbPerSec * 1000);
     const { value, unit } = convertData(bytesPerSec);
     return `${value} ${unit}${t('network.bytes_per_sec')}`;
   };
