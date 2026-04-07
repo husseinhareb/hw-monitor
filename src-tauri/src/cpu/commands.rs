@@ -168,7 +168,11 @@ fn get_cpu_info(prev_cpu: &PerfCpuState) -> Option<CpuInformations> {
     if let Ok(cpu_info) = fs::read_to_string("/proc/cpuinfo") {
         if let Some((cpu_name, cores, threads, current_speeds, virtualization, num_sockets)) = parse_cpu_info(&cpu_info) {
             // Calculate the average CPU speed in GHz
-            let average_current_speed_mhz = current_speeds.iter().sum::<f64>() / current_speeds.len() as f64;
+            let average_current_speed_mhz = if !current_speeds.is_empty() {
+                current_speeds.iter().sum::<f64>() / current_speeds.len() as f64
+            } else {
+                0.0
+            };
             let average_current_speed_ghz = average_current_speed_mhz / 1000.0; // Convert to GHz
             let formatted_speed = format!("{:.2}", average_current_speed_ghz); // Format with two digits precision
 

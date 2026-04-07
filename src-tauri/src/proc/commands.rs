@@ -107,7 +107,7 @@ fn get_proc_mem(pid: &str) -> Option<String> {
     let status = fs::read_to_string(format!("/proc/{}/statm", pid)).ok()?;
     let resident_str = status.split_whitespace().nth(1)?;
     let resident = resident_str.parse::<u64>().ok()?;
-    let mem = resident * 4;
+    let mem = resident.saturating_mul(4);
 
     let mem_str = if mem > 1_024 * 1_024 {
         format!("{:.2} Gb", mem as f64 / 1_024.0 / 1_024.0)
@@ -314,11 +314,15 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
 
 #[tauri::command]
 pub fn kill_process(process: Process) -> Result<(), String> {
+    if process.pid > i32::MAX as u32 {
+        return Err(format!("Process ID {} out of valid range", process.pid));
+    }
     let pid = process.pid as i32;
     let ret = unsafe { libc::kill(pid, libc::SIGTERM) };
     if ret == 0 {
         Ok(())
     } else {
-        Err(format!("Failed to kill process with PID {}", pid))
+        let err = std::io::Error::last_os_error();
+        Err(format!("Failed to kill process with PID {}: {}", pid, err))
     }
 }
