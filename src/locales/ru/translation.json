@@ -196,6 +196,11 @@
     "error.fetch_failed": "Не удалось загрузить данные",
     "error.battery_failed": "Не удалось загрузить данные аккумулятора",
     "error.disks_failed": "Не удалось загрузить данные дисков",
+    "error.config_failed": "Не удалось загрузить конфигурацию",
+    "error.save_config_failed": "Не удалось сохранить конфигурацию",
+    "error.kill_failed": "Не удалось завершить процесс",
+    "error.render": "Произошла неожиданная ошибка",
+    "error.reload": "Перезагрузить",
     "loading.generic": "Загрузка...",
     "loading.battery": "Загрузка данных аккумулятора..."
 }

@@ -1,7 +1,6 @@
 // src/components/Sidebar/Disk.tsx
 
 import React from 'react';
-import useDiskData from '../../hooks/Performance/useDiskData';
 import Graph from '../Graph/Graph';
 import useDataConverter from '../../helpers/useDataConverter';
 import {
@@ -20,20 +19,22 @@ import {
 } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
 
+interface DiskHist {
+  readHistory: number[];
+  writeHistory: number[];
+  total_read: number;
+  total_write: number;
+}
+
 interface DiskProps {
   diskName: string;
   performanceConfig: any;
   tick: number;
+  diskHist: DiskHist;
 }
 
-const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick }) => {
-  const updateTime = performanceConfig.config.performance_update_time;
-  const hist = useDiskData(updateTime)[diskName] || {
-    readHistory: [],
-    writeHistory: [],
-    total_read: 0,
-    total_write: 0,
-  };
+const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick, diskHist }) => {
+  const hist = diskHist;
   const convertData = useDataConverter();
   const { t } = useTranslation();
 

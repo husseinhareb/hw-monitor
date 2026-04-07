@@ -2,6 +2,7 @@ import React, { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 import { invoke } from "@tauri-apps/api/core";
+import { notify } from "../../services/store";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
 import SensorsConfig from "./SensorsConfig";
@@ -36,6 +37,7 @@ const Config: React.FC = () => {
       await invoke("set_default_config");
       setReloadFlag((prevFlag) => !prevFlag);
     } catch (error) {
+      notify('error.config_failed');
       console.error("Error fetching performance config:", error);
     }
   };

@@ -1,7 +1,7 @@
 //useMemoryData.ts
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useSetMemory, useSetMaxMemory, usePaused } from "../../services/store";
+import { useSetMemory, useSetMaxMemory, usePaused, notify } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
 import usePerformanceConfig from "../Performance/usePerformanceConfig";
 
@@ -33,6 +33,7 @@ const useMemoryData = () => {
                 }
             } catch (error) {
                 console.error("Error fetching memory data:", error);
+                notify('error.fetch_failed');
             }
         };
 

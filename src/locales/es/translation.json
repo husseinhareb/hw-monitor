@@ -196,6 +196,11 @@
     "error.fetch_failed": "Error al cargar los datos",
     "error.battery_failed": "Error al cargar los datos de la batería",
     "error.disks_failed": "Error al cargar los datos del disco",
+    "error.config_failed": "Error al cargar la configuración",
+    "error.save_config_failed": "Error al guardar la configuración",
+    "error.kill_failed": "Error al terminar el proceso",
+    "error.render": "Ha ocurrido un error inesperado",
+    "error.reload": "Recargar",
     "loading.generic": "Cargando...",
     "loading.battery": "Cargando datos de batería..."
 }

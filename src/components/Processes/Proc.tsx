@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
 import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from '../../styles/proc-style';
-import { useProcessSearch } from '../../services/store';
+import { useProcessSearch, notify } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { lighten } from 'polished';
 import styled from 'styled-components';
@@ -187,6 +187,7 @@ const Proc: React.FC = () => {
                 await invoke('kill_process', { process: proc });
             } catch (error) {
                 console.error('Failed to kill process:', error);
+                notify('error.kill_failed');
             }
         }
     };
@@ -276,7 +277,7 @@ const Proc: React.FC = () => {
                             >
                                 {displayedColumns.map(column => (
                                     <Td
-                                        key={column}
+                                        key={`${process.pid}-${column}`}
                                         style={getCellStyle(
                                             process[column] as string,
                                             column.includes('disk')

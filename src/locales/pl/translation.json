@@ -190,6 +190,11 @@
     "error.fetch_failed": "Nie udało się załadować danych",
     "error.battery_failed": "Nie udało się załadować danych baterii",
     "error.disks_failed": "Nie udało się załadować danych dysków",
+    "error.config_failed": "Nie udało się załadować konfiguracji",
+    "error.save_config_failed": "Nie udało się zapisać konfiguracji",
+    "error.kill_failed": "Nie udało się zakończyć procesu",
+    "error.render": "Wystąpił nieoczekiwany błąd",
+    "error.reload": "Przeładuj",
     "loading.generic": "Ładowanie...",
     "loading.battery": "Ładowanie danych baterii..."
 }

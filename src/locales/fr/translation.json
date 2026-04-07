@@ -195,6 +195,11 @@
     "error.fetch_failed": "Échec du chargement des données",
     "error.battery_failed": "Échec du chargement des données de batterie",
     "error.disks_failed": "Échec du chargement des données de disques",
+    "error.config_failed": "Échec du chargement de la configuration",
+    "error.save_config_failed": "Échec de la sauvegarde de la configuration",
+    "error.kill_failed": "Impossible de terminer le processus",
+    "error.render": "Une erreur inattendue s'est produite",
+    "error.reload": "Recharger",
     "loading.generic": "Chargement...",
     "loading.battery": "Chargement des données de batterie..."
 }

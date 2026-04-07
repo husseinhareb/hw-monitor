@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import usePerformanceConfig from "./usePerformanceConfig";
-import { usePaused } from "../../services/store";
+import { usePaused, notify } from "../../services/store";
 
 export interface GpuData {
     id: string | null;
@@ -31,6 +31,7 @@ const useGpuData = () => {
                 setGpuList(fetched ?? []);
             } catch (error) {
                 console.error("Error fetching GPU data:", error);
+                notify('error.fetch_failed');
                 setGpuList([]);
             }
         };

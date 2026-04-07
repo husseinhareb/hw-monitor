@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { notify } from "../services/store";
 
 type ConfigType = Record<string, string | number | boolean | string[]>;
 
@@ -36,6 +37,7 @@ const useFetchAndSetConfig = <T extends ConfigType>(
                 }
             } catch (error) {
                 console.error("Error fetching config:", error);
+                notify('error.config_failed');
             }
         };
 
@@ -47,6 +49,7 @@ const useFetchAndSetConfig = <T extends ConfigType>(
             await invoke(setConfigCommand, { configs: data });
         } catch (error) {
             console.error("Error while sending data to backend:", error);
+            notify('error.save_config_failed');
         }
     };
 

@@ -13,6 +13,7 @@ import {
   useSetGpuUsage,
   useSetMemory,
   useSetNetworkSpeed,
+  useSetNetworkFullData,
 } from '../../services/store';
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
@@ -31,13 +32,17 @@ import { useTranslation } from 'react-i18next';
 
 /** Null-rendering component — keeps one network interface polled and pushed to the store. */
 const NetworkPoller: React.FC<{ interfaceName: string }> = ({ interfaceName }) => {
-  const { download, upload } = useNetworkData(interfaceName);
+  const { download, upload, totalDownload, totalUpload } = useNetworkData(interfaceName);
   const setNetworkSpeed = useSetNetworkSpeed();
+  const setNetworkFullData = useSetNetworkFullData();
   const downloadValues = useMemo(() => download.map(d => d.value), [download]);
   const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
   useEffect(() => {
     setNetworkSpeed(interfaceName, downloadValues, uploadValues);
   }, [interfaceName, downloadValues, uploadValues, setNetworkSpeed]);
+  useEffect(() => {
+    setNetworkFullData(interfaceName, { download, upload, totalDownload: totalDownload ?? 0, totalUpload: totalUpload ?? 0 });
+  }, [interfaceName, download, upload, totalDownload, totalUpload, setNetworkFullData]);
   return null;
 };
 
@@ -160,7 +165,8 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
     }
     for (const name of diskNames) {
       if (selectedItem === name) {
-        return <Disk diskName={name} performanceConfig={perf} tick={tick} />;
+        const hist = diskHistories[name] || { readHistory: [], writeHistory: [], total_read: 0, total_write: 0 };
+        return <Disk diskName={name} performanceConfig={perf} tick={tick} diskHist={hist} />;
       }
     }
     return null;

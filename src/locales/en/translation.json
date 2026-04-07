@@ -195,6 +195,11 @@
     "error.fetch_failed": "Failed to load data",
     "error.battery_failed": "Failed to load battery data",
     "error.disks_failed": "Failed to load disk data",
+    "error.config_failed": "Failed to load configuration",
+    "error.save_config_failed": "Failed to save configuration",
+    "error.kill_failed": "Failed to kill process",
+    "error.render": "An unexpected error occurred",
+    "error.reload": "Reload",
     "loading.generic": "Loading...",
     "loading.battery": "Loading battery data...",
 

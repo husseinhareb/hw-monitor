@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useProcessConfig from '../Proc/useProcessConfig';
-import { usePaused } from '../../services/store';
+import { usePaused, notify } from '../../services/store';
 
 interface TotalUsages {
     memory: number | null;
@@ -21,6 +21,7 @@ const useTotalUsagesData = (): TotalUsages => {
                 setTotalUsages(fetchedTotalUsages);
             } catch (error) {
                 console.error("Error fetching data:", error);
+                notify('error.fetch_failed');
             }
         };
 

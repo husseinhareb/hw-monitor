@@ -100,6 +100,9 @@ interface Store {
   networkSpeeds: { [name: string]: { download: number[]; upload: number[] } };
   setNetworkSpeed: (name: string, download: number[], upload: number[]) => void;
 
+  networkFullData: { [name: string]: { download: { value: number; unit: string }[]; upload: { value: number; unit: string }[]; totalDownload: number; totalUpload: number } };
+  setNetworkFullData: (name: string, data: { download: { value: number; unit: string }[]; upload: { value: number; unit: string }[]; totalDownload: number; totalUpload: number }) => void;
+
   processSearch: string;
   setProcessSearch: (processSearch: string) => void;
 
@@ -127,6 +130,16 @@ interface Store {
 
   paused: boolean;
   setPaused: (paused: boolean) => void;
+
+  notifications: Notification[];
+  addNotification: (messageKey: string, type?: 'error' | 'warning' | 'info') => void;
+  dismissNotification: (id: string) => void;
+}
+
+export interface Notification {
+  id: string;
+  messageKey: string;
+  type: 'error' | 'warning' | 'info';
 }
 
 export const useStore = create<Store>((set) => ({
@@ -147,6 +160,11 @@ export const useStore = create<Store>((set) => ({
   networkSpeeds: {},
   setNetworkSpeed: (name, download, upload) => set((state) => ({
     networkSpeeds: { ...state.networkSpeeds, [name]: { download, upload } },
+  })),
+
+  networkFullData: {},
+  setNetworkFullData: (name, data) => set((state) => ({
+    networkFullData: { ...state.networkFullData, [name]: data },
   })),
 
   processSearch: "",
@@ -245,6 +263,22 @@ export const useStore = create<Store>((set) => ({
 
   paused: false,
   setPaused: (paused) => set({ paused }),
+
+  notifications: [],
+  addNotification: (messageKey, type = 'error') =>
+    set((state) => {
+      if (state.notifications.some((n) => n.messageKey === messageKey)) return state;
+      return {
+        notifications: [
+          ...state.notifications,
+          { id: crypto.randomUUID(), messageKey, type },
+        ],
+      };
+    }),
+  dismissNotification: (id) =>
+    set((state) => ({
+      notifications: state.notifications.filter((n) => n.id !== id),
+    })),
 }));
 
 
@@ -263,6 +297,9 @@ export const useSetGpuUsage = () => useStore((state) => state.setGpuUsage);
 
 export const useNetworkSpeeds = () => useStore((state) => state.networkSpeeds);
 export const useSetNetworkSpeed = () => useStore((state) => state.setNetworkSpeed);
+
+export const useNetworkFullData = () => useStore((state) => state.networkFullData);
+export const useSetNetworkFullData = () => useStore((state) => state.setNetworkFullData);
 
 export const useProcessSearch = () => useStore((state) => state.processSearch);
 export const useSetProcessSearch = () => useStore((state) => state.setProcessSearch);
@@ -290,3 +327,12 @@ export const useSetConfigPanelConfig = () => useStore((state) => state.setConfig
 
 export const usePaused = () => useStore((state) => state.paused);
 export const useSetPaused = () => useStore((state) => state.setPaused);
+
+export const useNotifications = () => useStore((state) => state.notifications);
+export const useDismissNotification = () => useStore((state) => state.dismissNotification);
+
+/** Fire-and-forget — safe to call from custom hooks and event handlers */
+export const notify = (
+  messageKey: string,
+  type: 'error' | 'warning' | 'info' = 'error'
+) => useStore.getState().addNotification(messageKey, type);

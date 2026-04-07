@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
+import { notify } from '../services/store';
 
 import translationEN from '../locales/en/translation.json';
 import translationFR from '../locales/fr/translation.json';
@@ -33,6 +34,7 @@ const fetchLanguageConfig = async (): Promise<string> => {
     return config?.language || 'en'; // Default to 'en' if no language is found
   } catch (error) {
     console.error('Error fetching language configuration:', error);
+    notify('error.config_failed');
     return 'en'; // Default to 'en' on error
   }
 };

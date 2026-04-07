@@ -2,7 +2,7 @@
 import  { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import usePerformanceConfig from "./usePerformanceConfig";
-import { usePaused } from "../../services/store";
+import { usePaused, notify } from "../../services/store";
 
 
 export interface CpuData {
@@ -33,6 +33,7 @@ const useCpuData = () => {
                 if (fetchedCpuData) setCpuData(fetchedCpuData);
             } catch (error) {
                 console.error("Error fetching data:", error);
+                notify('error.fetch_failed');
             }
         };
 

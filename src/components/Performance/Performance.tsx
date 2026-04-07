@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import Sidebar from './Sidebar';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
+import { notify } from '../../services/store';
 
 const Performance: React.FC = () => {
   const [networkUsages, setNetworkUsages] = useState<string[]>([]);
@@ -17,6 +18,7 @@ const Performance: React.FC = () => {
         setNetworkUsages(fetchedNetworkUsages);
       } catch (error) {
         console.error("Error fetching data:", error);
+        notify('error.fetch_failed');
       }
     };
 

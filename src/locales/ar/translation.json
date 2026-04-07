@@ -197,6 +197,11 @@
     "error.fetch_failed": "فشل في تحميل البيانات",
     "error.battery_failed": "فشل في تحميل بيانات البطارية",
     "error.disks_failed": "فشل في تحميل بيانات الأقراص",
+    "error.config_failed": "فشل في تحميل الإعدادات",
+    "error.save_config_failed": "فشل في حفظ الإعدادات",
+    "error.kill_failed": "فشل في إنهاء العملية",
+    "error.render": "حدث خطأ غير متوقع",
+    "error.reload": "إعادة التحميل",
     "loading.generic": "جاري التحميل...",
     "loading.battery": "جاري تحميل بيانات البطارية..."
 }

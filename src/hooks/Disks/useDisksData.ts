@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useDataConverter from "../../helpers/useDataConverter";
 import useDisksConfig from "./useDisksConfig";
-import { usePaused } from "../../services/store";
+import { usePaused, notify } from "../../services/store";
 
 interface PartitionData {
     name: string;
@@ -35,6 +35,7 @@ const useDiskData = () => {
                 setError(null);
             } catch (err) {
                 console.error("Error fetching data:", err);
+                notify('error.disks_failed');
                 setError(String(err));
                 setDiskData([]);
             }

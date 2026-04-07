@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from '../Sensors/useSensorsConfig';
-import { usePaused } from '../../services/store';
+import { usePaused, notify } from '../../services/store';
 
 interface BatteryData {
     model: string | null;
@@ -30,6 +30,7 @@ const useBatteryData = (): { batteries: BatteryData[]; error: string | null } =>
                 setError(null);
             } catch (err) {
                 console.error("Error fetching battery data:", err);
+                notify('error.battery_failed');
                 setError(String(err));
             }
         };

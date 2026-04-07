@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from "../Sensors/useSensorsConfig";
-import { usePaused } from "../../services/store";
+import { usePaused, notify } from "../../services/store";
 
 interface SensorData {
   name: string;
@@ -27,6 +27,7 @@ const useSensorsData = (): HwMonData[] => {
         setSensors(fetchedSensorsData);
       } catch (error) {
         console.error("Error fetching data:", error);
+        notify('error.fetch_failed');
       }
     };
 

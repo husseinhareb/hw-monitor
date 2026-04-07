@@ -244,7 +244,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                         {columnConfig.map(col => {
                             if (col.key === 'name') {
                                 return (
-                                    <NameCell key={col.key} color={processConfig.config.processes_body_color} depth={node.depth} borderColor={processConfig.config.processes_border_color}>
+                                    <NameCell key={`${proc.pid}-${col.key}`} color={processConfig.config.processes_body_color} depth={node.depth} borderColor={processConfig.config.processes_border_color}>
                                         {hasChildren ? (
                                             <ToggleButton toggleColor={processConfig.config.processes_tree_toggle_color} bodyColor={processConfig.config.processes_body_color} onClick={(e) => toggleExpand(proc.pid, e)}>
                                                 {isExpanded ? '▼' : '▶'}
@@ -260,7 +260,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                                 ? `${proc[col.key] || '0'} %`
                                 : String(proc[col.key] || '');
                             return (
-                                <TreeCell key={col.key} color={processConfig.config.processes_body_color} borderColor={processConfig.config.processes_border_color}>
+                                <TreeCell key={`${proc.pid}-${col.key}`} color={processConfig.config.processes_body_color} borderColor={processConfig.config.processes_border_color}>
                                     {value}
                                 </TreeCell>
                             );

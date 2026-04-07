@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Graph from '../Graph/Graph';
-import useNetworkData from '../../hooks/Performance/useNetworkData';
+import { useNetworkFullData } from '../../services/store';
 import useDataConverter from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,9 @@ interface NetworkProps {
 }
 
 const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tick }) => {
-    const { download = [], upload = [], totalDownload, totalUpload } = useNetworkData(interfaceName);
+    const networkFullData = useNetworkFullData();
+    const data = networkFullData[interfaceName] || { download: [], upload: [], totalDownload: 0, totalUpload: 0 };
+    const { download, upload, totalDownload, totalUpload } = data;
     const convertData = useDataConverter();
     const { t } = useTranslation();
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { usePaused } from '../../services/store'
+import { usePaused, notify } from '../../services/store'
 
 export interface DiskRaw {
   name: string
@@ -62,6 +62,7 @@ export default function useDiskData(updateInterval: number): Record<string,Hist>
         })
       } catch (err) {
         console.error('useDiskData › fetchOnce error', err)
+        notify('error.fetch_failed')
       }
     }
 

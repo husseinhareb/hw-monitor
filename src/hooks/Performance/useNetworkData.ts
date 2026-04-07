@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useDataConverter from '../../helpers/useDataConverter';
 import usePerformanceConfig from '../Performance/usePerformanceConfig';
-import { usePaused } from '../../services/store';
+import { usePaused, notify } from '../../services/store';
 
 interface NetworkUsage {
     download: number;
@@ -47,6 +47,7 @@ const useNetworkData = (interfaceName: string) => {
                 }   
             } catch (error) {
                 console.error("Error fetching data:", error);
+                notify('error.fetch_failed');
             }
         };
 

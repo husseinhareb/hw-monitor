@@ -6,8 +6,8 @@ Only the latest release on the `main` branch receives security fixes.
 
 | Version | Supported |
 |---------|-----------|
-| Latest (`main`) | ✅ |
-| Older releases  | ❌ |
+| Latest (`main`) | Yes |
+| Older releases  | No |
 
 ## Reporting a Vulnerability
 

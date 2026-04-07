@@ -190,6 +190,11 @@
     "error.fetch_failed": "Daten konnten nicht geladen werden",
     "error.battery_failed": "Batteriedaten konnten nicht geladen werden",
     "error.disks_failed": "Festplattendaten konnten nicht geladen werden",
+    "error.config_failed": "Konfiguration konnte nicht geladen werden",
+    "error.save_config_failed": "Konfiguration konnte nicht gespeichert werden",
+    "error.kill_failed": "Prozess konnte nicht beendet werden",
+    "error.render": "Ein unerwarteter Fehler ist aufgetreten",
+    "error.reload": "Neu laden",
     "loading.generic": "Laden...",
     "loading.battery": "Batteriedaten werden geladen..."
 }
