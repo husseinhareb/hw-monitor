@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use nvml_wrapper::Nvml;
 use std::fs::{read_dir, read_to_string};
 use std::path::PathBuf;
+use std::sync::OnceLock;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GpuInformations {
@@ -18,6 +19,68 @@ pub struct GpuInformations {
     fan_speed: Option<String>,
     performance_state: Option<String>,
 }
+
+// ── Cached GPU topology ────────────────────────────────────────────────
+
+/// Describes a detected GPU whose sysfs path or index never changes.
+#[derive(Clone)]
+enum DetectedGpu {
+    Nvidia { index: u32 },
+    Amd { path: PathBuf, index: usize },
+    Intel { path: PathBuf, index: usize },
+}
+
+/// One-shot cache: detect all GPUs once, reuse forever.
+static GPU_LIST: OnceLock<Vec<DetectedGpu>> = OnceLock::new();
+
+fn get_gpu_list() -> &'static Vec<DetectedGpu> {
+    GPU_LIST.get_or_init(|| {
+        let mut gpus = Vec::new();
+
+        // NVIDIA
+        let nvidia_count = match Nvml::init() {
+            Ok(nvml) => nvml.device_count().unwrap_or(0),
+            Err(_) => 0,
+        };
+        for i in 0..nvidia_count {
+            gpus.push(DetectedGpu::Nvidia { index: i });
+        }
+
+        // AMD + Intel — single scan of /sys/class/drm/
+        let mut amd_idx = 0usize;
+        let mut intel_idx = 0usize;
+        let drm_path = PathBuf::from("/sys/class/drm/");
+        if let Ok(entries) = read_dir(&drm_path) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if !path.is_dir() { continue; }
+                let name = match path.file_name().and_then(|n| n.to_str()) {
+                    Some(n) => n.to_string(),
+                    None => continue,
+                };
+                if !name.starts_with("card") || name.contains('-') { continue; }
+
+                let vendor = read_to_string(path.join("device/vendor"))
+                    .unwrap_or_default();
+                let vendor = vendor.trim();
+                if vendor == "0x1002" {
+                    gpus.push(DetectedGpu::Amd { path: path.clone(), index: amd_idx });
+                    amd_idx += 1;
+                } else if vendor == "0x8086" {
+                    gpus.push(DetectedGpu::Intel { path: path.clone(), index: intel_idx });
+                    intel_idx += 1;
+                }
+            }
+        }
+
+        gpus
+    })
+}
+
+// ── Cached static GPU names ────────────────────────────────────────────
+
+static AMD_GPU_NAME: OnceLock<String> = OnceLock::new();
+static INTEL_GPU_NAMES: OnceLock<Vec<String>> = OnceLock::new();
 
 fn add_memory_unit(value: u64) -> String {
     let memory = value as f64;
@@ -37,39 +100,6 @@ fn add_clock_speed_unit(value: u32) -> String {
     } else {
         format!("{} MHz", clock_speed)
     }
-}
-
-fn detect_nvidia_gpu_count() -> u32 {
-    match Nvml::init() {
-        Ok(nvml) => nvml.device_count().unwrap_or(0),
-        Err(_) => 0,
-    }
-}
-
-fn detect_amd_gpu_paths() -> Vec<PathBuf> {
-    let mut paths = Vec::new();
-    let drm_path = PathBuf::from("/sys/class/drm/");
-    if let Ok(entries) = read_dir(drm_path) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                    if name.starts_with("card") && !name.contains('-') && is_amd_gpu(&path) {
-                        paths.push(path);
-                    }
-                }
-            }
-        }
-    }
-    paths
-}
-
-fn is_amd_gpu(path: &PathBuf) -> bool {
-    let vendor_path = path.join("device/vendor");
-    if let Ok(vendor) = read_to_string(&vendor_path) {
-        return vendor.trim() == "0x1002"; // AMD vendor ID
-    }
-    false
 }
 
 fn read_hwmon_info(
@@ -122,7 +152,9 @@ fn read_hwmon_info(
 }
 
 fn get_amd_gpu_name() -> String {
-    get_gpu_name_from_sysfs(0x1002).unwrap_or_else(|| "AMD GPU".to_string())
+    AMD_GPU_NAME.get_or_init(|| {
+        get_gpu_name_from_sysfs(0x1002).unwrap_or_else(|| "AMD GPU".to_string())
+    }).clone()
 }
 
 fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
@@ -209,41 +241,34 @@ fn get_nvidia_gpu_info(device_index: u32) -> Option<GpuInformations> {
     })
 }
 
-fn is_intel_gpu(path: &PathBuf) -> bool {
-    let vendor_path = path.join("device/vendor");
-    if let Ok(vendor) = read_to_string(&vendor_path) {
-        return vendor.trim() == "0x8086"; // Intel vendor ID
-    }
-    false
-}
-
-fn detect_intel_gpu_paths() -> Vec<PathBuf> {
-    let mut paths = Vec::new();
-    let drm_path = PathBuf::from("/sys/class/drm/");
-    if let Ok(entries) = read_dir(drm_path) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                    if name.starts_with("card") && !name.contains('-') && is_intel_gpu(&path) {
-                        paths.push(path);
-                    }
+fn get_intel_gpu_name(device_path: &PathBuf) -> String {
+    // Cache all Intel GPU names once
+    let names = INTEL_GPU_NAMES.get_or_init(|| {
+        get_gpu_list().iter().filter_map(|g| {
+            if let DetectedGpu::Intel { path, .. } = g {
+                let dp = path.join("device");
+                if let Some(name) = get_gpu_name_from_sysfs(0x8086) {
+                    return Some(name);
+                }
+                if let Ok(label) = read_to_string(dp.join("label")) {
+                    let l = label.trim();
+                    if !l.is_empty() { return Some(l.to_string()); }
+                }
+                Some("Intel GPU".to_string())
+            } else { None }
+        }).collect()
+    });
+    // Try to match by path, fallback to first or generic
+    for (i, gpu) in get_gpu_list().iter().enumerate() {
+        if let DetectedGpu::Intel { path, index } = gpu {
+            if path.join("device") == *device_path || *device_path == path.join("device") {
+                if let Some(name) = names.get(*index) {
+                    return name.clone();
                 }
             }
         }
     }
-    paths
-}
-
-fn get_intel_gpu_name(device_path: &PathBuf) -> String {
-    if let Some(name) = get_gpu_name_from_sysfs(0x8086) {
-        return name;
-    }
-    // Fallback: read from DRM device name or product file
-    if let Ok(label) = read_to_string(device_path.join("label")) {
-        return label.trim().to_string();
-    }
-    "Intel GPU".to_string()
+    names.first().cloned().unwrap_or_else(|| "Intel GPU".to_string())
 }
 
 fn get_gpu_name_from_sysfs(vendor_id: u32) -> Option<String> {
@@ -416,25 +441,23 @@ fn find_gt_dir(device_path: &PathBuf) -> Option<PathBuf> {
 pub async fn get_gpu_informations() -> Vec<GpuInformations> {
     let mut gpus: Vec<GpuInformations> = Vec::new();
 
-    // Collect NVIDIA GPUs
-    let nvidia_count = detect_nvidia_gpu_count();
-    for i in 0..nvidia_count {
-        if let Some(info) = get_nvidia_gpu_info(i) {
-            gpus.push(info);
-        }
-    }
-
-    // Collect AMD GPUs
-    for (i, path) in detect_amd_gpu_paths().iter().enumerate() {
-        if let Some(info) = get_amd_gpu_info(path, i) {
-            gpus.push(info);
-        }
-    }
-
-    // Collect Intel GPUs
-    for (i, path) in detect_intel_gpu_paths().iter().enumerate() {
-        if let Some(info) = get_intel_gpu_info(path, i) {
-            gpus.push(info);
+    for detected in get_gpu_list() {
+        match detected {
+            DetectedGpu::Nvidia { index } => {
+                if let Some(info) = get_nvidia_gpu_info(*index) {
+                    gpus.push(info);
+                }
+            }
+            DetectedGpu::Amd { path, index } => {
+                if let Some(info) = get_amd_gpu_info(path, *index) {
+                    gpus.push(info);
+                }
+            }
+            DetectedGpu::Intel { path, index } => {
+                if let Some(info) = get_intel_gpu_info(path, *index) {
+                    gpus.push(info);
+                }
+            }
         }
     }
 
