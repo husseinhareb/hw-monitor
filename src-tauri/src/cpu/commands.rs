@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
 use std::fs;
-use std::process::Command;
 use crate::sensors;
 use crate::cpu_utils::PerfCpuState;
 
@@ -19,54 +18,92 @@ pub struct CpuInformations {
     temperature: Option<String>, 
 }
 
-
-fn get_base_speed_from_file() -> Option<String> {
-    let cpu_base_freq_file = "/sys/devices/system/cpu/cpu0/cpufreq/base_frequency";
-
-    match fs::read_to_string(cpu_base_freq_file) {
-        Ok(cpu_clock_info) => Some(cpu_clock_info.trim().to_string()), // Read and trim the value
-        Err(_) => None, // Return None if reading the file fails
-    }
+/// Static CPU info that never changes at runtime — cached after first read.
+#[derive(Clone)]
+struct StaticCpuInfo {
+    name: String,
+    cores: String,
+    threads: String,
+    virtualization: String,
+    num_sockets: usize,
+    base_speed: Option<String>,
+    max_speed: Option<String>,
 }
 
-fn get_max_speed_from_file() -> Option<String> {
-    let cpu_max_freq_file = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq";
+/// Global one-shot cache for static CPU fields.
+static STATIC_CPU: std::sync::OnceLock<Option<StaticCpuInfo>> = std::sync::OnceLock::new();
 
-    match fs::read_to_string(cpu_max_freq_file) {
-        Ok(cpu_clock_info) => Some(cpu_clock_info.trim().to_string()),
-        Err(_) => None, // Return None if reading the file fails
-    }
+fn get_static_cpu_info() -> Option<&'static StaticCpuInfo> {
+    STATIC_CPU.get_or_init(|| {
+        let cpu_info = fs::read_to_string("/proc/cpuinfo").ok()?;
+        let (name, cores, threads, virtualization, num_sockets) = parse_static_fields(&cpu_info)?;
+        let base_speed = read_sysfs_freq("/sys/devices/system/cpu/cpu0/cpufreq/base_frequency")
+            .or_else(|| read_sysfs_freq("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"));
+        let max_speed = read_sysfs_freq("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
+        Some(StaticCpuInfo { name, cores, threads, virtualization, num_sockets, base_speed, max_speed })
+    }).as_ref()
 }
 
-fn get_speeds_from_lscpu() -> (Option<String>, Option<String>) {
-    let output = match Command::new("lscpu").output() {
-        Ok(o) => o.stdout,
-        Err(_) => return (None, None),
-    };
-    let output_str = match String::from_utf8(output) {
-        Ok(s) => s,
-        Err(_) => return (None, None),
-    };
+/// Read a frequency value from sysfs (KHz string).
+fn read_sysfs_freq(path: &str) -> Option<String> {
+    fs::read_to_string(path).ok().map(|s| s.trim().to_string()).filter(|s| !s.is_empty())
+}
 
-    let mut base_speed = None;
-    let mut max_speed = None;
+/// Extract static fields from /proc/cpuinfo (name, cores, threads, virt, sockets).
+fn parse_static_fields(cpu_info: &str) -> Option<(String, String, String, String, usize)> {
+    let mut cpu_name = None;
+    let mut cores = None;
+    let mut threads = None;
+    let mut virtualization = None;
+    let mut counted_sockets: Vec<String> = Vec::new();
 
-    for line in output_str.lines() {
-        if let Some(speed_str) = line.strip_prefix("CPU min MHz:") {
-            if let Ok(mhz) = speed_str.trim().parse::<f64>() {
-                base_speed = Some(format!("{}", (mhz * 1000.0) as u64));
+    for line in cpu_info.lines() {
+        if line.starts_with("model name") {
+            if cpu_name.is_none() {
+                cpu_name = line.split(':').nth(1).map(|s| s.trim().to_string());
             }
-        } else if let Some(speed_str) = line.strip_prefix("CPU max MHz:") {
-            if let Ok(mhz) = speed_str.trim().parse::<f64>() {
-                max_speed = Some(format!("{}", (mhz * 1000.0) as u64));
+        } else if line.starts_with("cpu cores") {
+            if cores.is_none() {
+                cores = line.split(':').nth(1).map(|s| s.trim().to_string());
             }
-        }
-        if base_speed.is_some() && max_speed.is_some() {
-            break;
+        } else if line.starts_with("siblings") {
+            if threads.is_none() {
+                threads = line.split(':').nth(1).map(|s| s.trim().to_string());
+            }
+        } else if line.starts_with("flags") {
+            if virtualization.is_none() {
+                virtualization = Some(
+                    if line.contains(" vmx ") || line.contains(" svm ") { "Enabled" } else { "Disabled" }.to_string()
+                );
+            }
+        } else if line.starts_with("physical id") {
+            if let Some(id) = line.split(':').nth(1).map(|s| s.trim().to_string()) {
+                if !counted_sockets.contains(&id) {
+                    counted_sockets.push(id);
+                }
+            }
         }
     }
 
-    (base_speed, max_speed)
+    Some((cpu_name?, cores?, threads?, virtualization.unwrap_or_default(), counted_sockets.len().max(1)))
+}
+
+/// Read per-core MHz from /proc/cpuinfo and return average in GHz.
+fn get_current_speed() -> Option<String> {
+    let cpu_info = fs::read_to_string("/proc/cpuinfo").ok()?;
+    let mut speeds = Vec::new();
+    for line in cpu_info.lines() {
+        if line.contains("cpu MHz") {
+            if let Some(val) = line.split(':').nth(1).and_then(|s| s.trim().parse::<f64>().ok()) {
+                speeds.push(val);
+            }
+        }
+    }
+    if speeds.is_empty() {
+        return None;
+    }
+    let avg_ghz = speeds.iter().sum::<f64>() / speeds.len() as f64 / 1000.0;
+    Some(format!("{:.2}", avg_ghz))
 }
 
 fn uptime_to_hms(uptime_seconds: f64) -> String {
@@ -82,12 +119,9 @@ fn get_cpu_usage_percentage(state: &PerfCpuState) -> Option<i64> {
 
 fn get_cpu_temperature() -> Option<String> {
     let hwmon_data = sensors::get_hwmon_data();
-
     for hwmon in hwmon_data {
-        // Check if the hwmon device has sensors
         for sensor in hwmon.sensors {
             if sensor.name.contains("core") || sensor.name.contains("Package") {
-                // Adjust this logic based on your actual sensor names
                 return Some(format!("{:.1} °C", sensor.value));
             }
         }
@@ -95,111 +129,29 @@ fn get_cpu_temperature() -> Option<String> {
     None
 }
 
-
-
-fn parse_cpu_info(cpu_info: &str) -> Option<(String, String, String, Vec<f64>, String, usize)> {
-    let mut cpu_name = None;
-    let mut cores = None;
-    let mut threads = None;
-    let mut current_speeds = Vec::new();
-    let mut virtualization = None;
-    let mut num_sockets = 0;
-    let mut counted_sockets: Vec<String> = Vec::new();
-
-    for line in cpu_info.lines() {
-        if line.starts_with("model name") {
-            let parts: Vec<&str> = line.split(":").collect();
-            if let Some(name) = parts.get(1) {
-                cpu_name = Some(name.trim().to_string());
-            }
-        } else if line.starts_with("cpu cores") {
-            let parts: Vec<&str> = line.split(":").collect();
-            if let Some(core_count) = parts.get(1) {
-                cores = Some(core_count.trim().to_string());
-            }
-        } else if line.starts_with("siblings") {
-            let parts: Vec<&str> = line.split(":").collect();
-            if let Some(thread_count) = parts.get(1) {
-                threads = Some(thread_count.trim().to_string());
-            }
-        } else if line.contains("cpu MHz") {
-            if let Some(speed_str) = line.split(":").nth(1) {
-                if let Ok(speed) = speed_str.trim().parse::<f64>() {
-                    current_speeds.push(speed);
-                }
-            }
-        } else if line.starts_with("flags") {
-            //vmx for intel and svm for amd
-            if line.contains(" vmx ") || line.contains(" svm ") {
-                virtualization = Some("Enabled".to_string());
-            } else {
-                virtualization = Some("Disabled".to_string());
-            }
-        } else if line.starts_with("physical id") {
-            let parts: Vec<&str> = line.split(":").collect();
-            if let Some(socket_id) = parts.get(1) {
-                let socket_id = socket_id.trim().to_string();
-                if !counted_sockets.contains(&socket_id) {
-                    num_sockets += 1;
-                    counted_sockets.push(socket_id);
-                }
-            }
-        }
-    }
-
-    // Check if all necessary information is obtained
-    if let (Some(cpu_name), Some(cores), Some(threads)) = (cpu_name, cores, threads) {
-        Some((cpu_name, cores, threads, current_speeds, virtualization.unwrap_or_default(), num_sockets))
-    } else {
-        None
-    }
-}
-
 fn get_cpu_info(prev_cpu: &PerfCpuState) -> Option<CpuInformations> {
-    let base_speed_file = get_base_speed_from_file();
-    let max_speed_file = get_max_speed_from_file();
-    let (base_speed, max_speed) = if base_speed_file.is_some() && max_speed_file.is_some() {
-        (base_speed_file, max_speed_file)
-    } else {
-        let (lscpu_base, lscpu_max) = get_speeds_from_lscpu();
-        (base_speed_file.or(lscpu_base), max_speed_file.or(lscpu_max))
-    };
+    let static_info = get_static_cpu_info()?;
 
-    if let Ok(cpu_info) = fs::read_to_string("/proc/cpuinfo") {
-        if let Some((cpu_name, cores, threads, current_speeds, virtualization, num_sockets)) = parse_cpu_info(&cpu_info) {
-            // Calculate the average CPU speed in GHz
-            let average_current_speed_mhz = if !current_speeds.is_empty() {
-                current_speeds.iter().sum::<f64>() / current_speeds.len() as f64
-            } else {
-                0.0
-            };
-            let average_current_speed_ghz = average_current_speed_mhz / 1000.0; // Convert to GHz
-            let formatted_speed = format!("{:.2}", average_current_speed_ghz); // Format with two digits precision
+    let uptime_seconds = fs::read_to_string("/proc/uptime")
+        .ok()?
+        .split_whitespace()
+        .next()?
+        .parse::<f64>()
+        .ok()?;
 
-            let uptime_seconds = fs::read_to_string("/proc/uptime")
-                .ok()?
-                .split_whitespace()
-                .next()?
-                .parse::<f64>()
-                .ok()?;
-            let uptime_tuple = uptime_to_hms(uptime_seconds);
-
-            return Some(CpuInformations {
-                name: Some(cpu_name),
-                cores: Some(cores),
-                threads: Some(threads),
-                usage: get_cpu_usage_percentage(prev_cpu),
-                base_speed,
-                current_speed: Some(formatted_speed),
-                max_speed,
-                virtualization: Some(virtualization),
-                socket: Some(num_sockets.to_string()),
-                uptime: Some(uptime_tuple),
-                temperature: get_cpu_temperature(),
-            });
-        }
-    }
-    None
+    Some(CpuInformations {
+        name: Some(static_info.name.clone()),
+        cores: Some(static_info.cores.clone()),
+        threads: Some(static_info.threads.clone()),
+        usage: get_cpu_usage_percentage(prev_cpu),
+        base_speed: static_info.base_speed.clone(),
+        current_speed: get_current_speed(),
+        max_speed: static_info.max_speed.clone(),
+        virtualization: Some(static_info.virtualization.clone()),
+        socket: Some(static_info.num_sockets.to_string()),
+        uptime: Some(uptime_to_hms(uptime_seconds)),
+        temperature: get_cpu_temperature(),
+    })
 }
 
 
