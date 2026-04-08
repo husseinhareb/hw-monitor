@@ -58,11 +58,12 @@ fn build_uid_map() -> HashMap<u32, String> {
     map
 }
 
-fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(String, String, String)> {
+fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(String, String, String, String)> {
     let status = fs::read_to_string(format!("/proc/{}/status", pid)).ok()?;
     let mut name = None;
     let mut ppid = None;
     let mut user = None;
+    let mut vm_rss_kb: Option<u64> = None;
 
     for line in status.lines() {
         if line.starts_with("Name:") {
@@ -75,49 +76,52 @@ fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(S
                     user = Some(uid_map.get(&parsed_uid).cloned().unwrap_or_else(|| uid_str.to_string()));
                 }
             }
+        } else if line.starts_with("VmRSS:") {
+            vm_rss_kb = line.split_whitespace().nth(1).and_then(|s| s.parse::<u64>().ok());
         }
-        if name.is_some() && ppid.is_some() && user.is_some() {
+        if name.is_some() && ppid.is_some() && user.is_some() && vm_rss_kb.is_some() {
             break;
         }
     }
 
-    Some((name?, ppid?, user?))
-}
-
-fn get_proc_state(pid: &str) -> Option<String> {
-    let file_content = fs::read_to_string(format!("/proc/{}/stat", pid)).ok()?;
-    let after_comm = &file_content[file_content.rfind(')')? + 2..];
-    after_comm.split_whitespace().next().map(|state_abbrev| match state_abbrev {
-        "R" => "Running".to_string(),
-        "S" => "Sleeping".to_string(),
-        "D" => "Disk sleep".to_string(),
-        "Z" => "Zombie".to_string(),
-        "T" => "Stopped".to_string(),
-        "t" => "Tracing stop".to_string(),
-        "W" => "Paging".to_string(),
-        "X" | "x" => "Dead".to_string(),
-        "K" => "Wakekill".to_string(),
-        "P" => "Parked".to_string(),
-        "I" => "Idle".to_string(),
-        _ => "N/A".to_string(),
-    })
-}
-
-fn get_proc_mem(pid: &str) -> Option<String> {
-    let status = fs::read_to_string(format!("/proc/{}/statm", pid)).ok()?;
-    let resident_str = status.split_whitespace().nth(1)?;
-    let resident = resident_str.parse::<u64>().ok()?;
-    let mem = resident.saturating_mul(4);
-
-    let mem_str = if mem > 1_024 * 1_024 {
-        format!("{:.2} Gb", mem as f64 / 1_024.0 / 1_024.0)
-    } else if mem > 1_024 {
-        format!("{:.2} Mb", mem as f64 / 1_024.0)
+    let mem_kb = vm_rss_kb.unwrap_or(0);
+    let mem_str = if mem_kb > 1_024 * 1_024 {
+        format!("{:.2} Gb", mem_kb as f64 / 1_024.0 / 1_024.0)
+    } else if mem_kb > 1_024 {
+        format!("{:.2} Mb", mem_kb as f64 / 1_024.0)
     } else {
-        format!("{:.2} Kb", mem)
+        format!("{:.2} Kb", mem_kb)
     };
 
-    Some(mem_str)
+    Some((name?, ppid?, user?, mem_str))
+}
+
+/// Parse /proc/[pid]/stat ONCE and return (state, utime, stime).
+fn parse_proc_stat(pid: &str) -> Option<(String, u64, u64)> {
+    let content = fs::read_to_string(format!("/proc/{}/stat", pid)).ok()?;
+    let after_comm = &content[content.rfind(')')? + 2..];
+    let fields: Vec<&str> = after_comm.split_whitespace().collect();
+
+    let state = fields.first().map(|s| match *s {
+        "R" => "Running",
+        "S" => "Sleeping",
+        "D" => "Disk sleep",
+        "Z" => "Zombie",
+        "T" => "Stopped",
+        "t" => "Tracing stop",
+        "W" => "Paging",
+        "X" | "x" => "Dead",
+        "K" => "Wakekill",
+        "P" => "Parked",
+        "I" => "Idle",
+        _ => "N/A",
+    }.to_string())?;
+
+    // fields[11] = utime, fields[12] = stime (0-indexed after state)
+    let utime = fields.get(11).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+    let stime = fields.get(12).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+
+    Some((state, utime, stime))
 }
 
 fn format_bytes(bytes: f64) -> String {
@@ -155,15 +159,6 @@ fn get_total_cpu_time() -> Result<u64, io::Error> {
     Err(io::Error::new(io::ErrorKind::NotFound, "Total CPU time not found in /proc/stat"))
 }
 
-fn get_process_cpu_time(pid: i32) -> Option<(u64, u64)> {
-    let stat_content = fs::read_to_string(format!("/proc/{}/stat", pid)).ok()?;
-    let after_comm = &stat_content[stat_content.rfind(')')? + 2..];
-    let fields: Vec<&str> = after_comm.split_whitespace().collect();
-    let utime = fields.get(11).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
-    let stime = fields.get(12).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
-    Some((utime, stime))
-}
-
 pub struct ProcSnapshot {
     pub total_cpu_time: u64,
     pub process_cpu_times: HashMap<i32, (u64, u64)>,
@@ -171,21 +166,34 @@ pub struct ProcSnapshot {
     pub time: Instant,
 }
 
-fn calculate_cpu_percentage(prev: &Mutex<Option<ProcSnapshot>>, pids: &[String]) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>, HashMap<i32, (u64, u64)>) {
+/// Pre-parsed data from /proc/[pid]/stat — collected once per tick for each process.
+struct ProcStatData {
+    state: String,
+    utime: u64,
+    stime: u64,
+}
+
+fn calculate_cpu_percentage(
+    prev: &Mutex<Option<ProcSnapshot>>,
+    pids: &[String],
+    stat_cache: &HashMap<i32, ProcStatData>,
+) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>, HashMap<i32, (u64, u64)>) {
     let total_cpu_time_now = match get_total_cpu_time() {
         Ok(t) => t,
         Err(_) => return (HashMap::new(), HashMap::new(), HashMap::new()),
     };
     let now = Instant::now();
 
-    // Collect current per-process CPU times and I/O
-    let mut cur_cpu: HashMap<i32, (u64, u64)> = HashMap::with_capacity(pids.len());
+    // Build current CPU time map from the already-parsed stat_cache
+    let mut cur_cpu: HashMap<i32, (u64, u64)> = HashMap::with_capacity(stat_cache.len());
+    for (&pid, data) in stat_cache {
+        cur_cpu.insert(pid, (data.utime, data.stime));
+    }
+
+    // Collect I/O (still requires its own file read — /proc/[pid]/io)
     let mut cur_io: HashMap<i32, (u64, u64)> = HashMap::with_capacity(pids.len());
     for pid_str in pids {
         if let Ok(pid) = pid_str.parse::<i32>() {
-            if let Some(cpu_time) = get_process_cpu_time(pid) {
-                cur_cpu.insert(pid, cpu_time);
-            }
             if let Some(io_data) = read_proc_io(pid) {
                 cur_io.insert(pid, io_data);
             }
@@ -258,8 +266,20 @@ fn read_proc_io(pid: i32) -> Option<(u64, u64)> {
 pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot>>>) -> Result<Vec<Process>, String> {
     let pids = list_proc_pid();
 
-    let (cpu_results, disk_speed_results, cur_io) = calculate_cpu_percentage(&prev_proc, &pids);
+    // Phase 1: Parse /proc/[pid]/stat ONCE per process → state + CPU times.
+    let mut stat_cache: HashMap<i32, ProcStatData> = HashMap::with_capacity(pids.len());
+    for pid_str in &pids {
+        if let Ok(pid) = pid_str.parse::<i32>() {
+            if let Some((state, utime, stime)) = parse_proc_stat(pid_str) {
+                stat_cache.insert(pid, ProcStatData { state, utime, stime });
+            }
+        }
+    }
 
+    // Phase 2: Compute CPU% and disk speed deltas (reuses stat_cache, reads /proc/[pid]/io).
+    let (cpu_results, disk_speed_results, cur_io) = calculate_cpu_percentage(&prev_proc, &pids, &stat_cache);
+
+    // Phase 3: Read /proc/[pid]/status ONCE per process → name, ppid, user, memory (VmRSS).
     let uid_map = build_uid_map();
 
     let mut processes = Vec::with_capacity(pids.len());
@@ -270,18 +290,18 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
         };
         let pid_i32 = pid_u32 as i32;
 
-        let (name, ppid, user) = match read_proc_status_file(pid, &uid_map) {
+        let (name, ppid, user, memory) = match read_proc_status_file(pid, &uid_map) {
             Some(info) => info,
             None => continue,
         };
         let ppid_u32: Option<u32> = ppid.parse().ok();
 
-        let state = get_proc_state(pid).unwrap_or_else(|| "N/A".to_string());
-        let memory = get_proc_mem(pid).unwrap_or_else(|| "N/A".to_string());
+        let state = stat_cache.get(&pid_i32)
+            .map(|s| s.state.clone())
+            .unwrap_or_else(|| "N/A".to_string());
 
         let cpu_usage = cpu_results.get(&pid_i32).map(|u| format!("{:.2}", u));
 
-        // Reuse the io snapshot already collected in calculate_cpu_percentage
         let (read_disk_usage, write_disk_usage) = if let Some(&(read_bytes, write_bytes)) = cur_io.get(&pid_i32) {
             (format_bytes(read_bytes as f64), format_bytes(write_bytes as f64))
         } else {
