@@ -51,7 +51,6 @@ const CloseButton = styled.button<{ bgColor: string; color: string }>`
     padding: 4px 12px;
     font-size: 14px;
     cursor: pointer;
-    border-radius: 4px;
     &:hover {
         opacity: 0.8;
     }

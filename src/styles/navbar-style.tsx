@@ -24,7 +24,6 @@ export const StyledButton = styled.button<{ active: boolean; navbarButtonsForegr
   color: ${(props) => (props.active ? props.navbarButtonsForegroundColor : props.navbarButtonsBackgroundColor)};
   display: flex;
   align-items: center;
-  border-radius: 4px;
   border: none;
   font-size: 12px;
   cursor: pointer;
@@ -44,7 +43,6 @@ export const StyledSearchButton = styled.button<{ navbarButtonsForegroundColor: 
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 4px;
   border: none;
   font-size: 12px;
   cursor: pointer;
@@ -62,7 +60,6 @@ export const SearchInput = styled.input<{ navbarSearchBackgroundColor: string; n
     position: absolute;
     right: 5em;
     padding: 2px 4px;
-    border-radius: 2px;
     border: none;
     color: ${(props) => props.navbarSearchForegroundColor};
     background-color: ${(props) => props.navbarSearchBackgroundColor};

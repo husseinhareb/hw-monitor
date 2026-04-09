@@ -22,7 +22,6 @@ export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: 
 
   &::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.performanceScrollbarColor};
-    border-radius: 4px;
     cursor: pointer;
   }
 
@@ -70,11 +69,8 @@ export const ListItem = styled.li<{ performanceSidebarBackgroundColor: string; p
   margin-bottom: 10px;
   cursor: pointer;
   padding: 5px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
   color: ${(props) => props.isSelected ? lighten(0.1, props.performanceSidebarSelectedColor) : props.performanceSidebarSelectedColor};
   background-color: ${(props) => props.isSelected ? lighten(0.04, props.performanceSidebarBackgroundColor) : props.performanceSidebarBackgroundColor};
-  transition: background-color 0.3s;
 
   &:hover {
     background-color: ${(props) => lighten(0.04, props.performanceSidebarBackgroundColor)};

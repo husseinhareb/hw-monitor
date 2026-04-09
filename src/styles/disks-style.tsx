@@ -12,8 +12,6 @@ export const Container = styled.div<{ bodyBackgroundColor: string }>`
 
 export const DiskCard = styled.div<{ boxesBackgroundColor: string }>`
   background-color: ${(props) => props.boxesBackgroundColor};
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   padding: 20px;
   margin: 10px;
   flex-grow: 1;
@@ -50,7 +48,6 @@ export const PartitionContainer = styled.div<{ partitionBackgroundColor: string 
   width: 100%;
   height: 40px;
   background-color:  ${(props) => props.partitionBackgroundColor};
-  border-radius: 8px;
   margin: 20px 0;
   position: relative;
 `;
@@ -76,7 +73,6 @@ const progressAnimation = keyframes`
 export const PartitionBar = styled.div<{ partitionUsageBackgroundColor: string }>`
   height: 100%;
   background-color:  ${(props) => props.partitionUsageBackgroundColor};
-  border-radius: 8px;
   position: absolute;
   top: 0;
   left: 0;

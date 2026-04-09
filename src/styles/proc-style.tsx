@@ -113,7 +113,6 @@ export const KillButton = styled.button<{ killButtonBackgroundColor: string; kil
     padding: 4px 10px;
     font-size: 12px;
     cursor: pointer;
-    border-radius: 5px;
     &:hover {
         background-color: ${(props) => lighten(0.01, props.killButtonBackgroundColor)};
     }

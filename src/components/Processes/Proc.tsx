@@ -348,7 +348,6 @@ const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: s
     padding: 3px 12px;
     font-size: 11px;
     cursor: pointer;
-    border-radius: 4px;
     &:hover {
         opacity: 0.8;
     }

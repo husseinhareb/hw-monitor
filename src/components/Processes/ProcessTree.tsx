@@ -279,7 +279,6 @@ const ExpandCollapseBtn = styled.button<{ bgColor: string; color: string }>`
     padding: 3px 10px;
     font-size: 11px;
     cursor: pointer;
-    border-radius: 4px;
     &:hover {
         opacity: 0.8;
     }

@@ -31,14 +31,12 @@ const ToastItem = styled.div<{ $type: string }>`
   border-left: 4px solid ${({ $type }) => (typeStyles[$type] ?? typeStyles.error).border};
   color: #fff;
   padding: 0.75rem 1rem;
-  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   font-size: 0.85rem;
   animation: ${slideIn} 0.25s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   pointer-events: all;
 `;
 

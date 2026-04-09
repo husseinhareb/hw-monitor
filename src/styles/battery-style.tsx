@@ -47,7 +47,6 @@ export const Design = styled.div<DesignProps>`
   width: 130px;
   height: 220px;
   border: 10px solid ${(props) => props.sensorsBatteryFrameColor + "CC"};
-  border-radius: 15px;
 
   ${({ percentage }) => calculatePercentage(percentage)}
 
@@ -59,7 +58,6 @@ export const Design = styled.div<DesignProps>`
     width: 98px;
     height: 0%;
     background-color: ${(props) => props.sensorsBatteryBackgroundColor};
-    border-radius: 5px;
     animation: ${full} 2s linear forwards;
   }
 
@@ -72,7 +70,5 @@ export const Design = styled.div<DesignProps>`
     width: 60px;
     height: 15px;
     background-color: ${(props) => props.sensorsBatteryFrameColor + "CC"};
-    border-top-left-radius: 10px; 
-    border-top-right-radius: 10px; 
   }
 `;

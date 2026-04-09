@@ -28,11 +28,9 @@ export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; }>`
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.sensorsBoxesBackgroundColor};
-  border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   min-height: 100px;
-  height: 100%; 
+  height: 100%;
   overflow: hidden;
 `;
 
@@ -46,7 +44,6 @@ export const SensorGroup = styled.div`
 
 export const SensorItem = styled.div<{ sensorsGroupForegroundColor: string; }>`
   margin: 5px 0;
-  border-radius: 4px;
   display: flex;
   justify-content: space-between;
   width: 100%;
