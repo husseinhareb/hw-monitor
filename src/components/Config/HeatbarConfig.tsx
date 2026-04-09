@@ -1,81 +1,84 @@
 import React from "react";
 import useHeatbarConfig from "../../hooks/Sensors/useHeatbarConfig";
 import { useTranslation } from "react-i18next";
+import {
+  SectionCard,
+  SubSectionTitle,
+  SettingRow,
+  SettingLabel,
+  SettingControl,
+  ColorInputWrapper,
+  StyledColorInput,
+  ColorHex,
+  type ConfigTheme,
+} from "./Styles/style";
 
 interface HeatbarConfig {
-    heatbar_color_one: string;
-    heatbar_color_two: string;
-    heatbar_color_three: string;
-    heatbar_color_four: string;
-    heatbar_color_five: string;
-    heatbar_color_six: string;
-    heatbar_color_seven: string;
-    heatbar_color_eight: string;
-    heatbar_color_nine: string;
-    heatbar_color_ten: string;
-    heatbar_background_color: string;
+  heatbar_color_one: string;
+  heatbar_color_two: string;
+  heatbar_color_three: string;
+  heatbar_color_four: string;
+  heatbar_color_five: string;
+  heatbar_color_six: string;
+  heatbar_color_seven: string;
+  heatbar_color_eight: string;
+  heatbar_color_nine: string;
+  heatbar_color_ten: string;
+  heatbar_background_color: string;
 }
 
-const HeatbarConfig: React.FC = () => {
-    const { config, updateConfig } = useHeatbarConfig();
-    const { t } = useTranslation();
+interface Props { theme: ConfigTheme }
 
-    const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
-        if (config) {
-            updateConfig(key, value);
-        }
-    };
+const HeatbarConfig: React.FC<Props> = ({ theme }) => {
+  const { config, updateConfig } = useHeatbarConfig();
+  const { t } = useTranslation();
 
-    return (
-        <div>
-            <h2>{t('heatbar_config.title')}</h2>
-            <hr />
-            <label>
-                <span>{t('heatbar_config.color_one')}</span>
-                <input type="color" value={config.heatbar_color_one} onChange={(e) => handleConfigChange("heatbar_color_one", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_two')}</span>
-                <input type="color" value={config.heatbar_color_two} onChange={(e) => handleConfigChange("heatbar_color_two", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_three')}</span>
-                <input type="color" value={config.heatbar_color_three} onChange={(e) => handleConfigChange("heatbar_color_three", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_four')}</span>
-                <input type="color" value={config.heatbar_color_four} onChange={(e) => handleConfigChange("heatbar_color_four", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_five')}</span>
-                <input type="color" value={config.heatbar_color_five} onChange={(e) => handleConfigChange("heatbar_color_five", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_six')}</span>
-                <input type="color" value={config.heatbar_color_six} onChange={(e) => handleConfigChange("heatbar_color_six", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_seven')}</span>
-                <input type="color" value={config.heatbar_color_seven} onChange={(e) => handleConfigChange("heatbar_color_seven", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_eight')}</span>
-                <input type="color" value={config.heatbar_color_eight} onChange={(e) => handleConfigChange("heatbar_color_eight", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_nine')}</span>
-                <input type="color" value={config.heatbar_color_nine} onChange={(e) => handleConfigChange("heatbar_color_nine", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.color_ten')}</span>
-                <input type="color" value={config.heatbar_color_ten} onChange={(e) => handleConfigChange("heatbar_color_ten", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('heatbar_config.background_color')}</span>
-                <input type="color" value={config.heatbar_background_color} onChange={(e) => handleConfigChange("heatbar_background_color", e.target.value)} />
-            </label>
-        </div>
-    );
+  const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
+    if (config) updateConfig(key, value);
+  };
+
+  const colorRow = (labelKey: string, field: keyof HeatbarConfig) => (
+    <SettingRow inputBorder={theme.inputBorder}>
+      <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
+      <SettingControl>
+        <ColorInputWrapper>
+          <StyledColorInput
+            type="color"
+            value={config[field] as string}
+            onChange={e => handleConfigChange(field, e.target.value)}
+          />
+          <ColorHex textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>
+            {config[field] as string}
+          </ColorHex>
+        </ColorInputWrapper>
+      </SettingControl>
+    </SettingRow>
+  );
+
+  return (
+    <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
+      <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
+        {t("heatbar_config.title")}
+      </SubSectionTitle>
+
+      {colorRow("heatbar_config.color_one",   "heatbar_color_one")}
+      {colorRow("heatbar_config.color_two",   "heatbar_color_two")}
+      {colorRow("heatbar_config.color_three", "heatbar_color_three")}
+      {colorRow("heatbar_config.color_four",  "heatbar_color_four")}
+      {colorRow("heatbar_config.color_five",  "heatbar_color_five")}
+      {colorRow("heatbar_config.color_six",   "heatbar_color_six")}
+      {colorRow("heatbar_config.color_seven", "heatbar_color_seven")}
+      {colorRow("heatbar_config.color_eight", "heatbar_color_eight")}
+      {colorRow("heatbar_config.color_nine",  "heatbar_color_nine")}
+      {colorRow("heatbar_config.color_ten",   "heatbar_color_ten")}
+
+      <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
+        {t("sensors.title")}
+      </SubSectionTitle>
+
+      {colorRow("heatbar_config.background_color", "heatbar_background_color")}
+    </SectionCard>
+  );
 };
 
 export default HeatbarConfig;

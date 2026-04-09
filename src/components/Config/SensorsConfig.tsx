@@ -1,84 +1,103 @@
 import React from "react";
 import useSensorsConfig from "../../hooks/Sensors/useSensorsConfig";
 import { useTranslation } from "react-i18next";
+import {
+  SectionCard,
+  SubSectionTitle,
+  SettingRow,
+  SettingLabel,
+  SettingControl,
+  StyledNumberInput,
+  UnitLabel,
+  ColorInputWrapper,
+  StyledColorInput,
+  ColorHex,
+  type ConfigTheme,
+} from "./Styles/style";
 
 interface SensorsConfig {
-    sensors_update_time: number;
-    sensors_background_color: string;
-    sensors_foreground_color: string;
-    sensors_boxes_background_color: string;
-    sensors_boxes_foreground_color: string;
-    sensors_boxes_title_foreground_color: string;
-    sensors_battery_background_color: string;
-    sensors_battery_frame_color: string;
-    sensors_battery_case_color: string;
+  sensors_update_time: number;
+  sensors_background_color: string;
+  sensors_foreground_color: string;
+  sensors_boxes_background_color: string;
+  sensors_boxes_foreground_color: string;
+  sensors_boxes_title_foreground_color: string;
+  sensors_battery_background_color: string;
+  sensors_battery_frame_color: string;
+  sensors_battery_case_color: string;
 }
 
-const SensorsConfig: React.FC = () => {
-    const { config, updateConfig } = useSensorsConfig();
-    const { t } = useTranslation();
+interface Props { theme: ConfigTheme }
 
-    const handleConfigChange = (key: keyof SensorsConfig, value: string | number) => {
-        if (config) {
-            updateConfig(key, value);
-        }
-    };
+const SensorsConfig: React.FC<Props> = ({ theme }) => {
+  const { config, updateConfig } = useSensorsConfig();
+  const { t } = useTranslation();
 
-    const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = Number(e.target.value);
-        if (value >= 1000) {
-            handleConfigChange("sensors_update_time", value);
-        }
-    };
+  const handleConfigChange = (key: keyof SensorsConfig, value: string | number) => {
+    if (config) updateConfig(key, value);
+  };
 
-    return (
-        <div>
-            <h2>{t('sensors_config.title')}</h2>
-            <hr />
-            <label>
-                {t('sensors_config.update_time')}
-                <input
-                    type="number"
-                    value={config.sensors_update_time}
-                    min={1000}
-                    step={100}
-                    onChange={handleUpdateTimeChange}
-                />
-            </label>
-            <label>
-                <span>{t('sensors_config.background_color')}</span>
-                <input type="color" value={config.sensors_background_color} onChange={(e) => handleConfigChange("sensors_background_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.foreground_color')}</span>
-                <input type="color" value={config.sensors_foreground_color} onChange={(e) => handleConfigChange("sensors_foreground_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.boxes_background_color')}</span>
-                <input type="color" value={config.sensors_boxes_background_color} onChange={(e) => handleConfigChange("sensors_boxes_background_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.boxes_foreground_color')}</span>
-                <input type="color" value={config.sensors_boxes_foreground_color} onChange={(e) => handleConfigChange("sensors_boxes_foreground_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.boxes_title_foreground_color')}</span>
-                <input type="color" value={config.sensors_boxes_title_foreground_color} onChange={(e) => handleConfigChange("sensors_boxes_title_foreground_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.battery_background_color')}</span>
-                <input type="color" value={config.sensors_battery_background_color} onChange={(e) => handleConfigChange("sensors_battery_background_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.battery_frame_color')}</span>
-                <input type="color" value={config.sensors_battery_frame_color} onChange={(e) => handleConfigChange("sensors_battery_frame_color", e.target.value)} />
-            </label>
-            <label>
-                <span>{t('sensors_config.battery_case_color')}</span>
-                <input type="color" value={config.sensors_battery_case_color} onChange={(e) => handleConfigChange("sensors_battery_case_color", e.target.value)} />
-            </label>
-        </div>
-    );
+  const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (value >= 1000) handleConfigChange("sensors_update_time", value);
+  };
+
+  const colorRow = (labelKey: string, field: keyof SensorsConfig) => (
+    <SettingRow inputBorder={theme.inputBorder}>
+      <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
+      <SettingControl>
+        <ColorInputWrapper>
+          <StyledColorInput
+            type="color"
+            value={config[field] as string}
+            onChange={e => handleConfigChange(field, e.target.value)}
+          />
+          <ColorHex textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>
+            {config[field] as string}
+          </ColorHex>
+        </ColorInputWrapper>
+      </SettingControl>
+    </SettingRow>
+  );
+
+  return (
+    <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
+      <SettingRow inputBorder={theme.inputBorder}>
+        <SettingLabel textColor={theme.textColor}>{t("sensors_config.update_time")}</SettingLabel>
+        <SettingControl>
+          <StyledNumberInput
+            type="number"
+            value={config.sensors_update_time}
+            min={1000}
+            step={100}
+            onChange={handleUpdateTimeChange}
+            inputBg={theme.inputBg}
+            inputBorder={theme.inputBorder}
+            textColor={theme.textColor}
+          />
+          <UnitLabel textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>ms</UnitLabel>
+        </SettingControl>
+      </SettingRow>
+
+      <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
+        {t("sensors.title")}
+      </SubSectionTitle>
+
+      {colorRow("sensors_config.background_color",             "sensors_background_color")}
+      {colorRow("sensors_config.foreground_color",             "sensors_foreground_color")}
+      {colorRow("sensors_config.boxes_background_color",       "sensors_boxes_background_color")}
+      {colorRow("sensors_config.boxes_foreground_color",       "sensors_boxes_foreground_color")}
+      {colorRow("sensors_config.boxes_title_foreground_color", "sensors_boxes_title_foreground_color")}
+
+      <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
+        {t("sensors.battery")}
+      </SubSectionTitle>
+
+      {colorRow("sensors_config.battery_background_color", "sensors_battery_background_color")}
+      {colorRow("sensors_config.battery_frame_color",      "sensors_battery_frame_color")}
+      {colorRow("sensors_config.battery_case_color",       "sensors_battery_case_color")}
+    </SectionCard>
+  );
 };
 
 export default SensorsConfig;
