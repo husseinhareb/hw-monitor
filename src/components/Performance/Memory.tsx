@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import Graph from "../Graph/Graph";
 import { MemoryUsage } from "../../hooks/Performance/useMemoryData";
 import useDataConverter from "../../helpers/useDataConverter";
-import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues } from "./Styles/style";
-import { NameContainer } from "../../styles/general-style";
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
 import { useTranslation } from "react-i18next";
@@ -73,7 +72,7 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, a
                         width="98%"
                         tick={tick}
                     />
-                    <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
+                    <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
                         <RealTimeValues>
                             <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.ram')} <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>
                             <FixedValueItem>

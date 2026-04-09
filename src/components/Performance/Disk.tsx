@@ -72,7 +72,7 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick, diskHist
 
       />
 
-      <div style={{ display: 'flex', marginTop: '100px', width: '70%' }}>
+      <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
         <RealTimeValues>
           <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>
             {t('disk.usage')}

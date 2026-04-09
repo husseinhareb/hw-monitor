@@ -49,8 +49,10 @@ flex-shrink: 0;
 export const NameValue = styled.p<{ performanceTitleColor: string }>`
 color: ${(props) => props.performanceTitleColor};
 margin: 7px;
-font-size: 20px;
+margin-left: auto;
+font-size: 16px;
 flex-shrink: 0;
+text-align: right;
 `;
 
 // Common RealTimeValues
@@ -65,15 +67,16 @@ min-width: 0;
 export const CPU = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
-height: 100%;
+padding: 10px;
+box-sizing: border-box;
 `;
 
 
 export const NameContainer = styled.div`
 display: flex;
-justify-content: space-between;
 align-items: center;
-padding: 10px 0;
+gap: 12px;
+padding: 6px 0;
 flex-wrap: wrap;
 `;
 
@@ -107,7 +110,8 @@ min-width: 0;
 export const MemoryContainer = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
-height:100%;
+padding: 10px;
+box-sizing: border-box;
 `;
 
 export const MemoryTypes = styled.div<{ performanceValueColor: string; }>`

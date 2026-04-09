@@ -104,7 +104,6 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
     return (
         <CPU
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
-            style={{ height: '100%', width: '100%', overflow: 'auto' }}
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.cpu')}</NameLabel>
@@ -169,7 +168,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                 </CoreGrid>
             )}
 
-            <div style={{ display: 'flex', marginTop: '20px', width: '70%', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
                 <RealTimeValues>
                     <SpeedUsageContainer>
                         <SpeedUsageItem>

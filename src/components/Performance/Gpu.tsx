@@ -44,7 +44,6 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick, g
     return (
         <CPU
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
-            style={{ height: '100%', width: '100%' }}
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.gpu')}</NameLabel>
@@ -61,7 +60,7 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick, g
                 />
             </div>
             {gpuData && (
-                <div style={{ display: 'flex', marginTop: '100px', width: '70%', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
                     <RealTimeValues>
                         <SpeedUsageContainer>
                             <SpeedUsageItem>
