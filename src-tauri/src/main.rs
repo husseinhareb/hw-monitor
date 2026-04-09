@@ -19,6 +19,7 @@ fn main() {
     tauri::Builder::default()
         .manage(cpu_utils::PerfCpuState(Mutex::new(None)))
         .manage(cpu_utils::TotalCpuState(Mutex::new(None)))
+        .manage(cpu_utils::PerCoreCpuState(Mutex::new(Vec::new())))
         .manage(Mutex::new(None::<network::NetSnapshot>))
         .manage(Mutex::new(None::<disk::DiskSnapshot>))
         .manage(Mutex::new(None::<proc::ProcSnapshot>))

@@ -10,6 +10,7 @@ import {
   useNetworkSpeeds,
   usePaused,
   useSetCpu,
+  useSetCpuCores,
   useSetGpuUsage,
   useSetMemory,
   useSetNetworkSpeed,
@@ -86,18 +87,40 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   // --- Always-running data pumps (keep all sidebar mini-graphs updated) ---
 
-  // CPU pump: fetch raw data → accumulate history → push to store
+  // CPU pump: fetch raw data -> accumulate history -> push to store
   const { cpuData } = useCpuData();
   const [cpuUsageHistory, setCpuUsageHistory] = useState<number[]>([]);
+  const [coreUsageHistories, setCoreUsageHistories] = useState<number[][]>([]);
+  const [cpuViewMode, setCpuViewMode] = useState<'overall' | 'per-core'>('overall');
   const setCpuStore = useSetCpu();
+  const setCpuCoresStore = useSetCpuCores();
   useEffect(() => {
     if (cpuData?.usage != null) {
       setCpuUsageHistory(prev => [...prev, cpuData.usage as number].slice(-20));
     }
   }, [cpuData]);
   useEffect(() => {
+    if (cpuData?.core_usages != null) {
+      setCoreUsageHistories(prev => {
+        const coreCount = cpuData.core_usages!.length;
+        const updated = [...prev];
+        // Ensure we have enough arrays
+        while (updated.length < coreCount) updated.push([]);
+        // Trim if core count shrunk (unlikely but safe)
+        if (updated.length > coreCount) updated.length = coreCount;
+        for (let i = 0; i < coreCount; i++) {
+          updated[i] = [...updated[i], cpuData.core_usages![i]].slice(-20);
+        }
+        return updated;
+      });
+    }
+  }, [cpuData]);
+  useEffect(() => {
     if (cpuUsageHistory.length > 0) setCpuStore(cpuUsageHistory);
   }, [cpuUsageHistory, setCpuStore]);
+  useEffect(() => {
+    if (coreUsageHistories.length > 0) setCpuCoresStore(coreUsageHistories);
+  }, [coreUsageHistories, setCpuCoresStore]);
 
   // Memory pump: fetch raw data → accumulate history → push to store
   const memoryRaw = useMemoryData();
@@ -146,7 +169,17 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // Render only the selected detail component
   const renderDetailPane = () => {
     if (selectedItem === 'CPU') {
-      return <Cpu performanceConfig={perf} tick={tick} cpuData={cpuData} cpuUsage={cpuUsageHistory} />;
+      return (
+        <Cpu
+          performanceConfig={perf}
+          tick={tick}
+          cpuData={cpuData}
+          cpuUsage={cpuUsageHistory}
+          coreUsageHistories={coreUsageHistories}
+          viewMode={cpuViewMode}
+          onToggleView={() => setCpuViewMode(m => m === 'overall' ? 'per-core' : 'overall')}
+        />
+      );
     }
     if (selectedItem === 'Memory') {
       return <Memory performanceConfig={perf} tick={tick} memoryUsage={memoryRaw} activeMem={activeMemHistory} />;

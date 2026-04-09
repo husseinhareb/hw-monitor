@@ -11,6 +11,7 @@ export interface CpuData {
     cores: string | null;
     threads: string | null;
     usage: number | null;
+    core_usages: number[] | null;
     current_speed: string | null;
     base_speed: string | null;
     max_speed: string | null;
@@ -21,7 +22,7 @@ export interface CpuData {
 
 
 const useCpuData = () => {
-    const [cpuData, setCpuData] = useState<CpuData>({ name: null, cores: null, threads: null, usage: null, current_speed: null, base_speed: null, max_speed: null, virtualization: null, socket: null, uptime: null, temperature: null });
+    const [cpuData, setCpuData] = useState<CpuData>({ name: null, cores: null, threads: null, usage: null, core_usages: null, current_speed: null, base_speed: null, max_speed: null, virtualization: null, socket: null, uptime: null, temperature: null });
     const performanceConfig = usePerformanceConfig();  
     const paused = usePaused();
 

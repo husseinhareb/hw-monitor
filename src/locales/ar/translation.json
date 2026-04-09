@@ -140,6 +140,8 @@
     "performance.base_speed": "السرعة الأساسية",
     "performance.max_speed": "السرعة القصوى",
     "performance.virtualization": "التخزين الافتراضي",
+    "performance.overall_usage": "Overall Usage",
+    "performance.logical_processors": "Logical Processors",
 
     "performance.gpu": "وحدة معالجة الرسوميات",
     "performance.wattage": "الطاقة المستهلكة",

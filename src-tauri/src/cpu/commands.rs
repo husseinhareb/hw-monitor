@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use std::fs;
 use crate::sensors;
-use crate::cpu_utils::PerfCpuState;
+use crate::cpu_utils::{PerfCpuState, PerCoreCpuState};
 
 #[derive(Serialize, Deserialize)]
 pub struct CpuInformations {
@@ -10,6 +10,7 @@ pub struct CpuInformations {
     cores: Option<String>,
     threads: Option<String>,
     usage: Option<i64>,
+    core_usages: Option<Vec<i64>>,
     current_speed: Option<String>,
     base_speed: Option<String>,
     max_speed: Option<String>,
@@ -129,7 +130,7 @@ fn get_cpu_temperature() -> Option<String> {
     None
 }
 
-fn get_cpu_info(prev_cpu: &PerfCpuState) -> Option<CpuInformations> {
+fn get_cpu_info(prev_cpu: &PerfCpuState, per_core: &PerCoreCpuState) -> Option<CpuInformations> {
     let static_info = get_static_cpu_info()?;
 
     let uptime_seconds = fs::read_to_string("/proc/uptime")
@@ -139,11 +140,15 @@ fn get_cpu_info(prev_cpu: &PerfCpuState) -> Option<CpuInformations> {
         .parse::<f64>()
         .ok()?;
 
+    let core_usages = crate::cpu_utils::calc_per_core_usage(per_core)
+        .map(|v| v.into_iter().map(|u| u as i64).collect());
+
     Some(CpuInformations {
         name: Some(static_info.name.clone()),
         cores: Some(static_info.cores.clone()),
         threads: Some(static_info.threads.clone()),
         usage: get_cpu_usage_percentage(prev_cpu),
+        core_usages,
         base_speed: static_info.base_speed.clone(),
         current_speed: get_current_speed(),
         max_speed: static_info.max_speed.clone(),
@@ -157,6 +162,9 @@ fn get_cpu_info(prev_cpu: &PerfCpuState) -> Option<CpuInformations> {
 
 
 #[tauri::command]
-pub async fn get_cpu_informations(prev_cpu: tauri::State<'_, PerfCpuState>) -> Result<Option<CpuInformations>, String> {
-    Ok(get_cpu_info(&prev_cpu))
+pub async fn get_cpu_informations(
+    prev_cpu: tauri::State<'_, PerfCpuState>,
+    per_core: tauri::State<'_, PerCoreCpuState>,
+) -> Result<Option<CpuInformations>, String> {
+    Ok(get_cpu_info(&prev_cpu, &per_core))
 }

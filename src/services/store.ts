@@ -88,6 +88,9 @@ interface Store {
   cpu: number[];
   setCpu: (cpu: number[]) => void;
 
+  cpuCores: number[][];
+  setCpuCores: (cores: number[][]) => void;
+
   memory: number[];
   setMemory: (memory: number[]) => void;
 
@@ -145,6 +148,9 @@ export interface Notification {
 export const useStore = create<Store>((set) => ({
   cpu: [],
   setCpu: (cpu) => set({ cpu }),
+
+  cpuCores: [],
+  setCpuCores: (cpuCores) => set({ cpuCores }),
 
   memory: [],
   setMemory: (memory) => set({ memory }),
@@ -285,6 +291,9 @@ export const useStore = create<Store>((set) => ({
 
 export const useCpu = () => useStore((state) => state.cpu);
 export const useSetCpu = () => useStore((state) => state.setCpu);
+
+export const useCpuCores = () => useStore((state) => state.cpuCores);
+export const useSetCpuCores = () => useStore((state) => state.setCpuCores);
 
 export const useMemory = () => useStore((state) => state.memory);
 export const useSetMemory = () => useStore((state) => state.setMemory);

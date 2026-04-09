@@ -140,6 +140,8 @@
     "performance.base_speed": "Base speed",
     "performance.max_speed": "Max speed",
     "performance.virtualization": "Virtualization",
+    "performance.overall_usage": "Overall Usage",
+    "performance.logical_processors": "Logical Processors",
 
     "performance.gpu": "GPU",
     "performance.wattage": "Wattage",

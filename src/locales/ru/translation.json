@@ -140,6 +140,8 @@
     "performance.base_speed": "Базовая скорость",
     "performance.max_speed": "Максимальная скорость",
     "performance.virtualization": "Виртуализация",
+    "performance.overall_usage": "Общая загрузка",
+    "performance.logical_processors": "Логические процессоры",
 
     "performance.gpu": "GPU",
     "performance.wattage": "Мощность",

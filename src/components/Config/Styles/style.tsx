@@ -107,7 +107,6 @@ export const LangLabel = styled.label<{ textColor: string }>`
   gap: 7px;
   font-size: 12px;
   color: ${p => p.textColor};
-  opacity: 0.7;
   white-space: nowrap;
   cursor: default;
 `;
@@ -125,6 +124,11 @@ export const StyledSelect = styled.select<{
   cursor: pointer;
   outline: none;
   height: 26px;
+
+  option {
+    background-color: ${p => p.inputBg};
+    color: ${p => p.textColor};
+  }
 
   &:focus {
     border-color: ${p => p.textColor}55;

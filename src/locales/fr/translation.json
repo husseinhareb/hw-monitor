@@ -138,6 +138,8 @@
     "performance.base_speed": "Vitesse de Base",
     "performance.max_speed": "Vitesse Max",
     "performance.virtualization": "Virtualisation",
+    "performance.overall_usage": "Utilisation Globale",
+    "performance.logical_processors": "Processeurs Logiques",
 
     "performance.gpu": "GPU",
     "performance.wattage": "Puissance",

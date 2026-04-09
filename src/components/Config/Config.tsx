@@ -123,7 +123,6 @@ const Config: React.FC = () => {
         <TopBar containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
           <TopBarTitle textColor={theme.textColor}>{activeLabel}</TopBarTitle>
           <LangLabel textColor={theme.textColor}>
-            {t("navbar.config")} —&nbsp;
             <StyledSelect
               id="language-select"
               value={config.language}
