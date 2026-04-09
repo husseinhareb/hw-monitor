@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from "react";
 import useProcessConfig from "../../hooks/Proc/useProcessConfig";
-import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-import {
-    ConfigContainer,
-    Title,
-    Separator,
-    ColorInput,
-    Label,
-    Input,
-    SectionTitle,
-    CheckboxContainer,
-    Column,
-    ColorLabel,
-    ColorLabelText,
-    CheckboxWrapper,
-} from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
 // Translation keys for the table values
@@ -61,7 +46,6 @@ interface ProcessConfig {
 
 const ProcessesConfig: React.FC = () => {
     const { config, updateConfig, updateTableValues } = useProcessConfig();
-    const { config: panelConfig } = useConfigPanelConfig();
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
     const { t } = useTranslation();
 
@@ -101,135 +85,77 @@ const ProcessesConfig: React.FC = () => {
     const secondHalf = tableValues.slice(half);
 
     return (
-        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
-            <Title>{t('processes_config.title')}</Title>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <Label>
+        <div>
+            <h2>{t('processes_config.title')}</h2>
+            <hr />
+            <label>
                 {t('processes_config.update_time')}
-                <Input
+                <input
                     type="number"
                     value={config.processes_update_time}
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
-                    inputBgColor={panelConfig.config_input_background_color}
-                    borderColor={panelConfig.config_input_border_color}
                 />
-            </Label>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.body_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_body_background_color}
-                    onChange={(e) => handleConfigChange("processes_body_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.body_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_body_color}
-                    onChange={(e) => handleConfigChange("processes_body_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.head_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_head_background_color}
-                    onChange={(e) => handleConfigChange("processes_head_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.head_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_head_color}
-                    onChange={(e) => handleConfigChange("processes_head_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.border_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_border_color}
-                    onChange={(e) => handleConfigChange("processes_border_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.tree_toggle_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_tree_toggle_color}
-                    onChange={(e) => handleConfigChange("processes_tree_toggle_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('processes_config.monitor_border_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.processes_monitor_border_color}
-                    onChange={(e) => handleConfigChange("processes_monitor_border_color", e.target.value)}
-                />
-            </ColorLabel>
-            <SectionTitle>{t('processes_config.table_values')}</SectionTitle>
-            <CheckboxContainer>
-                <Column>
+            </label>
+            <label>
+                <span>{t('processes_config.body_background_color')}</span>
+                <input type="color" value={config.processes_body_background_color} onChange={(e) => handleConfigChange("processes_body_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('processes_config.body_color')}</span>
+                <input type="color" value={config.processes_body_color} onChange={(e) => handleConfigChange("processes_body_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('processes_config.head_background_color')}</span>
+                <input type="color" value={config.processes_head_background_color} onChange={(e) => handleConfigChange("processes_head_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('processes_config.head_color')}</span>
+                <input type="color" value={config.processes_head_color} onChange={(e) => handleConfigChange("processes_head_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('processes_config.border_color')}</span>
+                <input type="color" value={config.processes_border_color} onChange={(e) => handleConfigChange("processes_border_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('processes_config.tree_toggle_color')}</span>
+                <input type="color" value={config.processes_tree_toggle_color} onChange={(e) => handleConfigChange("processes_tree_toggle_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('processes_config.monitor_border_color')}</span>
+                <input type="color" value={config.processes_monitor_border_color} onChange={(e) => handleConfigChange("processes_monitor_border_color", e.target.value)} />
+            </label>
+            <h3>{t('processes_config.table_values')}</h3>
+            <div style={{ display: 'flex' }}>
+                <div>
                     {firstHalf.map((translationKey) => (
-                        <CheckboxWrapper className="checkbox-wrapper-4" key={translationKey}>
+                        <div key={translationKey}>
                             <input
-                                className="inp-cbx"
                                 id={translationKey}
                                 type="checkbox"
-                                checked={selectedValues.includes(translationMap[translationKey])} // Check based on original value
+                                checked={selectedValues.includes(translationMap[translationKey])}
                                 onChange={() => handleTableValueChange(translationKey)}
                             />
-                            <label className="cbx" htmlFor={translationKey}>
-                                <span>
-                                    <svg width="12px" height="10px">
-                                        <use xlinkHref="#check-4"></use>
-                                    </svg>
-                                </span>
-                                {/* Translate the value using t */}
-                                <span>{t(translationKey)}</span>
-                            </label>
-                            <svg className="inline-svg">
-                                <symbol id="check-4" viewBox="0 0 12 10">
-                                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                </symbol>
-                            </svg>
-                        </CheckboxWrapper>
+                            <label htmlFor={translationKey}>{t(translationKey)}</label>
+                        </div>
                     ))}
-                </Column>
-                <Column>
+                </div>
+                <div>
                     {secondHalf.map((translationKey) => (
-                        <CheckboxWrapper className="checkbox-wrapper-4" key={translationKey}>
+                        <div key={translationKey}>
                             <input
-                                className="inp-cbx"
                                 id={translationKey}
                                 type="checkbox"
-                                checked={selectedValues.includes(translationMap[translationKey])} // Check based on original value
+                                checked={selectedValues.includes(translationMap[translationKey])}
                                 onChange={() => handleTableValueChange(translationKey)}
                             />
-                            <label className="cbx" htmlFor={translationKey}>
-                                <span>
-                                    <svg width="12px" height="10px">
-                                        <use xlinkHref="#check-4"></use>
-                                    </svg>
-                                </span>
-                                {/* Translate the value using t */}
-                                <span>{t(translationKey)}</span>
-                            </label>
-                            <svg className="inline-svg">
-                                <symbol id="check-4" viewBox="0 0 12 10">
-                                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                </symbol>
-                            </svg>
-                        </CheckboxWrapper>
+                            <label htmlFor={translationKey}>{t(translationKey)}</label>
+                        </div>
                     ))}
-                </Column>
-            </CheckboxContainer>
-        </ConfigContainer>
+                </div>
+            </div>
+        </div>
     );
 };
 

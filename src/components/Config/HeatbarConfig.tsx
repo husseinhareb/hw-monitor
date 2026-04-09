@@ -1,14 +1,5 @@
 import React from "react";
 import useHeatbarConfig from "../../hooks/Sensors/useHeatbarConfig";
-import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-import {
-    ConfigContainer,
-    Title,
-    Separator,
-    ColorInput,
-    ColorLabel,
-    ColorLabelText
-} from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
 interface HeatbarConfig {
@@ -27,7 +18,6 @@ interface HeatbarConfig {
 
 const HeatbarConfig: React.FC = () => {
     const { config, updateConfig } = useHeatbarConfig();
-    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
@@ -37,98 +27,54 @@ const HeatbarConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
-            <Title>{t('heatbar_config.title')}</Title>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_one')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_one}
-                    onChange={(e) => handleConfigChange("heatbar_color_one", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_two')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_two}
-                    onChange={(e) => handleConfigChange("heatbar_color_two", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_three')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_three}
-                    onChange={(e) => handleConfigChange("heatbar_color_three", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_four')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_four}
-                    onChange={(e) => handleConfigChange("heatbar_color_four", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_five')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_five}
-                    onChange={(e) => handleConfigChange("heatbar_color_five", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_six')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_six}
-                    onChange={(e) => handleConfigChange("heatbar_color_six", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_seven')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_seven}
-                    onChange={(e) => handleConfigChange("heatbar_color_seven", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_eight')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_eight}
-                    onChange={(e) => handleConfigChange("heatbar_color_eight", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_nine')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_nine}
-                    onChange={(e) => handleConfigChange("heatbar_color_nine", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.color_ten')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_color_ten}
-                    onChange={(e) => handleConfigChange("heatbar_color_ten", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('heatbar_config.background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.heatbar_background_color}
-                    onChange={(e) => handleConfigChange("heatbar_background_color", e.target.value)}
-                />
-            </ColorLabel>
-        </ConfigContainer>
+        <div>
+            <h2>{t('heatbar_config.title')}</h2>
+            <hr />
+            <label>
+                <span>{t('heatbar_config.color_one')}</span>
+                <input type="color" value={config.heatbar_color_one} onChange={(e) => handleConfigChange("heatbar_color_one", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_two')}</span>
+                <input type="color" value={config.heatbar_color_two} onChange={(e) => handleConfigChange("heatbar_color_two", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_three')}</span>
+                <input type="color" value={config.heatbar_color_three} onChange={(e) => handleConfigChange("heatbar_color_three", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_four')}</span>
+                <input type="color" value={config.heatbar_color_four} onChange={(e) => handleConfigChange("heatbar_color_four", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_five')}</span>
+                <input type="color" value={config.heatbar_color_five} onChange={(e) => handleConfigChange("heatbar_color_five", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_six')}</span>
+                <input type="color" value={config.heatbar_color_six} onChange={(e) => handleConfigChange("heatbar_color_six", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_seven')}</span>
+                <input type="color" value={config.heatbar_color_seven} onChange={(e) => handleConfigChange("heatbar_color_seven", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_eight')}</span>
+                <input type="color" value={config.heatbar_color_eight} onChange={(e) => handleConfigChange("heatbar_color_eight", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_nine')}</span>
+                <input type="color" value={config.heatbar_color_nine} onChange={(e) => handleConfigChange("heatbar_color_nine", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.color_ten')}</span>
+                <input type="color" value={config.heatbar_color_ten} onChange={(e) => handleConfigChange("heatbar_color_ten", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('heatbar_config.background_color')}</span>
+                <input type="color" value={config.heatbar_background_color} onChange={(e) => handleConfigChange("heatbar_background_color", e.target.value)} />
+            </label>
+        </div>
     );
 };
 

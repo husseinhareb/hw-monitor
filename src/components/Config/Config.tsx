@@ -10,21 +10,10 @@ import DisksConfig from "./DisksConfig";
 import NavbarConfig from "./NavbarConfig";
 import HeatbarConfig from "./HeatbarConfig";
 import ConfigPanelConfigSection from "./ConfigPanelConfig";
-import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-
-import {
-  Wrapper,
-  Container,
-  StyledButton,
-  Label,
-  Select,
-  Header,
-} from "./Styles/style";
 
 const Config: React.FC = () => {
   const { i18n, t } = useTranslation();
   const [reloadFlag, setReloadFlag] = React.useState(false);
-  const { config: panelConfig } = useConfigPanelConfig();
 
   const { config, updateConfig } = useFetchAndSetConfig<{ language: string }>(
     { language: i18n.language },
@@ -49,26 +38,15 @@ const Config: React.FC = () => {
   };
 
   return (
-    <Wrapper
-      bgColor={panelConfig.config_background_color}
-      textColor={panelConfig.config_text_color}
-      inputBorderColor={panelConfig.config_input_border_color}
-    >
-      <Header>
-        <StyledButton
-          buttonBgColor={panelConfig.config_button_background_color}
-          buttonTextColor={panelConfig.config_button_foreground_color}
-          onClick={load_default_config}
-        >
+    <div>
+      <div>
+        <button onClick={load_default_config}>
           {t('config.load_default')}
-        </StyledButton>
-        <Label htmlFor="language-select" style={{ color: panelConfig.config_text_color }}>
+        </button>
+        <label htmlFor="language-select">
           Lang:
-          <Select
+          <select
             id="language-select"
-            inputBgColor={panelConfig.config_input_background_color}
-            borderColor={panelConfig.config_input_border_color}
-            textColor={panelConfig.config_button_foreground_color}
             onChange={handleLanguageChange}
             value={config.language}
           >
@@ -80,10 +58,10 @@ const Config: React.FC = () => {
             <option value="pl">Polski</option>
             <option value="ar">العربية</option>
             <option value="ru">Русский</option>
-          </Select>
-        </Label>
-      </Header>
-      <Container bgColor={panelConfig.config_background_color} key={reloadFlag ? "reload" : "no-reload"}>
+          </select>
+        </label>
+      </div>
+      <div key={reloadFlag ? "reload" : "no-reload"}>
         <ProcessesConfig />
         <PerformanceConfig />
         <SensorsConfig />
@@ -91,8 +69,8 @@ const Config: React.FC = () => {
         <HeatbarConfig />
         <NavbarConfig />
         <ConfigPanelConfigSection />
-      </Container>
-    </Wrapper>
+      </div>
+    </div>
   );
 };
 

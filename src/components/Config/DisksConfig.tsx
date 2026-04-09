@@ -1,16 +1,5 @@
 import React from "react";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
-import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-import {
-    ConfigContainer,
-    Title,
-    Separator,
-    ColorInput,
-    Label,
-    Input,
-    ColorLabel,
-    ColorLabelText
-} from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
 interface DisksConfig {
@@ -28,7 +17,6 @@ interface DisksConfig {
 
 const DisksConfig: React.FC = () => {
     const { config, updateConfig } = useDisksConfig();
-    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
     const handleConfigChange = (key: keyof DisksConfig, value: string | number) => {
         if (config) {
@@ -44,95 +32,57 @@ const DisksConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
-            <Title> {t('disks_config.title')}</Title>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <Label>
+        <div>
+            <h2> {t('disks_config.title')}</h2>
+            <hr />
+            <label>
                 {t('disks_config.update_time')}
-                <Input
+                <input
                     type="number"
                     value={config.disks_update_time}
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
-                    inputBgColor={panelConfig.config_input_background_color}
-                    borderColor={panelConfig.config_input_border_color}
                 />
-            </Label>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.background_color')}
-                </ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_background_color}
-                    onChange={(e) => handleConfigChange("disks_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.boxes_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_boxes_background_color}
-                    onChange={(e) => handleConfigChange("disks_boxes_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.name_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_name_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_name_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.size_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_size_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_size_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.partition_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_partition_background_color}
-                    onChange={(e) => handleConfigChange("disks_partition_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.partition_usage_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_partition_usage_background_color}
-                    onChange={(e) => handleConfigChange("disks_partition_usage_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.partition_name_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_partition_name_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_partition_name_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.partition_type_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_partition_type_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_partition_type_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('disks_config.partition_usage_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.disks_partition_usage_foreground_color}
-                    onChange={(e) => handleConfigChange("disks_partition_usage_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-        </ConfigContainer>
+            </label>
+            <label>
+                <span>{t('disks_config.background_color')}
+                </span>
+                <input type="color" value={config.disks_background_color} onChange={(e) => handleConfigChange("disks_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.boxes_background_color')}</span>
+                <input type="color" value={config.disks_boxes_background_color} onChange={(e) => handleConfigChange("disks_boxes_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.name_foreground_color')}</span>
+                <input type="color" value={config.disks_name_foreground_color} onChange={(e) => handleConfigChange("disks_name_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.size_foreground_color')}</span>
+                <input type="color" value={config.disks_size_foreground_color} onChange={(e) => handleConfigChange("disks_size_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.partition_background_color')}</span>
+                <input type="color" value={config.disks_partition_background_color} onChange={(e) => handleConfigChange("disks_partition_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.partition_usage_background_color')}</span>
+                <input type="color" value={config.disks_partition_usage_background_color} onChange={(e) => handleConfigChange("disks_partition_usage_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.partition_name_foreground_color')}</span>
+                <input type="color" value={config.disks_partition_name_foreground_color} onChange={(e) => handleConfigChange("disks_partition_name_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.partition_type_foreground_color')}</span>
+                <input type="color" value={config.disks_partition_type_foreground_color} onChange={(e) => handleConfigChange("disks_partition_type_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('disks_config.partition_usage_foreground_color')}</span>
+                <input type="color" value={config.disks_partition_usage_foreground_color} onChange={(e) => handleConfigChange("disks_partition_usage_foreground_color", e.target.value)} />
+            </label>
+        </div>
     );
 };
 

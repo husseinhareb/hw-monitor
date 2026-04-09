@@ -1,18 +1,5 @@
 import React from "react";
 import usePerformanceConfig from "../../hooks/Performance/usePerformanceConfig";
-import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-import {
-    ConfigContainer,
-    Title,
-    Separator,
-    ColorInput,
-    Label,
-    Input,
-    ColorLabel,
-    ColorLabelText,
-    CheckboxLabel,
-    CheckboxInput
-} from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
 interface PerformanceConfig {
@@ -32,7 +19,6 @@ interface PerformanceConfig {
 
 const PerformanceConfig: React.FC = () => {
     const { config, updateConfig } = usePerformanceConfig();
-    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof PerformanceConfig, value: string | number | boolean) => {
@@ -49,116 +35,74 @@ const PerformanceConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
-            <Title>{t('performance_config.title')}</Title>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <Label>
+        <div>
+            <h2>{t('performance_config.title')}</h2>
+            <hr />
+            <label>
                 {t('performance_config.update_time')}
-                <Input
+                <input
                     type="number"
                     value={config.performance_update_time}
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
-                    inputBgColor={panelConfig.config_input_background_color}
-                    borderColor={panelConfig.config_input_border_color}
                 />
-            </Label>
+            </label>
             <h3>{t('performance_config.sidebar')}</h3>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.sidebar_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_sidebar_background_color}
-                    onChange={(e) => handleConfigChange("performance_sidebar_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.sidebar_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_sidebar_color}
-                    onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.sidebar_selected_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_sidebar_selected_color}
-                    onChange={(e) => handleConfigChange("performance_sidebar_selected_color", e.target.value)}
-                />
-            </ColorLabel>
+            <hr />
+            <label>
+                <span>{t('performance_config.sidebar_background_color')}</span>
+                <input type="color" value={config.performance_sidebar_background_color} onChange={(e) => handleConfigChange("performance_sidebar_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.sidebar_color')}</span>
+                <input type="color" value={config.performance_sidebar_color} onChange={(e) => handleConfigChange("performance_sidebar_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.sidebar_selected_color')}</span>
+                <input type="color" value={config.performance_sidebar_selected_color} onChange={(e) => handleConfigChange("performance_sidebar_selected_color", e.target.value)} />
+            </label>
             <h3>{t('performance_config.content')}</h3>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_background_color}
-                    onChange={(e) => handleConfigChange("performance_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.label_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_label_color}
-                    onChange={(e) => handleConfigChange("performance_label_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.value_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_value_color}
-                    onChange={(e) => handleConfigChange("performance_value_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.title_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_title_color}
-                    onChange={(e) => handleConfigChange("performance_title_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.graph_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_graph_color}
-                    onChange={(e) => handleConfigChange("performance_graph_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.sec_graph_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_sec_graph_color}
-                    onChange={(e) => handleConfigChange("performance_sec_graph_color", e.target.value)}
-                />
-            </ColorLabel>
+            <hr />
+            <label>
+                <span>{t('performance_config.background_color')}</span>
+                <input type="color" value={config.performance_background_color} onChange={(e) => handleConfigChange("performance_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.label_color')}</span>
+                <input type="color" value={config.performance_label_color} onChange={(e) => handleConfigChange("performance_label_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.value_color')}</span>
+                <input type="color" value={config.performance_value_color} onChange={(e) => handleConfigChange("performance_value_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.title_color')}</span>
+                <input type="color" value={config.performance_title_color} onChange={(e) => handleConfigChange("performance_title_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.graph_color')}</span>
+                <input type="color" value={config.performance_graph_color} onChange={(e) => handleConfigChange("performance_graph_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('performance_config.sec_graph_color')}</span>
+                <input type="color" value={config.performance_sec_graph_color} onChange={(e) => handleConfigChange("performance_sec_graph_color", e.target.value)} />
+            </label>
             <h3>{t('performance_config.network')}</h3>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <CheckboxLabel>
-                <CheckboxInput
+            <hr />
+            <label>
+                <input
                     type="checkbox"
                     checked={config.show_virtual_interfaces}
                     onChange={() => handleConfigChange("show_virtual_interfaces", !config.show_virtual_interfaces)}
                 />
                 {t('performance_config.show_virtual_interfaces')}
-            </CheckboxLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('performance_config.scrollbar_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.performance_scrollbar_color}
-                    onChange={(e) => handleConfigChange("performance_scrollbar_color", e.target.value)}
-                />
-            </ColorLabel>
-        </ConfigContainer>
+            </label>
+            <label>
+                <span>{t('performance_config.scrollbar_color')}</span>
+                <input type="color" value={config.performance_scrollbar_color} onChange={(e) => handleConfigChange("performance_scrollbar_color", e.target.value)} />
+            </label>
+        </div>
     );
 };
 

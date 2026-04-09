@@ -1,16 +1,5 @@
 import React from "react";
 import useSensorsConfig from "../../hooks/Sensors/useSensorsConfig";
-import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-import {
-    ConfigContainer,
-    Title,
-    Separator,
-    ColorInput,
-    Label,
-    Input,
-    ColorLabel,
-    ColorLabelText
-} from "./Styles/style";
 import { useTranslation } from "react-i18next";
 
 interface SensorsConfig {
@@ -27,7 +16,6 @@ interface SensorsConfig {
 
 const SensorsConfig: React.FC = () => {
     const { config, updateConfig } = useSensorsConfig();
-    const { config: panelConfig } = useConfigPanelConfig();
     const { t } = useTranslation();
 
     const handleConfigChange = (key: keyof SensorsConfig, value: string | number) => {
@@ -44,86 +32,52 @@ const SensorsConfig: React.FC = () => {
     };
 
     return (
-        <ConfigContainer containerBgColor={panelConfig.config_container_background_color}>
-            <Title>{t('sensors_config.title')}</Title>
-            <Separator borderColor={panelConfig.config_input_border_color} />
-            <Label>
+        <div>
+            <h2>{t('sensors_config.title')}</h2>
+            <hr />
+            <label>
                 {t('sensors_config.update_time')}
-                <Input
+                <input
                     type="number"
                     value={config.sensors_update_time}
                     min={1000}
                     step={100}
                     onChange={handleUpdateTimeChange}
-                    inputBgColor={panelConfig.config_input_background_color}
-                    borderColor={panelConfig.config_input_border_color}
                 />
-            </Label>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_background_color}
-                    onChange={(e) => handleConfigChange("sensors_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_foreground_color}
-                    onChange={(e) => handleConfigChange("sensors_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.boxes_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_boxes_background_color}
-                    onChange={(e) => handleConfigChange("sensors_boxes_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.boxes_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_boxes_foreground_color}
-                    onChange={(e) => handleConfigChange("sensors_boxes_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.boxes_title_foreground_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_boxes_title_foreground_color}
-                    onChange={(e) => handleConfigChange("sensors_boxes_title_foreground_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.battery_background_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_battery_background_color}
-                    onChange={(e) => handleConfigChange("sensors_battery_background_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.battery_frame_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_battery_frame_color}
-                    onChange={(e) => handleConfigChange("sensors_battery_frame_color", e.target.value)}
-                />
-            </ColorLabel>
-            <ColorLabel>
-                <ColorLabelText>{t('sensors_config.battery_case_color')}</ColorLabelText>
-                <ColorInput
-                    type="color"
-                    value={config.sensors_battery_case_color}
-                    onChange={(e) => handleConfigChange("sensors_battery_case_color", e.target.value)}
-                />
-            </ColorLabel>
-        </ConfigContainer>
+            </label>
+            <label>
+                <span>{t('sensors_config.background_color')}</span>
+                <input type="color" value={config.sensors_background_color} onChange={(e) => handleConfigChange("sensors_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.foreground_color')}</span>
+                <input type="color" value={config.sensors_foreground_color} onChange={(e) => handleConfigChange("sensors_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.boxes_background_color')}</span>
+                <input type="color" value={config.sensors_boxes_background_color} onChange={(e) => handleConfigChange("sensors_boxes_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.boxes_foreground_color')}</span>
+                <input type="color" value={config.sensors_boxes_foreground_color} onChange={(e) => handleConfigChange("sensors_boxes_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.boxes_title_foreground_color')}</span>
+                <input type="color" value={config.sensors_boxes_title_foreground_color} onChange={(e) => handleConfigChange("sensors_boxes_title_foreground_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.battery_background_color')}</span>
+                <input type="color" value={config.sensors_battery_background_color} onChange={(e) => handleConfigChange("sensors_battery_background_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.battery_frame_color')}</span>
+                <input type="color" value={config.sensors_battery_frame_color} onChange={(e) => handleConfigChange("sensors_battery_frame_color", e.target.value)} />
+            </label>
+            <label>
+                <span>{t('sensors_config.battery_case_color')}</span>
+                <input type="color" value={config.sensors_battery_case_color} onChange={(e) => handleConfigChange("sensors_battery_case_color", e.target.value)} />
+            </label>
+        </div>
     );
 };
 
