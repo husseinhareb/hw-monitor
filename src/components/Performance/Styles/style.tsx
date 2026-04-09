@@ -67,6 +67,7 @@ min-width: 0;
 export const CPU = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
+min-height: 100%;
 padding: 10px;
 box-sizing: border-box;
 `;
@@ -110,6 +111,7 @@ min-width: 0;
 export const MemoryContainer = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
+min-height: 100%;
 padding: 10px;
 box-sizing: border-box;
 `;
