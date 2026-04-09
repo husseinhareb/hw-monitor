@@ -9,6 +9,7 @@ mod battery;
 mod config;
 mod gpu;
 mod cpu_utils;
+mod proc_icon;
 
 use std::sync::Mutex;
 
@@ -43,7 +44,7 @@ fn main() {
             config::set_config_panel_configs,
             config::set_language_config,
             gpu::get_gpu_informations,
-
+            proc_icon::get_process_icon,
 
         ])
         //.plugin(devtools)

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useProcessIconSrc } from '../../hooks/Proc/useProcessIconSrc';
 import {
   FaChrome, FaDocker, FaGitAlt, FaPython, FaJava, FaNodeJs,
   FaDatabase, FaTerminal, FaFileAlt, FaFolder, FaDesktop, FaKeyboard, FaPrint,
@@ -413,6 +414,20 @@ interface ProcessIconProps {
 }
 
 const ProcessIcon: React.FC<ProcessIconProps> = ({ name, size = 14, fallbackColor }) => {
+  const realSrc = useProcessIconSrc(name);
+
+  if (realSrc) {
+    return (
+      <img
+        src={realSrc}
+        width={size}
+        height={size}
+        style={{ flexShrink: 0, objectFit: 'contain', display: 'inline-block' }}
+        alt={name}
+      />
+    );
+  }
+
   const entry = resolve(name);
   const Icon = entry.icon;
   return <Icon size={size} color={entry.color ?? fallbackColor} style={{ flexShrink: 0 }} />;
