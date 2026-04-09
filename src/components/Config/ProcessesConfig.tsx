@@ -20,10 +20,10 @@ import {
 
 // Translation keys for the table values
 const tableValues = [
-  "processes_config.table_value_user",
+  "processes_config.table_value_name",
   "processes_config.table_value_pid",
   "processes_config.table_value_ppid",
-  "processes_config.table_value_name",
+  "processes_config.table_value_user",
   "processes_config.table_value_state",
   "processes_config.table_value_memory",
   "processes_config.table_value_cpu_usage",

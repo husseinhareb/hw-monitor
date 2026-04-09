@@ -3,6 +3,7 @@ import { Process } from '../../hooks/Proc/useProcessData';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { lighten } from 'polished';
+import ProcessIcon from './ProcessIcon';
 
 interface ProcessTreeProps {
     processes: Process[];
@@ -252,6 +253,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                                         ) : (
                                             <LeafIcon />
                                         )}
+                                        <ProcessIcon name={String(proc.name || '')} size={13} fallbackColor={processConfig.config.processes_body_color} />
                                         {proc.name}
                                     </NameCell>
                                 );

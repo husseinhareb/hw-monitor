@@ -9,6 +9,7 @@ import { lighten } from 'polished';
 import styled from 'styled-components';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import Spinner from '../Misc/Spinner';
+import ProcessIcon from './ProcessIcon';
 import { useTranslation } from 'react-i18next';
 import ProcessMonitor from './ProcessMonitor';
 import ProcessTree from './ProcessTree';
@@ -153,7 +154,7 @@ const Proc: React.FC = () => {
         });
     }, [processSearch, sortedProcesses]);
  
-    const tableValues = ["user", "pid", "ppid", "name", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
+    const tableValues = ["name", "pid", "ppid", "user", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
 
     const displayedColumns = processConfig.config.processes_table_values
         .filter(column => processes.some(process => column in process))
@@ -295,7 +296,12 @@ const Proc: React.FC = () => {
                                         borderColor={processConfig.config.processes_border_color}
                                         columnCount={displayedColumns.length}
                                     >
-                                        {column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
+                                        {column === 'name' ? (
+                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                <ProcessIcon name={String(process[column] || '')} fallbackColor={processConfig.config.processes_body_color} />
+                                                {process[column] || ''}
+                                            </span>
+                                        ) : column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
                                     </Td>
                                 ))}
                             </Tr>
