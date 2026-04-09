@@ -1,10 +1,10 @@
 import React from 'react';
 import {
-  FaChrome, FaFirefoxBrowser, FaDocker, FaGitAlt, FaPython, FaJava, FaNodeJs,
+  FaChrome, FaDocker, FaGitAlt, FaPython, FaJava, FaNodeJs,
   FaDatabase, FaTerminal, FaFileAlt, FaFolder, FaDesktop, FaKeyboard, FaPrint,
   FaWifi, FaLock, FaShieldAlt, FaMusic, FaCamera, FaGamepad, FaEnvelope,
   FaCalendarAlt, FaCalculator, FaClock, FaImage, FaVideo, FaVolumeUp,
-  FaBluetooth, FaUsb, FaServer, FaNetworkWired, FaHdd, FaMicrochip, FaMemory,
+  FaBluetooth, FaUsb, FaServer, FaNetworkWired, FaHdd, FaMicrochip,
   FaCog, FaLinux, FaRust, FaSlack, FaDiscord, FaSkype, FaTelegram, FaSpotify,
   FaSteam, FaGithub, FaDropbox, FaCode,
 } from 'react-icons/fa';
@@ -14,8 +14,8 @@ import {
   SiKubernetes, SiGnome, SiKde, SiLibreoffice,
   SiVisualstudiocode, SiSublimetext, SiVim, SiNeovim,
   SiGimp, SiBlender, SiInkscape, SiVlcmediaplayer, SiObsstudio,
-  SiSignal, SiFirefox, SiChromium,
-  SiThunderbird, SiTor,
+  SiSignal, SiFirefox,
+  SiThunderbird,
 } from 'react-icons/si';
 import {
   VscTerminalBash, VscFile,
@@ -23,7 +23,7 @@ import {
 import { LuCpu, LuMonitor, LuHardDrive } from 'react-icons/lu';
 import { MdSystemUpdateAlt, MdSchedule, MdUsb, MdMemory } from 'react-icons/md';
 import { GiProcessor } from 'react-icons/gi';
-import { BsGearFill, BsKernelFill } from 'react-icons/bs';
+import { BsGearFill } from 'react-icons/bs';
 import { IconType } from 'react-icons';
 
 type IconEntry = { icon: IconType; color?: string };
@@ -60,8 +60,8 @@ const ICON_MAP: Record<string, IconEntry> = {
   chrome:                   { icon: FaChrome,          color: '#4285F4' },
   'google-chrome':          { icon: FaChrome,          color: '#4285F4' },
   'google-chrome-stable':   { icon: FaChrome,          color: '#4285F4' },
-  chromium:                 { icon: SiChromium,         color: '#4587F3' },
-  'chromium-browser':       { icon: SiChromium,         color: '#4587F3' },
+  chromium:                 { icon: FaChrome,          color: '#4587F3' },
+  'chromium-browser':       { icon: FaChrome,          color: '#4587F3' },
   firefox:                  { icon: SiFirefox,          color: '#FF7139' },
   'firefox-esr':            { icon: SiFirefox,          color: '#FF7139' },
   'Web Content':            { icon: SiFirefox,          color: '#FF7139' },
@@ -72,7 +72,7 @@ const ICON_MAP: Record<string, IconEntry> = {
   vivaldi:                  { icon: FaDesktop,          color: '#EF3939' },
   'vivaldi-bin':            { icon: FaDesktop,          color: '#EF3939' },
   epiphany:                 { icon: FaDesktop },
-  'tor-browser':            { icon: SiTor },
+  'tor-browser':            { icon: FaShieldAlt },
   electron:                 { icon: FaDesktop },
 
   // ── Editors / IDEs ─────────────────────────────────────
@@ -239,15 +239,15 @@ const ICON_MAP: Record<string, IconEntry> = {
   openbox:                  { icon: LuMonitor },
 
   // ── System / kernel / init ─────────────────────────────
-  systemd:                  { icon: BsKernelFill },
-  'systemd-journald':       { icon: BsKernelFill },
-  'systemd-logind':         { icon: BsKernelFill },
+  systemd:                  { icon: FaLinux },
+  'systemd-journald':       { icon: FaLinux },
+  'systemd-logind':         { icon: FaLinux },
   'systemd-resolved':       { icon: FaNetworkWired },
   'systemd-timesyncd':      { icon: FaClock },
   'systemd-udevd':          { icon: MdUsb },
   'systemd-oomd':           { icon: MdMemory },
-  init:                     { icon: BsKernelFill },
-  kthreadd:                 { icon: BsKernelFill },
+  init:                     { icon: FaLinux },
+  kthreadd:                 { icon: FaLinux },
   dbus:                     { icon: BsGearFill },
   'dbus-daemon':            { icon: BsGearFill },
   'dbus-broker':            { icon: BsGearFill },
@@ -378,8 +378,8 @@ const FALLBACK_PATTERNS: { test: (name: string) => boolean; entry: IconEntry }[]
   { test: n => /java/i.test(n),                           entry: { icon: FaJava, color: '#ED8B00' } },
   { test: n => /docker|container/i.test(n),               entry: { icon: FaDocker, color: '#2496ED' } },
   { test: n => /^(kworker|ksoftirq|migration|rcu|irq|watchdog|kthread|ata_|scsi|crypto|khugepaged|kswapd|kcompactd|oom_|writeback)/i.test(n),
-    entry: { icon: BsKernelFill } },
-  { test: n => /systemd/i.test(n),                        entry: { icon: BsKernelFill } },
+    entry: { icon: FaLinux } },
+  { test: n => /systemd/i.test(n),                        entry: { icon: FaLinux } },
   { test: n => /chrome|chromium/i.test(n),                entry: { icon: FaChrome, color: '#4285F4' } },
   { test: n => /firefox/i.test(n),                        entry: { icon: SiFirefox, color: '#FF7139' } },
   { test: n => /ssh/i.test(n),                            entry: { icon: FaLock } },
