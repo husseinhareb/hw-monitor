@@ -67,9 +67,11 @@ min-width: 0;
 export const CPU = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
-min-height: 100%;
+height: 100%;
 padding: 10px;
 box-sizing: border-box;
+display: flex;
+flex-direction: column;
 `;
 
 
@@ -79,6 +81,7 @@ align-items: center;
 gap: 12px;
 padding: 6px 0;
 flex-wrap: wrap;
+flex-shrink: 0;
 `;
 
 export const FixedValues = styled.div`
@@ -111,9 +114,11 @@ min-width: 0;
 export const MemoryContainer = styled.div<{ performanceBackgroundColor: string }>`
 background-color: ${(props) => props.performanceBackgroundColor};
 width: 100%;
-min-height: 100%;
+height: 100%;
 padding: 10px;
 box-sizing: border-box;
+display: flex;
+flex-direction: column;
 `;
 
 export const MemoryTypes = styled.div<{ performanceValueColor: string; }>`

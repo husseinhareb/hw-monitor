@@ -51,16 +51,16 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick, g
                     <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{gpuData.name}</NameValue>
                 )}
             </NameContainer>
-            <div>
+            <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
                 <Graph
                     firstGraphValue={gpuUsage}
                     maxValue={100}
-                    width="98%"
+                    width="100%"
                     tick={tick}
                 />
             </div>
             {gpuData && (
-                <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>
                     <RealTimeValues>
                         <SpeedUsageContainer>
                             <SpeedUsageItem>

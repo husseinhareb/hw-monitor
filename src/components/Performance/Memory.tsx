@@ -66,13 +66,15 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, a
                         <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.memory')}</NameLabel>
                         <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{Math.floor(memoryData.total.value)} {memoryData.total.unit}</NameValue>
                     </NameContainer>
-                    <Graph
-                        firstGraphValue={activeMem}
-                        maxValue={Math.floor(memoryData.total.value)}
-                        width="98%"
-                        tick={tick}
-                    />
-                    <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+                        <Graph
+                            firstGraphValue={activeMem}
+                            maxValue={Math.floor(memoryData.total.value)}
+                            width="100%"
+                            tick={tick}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>
                         <RealTimeValues>
                             <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.ram')} <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>
                             <FixedValueItem>

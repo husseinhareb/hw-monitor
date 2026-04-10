@@ -58,14 +58,16 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tic
                         {interfaceName}
                     </NameValue>
                 </NameContainer>
-                <Graph
-                    firstGraphValue={downloadValues}
-                    secondGraphValue={uploadValues}
-                    width="98%"
-                    tick={tick}
-                />
+                <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+                    <Graph
+                        firstGraphValue={downloadValues}
+                        secondGraphValue={uploadValues}
+                        width="100%"
+                        tick={tick}
+                    />
+                </div>
 
-                <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>
                     <RealTimeValues>
                         <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>
                             {t('network.usage')}

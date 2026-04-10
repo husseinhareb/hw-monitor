@@ -131,11 +131,11 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
             </NameContainer>
 
             {viewMode === 'overall' ? (
-                <div>
+                <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
                     <Graph
                         firstGraphValue={cpuUsage}
                         maxValue={100}
-                        width="98%"
+                        width="100%"
                         tick={tick}
                     />
                 </div>
@@ -168,7 +168,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                 </CoreGrid>
             )}
 
-            <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>
                 <RealTimeValues>
                     <SpeedUsageContainer>
                         <SpeedUsageItem>

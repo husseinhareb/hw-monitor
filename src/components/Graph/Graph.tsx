@@ -27,7 +27,7 @@ const Graph: React.FC<GraphProps> = ({
   firstGraphValue,
   secondGraphValue = [],
   maxValue,
-  height = '40vh',
+  height = '100%',
   width = '80vw',
   updateInterval,
 }) => {

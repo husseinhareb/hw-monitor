@@ -119,15 +119,19 @@ export const StyledSelect = styled.select<{
   background-color: ${p => p.inputBg};
   color: ${p => p.textColor};
   border: 1px solid ${p => p.inputBorder};
+  border-radius: 0;
   padding: 3px 6px;
   font-size: 12px;
   cursor: pointer;
   outline: none;
   height: 26px;
+  -webkit-appearance: menulist;
+  appearance: menulist;
 
   option {
     background-color: ${p => p.inputBg};
     color: ${p => p.textColor};
+    padding: 4px 6px;
   }
 
   &:focus {

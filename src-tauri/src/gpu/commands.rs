@@ -259,7 +259,7 @@ fn get_intel_gpu_name(device_path: &PathBuf) -> String {
         }).collect()
     });
     // Try to match by path, fallback to first or generic
-    for (i, gpu) in get_gpu_list().iter().enumerate() {
+    for gpu in get_gpu_list() {
         if let DetectedGpu::Intel { path, index } = gpu {
             if path.join("device") == *device_path || *device_path == path.join("device") {
                 if let Some(name) = names.get(*index) {
