@@ -48,6 +48,9 @@ const CoreGrid = styled.div<{ columns: number }>`
     gap: 4px;
     width: 98%;
     margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 `;
 
 const CoreCell = styled.div<{ bgColor: string; labelColor: string }>`
@@ -76,14 +79,32 @@ const CoreUsageLabel = styled.span<{ color: string }>`
     pointer-events: none;
 `;
 
-const ViewToggle = styled.button<{ bgColor: string; color: string; active: boolean; borderColor: string }>`
-    background-color: ${p => p.active ? p.borderColor : p.bgColor};
-    color: ${p => p.color};
-    border: 1px solid ${p => p.borderColor};
-    padding: 3px 10px;
+const ViewToggleGroup = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-left: auto;
+    margin-right: 16px;
+`;
+
+const ViewToggle = styled.button<{ bgColor: string; color: string; active: boolean; accentColor: string }>`
+    background-color: ${p => p.active ? p.accentColor : 'transparent'};
+    color: ${p => p.active ? '#000' : p.color};
+    border: 1px solid ${p => p.accentColor};
+    padding: 4px 14px;
     font-size: 11px;
+    font-weight: ${p => p.active ? 600 : 400};
     cursor: pointer;
-    &:hover { opacity: 0.85; }
+    white-space: nowrap;
+    transition: background-color 0.15s, color 0.15s;
+
+    &:first-child {
+        border-right: none;
+    }
+
+    &:hover {
+        background-color: ${p => p.active ? p.accentColor : `${p.accentColor}22`};
+    }
 `;
 
 function getGridColumns(coreCount: number): number {
@@ -107,11 +128,11 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
         >
             <NameContainer>
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.cpu')}</NameLabel>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '10px' }}>
+                <ViewToggleGroup>
                     <ViewToggle
                         bgColor={performanceConfig.config.performance_background_color}
                         color={performanceConfig.config.performance_title_color}
-                        borderColor={performanceConfig.config.performance_graph_color}
+                        accentColor={performanceConfig.config.performance_graph_color}
                         active={viewMode === 'overall'}
                         onClick={viewMode === 'overall' ? undefined : onToggleView}
                     >
@@ -120,13 +141,13 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                     <ViewToggle
                         bgColor={performanceConfig.config.performance_background_color}
                         color={performanceConfig.config.performance_title_color}
-                        borderColor={performanceConfig.config.performance_graph_color}
+                        accentColor={performanceConfig.config.performance_graph_color}
                         active={viewMode === 'per-core'}
                         onClick={viewMode === 'per-core' ? undefined : onToggleView}
                     >
                         {t('performance.logical_processors')}
                     </ViewToggle>
-                </div>
+                </ViewToggleGroup>
                 <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{cpuData.name ?? 'N/A'}</NameValue>
             </NameContainer>
 

@@ -111,7 +111,12 @@ export const LangLabel = styled.label<{ textColor: string }>`
   cursor: default;
 `;
 
-export const StyledSelect = styled.select<{
+export const DropdownWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+export const DropdownTrigger = styled.button<{
   inputBg: string;
   inputBorder: string;
   textColor: string;
@@ -120,22 +125,65 @@ export const StyledSelect = styled.select<{
   color: ${p => p.textColor};
   border: 1px solid ${p => p.inputBorder};
   border-radius: 0;
-  padding: 3px 6px;
+  padding: 3px 24px 3px 8px;
   font-size: 12px;
   cursor: pointer;
   outline: none;
   height: 26px;
-  -webkit-appearance: menulist;
-  appearance: menulist;
+  text-align: left;
+  min-width: 110px;
+  position: relative;
+  white-space: nowrap;
 
-  option {
-    background-color: ${p => p.inputBg};
-    color: ${p => p.textColor};
-    padding: 4px 6px;
+  &::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid ${p => p.textColor}99;
   }
 
   &:focus {
     border-color: ${p => p.textColor}55;
+  }
+`;
+
+export const DropdownMenu = styled.ul<{
+  inputBg: string;
+  inputBorder: string;
+  textColor: string;
+}>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: ${p => p.inputBg};
+  border: 1px solid ${p => p.inputBorder};
+  border-top: none;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+export const DropdownItem = styled.li<{
+  inputBg: string;
+  textColor: string;
+  isSelected: boolean;
+}>`
+  padding: 5px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  color: ${p => p.textColor};
+  background-color: ${p => p.isSelected ? `${p.textColor}15` : p.inputBg};
+
+  &:hover {
+    background-color: ${p => p.textColor}22;
   }
 `;
 

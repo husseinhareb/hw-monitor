@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
 import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
@@ -20,7 +20,10 @@ import {
   TopBar,
   TopBarTitle,
   LangLabel,
-  StyledSelect,
+  DropdownWrapper,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
   ActionButton,
   SectionWrapper,
   SectionTitle,
@@ -46,10 +49,23 @@ const sections: { key: SectionKey; labelKey: string }[] = [
   { key: "configpanel", labelKey: "config_panel_config.title" },
 ];
 
+const languages = [
+    { value: "en", label: "English" },
+    { value: "es", label: "Español" },
+    { value: "fr", label: "Français" },
+    { value: "de", label: "Deutsch" },
+    { value: "uk", label: "Українська" },
+    { value: "pl", label: "Polski" },
+    { value: "ar", label: "العربية" },
+    { value: "ru", label: "Русский" },
+  ];
+
 const Config: React.FC = () => {
   const { i18n, t } = useTranslation();
   const [activeSection, setActiveSection] = useState<SectionKey>("processes");
   const [reloadFlag, setReloadFlag] = React.useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
 
   const { config: panelConfig } = useConfigPanelConfig();
 
@@ -69,6 +85,16 @@ const Config: React.FC = () => {
     "set_language_config"
   );
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const load_default_config = async () => {
     try {
       await invoke("set_default_config");
@@ -79,11 +105,11 @@ const Config: React.FC = () => {
     }
   };
 
-  const handleLanguageChange = async (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedLanguage = event.target.value;
-    i18n.changeLanguage(selectedLanguage);
-    await updateConfig("language", selectedLanguage);
-  };
+  const handleLanguageSelect = useCallback(async (langValue: string) => {
+    i18n.changeLanguage(langValue);
+    await updateConfig("language", langValue);
+    setLangOpen(false);
+  }, [i18n, updateConfig]);
 
   const activeLabel = t(sections.find(s => s.key === activeSection)!.labelKey);
 
@@ -123,23 +149,36 @@ const Config: React.FC = () => {
         <TopBar containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
           <TopBarTitle textColor={theme.textColor}>{activeLabel}</TopBarTitle>
           <LangLabel textColor={theme.textColor}>
-            <StyledSelect
-              id="language-select"
-              value={config.language}
-              onChange={handleLanguageChange}
-              inputBg={theme.inputBg}
-              inputBorder={theme.inputBorder}
-              textColor={theme.textColor}
-            >
-              <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-              <option value="uk">Українська</option>
-              <option value="pl">Polski</option>
-              <option value="ar">العربية</option>
-              <option value="ru">Русский</option>
-            </StyledSelect>
+            <DropdownWrapper ref={langRef}>
+              <DropdownTrigger
+                inputBg={theme.inputBg}
+                inputBorder={theme.inputBorder}
+                textColor={theme.textColor}
+                onClick={() => setLangOpen(o => !o)}
+                type="button"
+              >
+                {languages.find(l => l.value === config.language)?.label ?? config.language}
+              </DropdownTrigger>
+              {langOpen && (
+                <DropdownMenu
+                  inputBg={theme.inputBg}
+                  inputBorder={theme.inputBorder}
+                  textColor={theme.textColor}
+                >
+                  {languages.map(lang => (
+                    <DropdownItem
+                      key={lang.value}
+                      inputBg={theme.inputBg}
+                      textColor={theme.textColor}
+                      isSelected={config.language === lang.value}
+                      onClick={() => handleLanguageSelect(lang.value)}
+                    >
+                      {lang.label}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              )}
+            </DropdownWrapper>
           </LangLabel>
           <ActionButton
             buttonBg={theme.buttonBg}
