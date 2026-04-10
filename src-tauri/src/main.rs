@@ -37,6 +37,7 @@ fn main() {
             battery::get_batteries,
             config::get_configs,
             config::set_default_config,
+            config::set_all_configs,
             config::set_processes_configs,
             config::set_performance_configs,
             config::set_sensors_configs,

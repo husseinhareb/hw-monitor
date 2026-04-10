@@ -217,5 +217,10 @@
     "services.start": "Uruchom",
     "services.stop": "Zatrzymaj",
     "services.restart": "Uruchom ponownie",
-    "error.service_action_failed": "Błąd akcji usługi"
+    "error.service_action_failed": "Błąd akcji usługi",
+
+    "config.theme": "Motyw",
+    "config.theme_default": "Domyślny",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }

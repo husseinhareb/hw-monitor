@@ -217,6 +217,11 @@
     "services.start": "Starten",
     "services.stop": "Stoppen",
     "services.restart": "Neustarten",
-    "error.service_action_failed": "Dienstaktion fehlgeschlagen"
+    "error.service_action_failed": "Dienstaktion fehlgeschlagen",
+
+    "config.theme": "Farbschema",
+    "config.theme_default": "Standard",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }
 

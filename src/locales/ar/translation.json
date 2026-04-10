@@ -224,5 +224,10 @@
     "services.start": "تشغيل",
     "services.stop": "إيقاف",
     "services.restart": "إعادة تشغيل",
-    "error.service_action_failed": "فشل إجراء الخدمة"
+    "error.service_action_failed": "فشل إجراء الخدمة",
+
+    "config.theme": "السمة",
+    "config.theme_default": "الافتراضي",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }

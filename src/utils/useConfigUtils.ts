@@ -19,6 +19,11 @@ function fetchAllConfigs(): Promise<Record<string, unknown>> {
     return sharedConfigPromise;
 }
 
+/** Clear the cached config so the next hook mount re-fetches from the backend. */
+export function invalidateConfigCache() {
+    sharedConfigPromise = null;
+}
+
 const useFetchAndSetConfig = <T extends ConfigType>(
     initialConfig: T,
     _getConfigKey: string,

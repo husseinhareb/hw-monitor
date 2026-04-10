@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import useFetchAndSetConfig from "../../utils/useConfigUtils";
+import useFetchAndSetConfig, { invalidateConfigCache } from "../../utils/useConfigUtils";
 import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
 import { invoke } from "@tauri-apps/api/core";
 import { notify } from "../../services/store";
@@ -11,6 +11,7 @@ import DisksConfig from "./DisksConfig";
 import NavbarConfig from "./NavbarConfig";
 import HeatbarConfig from "./HeatbarConfig";
 import ConfigPanelConfigSection from "./ConfigPanelConfig";
+import { themes } from "./themes";
 import {
   ConfigPage,
   ConfigSidebar,
@@ -64,7 +65,9 @@ const Config: React.FC = () => {
   const [activeSection, setActiveSection] = useState<SectionKey>("processes");
   const [reloadFlag, setReloadFlag] = React.useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
 
   const { config: panelConfig } = useConfigPanelConfig();
 
@@ -89,6 +92,9 @@ const Config: React.FC = () => {
       if (langRef.current && !langRef.current.contains(e.target as Node)) {
         setLangOpen(false);
       }
+      if (themeRef.current && !themeRef.current.contains(e.target as Node)) {
+        setThemeOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -97,12 +103,28 @@ const Config: React.FC = () => {
   const load_default_config = async () => {
     try {
       await invoke("set_default_config");
+      invalidateConfigCache();
       setReloadFlag(f => !f);
     } catch (error) {
       notify("error.config_failed");
       console.error("Error loading default config:", error);
     }
   };
+
+  const applyTheme = useCallback(async (index: number) => {
+    const preset = themes[index];
+    if (!preset) return;
+    try {
+      const configs = { ...preset.values, language: config.language };
+      await invoke("set_all_configs", { configs });
+      invalidateConfigCache();
+      setReloadFlag(f => !f);
+      setThemeOpen(false);
+    } catch (error) {
+      notify("error.config_failed");
+      console.error("Error applying theme:", error);
+    }
+  }, [config.language]);
 
   const handleLanguageSelect = useCallback(async (langValue: string) => {
     i18n.changeLanguage(langValue);
@@ -179,6 +201,36 @@ const Config: React.FC = () => {
               )}
             </DropdownWrapper>
           </LangLabel>
+          <DropdownWrapper ref={themeRef}>
+            <DropdownTrigger
+              inputBg={theme.inputBg}
+              inputBorder={theme.inputBorder}
+              textColor={theme.textColor}
+              onClick={() => setThemeOpen(o => !o)}
+              type="button"
+            >
+              {t("config.theme")}
+            </DropdownTrigger>
+            {themeOpen && (
+              <DropdownMenu
+                inputBg={theme.inputBg}
+                inputBorder={theme.inputBorder}
+                textColor={theme.textColor}
+              >
+                {themes.map((preset, idx) => (
+                  <DropdownItem
+                    key={preset.label}
+                    inputBg={theme.inputBg}
+                    textColor={theme.textColor}
+                    isSelected={false}
+                    onClick={() => applyTheme(idx)}
+                  >
+                    {t(preset.labelKey)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            )}
+          </DropdownWrapper>
           <ActionButton
             buttonBg={theme.buttonBg}
             buttonFg={theme.buttonFg}

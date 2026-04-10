@@ -224,6 +224,11 @@
     "services.start": "Start",
     "services.stop": "Stop",
     "services.restart": "Restart",
-    "error.service_action_failed": "Service action failed"
+    "error.service_action_failed": "Service action failed",
+
+    "config.theme": "Theme",
+    "config.theme_default": "Default",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }
   

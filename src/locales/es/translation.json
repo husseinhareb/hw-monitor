@@ -223,5 +223,10 @@
     "services.start": "Iniciar",
     "services.stop": "Detener",
     "services.restart": "Reiniciar",
-    "error.service_action_failed": "Error en la acción del servicio"
+    "error.service_action_failed": "Error en la acción del servicio",
+
+    "config.theme": "Tema",
+    "config.theme_default": "Predeterminado",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }

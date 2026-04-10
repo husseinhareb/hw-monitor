@@ -222,5 +222,10 @@
     "services.start": "Démarrer",
     "services.stop": "Arrêter",
     "services.restart": "Redémarrer",
-    "error.service_action_failed": "Échec de l'action du service"
+    "error.service_action_failed": "Échec de l'action du service",
+
+    "config.theme": "Thème",
+    "config.theme_default": "Par défaut",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }

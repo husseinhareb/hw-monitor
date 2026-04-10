@@ -223,5 +223,10 @@
     "services.start": "Запустить",
     "services.stop": "Остановить",
     "services.restart": "Перезапустить",
-    "error.service_action_failed": "Ошибка действия со службой"
+    "error.service_action_failed": "Ошибка действия со службой",
+
+    "config.theme": "Тема",
+    "config.theme_default": "По умолчанию",
+    "config.theme_catppuccin": "Catppuccin",
+    "config.theme_gruvbox": "Gruvbox"
 }

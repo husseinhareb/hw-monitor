@@ -171,6 +171,11 @@ pub async fn set_default_config() -> Result<(), String> {
     default_config().map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+pub async fn set_all_configs(configs: ConfigData) -> Result<(), String> {
+    write_all_configs(&configs).map_err(|e| e.to_string())
+}
+
 pub fn default_config() -> Result<(), io::Error> {
     let data = ConfigData::default();
     write_all_configs(&data)
