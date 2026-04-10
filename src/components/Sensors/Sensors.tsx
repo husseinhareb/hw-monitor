@@ -41,7 +41,7 @@ const Sensors: React.FC = () => {
         </SensorList>}
         {sortedSensors.map((hwmon) => (
           <SensorList
-            key={hwmon.name}
+            key={hwmon.index}
             sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
           >
             <SensorGroup>
@@ -52,8 +52,12 @@ const Sensors: React.FC = () => {
                   sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
                   key={idx}>
 
-                    {sensor.name}: {sensor.value.toFixed(2)}°C
-                    <HeatBar value={sensor.value} critical={sensor.critical ? sensor.critical : 100} />
+                    {sensor.name}: {sensor.sensor_type === 'fan'
+                      ? `${Math.round(sensor.value)} ${sensor.unit}`
+                      : `${sensor.value.toFixed(2)}${sensor.unit}`}
+                    {sensor.sensor_type === 'temperature' && (
+                      <HeatBar value={sensor.value} critical={sensor.critical ? sensor.critical : 100} />
+                    )}
                   </SensorItem>
                 ))}
               </ContentDiv>

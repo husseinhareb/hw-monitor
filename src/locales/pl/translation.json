@@ -3,6 +3,7 @@
     "navbar.performance": "Wydajność",
     "navbar.sensors": "Czujniki",
     "navbar.disks": "Dyski",
+    "navbar.services": "Usługi",
     "navbar.config": "Konfiguracja",
     "navbar.search.placeholder": "Szukaj...",
     
@@ -203,5 +204,18 @@
     "error.render": "Wystąpił nieoczekiwany błąd",
     "error.reload": "Przeładuj",
     "loading.generic": "Ładowanie...",
-    "loading.battery": "Ładowanie danych baterii..."
+    "loading.battery": "Ładowanie danych baterii...",
+
+    "services.col_name": "Nazwa",
+    "services.col_description": "Opis",
+    "services.col_load": "Załadowany",
+    "services.col_active": "Aktywny",
+    "services.col_sub": "Sub",
+    "services.col_enabled": "Włączony",
+    "services.search_placeholder": "Szukaj usług...",
+    "services.total": "usług",
+    "services.start": "Uruchom",
+    "services.stop": "Zatrzymaj",
+    "services.restart": "Uruchom ponownie",
+    "error.service_action_failed": "Błąd akcji usługi"
 }

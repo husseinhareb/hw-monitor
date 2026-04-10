@@ -3,6 +3,7 @@
     "navbar.performance": "الأداء",
     "navbar.sensors": "الحساسات",
     "navbar.disks": "الأقراص",
+    "navbar.services": "الخدمات",
     "navbar.config": "الإعدادات",
     "navbar.search.placeholder": "بحث...",
 
@@ -210,5 +211,18 @@
     "error.render": "حدث خطأ غير متوقع",
     "error.reload": "إعادة التحميل",
     "loading.generic": "جاري التحميل...",
-    "loading.battery": "جاري تحميل بيانات البطارية..."
+    "loading.battery": "جاري تحميل بيانات البطارية...",
+
+    "services.col_name": "الاسم",
+    "services.col_description": "الوصف",
+    "services.col_load": "التحميل",
+    "services.col_active": "نشط",
+    "services.col_sub": "فرعي",
+    "services.col_enabled": "مفعّل",
+    "services.search_placeholder": "بحث عن الخدمات...",
+    "services.total": "خدمات",
+    "services.start": "تشغيل",
+    "services.stop": "إيقاف",
+    "services.restart": "إعادة تشغيل",
+    "error.service_action_failed": "فشل إجراء الخدمة"
 }

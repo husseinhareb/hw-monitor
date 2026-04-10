@@ -3,6 +3,7 @@
     "navbar.performance": "Производительность",
     "navbar.sensors": "Датчики",
     "navbar.disks": "Диски",
+    "navbar.services": "Службы",
     "navbar.config": "Настройки",
     "navbar.search.placeholder": "Поиск...",
 
@@ -209,5 +210,18 @@
     "error.render": "Произошла неожиданная ошибка",
     "error.reload": "Перезагрузить",
     "loading.generic": "Загрузка...",
-    "loading.battery": "Загрузка данных аккумулятора..."
+    "loading.battery": "Загрузка данных аккумулятора...",
+
+    "services.col_name": "Имя",
+    "services.col_description": "Описание",
+    "services.col_load": "Загрузка",
+    "services.col_active": "Активен",
+    "services.col_sub": "Под",
+    "services.col_enabled": "Включён",
+    "services.search_placeholder": "Поиск служб...",
+    "services.total": "служб",
+    "services.start": "Запустить",
+    "services.stop": "Остановить",
+    "services.restart": "Перезапустить",
+    "error.service_action_failed": "Ошибка действия со службой"
 }

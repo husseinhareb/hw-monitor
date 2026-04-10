@@ -3,6 +3,7 @@
     "navbar.performance": "Leistung",
     "navbar.sensors": "Sensoren",
     "navbar.disks": "Festplatten",
+    "navbar.services": "Dienste",
     "navbar.config": "Konfiguration",
     "navbar.search.placeholder": "Suche...",
     
@@ -203,6 +204,19 @@
     "error.render": "Ein unerwarteter Fehler ist aufgetreten",
     "error.reload": "Neu laden",
     "loading.generic": "Laden...",
-    "loading.battery": "Batteriedaten werden geladen..."
+    "loading.battery": "Batteriedaten werden geladen...",
+
+    "services.col_name": "Name",
+    "services.col_description": "Beschreibung",
+    "services.col_load": "Laden",
+    "services.col_active": "Aktiv",
+    "services.col_sub": "Sub",
+    "services.col_enabled": "Aktiviert",
+    "services.search_placeholder": "Dienste suchen...",
+    "services.total": "Dienste",
+    "services.start": "Starten",
+    "services.stop": "Stoppen",
+    "services.restart": "Neustarten",
+    "error.service_action_failed": "Dienstaktion fehlgeschlagen"
 }
 

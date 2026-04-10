@@ -3,6 +3,7 @@
     "navbar.performance": "Performance",
     "navbar.sensors": "Sensors",
     "navbar.disks": "Disks",
+    "navbar.services": "Services",
     "navbar.config": "Config",
     "navbar.search.placeholder": "Search...",
     
@@ -210,6 +211,19 @@
     "loading.generic": "Loading...",
     "loading.battery": "Loading battery data...",
 
-    "config.load_default": "Load Default Config"
+    "config.load_default": "Load Default Config",
+
+    "services.col_name": "Name",
+    "services.col_description": "Description",
+    "services.col_load": "Load",
+    "services.col_active": "Active",
+    "services.col_sub": "Sub",
+    "services.col_enabled": "Enabled",
+    "services.search_placeholder": "Search services...",
+    "services.total": "services",
+    "services.start": "Start",
+    "services.stop": "Stop",
+    "services.restart": "Restart",
+    "error.service_action_failed": "Service action failed"
 }
   

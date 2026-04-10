@@ -51,12 +51,15 @@ const CoreGrid = styled.div<{ columns: number; rows: number }>`
     margin: 0 auto;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
 `;
 
-const CoreCell = styled.div<{ bgColor: string; labelColor: string }>`
+const CoreCell = styled.div<{ bgColor: string; labelColor: string; borderColor: string }>`
     position: relative;
     background-color: ${p => p.bgColor};
+    border: 1px solid ${p => p.borderColor};
     min-height: 0;
+    overflow: hidden;
 `;
 
 const CoreLabel = styled.span<{ color: string }>`
@@ -82,28 +85,26 @@ const CoreUsageLabel = styled.span<{ color: string }>`
 const ViewToggleGroup = styled.div`
     display: flex;
     align-items: center;
-    gap: 0;
-    margin-left: auto;
-    margin-right: 16px;
+    gap: 14px;
+    margin-left: 8px;
 `;
 
-const ViewToggle = styled.button<{ bgColor: string; color: string; active: boolean; accentColor: string }>`
-    background-color: ${p => p.active ? p.accentColor : 'transparent'};
-    color: ${p => p.active ? '#000' : p.color};
-    border: 1px solid ${p => p.accentColor};
-    padding: 4px 14px;
-    font-size: 11px;
-    font-weight: ${p => p.active ? 600 : 400};
+const ViewToggle = styled.button<{ color: string; active: boolean; accentColor: string }>`
+    background: transparent;
+    color: ${p => p.active ? p.accentColor : p.color};
+    border: none;
+    border-bottom: 2px solid ${p => p.active ? p.accentColor : 'transparent'};
+    padding: 2px 0;
+    font-size: 12px;
+    font-weight: ${p => p.active ? 500 : 400};
+    opacity: ${p => p.active ? 1 : 0.55};
     cursor: pointer;
     white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s;
-
-    &:first-child {
-        border-right: none;
-    }
+    transition: color 0.15s, border-color 0.15s, opacity 0.15s;
 
     &:hover {
-        background-color: ${p => p.active ? p.accentColor : `${p.accentColor}22`};
+        color: ${p => p.accentColor};
+        opacity: 1;
     }
 `;
 
@@ -131,7 +132,6 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                 <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.cpu')}</NameLabel>
                 <ViewToggleGroup>
                     <ViewToggle
-                        bgColor={performanceConfig.config.performance_background_color}
                         color={performanceConfig.config.performance_title_color}
                         accentColor={performanceConfig.config.performance_graph_color}
                         active={viewMode === 'overall'}
@@ -140,7 +140,6 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                         {t('performance.overall_usage')}
                     </ViewToggle>
                     <ViewToggle
-                        bgColor={performanceConfig.config.performance_background_color}
                         color={performanceConfig.config.performance_title_color}
                         accentColor={performanceConfig.config.performance_graph_color}
                         active={viewMode === 'per-core'}
@@ -170,6 +169,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                                 key={i}
                                 bgColor={performanceConfig.config.performance_background_color}
                                 labelColor={performanceConfig.config.performance_label_color}
+                                borderColor={performanceConfig.config.performance_label_color + '33'}
                             >
                                 <CoreLabel color={performanceConfig.config.performance_label_color}>
                                     {i}
@@ -183,6 +183,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                                     height="100%"
                                     width="100%"
                                     tick={tick}
+                                    hideScales
                                 />
                             </CoreCell>
                         );
@@ -211,7 +212,12 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.processes')}</LeftLabel>
                             <LeftValue performanceValueColor={performanceConfig.config.performance_value_color} style={{ 'textAlign': 'right' }}>{totalUsages.processes}</LeftValue>
                         </SpeedUsageItem>
+                        <SpeedUsageItem>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.live_threads')}</LeftLabel>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.live_threads ?? 'N/A'}</LeftValue>
+                        </SpeedUsageItem>
                     </SpeedUsageContainer>
+
                     <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.uptime')}</LeftLabel>
                     <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.uptime ?? 'N/A'}</LeftValue>
                 </RealTimeValues>
@@ -227,10 +233,6 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.threads')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.threads ?? 'N/A'}</RightValue>
-                    </FixedValueItem>
-                    <FixedValueItem>
-                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.live_threads')}</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.live_threads ?? 'N/A'}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.base_speed')}</RightLabel>

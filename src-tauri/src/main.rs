@@ -10,6 +10,7 @@ mod config;
 mod gpu;
 mod cpu_utils;
 mod proc_icon;
+mod services;
 
 use std::sync::Mutex;
 
@@ -46,6 +47,10 @@ fn main() {
             config::set_language_config,
             gpu::get_gpu_informations,
             proc_icon::get_process_icon,
+            services::get_services,
+            services::start_service,
+            services::stop_service,
+            services::restart_service,
 
         ])
         //.plugin(devtools)

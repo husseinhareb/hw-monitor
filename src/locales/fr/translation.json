@@ -3,6 +3,7 @@
     "navbar.performance": "Performance",
     "navbar.sensors": "Capteurs",
     "navbar.disks": "Disques",
+    "navbar.services": "Services",
     "navbar.config": "Configuration",
     "navbar.search.placeholder": "Rechercher...",
     
@@ -208,5 +209,18 @@
     "error.render": "Une erreur inattendue s'est produite",
     "error.reload": "Recharger",
     "loading.generic": "Chargement...",
-    "loading.battery": "Chargement des données de batterie..."
+    "loading.battery": "Chargement des données de batterie...",
+
+    "services.col_name": "Nom",
+    "services.col_description": "Description",
+    "services.col_load": "Chargé",
+    "services.col_active": "Actif",
+    "services.col_sub": "Sub",
+    "services.col_enabled": "Activé",
+    "services.search_placeholder": "Rechercher des services...",
+    "services.total": "services",
+    "services.start": "Démarrer",
+    "services.stop": "Arrêter",
+    "services.restart": "Redémarrer",
+    "error.service_action_failed": "Échec de l'action du service"
 }

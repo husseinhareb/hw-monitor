@@ -10,3 +10,4 @@ pub mod config;
 pub mod gpu;
 pub mod cpu_utils;
 pub mod proc_icon;
+pub mod services;

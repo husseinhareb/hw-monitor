@@ -26,7 +26,6 @@ import {
   DropdownItem,
   ActionButton,
   SectionWrapper,
-  SectionTitle,
   type ConfigTheme,
 } from "./Styles/style";
 
@@ -190,9 +189,6 @@ const Config: React.FC = () => {
         </TopBar>
 
         <SectionWrapper>
-          <SectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-            {activeLabel}
-          </SectionTitle>
           {renderSection()}
         </SectionWrapper>
       </ConfigContent>

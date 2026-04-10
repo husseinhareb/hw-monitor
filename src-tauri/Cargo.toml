@@ -24,3 +24,4 @@ serde = { version = "1", features = ["derive"] }
 libc = "0.2"
 base64 = "0.22"
 nvml-wrapper = "0.10.0"
+zbus = { version = "4", default-features = false, features = ["tokio"] }

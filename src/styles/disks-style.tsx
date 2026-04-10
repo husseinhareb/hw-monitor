@@ -1,17 +1,17 @@
 import { styled, keyframes } from "styled-components";
 
-export const Container = styled.div<{ bodyBackgroundColor: string }>`
+export const Container = styled.div<{ $bodyBackgroundColor: string }>`
   display: ${props => (props.hidden ? 'none' : 'flex')};
   flex-wrap: wrap;
   width: 100%;
   height: 100%;
   padding: 20px;
-  background-color: ${(props) => props.bodyBackgroundColor};
+  background-color: ${(props) => props.$bodyBackgroundColor};
   overflow-y: auto;
 `;
 
-export const DiskCard = styled.div<{ boxesBackgroundColor: string }>`
-  background-color: ${(props) => props.boxesBackgroundColor};
+export const DiskCard = styled.div<{ $boxesBackgroundColor: string }>`
+  background-color: ${(props) => props.$boxesBackgroundColor};
   padding: 20px;
   margin: 10px;
   flex-grow: 1;
@@ -28,14 +28,14 @@ export const DiskCard = styled.div<{ boxesBackgroundColor: string }>`
   }
 `;
 
-export const DiskTitle = styled.h3<{ nameForegroundColor: string }>`
+export const DiskTitle = styled.h3<{ $nameForegroundColor: string }>`
   margin-top: 0;
-  color:  ${(props) => props.nameForegroundColor};
+  color:  ${(props) => props.$nameForegroundColor};
 `;
 
-export const DiskSize = styled.p<{ sizeForegroundColor: string }>`
+export const DiskSize = styled.p<{ $sizeForegroundColor: string }>`
   font-size: 1.1em;
-  color: ${(props) => props.sizeForegroundColor};
+  color: ${(props) => props.$sizeForegroundColor};
 `;
 
 export const PartitionList = styled.ul`
@@ -44,10 +44,10 @@ export const PartitionList = styled.ul`
   margin: 0;
 `;
 
-export const PartitionContainer = styled.div<{ partitionBackgroundColor: string }>`
+export const PartitionContainer = styled.div<{ $partitionBackgroundColor: string }>`
   width: 100%;
   height: 40px;
-  background-color:  ${(props) => props.partitionBackgroundColor};
+  background-color:  ${(props) => props.$partitionBackgroundColor};
   margin: 20px 0;
   position: relative;
 `;
@@ -70,9 +70,9 @@ const progressAnimation = keyframes`
   }
 `;
 
-export const PartitionBar = styled.div<{ partitionUsageBackgroundColor: string }>`
+export const PartitionBar = styled.div<{ $partitionUsageBackgroundColor: string }>`
   height: 100%;
-  background-color:  ${(props) => props.partitionUsageBackgroundColor};
+  background-color:  ${(props) => props.$partitionUsageBackgroundColor};
   position: absolute;
   top: 0;
   left: 0;
@@ -80,16 +80,16 @@ export const PartitionBar = styled.div<{ partitionUsageBackgroundColor: string }
   animation: ${progressAnimation} 1s ease-in-out;
 `;
 
-export const PartitionName = styled.span<{ partitionNameForegroundColor: string }>`
+export const PartitionName = styled.span<{ $partitionNameForegroundColor: string }>`
   font-weight: bold;
-  color:  ${(props) => props.partitionNameForegroundColor};
+  color:  ${(props) => props.$partitionNameForegroundColor};
 `;
 
 
-export const FileSystem = styled.span<{ partitionTypeForegroundColor: string }>`
-  color:  ${(props) => props.partitionTypeForegroundColor};
+export const FileSystem = styled.span<{ $partitionTypeForegroundColor: string }>`
+  color:  ${(props) => props.$partitionTypeForegroundColor};
 `;
 
-export const Space = styled.span<{ partitionUsageForegroundColor: string }>`
-  color:  ${(props) => props.partitionUsageForegroundColor};
+export const Space = styled.span<{ $partitionUsageForegroundColor: string }>`
+  color:  ${(props) => props.$partitionUsageForegroundColor};
 `;

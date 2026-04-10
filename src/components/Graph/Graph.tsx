@@ -18,6 +18,8 @@ interface GraphProps {
   width?: string;
   /** Override the interval (ms) used for x-axis labels (defaults to performance_update_time) */
   updateInterval?: number;
+  /** Hide all axis labels and ticks (for small cells) */
+  hideScales?: boolean;
 }
 
 const MAX_POINTS = 20;
@@ -30,6 +32,7 @@ const Graph: React.FC<GraphProps> = ({
   height = '100%',
   width = '80vw',
   updateInterval,
+  hideScales = false,
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
@@ -77,11 +80,32 @@ const Graph: React.FC<GraphProps> = ({
         maintainAspectRatio: false,
         animation: { duration: 0 },
         scales: {
-          y: { beginAtZero: true, max: maxValue },
+          y: {
+            beginAtZero: true,
+            max: maxValue,
+            ticks: { display: !hideScales },
+            grid: {
+              display: true,
+              color: hideScales
+                ? performanceConfig.config.performance_label_color + '1A'
+                : undefined,
+            },
+            border: { display: !hideScales },
+          },
+          x: {
+            ticks: { display: !hideScales },
+            grid: {
+              display: true,
+              color: hideScales
+                ? performanceConfig.config.performance_label_color + '1A'
+                : undefined,
+            },
+            border: { display: !hideScales },
+          },
         },
         plugins: {
           legend: { display: false },
-          tooltip: { backgroundColor: '#000000b3' },
+          tooltip: { enabled: !hideScales, backgroundColor: '#000000b3' },
         },
       },
     });

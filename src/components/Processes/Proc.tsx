@@ -274,6 +274,7 @@ const Proc: React.FC = () => {
                             <Tr
                                 key={process.pid}
                                 onClick={() => handleRowClick(process.pid)}
+                                bodyBackgroundColor={processConfig.config.processes_body_background_color}
                                 style={{ backgroundColor: selectedPid === process.pid ? lighten(0.15, processConfig.config.processes_body_background_color) : 'transparent' }}
                             >
                                 {displayedColumns.map(column => (

@@ -33,7 +33,7 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
   return (
     <Container
       hidden={hidden}
-      bodyBackgroundColor={disksConfig.config.disks_background_color}
+      $bodyBackgroundColor={disksConfig.config.disks_background_color}
     >
       {error ? (
         <p>{t('error.disks_failed')}</p>
@@ -43,25 +43,25 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
         diskData.map((disk) => (
           <DiskCard
             key={disk.name}
-            boxesBackgroundColor={disksConfig.config.disks_boxes_background_color}
+            $boxesBackgroundColor={disksConfig.config.disks_boxes_background_color}
           >
             <DiskTitle
-              nameForegroundColor={disksConfig.config.disks_name_foreground_color}
+              $nameForegroundColor={disksConfig.config.disks_name_foreground_color}
             >{disk.name}</DiskTitle>
             <DiskSize
-              sizeForegroundColor={disksConfig.config.disks_size_foreground_color}
+              $sizeForegroundColor={disksConfig.config.disks_size_foreground_color}
             >
               {t('disks.size')}: {convertData(disk.size).value} {convertData(disk.size).unit}
             </DiskSize>
             <PartitionList>
               {disk.partitions.map((partition) => (
                 <PartitionContainer
-                  partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
+                  $partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
                   key={partition.name}
                 >
                   {partition.used_space && partition.total_space && (
                     <PartitionBar
-                      partitionUsageBackgroundColor={disksConfig.config.disks_partition_usage_background_color}
+                      $partitionUsageBackgroundColor={disksConfig.config.disks_partition_usage_background_color}
                       style={{
                         width: `${usagePercentage(
                           partition.used_space,
@@ -72,11 +72,11 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                   )}
                   <PartitionItem>
                     <PartitionName
-                      partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
+                      $partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
                     >{partition.name}</PartitionName>
                     {!partition.total_space && (
                       <Space
-                        partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                        $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
                       >
                         {convertData(partition.size).value}{" "}
                         {convertData(partition.size).unit}
@@ -84,17 +84,17 @@ const Disks: React.FC<DisksProps> = ({ hidden }) => {
                     )}
                     {partition.mount_point && (
                       <FileSystem
-                        partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                        $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
                       >{partition.mount_point}</FileSystem>
                     )}
                     {partition.file_system && (
                       <FileSystem
-                        partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                        $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
                       >{partition.file_system}</FileSystem>
                     )}
                     {partition.used_space && partition.total_space && (
                       <Space
-                        partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                        $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
                       >
                         {convertData(partition.used_space).value}{" "}
                         {convertData(partition.used_space).unit} /{" "}

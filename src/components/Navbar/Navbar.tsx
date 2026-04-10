@@ -5,23 +5,26 @@ import { MdSpeed } from "react-icons/md";
 import { FaFloppyDisk, FaTemperatureHalf } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 import { LuSettings2 } from "react-icons/lu";
+import { VscServerProcess } from "react-icons/vsc";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
 import Proc from "../Processes/Proc";
 import Performance from "../Performance/Performance";
 import Sensors from "../Sensors/Sensors";
 import Disks from "../Disks/Disks";
+import Services from "../Services/Services";
 import Config from "../Config/Config";
 import { useSetProcessSearch } from "../../services/store";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 import { useTranslation } from "react-i18next";
 
-type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Config";
+type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Services" | "Config";
 
 const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
     Proc,
     Performance,
     Sensors,
     Disks,
+    Services,
     Config
 };
 
@@ -82,6 +85,9 @@ const Navbar: React.FC = () => {
                         break;
                     case '4':
                         setActiveComponent("Disks");
+                        break;
+                    case '5':
+                        setActiveComponent("Services");
                         break;
                     default:
                         break;
@@ -154,6 +160,15 @@ const Navbar: React.FC = () => {
                             onClick={() => handleButtonClick("Disks")} active={activeComponent === "Disks"}
                         >
                             <FaFloppyDisk /> {t('navbar.disks')}
+                        </StyledButton>
+                    </li>
+                    <li>
+                        <StyledButton
+                            navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                            navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                            onClick={() => handleButtonClick("Services")} active={activeComponent === "Services"}
+                        >
+                            <VscServerProcess /> {t('navbar.services')}
                         </StyledButton>
                     </li>
                 </StyledUl>

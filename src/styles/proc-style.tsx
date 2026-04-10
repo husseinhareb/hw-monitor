@@ -77,7 +77,11 @@ export const Tbody = styled.tbody<{ bodyBackgroundColor: string; bodyColor: stri
     color: ${(props) => props.bodyColor};
 `;
 
-export const Tr = styled.tr``;
+export const Tr = styled.tr<{ bodyBackgroundColor?: string }>`
+    &:hover > td {
+        background-color: ${(props) => props.bodyBackgroundColor ? lighten(0.05, props.bodyBackgroundColor) : 'inherit'};
+    }
+`;
 
 export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; columnCount: number; borderColor: string; }>`
     padding: 8px;
@@ -86,10 +90,6 @@ export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; co
     overflow: hidden;
     text-overflow: ellipsis;
     border: 1px solid ${(props) => props.borderColor};
-
-    &:hover {
-        background-color: ${(props) => lighten(0.1, props.bodyBackgroundColor)};
-    }
     max-width: 140px;
 `;
 

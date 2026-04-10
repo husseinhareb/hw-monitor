@@ -3,6 +3,7 @@
     "navbar.performance": "Продуктивність",
     "navbar.sensors": "Датчики",
     "navbar.disks": "Диски",
+    "navbar.services": "Служби",
     "navbar.config": "Конфігурація",
     "navbar.search.placeholder": "Пошук...",
 
@@ -209,5 +210,18 @@
     "error.render": "Виникла неочікувана помилка",
     "error.reload": "Перезавантажити",
     "loading.generic": "Завантаження...",
-    "loading.battery": "Завантаження даних акумулятора..."
+    "loading.battery": "Завантаження даних акумулятора...",
+
+    "services.col_name": "Назва",
+    "services.col_description": "Опис",
+    "services.col_load": "Завантаження",
+    "services.col_active": "Активний",
+    "services.col_sub": "Під",
+    "services.col_enabled": "Увімкнено",
+    "services.search_placeholder": "Пошук служб...",
+    "services.total": "служб",
+    "services.start": "Запустити",
+    "services.stop": "Зупинити",
+    "services.restart": "Перезапустити",
+    "error.service_action_failed": "Помилка дії зі службою"
 }

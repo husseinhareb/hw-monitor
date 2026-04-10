@@ -7,9 +7,12 @@ interface SensorData {
   name: string;
   value: number;
   critical: number | null;
+  sensor_type: string;
+  unit: string;
 }
 
 interface HwMonData {
+  index: number;
   name: string;
   sensors: SensorData[];
 }
