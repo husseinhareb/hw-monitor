@@ -13,7 +13,7 @@ pub struct Network {
     total_download: u64,
 }
 
-fn is_physical_interface(name: &str) -> bool {
+pub fn is_physical_interface(name: &str) -> bool {
     name.starts_with("wl") || name.starts_with("en") || name.starts_with("eth")
 }
 

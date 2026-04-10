@@ -124,7 +124,7 @@ fn parse_proc_stat(pid: &str) -> Option<(String, u64, u64)> {
     Some((state, utime, stime))
 }
 
-fn format_bytes(bytes: f64) -> String {
+pub fn format_bytes(bytes: f64) -> String {
     if bytes > 1_024.0 * 1_024.0 * 1_024.0 {
         format!("{:.2} Gb", bytes / 1_024.0 / 1_024.0 / 1_024.0)
     } else if bytes > 1_024.0 * 1_024.0 {
@@ -136,7 +136,7 @@ fn format_bytes(bytes: f64) -> String {
     }
 }
 
-fn format_bytes_per_sec(bytes: f64) -> String {
+pub fn format_bytes_per_sec(bytes: f64) -> String {
     if bytes >= 1_024.0 * 1_024.0 * 1_024.0 {
         format!("{:.2} Gb/s", bytes / 1_024.0 / 1_024.0 / 1_024.0)
     } else if bytes >= 1_024.0 * 1_024.0 {

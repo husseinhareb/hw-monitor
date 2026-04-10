@@ -1,0 +1,12 @@
+pub mod proc;
+pub mod cpu;
+pub mod network;
+pub mod memory;
+pub mod disk;
+pub mod total_usages;
+pub mod sensors;
+pub mod battery;
+pub mod config;
+pub mod gpu;
+pub mod cpu_utils;
+pub mod proc_icon;

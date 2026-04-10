@@ -44,14 +44,14 @@ macro_rules! define_config {
             }
         }
         impl ConfigData {
-            fn apply_kv(&mut self, key: &str, value: &str) -> Result<bool, io::Error> {
+            pub fn apply_kv(&mut self, key: &str, value: &str) -> Result<bool, io::Error> {
                 match key {
                     $( stringify!($field) => self.$field = <$type as ConfigValue>::parse_config(value)?, )*
                     _ => return Ok(false),
                 }
                 Ok(true)
             }
-            fn write_to(&self, file: &mut File) -> Result<(), io::Error> {
+            pub fn write_to(&self, file: &mut File) -> Result<(), io::Error> {
                 $( writeln!(file, "{}={}", stringify!($field), ConfigValue::format_config(&self.$field))?; )*
                 Ok(())
             }

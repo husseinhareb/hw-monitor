@@ -110,7 +110,7 @@ fn find_icon_name_for_process(process_name: &str) -> Option<String> {
 }
 
 /// Checks whether any Exec= line in a .desktop file resolves to `process_name`.
-fn exec_matches_process(content: &str, process_name: &str) -> bool {
+pub fn exec_matches_process(content: &str, process_name: &str) -> bool {
     let mut in_entry = false;
     for line in content.lines() {
         let trimmed = line.trim();
@@ -142,7 +142,7 @@ fn exec_matches_process(content: &str, process_name: &str) -> bool {
 }
 
 /// Returns the value of `key=` from the [Desktop Entry] section.
-fn extract_desktop_field(content: &str, key: &str) -> Option<String> {
+pub fn extract_desktop_field(content: &str, key: &str) -> Option<String> {
     let prefix = format!("{}=", key);
     let mut in_entry = false;
     for line in content.lines() {

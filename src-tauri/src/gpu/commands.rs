@@ -82,7 +82,7 @@ fn get_gpu_list() -> &'static Vec<DetectedGpu> {
 static AMD_GPU_NAME: OnceLock<String> = OnceLock::new();
 static INTEL_GPU_NAMES: OnceLock<Vec<String>> = OnceLock::new();
 
-fn add_memory_unit(value: u64) -> String {
+pub fn add_memory_unit(value: u64) -> String {
     let memory = value as f64;
     if memory >= 1024.0 * 1024.0 * 1024.0 {
         format!("{:.0} GB", memory / (1024.0 * 1024.0 * 1024.0))
@@ -93,7 +93,7 @@ fn add_memory_unit(value: u64) -> String {
     }
 }
 
-fn add_clock_speed_unit(value: u32) -> String {
+pub fn add_clock_speed_unit(value: u32) -> String {
     let clock_speed = value as f64;
     if clock_speed >= 1000.0 {
         format!("{:.2} GHz", clock_speed / 1000.0)
@@ -314,7 +314,7 @@ fn get_gpu_name_from_sysfs(vendor_id: u32) -> Option<String> {
     None
 }
 
-fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {
+pub fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {
     let content = read_to_string("/usr/share/misc/pci.ids")
         .or_else(|_| read_to_string("/usr/share/hwdata/pci.ids"))
         .ok()?;

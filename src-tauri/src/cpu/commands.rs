@@ -51,7 +51,7 @@ fn read_sysfs_freq(path: &str) -> Option<String> {
 }
 
 /// Extract static fields from /proc/cpuinfo (name, cores, threads, virt, sockets).
-fn parse_static_fields(cpu_info: &str) -> Option<(String, String, String, String, usize)> {
+pub fn parse_static_fields(cpu_info: &str) -> Option<(String, String, String, String, usize)> {
     let mut cpu_name = None;
     let mut cores = None;
     let mut threads = None;
@@ -107,7 +107,7 @@ fn get_current_speed() -> Option<String> {
     Some(format!("{:.2}", avg_ghz))
 }
 
-fn uptime_to_hms(uptime_seconds: f64) -> String {
+pub fn uptime_to_hms(uptime_seconds: f64) -> String {
     let hours = (uptime_seconds / 3600.0) as u64;
     let minutes = ((uptime_seconds % 3600.0) / 60.0) as u64;
     let seconds = (uptime_seconds % 60.0) as u64;

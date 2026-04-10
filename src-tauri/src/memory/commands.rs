@@ -29,7 +29,7 @@ impl Memory {
     }
 }
 
-fn parse_meminfo_line(line: &str, keyword: &str) -> Option<i64> {
+pub fn parse_meminfo_line(line: &str, keyword: &str) -> Option<i64> {
     if line.starts_with(keyword) {
         let value = line
             .split_whitespace()

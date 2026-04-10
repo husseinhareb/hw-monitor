@@ -122,7 +122,7 @@ impl SysFsBattery {
     }
 }
 
-fn compute_time_estimates(
+pub fn compute_time_estimates(
     state: &str,
     energy_uwh: f64,
     energy_full_uwh: f64,
