@@ -140,6 +140,11 @@
     "performance.base_speed": "السرعة الأساسية",
     "performance.max_speed": "السرعة القصوى",
     "performance.virtualization": "التخزين الافتراضي",
+    "performance.virtual_machine": "جهاز افتراضي",
+    "performance.live_threads": "الخيوط",
+    "performance.cache_l1": "ذاكرة التخزين المؤقت L1",
+    "performance.cache_l2": "ذاكرة التخزين المؤقت L2",
+    "performance.cache_l3": "ذاكرة التخزين المؤقت L3",
     "performance.overall_usage": "Overall Usage",
     "performance.logical_processors": "Logical Processors",
 

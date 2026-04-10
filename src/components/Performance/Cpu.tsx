@@ -42,21 +42,21 @@ interface CpuProps {
     onToggleView: () => void;
 }
 
-const CoreGrid = styled.div<{ columns: number }>`
+const CoreGrid = styled.div<{ columns: number; rows: number }>`
     display: grid;
     grid-template-columns: repeat(${p => p.columns}, 1fr);
+    grid-template-rows: repeat(${p => p.rows}, 1fr);
     gap: 4px;
     width: 98%;
     margin: 0 auto;
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
 `;
 
 const CoreCell = styled.div<{ bgColor: string; labelColor: string }>`
     position: relative;
     background-color: ${p => p.bgColor};
-    min-height: 90px;
+    min-height: 0;
 `;
 
 const CoreLabel = styled.span<{ color: string }>`
@@ -121,6 +121,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
 
     const coreCount = coreUsageHistories.length;
     const columns = getGridColumns(coreCount);
+    const rows = Math.ceil(coreCount / columns);
 
     return (
         <CPU
@@ -161,7 +162,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                     />
                 </div>
             ) : (
-                <CoreGrid columns={columns}>
+                <CoreGrid columns={columns} rows={rows}>
                     {coreUsageHistories.map((history, i) => {
                         const latest = history.length > 0 ? history[history.length - 1] : 0;
                         return (
@@ -179,7 +180,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                                 <Graph
                                     firstGraphValue={history}
                                     maxValue={100}
-                                    height="90px"
+                                    height="100%"
                                     width="100%"
                                     tick={tick}
                                 />
@@ -228,6 +229,10 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.threads ?? 'N/A'}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.live_threads')}</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.live_threads ?? 'N/A'}</RightValue>
+                    </FixedValueItem>
+                    <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.base_speed')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
                             {cpuData.base_speed != null ? (parseFloat(cpuData.base_speed) / 1000000).toFixed(1) + ' GHz' : 'N/A'}
@@ -244,6 +249,22 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.virtualization')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.virtualization ?? 'N/A'}</RightValue>
                     </FixedValueItem>
+                    <FixedValueItem>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.virtual_machine')}</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.virtual_machine ?? 'N/A'}</RightValue>
+                    </FixedValueItem>
+                    {cpuData.cache_l1 && <FixedValueItem>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.cache_l1')}</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.cache_l1}</RightValue>
+                    </FixedValueItem>}
+                    {cpuData.cache_l2 && <FixedValueItem>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.cache_l2')}</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.cache_l2}</RightValue>
+                    </FixedValueItem>}
+                    {cpuData.cache_l3 && <FixedValueItem>
+                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.cache_l3')}</RightLabel>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.cache_l3}</RightValue>
+                    </FixedValueItem>}
                 </FixedValues>
             </div>
         </CPU>

@@ -140,6 +140,11 @@
     "performance.base_speed": "Basistakt",
     "performance.max_speed": "Max. Takt",
     "performance.virtualization": "Virtualisierung",
+    "performance.virtual_machine": "Virtuelle Maschine",
+    "performance.live_threads": "Threads",
+    "performance.cache_l1": "L1-Cache",
+    "performance.cache_l2": "L2-Cache",
+    "performance.cache_l3": "L3-Cache",
     "performance.overall_usage": "Gesamtauslastung",
     "performance.logical_processors": "Logische Prozessoren",
 

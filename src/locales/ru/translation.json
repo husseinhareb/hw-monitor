@@ -140,6 +140,11 @@
     "performance.base_speed": "Базовая скорость",
     "performance.max_speed": "Максимальная скорость",
     "performance.virtualization": "Виртуализация",
+    "performance.virtual_machine": "Виртуальная машина",
+    "performance.live_threads": "Потоки",
+    "performance.cache_l1": "Кэш L1",
+    "performance.cache_l2": "Кэш L2",
+    "performance.cache_l3": "Кэш L3",
     "performance.overall_usage": "Общая загрузка",
     "performance.logical_processors": "Логические процессоры",
 
