@@ -199,6 +199,8 @@
     "config_panel_config.button_foreground_color": "Color del Texto de los Botones",
     "config_panel_config.text_color": "Color del Texto",
 
+    "minutes": "min",
+
     "config.load_default": "Cargar configuración predeterminada",
 
     "error.fetch_failed": "Error al cargar los datos",

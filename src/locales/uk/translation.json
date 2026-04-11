@@ -199,6 +199,8 @@
     "config_panel_config.button_foreground_color": "Колір тексту кнопок",
     "config_panel_config.text_color": "Колір тексту",
 
+    "minutes": "хв",
+
     "config.load_default": "Завантажити типову конфігурацію",
 
     "error.fetch_failed": "Не вдалося завантажити дані",

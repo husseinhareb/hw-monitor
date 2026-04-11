@@ -3,7 +3,6 @@ import Navbar from "./components/Navbar/Navbar";
 import { useSetPaused } from "./services/store";
 import ErrorBoundary from "./components/Misc/ErrorBoundary";
 import Toast from "./components/Misc/Toast";
-import './i18n/i18n'; 
 const App: React.FC = () => {
   const setPaused = useSetPaused();
 

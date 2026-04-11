@@ -198,6 +198,8 @@
     "config_panel_config.button_foreground_color": "Couleur du Texte des Boutons",
     "config_panel_config.text_color": "Couleur du Texte",
 
+    "minutes": "min",
+
     "config.load_default": "Charger la config par défaut",
 
     "error.fetch_failed": "Échec du chargement des données",

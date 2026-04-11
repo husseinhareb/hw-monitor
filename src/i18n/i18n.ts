@@ -40,10 +40,10 @@ const fetchLanguageConfig = async (): Promise<string> => {
 };
 
 // Initialize i18n with fetched language
-const initializeI18n = async () => {
+export const i18nReady: Promise<void> = (async () => {
   const language = await fetchLanguageConfig();
 
-  i18n
+  await i18n
     .use(initReactI18next)
     .init({
       resources,
@@ -53,8 +53,6 @@ const initializeI18n = async () => {
         escapeValue: false,
       },
     });
-};
-
-initializeI18n();
+})();
 
 export default i18n;

@@ -200,6 +200,8 @@
     "config_panel_config.button_foreground_color": "لون نص الأزرار",
     "config_panel_config.text_color": "لون النص",
 
+    "minutes": "دقيقة",
+
     "config.load_default": "تحميل الإعدادات الافتراضية",
 
     "error.fetch_failed": "فشل في تحميل البيانات",

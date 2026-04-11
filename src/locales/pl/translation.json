@@ -175,7 +175,13 @@
     "network.upload": "Wysyłanie",
     "network.speed": "Prędkość",
     "network.bytes_per_sec": "/s",
-    
+
+    "disk.title": "Dysk",
+    "disk.usage": "Użycie",
+    "disk.read": "Odczyt",
+    "disk.write": "Zapis",
+    "disk.speed": "Prędkość",
+
     "sidebar.performance": "Wydajność",
     "sidebar.cpu": "CPU",
     "sidebar.memory": "Pamięć",
@@ -192,6 +198,8 @@
     "config_panel_config.button_background_color": "Kolor Tła Przycisków",
     "config_panel_config.button_foreground_color": "Kolor Tekstu Przycisków",
     "config_panel_config.text_color": "Kolor Tekstu",
+
+    "minutes": "min",
 
     "config.load_default": "Załaduj domyślną konfigurację",
 

@@ -211,6 +211,8 @@
     "loading.generic": "Loading...",
     "loading.battery": "Loading battery data...",
 
+    "minutes": "min",
+
     "config.load_default": "Load Default Config",
 
     "services.col_name": "Name",

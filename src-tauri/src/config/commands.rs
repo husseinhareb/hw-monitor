@@ -198,9 +198,8 @@ pub fn read_all_configs() -> Result<ConfigData, io::Error> {
         let (key, value) = trimmed.split_once('=')
             .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Invalid format in config file"))?;
 
-        if !data.apply_kv(key.trim(), value.trim())? {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Unknown key: {}", key)));
-        }
+        // Silently skip unknown keys for forward/backward config compatibility
+        let _ = data.apply_kv(key.trim(), value.trim())?;
     }
 
     Ok(data)

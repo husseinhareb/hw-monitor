@@ -176,6 +176,12 @@
     "network.speed": "Geschwindigkeit",
     "network.bytes_per_sec": "/s",
 
+    "disk.title": "Festplatte",
+    "disk.usage": "Nutzung",
+    "disk.read": "Lesen",
+    "disk.write": "Schreiben",
+    "disk.speed": "Geschwindigkeit",
+
     "sidebar.performance": "Leistung",
     "sidebar.cpu": "CPU",
     "sidebar.memory": "Speicher",
@@ -192,6 +198,8 @@
     "config_panel_config.button_background_color": "Schaltflächen-Hintergrundfarbe",
     "config_panel_config.button_foreground_color": "Schaltflächen-Textfarbe",
     "config_panel_config.text_color": "Textfarbe",
+
+    "minutes": "Min",
 
     "config.load_default": "Standardkonfiguration laden",
 
