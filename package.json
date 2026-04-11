@@ -1,7 +1,7 @@
 {
   "name": "hw-monitor",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "~2.5",
+    "@tauri-apps/api": "~2.6",
     "chart.js": "^4.4.2",
     "i18next": "^23.12.2",
     "polished": "^4.3.1",

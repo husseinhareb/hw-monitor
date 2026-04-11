@@ -131,7 +131,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
         const cpuVal = typeof proc.cpu_usage === 'string'
             ? parseFloat(proc.cpu_usage as unknown as string)
             : (proc.cpu_usage || 0);
-        const memVal = parseMemoryToMb(proc.memory);
+        const memVal = parseMemoryToMb(proc.memory ?? '');
 
         setCpuHistory(prev => {
             const next = [...prev, isNaN(cpuVal) ? 0 : cpuVal];

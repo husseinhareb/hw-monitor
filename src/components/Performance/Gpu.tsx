@@ -38,7 +38,7 @@ interface GpuProps {
     gpuUsage: number[];
 }
 
-const Gpu: React.FC<GpuProps> = ({ gpuData, gpuIndex, performanceConfig, tick, gpuUsage }) => {
+const Gpu: React.FC<GpuProps> = ({ gpuData, performanceConfig, tick, gpuUsage }) => {
     const { t } = useTranslation();
 
     return (

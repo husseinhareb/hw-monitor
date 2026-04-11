@@ -197,7 +197,7 @@ const Proc: React.FC = () => {
         const proc = getSelectedProcess();
         if (proc) {
             setMonitoredPid(proc.pid);
-            setMonitoredName(proc.name);
+            setMonitoredName(proc.name ?? '');
         }
     };
 

@@ -1,7 +1,7 @@
 //useMemoryData.ts
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useSetMemory, useSetMaxMemory, usePaused, notify } from "../../services/store";
+import { useSetMaxMemory, usePaused, notify } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
 import usePerformanceConfig from "../Performance/usePerformanceConfig";
 
@@ -17,7 +17,6 @@ export interface MemoryUsage {
 
 const useMemoryData = () => {
     const [memoryUsage, setMemoryUsage] = useState<MemoryUsage | null>(null);
-    const setMemory = useSetMemory();
     const setMaxMemory = useSetMaxMemory();
     const convertData = useDataConverter();
     const performanceConfig = usePerformanceConfig();
