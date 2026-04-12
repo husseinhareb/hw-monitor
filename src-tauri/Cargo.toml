@@ -1,6 +1,6 @@
 [package]
 name = "hw-monitor"
-version = "0.0.3"
+version = "0.3.1"
 description = "Hardware Monitor"
 authors = ["husseinhareb"]
 edition = "2021"
