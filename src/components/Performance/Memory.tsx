@@ -110,35 +110,24 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, a
                                 <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.swapCache.value} {memoryData.swapCache.unit}</RightValue>
                             </FixedValueItem>
                         </FixedValues>
-                        {hardwareInfo && (hardwareInfo.speed || hardwareInfo.slots_used || hardwareInfo.form_factor || hardwareInfo.memory_type) && (
-                            <FixedValues>
-                                <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.hardware_info')}</MemoryTypes>
-                                {hardwareInfo.speed && (
-                                    <FixedValueItem>
-                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_speed')} </RightLabel>
-                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.speed}</RightValue>
-                                    </FixedValueItem>
-                                )}
-                                {hardwareInfo.slots_used && (
-                                    <FixedValueItem>
-                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.slots_used')} </RightLabel>
-                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.slots_used}</RightValue>
-                                    </FixedValueItem>
-                                )}
-                                {hardwareInfo.form_factor && (
-                                    <FixedValueItem>
-                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.form_factor')} </RightLabel>
-                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.form_factor}</RightValue>
-                                    </FixedValueItem>
-                                )}
-                                {hardwareInfo.memory_type && (
-                                    <FixedValueItem>
-                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_type')} </RightLabel>
-                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.memory_type}</RightValue>
-                                    </FixedValueItem>
-                                )}
-                            </FixedValues>
-                        )}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 32px', padding: '10px 20px 6px', flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '8px' }}>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_speed')} </RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo?.speed ?? 'N/A'}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.slots_used')} </RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo?.slots_used ?? 'N/A'}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.form_factor')} </RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo?.form_factor ?? 'N/A'}</RightValue>
+                        </FixedValueItem>
+                        <FixedValueItem>
+                            <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_type')} </RightLabel>
+                            <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo?.memory_type ?? 'N/A'}</RightValue>
+                        </FixedValueItem>
                     </div>
                 </>
             )}

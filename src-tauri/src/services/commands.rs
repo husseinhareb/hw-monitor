@@ -267,27 +267,22 @@ pub async fn get_services() -> Result<Vec<SystemService>, String> {
 }
 
 /// Call a systemd manager method (StartUnit, StopUnit, RestartUnit) over the
-/// system D-Bus. Sets AllowInteractiveAuthorization so Polkit can prompt the
-/// user for credentials when needed.
+/// system D-Bus. Uses `call_method` to await systemd's reply so errors are
+/// properly surfaced instead of silently dropped.
 async fn systemd_unit_action(method: &str, service_name: &str) -> Result<(), String> {
     let unit = format!("{}.service", service_name);
     let connection = zbus::Connection::system()
         .await
         .map_err(|e| format!("Failed to connect to system D-Bus: {}", e))?;
 
-    let msg = zbus::message::Message::method("/org/freedesktop/systemd1", method)
-        .map_err(|e| format!("Failed to build message: {}", e))?
-        .destination("org.freedesktop.systemd1")
-        .map_err(|e| format!("Failed to set destination: {}", e))?
-        .interface("org.freedesktop.systemd1.Manager")
-        .map_err(|e| format!("Failed to set interface: {}", e))?
-        .with_flags(zbus::message::Flags::AllowInteractiveAuth)
-        .map_err(|e| format!("Failed to set flags: {}", e))?
-        .build(&(unit.as_str(), "replace"))
-        .map_err(|e| format!("Failed to build message body: {}", e))?;
-
     connection
-        .send(&msg)
+        .call_method(
+            Some("org.freedesktop.systemd1"),
+            "/org/freedesktop/systemd1",
+            Some("org.freedesktop.systemd1.Manager"),
+            method,
+            &(unit.as_str(), "replace"),
+        )
         .await
         .map_err(|e| format!("{} failed for {}: {}", method, service_name, e))?;
 

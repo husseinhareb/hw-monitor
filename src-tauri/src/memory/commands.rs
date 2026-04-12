@@ -1,4 +1,4 @@
-use std::{fs, io};
+use std::{fs, io, process::Command};
 use serde::{Serialize, Deserialize};
 
 const KILO_BYTE:i64 = 1024;
@@ -85,149 +85,111 @@ pub fn get_mem_info() -> Memory {
     }
 }
 
-fn form_factor_name(code: u8) -> Option<&'static str> {
-    match code {
-        0x01 => Some("Other"),
-        0x03 => Some("SIMM"),
-        0x04 => Some("SIP"),
-        0x05 => Some("Chip"),
-        0x06 => Some("DIP"),
-        0x07 => Some("ZIP"),
-        0x08 => Some("Proprietary Card"),
-        0x09 => Some("DIMM"),
-        0x0A => Some("TSOP"),
-        0x0B => Some("Row of chips"),
-        0x0C => Some("RIMM"),
-        0x0D => Some("SODIMM"),
-        0x0E => Some("SRIMM"),
-        0x0F => Some("FB-DIMM"),
-        0x10 => Some("Die"),
-        _ => None,
-    }
-}
-
-fn memory_type_name(code: u8) -> Option<&'static str> {
-    match code {
-        0x01 => Some("Other"),
-        0x03 => Some("DRAM"),
-        0x04 => Some("EDRAM"),
-        0x05 => Some("VRAM"),
-        0x06 => Some("SRAM"),
-        0x07 => Some("RAM"),
-        0x08 => Some("ROM"),
-        0x09 => Some("Flash"),
-        0x0A => Some("EEPROM"),
-        0x0B => Some("FEPROM"),
-        0x0C => Some("EPROM"),
-        0x0D => Some("CDRAM"),
-        0x0E => Some("3DRAM"),
-        0x0F => Some("SDRAM"),
-        0x10 => Some("SGRAM"),
-        0x11 => Some("RDRAM"),
-        0x12 => Some("DDR"),
-        0x13 => Some("DDR2"),
-        0x14 => Some("DDR2 FB-DIMM"),
-        0x18 => Some("DDR3"),
-        0x19 => Some("FBD2"),
-        0x1A => Some("DDR4"),
-        0x1B => Some("LPDDR"),
-        0x1C => Some("LPDDR2"),
-        0x1D => Some("LPDDR3"),
-        0x1E => Some("LPDDR4"),
-        0x1F => Some("Logical non-volatile device"),
-        0x20 => Some("HBM"),
-        0x21 => Some("HBM2"),
-        0x22 => Some("DDR5"),
-        0x23 => Some("LPDDR5"),
-        0x24 => Some("HBM3"),
-        _ => None,
-    }
-}
-
-/// Read memory hardware info by parsing the raw SMBIOS/DMI tables
-/// from /sys/firmware/dmi/tables/DMI.
-/// Parses Type 16 (Physical Memory Array) for slot count and
-/// Type 17 (Memory Device) for speed, form factor, and type.
-fn read_dmi_hardware_info() -> MemoryHardwareInfo {
-    let raw = match fs::read("/sys/firmware/dmi/tables/DMI") {
-        Ok(data) => data,
-        Err(_) => return MemoryHardwareInfo::default(),
+/// Read memory hardware info using `udevadm info` on the DMI sysfs node.
+/// This works without root — same approach as Mission Center.
+fn read_udevadm_memory_info() -> MemoryHardwareInfo {
+    let output = match Command::new("udevadm")
+        .args(["info", "-q", "property", "-p", "/sys/devices/virtual/dmi/id"])
+        .output()
+    {
+        Ok(out) if out.status.success() => {
+            String::from_utf8_lossy(&out.stdout).into_owned()
+        }
+        _ => return MemoryHardwareInfo::default(),
     };
 
-    let mut total_slots: u16 = 0;
-    let mut populated_slots: u16 = 0;
     let mut speed: Option<String> = None;
     let mut form_factor: Option<String> = None;
     let mut memory_type: Option<String> = None;
+    let mut max_devices: u64 = 0;
+    let mut populated: u64 = 0;
 
-    let mut offset = 0;
-    while offset + 4 <= raw.len() {
-        let entry_type = raw[offset];
-        let length = raw[offset + 1] as usize;
-
-        if length < 4 || offset + length > raw.len() {
+    // Iterate over modules (MEMORY_DEVICE_0_, MEMORY_DEVICE_1_, ...)
+    let mut module_index: u64 = 0;
+    loop {
+        let prefix = format!("MEMORY_DEVICE_{}_", module_index);
+        if !output.contains(&prefix) {
             break;
         }
 
-        // Type 16: Physical Memory Array
-        if entry_type == 16 && length >= 15 {
-            let num_devices = u16::from_le_bytes([raw[offset + 13], raw[offset + 14]]);
-            total_slots += num_devices;
+        // Check if this module is present (has SIZE > 0)
+        let size_key = format!("{}SIZE=", prefix);
+        let mut present = false;
+        for line in output.lines() {
+            if let Some(val) = line.strip_prefix(&size_key) {
+                let size: u64 = val.trim().parse().unwrap_or(0);
+                if size > 0 {
+                    present = true;
+                    populated += 1;
+                }
+                break;
+            }
         }
 
-        // Type 17: Memory Device
-        if entry_type == 17 && length >= 21 {
-            let size = u16::from_le_bytes([raw[offset + 12], raw[offset + 13]]);
+        if present {
+            if speed.is_none() {
+                // Prefer CONFIGURED_SPEED_MTS, fall back to SPEED_MTS
+                let configured_key = format!("{}CONFIGURED_SPEED_MTS=", prefix);
+                let speed_key = format!("{}SPEED_MTS=", prefix);
+                let mut spd: u64 = 0;
+                let mut fallback_spd: u64 = 0;
 
-            // size != 0 and size != 0xFFFF means a module is installed
-            if size != 0 && size != 0xFFFF {
-                populated_slots += 1;
-
-                if form_factor.is_none() {
-                    form_factor = form_factor_name(raw[offset + 14]).map(String::from);
+                for line in output.lines() {
+                    if let Some(val) = line.strip_prefix(&configured_key) {
+                        spd = val.trim().parse().unwrap_or(0);
+                    } else if let Some(val) = line.strip_prefix(&speed_key) {
+                        fallback_spd = val.trim().parse().unwrap_or(0);
+                    }
                 }
 
-                if memory_type.is_none() {
-                    memory_type = memory_type_name(raw[offset + 18]).map(String::from);
+                let final_spd = if spd > 0 { spd } else { fallback_spd };
+                if final_spd > 0 {
+                    speed = Some(format!("{} MT/s", final_spd));
                 }
+            }
 
-                // Speed at offset 21-22 (requires length >= 23)
-                if speed.is_none() && length >= 23 {
-                    let spd = u16::from_le_bytes([raw[offset + 21], raw[offset + 22]]);
-                    if spd != 0 && spd != 0xFFFF {
-                        speed = Some(format!("{} MT/s", spd));
+            if form_factor.is_none() {
+                let key = format!("{}FORM_FACTOR=", prefix);
+                for line in output.lines() {
+                    if let Some(val) = line.strip_prefix(&key) {
+                        let v = val.trim();
+                        if !v.is_empty() {
+                            form_factor = Some(v.to_string());
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if memory_type.is_none() {
+                let key = format!("{}TYPE=", prefix);
+                for line in output.lines() {
+                    if let Some(val) = line.strip_prefix(&key) {
+                        let v = val.trim();
+                        if !v.is_empty() {
+                            memory_type = Some(v.to_string());
+                        }
+                        break;
                     }
                 }
             }
         }
 
-        // End-of-table
-        if entry_type == 127 {
+        module_index += 1;
+    }
+
+    // Get total slot count from MEMORY_ARRAY_NUM_DEVICES
+    for line in output.lines() {
+        if let Some(val) = line.strip_prefix("MEMORY_ARRAY_NUM_DEVICES=") {
+            max_devices = val.trim().parse().unwrap_or(0);
             break;
-        }
-
-        // Skip past the formatted area to the strings section
-        offset += length;
-
-        // Strings are null-terminated, section ends with double null
-        while offset < raw.len() {
-            if raw[offset] == 0 {
-                offset += 1;
-                break;
-            }
-            // Skip to end of this string
-            while offset < raw.len() && raw[offset] != 0 {
-                offset += 1;
-            }
-            // Skip the null terminator
-            if offset < raw.len() {
-                offset += 1;
-            }
         }
     }
 
-    let slots_used = if total_slots > 0 {
-        Some(format!("{} of {}", populated_slots, total_slots))
+    let slots_used = if max_devices > 0 {
+        Some(format!("{} of {}", populated, max_devices))
+    } else if populated > 0 {
+        Some(format!("{}", populated))
     } else {
         None
     };
@@ -242,5 +204,5 @@ fn read_dmi_hardware_info() -> MemoryHardwareInfo {
 
 #[tauri::command]
 pub fn get_mem_hardware_info() -> MemoryHardwareInfo {
-    read_dmi_hardware_info()
+    read_udevadm_memory_info()
 }
