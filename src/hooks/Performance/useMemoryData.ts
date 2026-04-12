@@ -15,6 +15,13 @@ export interface MemoryUsage {
     swap_cache: number | null;
 }
 
+export interface MemoryHardwareInfo {
+    speed: string | null;
+    slots_used: string | null;
+    form_factor: string | null;
+    memory_type: string | null;
+}
+
 const useMemoryData = () => {
     const [memoryUsage, setMemoryUsage] = useState<MemoryUsage | null>(null);
     const setMaxMemory = useSetMaxMemory();
@@ -42,6 +49,24 @@ const useMemoryData = () => {
         return () => clearInterval(intervalId);
     }, [setMaxMemory, performanceConfig.config.performance_update_time, paused]);
     return memoryUsage;
+};
+
+export const useMemoryHardwareInfo = () => {
+    const [hardwareInfo, setHardwareInfo] = useState<MemoryHardwareInfo | null>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const info: MemoryHardwareInfo = await invoke("get_mem_hardware_info");
+                setHardwareInfo(info);
+            } catch (error) {
+                console.error("Error fetching memory hardware info:", error);
+            }
+        };
+        fetchData();
+    }, []);
+
+    return hardwareInfo;
 };
 
 export default useMemoryData;

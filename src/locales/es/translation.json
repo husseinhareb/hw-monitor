@@ -167,6 +167,11 @@
     "performance.cached": "En Caché",
     "performance.active": "Activo",
     "performance.swap_cache": "Caché de Intercambio",
+    "performance.hardware_info": "Info de Hardware",
+    "performance.mem_speed": "Velocidad",
+    "performance.slots_used": "Ranuras Usadas",
+    "performance.form_factor": "Factor de Forma",
+    "performance.mem_type": "Tipo",
 
     "network.title": "Red",
     "network.interface_name": "Interfaz",

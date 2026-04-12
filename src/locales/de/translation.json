@@ -167,6 +167,11 @@
     "performance.cached": "Zwischengespeichert",
     "performance.active": "Aktiv",
     "performance.swap_cache": "Swap-Cache",
+    "performance.hardware_info": "Hardware-Info",
+    "performance.mem_speed": "Geschwindigkeit",
+    "performance.slots_used": "Belegte Steckplätze",
+    "performance.form_factor": "Formfaktor",
+    "performance.mem_type": "Typ",
 
     "network.title": "Netzwerk",
     "network.interface_name": "Schnittstelle",

@@ -167,7 +167,12 @@
     "performance.cached": "Buforowane",
     "performance.active": "Aktywne",
     "performance.swap_cache": "Bufor Swap",
-    
+    "performance.hardware_info": "Informacje o sprzęcie",
+    "performance.mem_speed": "Prędkość",
+    "performance.slots_used": "Zajęte gniazda",
+    "performance.form_factor": "Typ obudowy",
+    "performance.mem_type": "Typ",
+
     "network.title": "Sieć",
     "network.interface_name": "Interfejs",
     "network.usage": "Zużycie",

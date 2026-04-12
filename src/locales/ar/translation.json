@@ -167,6 +167,11 @@
     "performance.cached": "المخزنة مؤقتا",
     "performance.active": "النشطة",
     "performance.swap_cache": "ذاكرة التبديل",
+    "performance.hardware_info": "معلومات العتاد",
+    "performance.mem_speed": "السرعة",
+    "performance.slots_used": "الفتحات المستخدمة",
+    "performance.form_factor": "عامل الشكل",
+    "performance.mem_type": "النوع",
 
     "network.title": "الشبكة",
     "network.interface_name": "الواجهة",

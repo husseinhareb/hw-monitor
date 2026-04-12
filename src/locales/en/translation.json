@@ -167,6 +167,11 @@
     "performance.cached": "Cached",
     "performance.active": "Active",
     "performance.swap_cache": "Swap Cache",
+    "performance.hardware_info": "Hardware Info",
+    "performance.mem_speed": "Speed",
+    "performance.slots_used": "Slots Used",
+    "performance.form_factor": "Form Factor",
+    "performance.mem_type": "Type",
 
 
     "network.title": "Network",

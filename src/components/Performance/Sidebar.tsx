@@ -26,6 +26,7 @@ import useDiskData from '../../hooks/Performance/useDiskData';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
 import useCpuData from '../../hooks/Performance/useCpuData';
 import useMemoryData from '../../hooks/Performance/useMemoryData';
+import { useMemoryHardwareInfo } from '../../hooks/Performance/useMemoryData';
 import useGpuData from '../../hooks/Performance/useGpuData';
 import useNetworkData from '../../hooks/Performance/useNetworkData';
 import useDataConverter from '../../helpers/useDataConverter';
@@ -124,6 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   // Memory pump: fetch raw data → accumulate history → push to store
   const memoryRaw = useMemoryData();
+  const memoryHardwareInfo = useMemoryHardwareInfo();
   const convertData = useDataConverter();
   const [activeMemHistory, setActiveMemHistory] = useState<number[]>([]);
   const setMemoryStore = useSetMemory();
@@ -182,7 +184,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
       );
     }
     if (selectedItem === 'Memory') {
-      return <Memory performanceConfig={perf} tick={tick} memoryUsage={memoryRaw} activeMem={activeMemHistory} />;
+      return <Memory performanceConfig={perf} tick={tick} memoryUsage={memoryRaw} activeMem={activeMemHistory} hardwareInfo={memoryHardwareInfo} />;
     }
     for (let i = 0; i < gpuList.length; i++) {
       const gpuKey = `GPU-${gpuList[i].id || i}`;

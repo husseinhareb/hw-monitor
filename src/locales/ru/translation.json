@@ -167,6 +167,11 @@
     "performance.cached": "Кэшировано",
     "performance.active": "Активно",
     "performance.swap_cache": "Кэш подкачки",
+    "performance.hardware_info": "Аппаратная информация",
+    "performance.mem_speed": "Скорость",
+    "performance.slots_used": "Занято слотов",
+    "performance.form_factor": "Форм-фактор",
+    "performance.mem_type": "Тип",
 
     "network.title": "Сеть",
     "network.interface_name": "Интерфейс",

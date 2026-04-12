@@ -32,6 +32,7 @@ fn main() {
             network::get_network,
             network::get_interfaces,
             memory::get_mem_info,
+            memory::get_mem_hardware_info,
             disk::get_disks,
             sensors::get_sensors,
             battery::get_batteries,

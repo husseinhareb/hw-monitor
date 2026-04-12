@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Graph from "../Graph/Graph";
-import { MemoryUsage } from "../../hooks/Performance/useMemoryData";
+import { MemoryUsage, MemoryHardwareInfo } from "../../hooks/Performance/useMemoryData";
 import useDataConverter from "../../helpers/useDataConverter";
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 import { FaMemory } from "react-icons/fa";
@@ -25,9 +25,10 @@ interface MemoryProps {
     tick: number;
     memoryUsage: MemoryUsage | null;
     activeMem: number[];
+    hardwareInfo: MemoryHardwareInfo | null;
 }
 
-const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, activeMem }) => {
+const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, activeMem, hardwareInfo }) => {
     const convertData = useDataConverter();
     const { t } = useTranslation();
 
@@ -109,6 +110,35 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, a
                                 <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{memoryData.swapCache.value} {memoryData.swapCache.unit}</RightValue>
                             </FixedValueItem>
                         </FixedValues>
+                        {hardwareInfo && (hardwareInfo.speed || hardwareInfo.slots_used || hardwareInfo.form_factor || hardwareInfo.memory_type) && (
+                            <FixedValues>
+                                <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.hardware_info')}</MemoryTypes>
+                                {hardwareInfo.speed && (
+                                    <FixedValueItem>
+                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_speed')} </RightLabel>
+                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.speed}</RightValue>
+                                    </FixedValueItem>
+                                )}
+                                {hardwareInfo.slots_used && (
+                                    <FixedValueItem>
+                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.slots_used')} </RightLabel>
+                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.slots_used}</RightValue>
+                                    </FixedValueItem>
+                                )}
+                                {hardwareInfo.form_factor && (
+                                    <FixedValueItem>
+                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.form_factor')} </RightLabel>
+                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.form_factor}</RightValue>
+                                    </FixedValueItem>
+                                )}
+                                {hardwareInfo.memory_type && (
+                                    <FixedValueItem>
+                                        <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_type')} </RightLabel>
+                                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo.memory_type}</RightValue>
+                                    </FixedValueItem>
+                                )}
+                            </FixedValues>
+                        )}
                     </div>
                 </>
             )}
