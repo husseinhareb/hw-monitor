@@ -230,6 +230,12 @@
     "services.start": "Uruchom",
     "services.stop": "Zatrzymaj",
     "services.restart": "Uruchom ponownie",
+    "services.auth_title": "Wymagane uwierzytelnienie",
+    "services.auth_desc": "Wprowadź hasło, aby zarządzać tą usługą.",
+    "services.auth_password": "Hasło",
+    "services.auth_confirm": "Uwierzytelnij",
+    "services.auth_cancel": "Anuluj",
+    "error.service_auth_failed": "Nieprawidłowe hasło",
     "error.service_action_failed": "Błąd akcji usługi",
 
     "config.theme": "Motyw",

@@ -230,6 +230,12 @@
     "services.start": "Iniciar",
     "services.stop": "Detener",
     "services.restart": "Reiniciar",
+    "services.auth_title": "Autenticación requerida",
+    "services.auth_desc": "Ingrese su contraseña para gestionar este servicio.",
+    "services.auth_password": "Contraseña",
+    "services.auth_confirm": "Autenticar",
+    "services.auth_cancel": "Cancelar",
+    "error.service_auth_failed": "Contraseña incorrecta",
     "error.service_action_failed": "Error en la acción del servicio",
 
     "config.theme": "Tema",

@@ -230,6 +230,12 @@
     "services.start": "Запустити",
     "services.stop": "Зупинити",
     "services.restart": "Перезапустити",
+    "services.auth_title": "Потрібна аутентифікація",
+    "services.auth_desc": "Введіть пароль для керування службою.",
+    "services.auth_password": "Пароль",
+    "services.auth_confirm": "Аутентифікувати",
+    "services.auth_cancel": "Скасувати",
+    "error.service_auth_failed": "Неправильний пароль",
     "error.service_action_failed": "Помилка дії зі службою",
 
     "config.theme": "Тема",

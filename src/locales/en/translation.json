@@ -231,6 +231,12 @@
     "services.start": "Start",
     "services.stop": "Stop",
     "services.restart": "Restart",
+    "services.auth_title": "Authentication Required",
+    "services.auth_desc": "Enter your password to manage this service.",
+    "services.auth_password": "Password",
+    "services.auth_confirm": "Authenticate",
+    "services.auth_cancel": "Cancel",
+    "error.service_auth_failed": "Incorrect password",
     "error.service_action_failed": "Service action failed",
 
     "config.theme": "Theme",

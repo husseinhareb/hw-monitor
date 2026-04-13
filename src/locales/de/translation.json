@@ -230,6 +230,12 @@
     "services.start": "Starten",
     "services.stop": "Stoppen",
     "services.restart": "Neustarten",
+    "services.auth_title": "Authentifizierung erforderlich",
+    "services.auth_desc": "Geben Sie Ihr Passwort ein, um diesen Dienst zu verwalten.",
+    "services.auth_password": "Passwort",
+    "services.auth_confirm": "Authentifizieren",
+    "services.auth_cancel": "Abbrechen",
+    "error.service_auth_failed": "Falsches Passwort",
     "error.service_action_failed": "Dienstaktion fehlgeschlagen",
 
     "config.theme": "Farbschema",

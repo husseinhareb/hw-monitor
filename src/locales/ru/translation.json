@@ -230,6 +230,12 @@
     "services.start": "Запустить",
     "services.stop": "Остановить",
     "services.restart": "Перезапустить",
+    "services.auth_title": "Требуется аутентификация",
+    "services.auth_desc": "Введите пароль для управления службой.",
+    "services.auth_password": "Пароль",
+    "services.auth_confirm": "Аутентифицировать",
+    "services.auth_cancel": "Отмена",
+    "error.service_auth_failed": "Неверный пароль",
     "error.service_action_failed": "Ошибка действия со службой",
 
     "config.theme": "Тема",

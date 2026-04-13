@@ -229,6 +229,12 @@
     "services.start": "Démarrer",
     "services.stop": "Arrêter",
     "services.restart": "Redémarrer",
+    "services.auth_title": "Authentification requise",
+    "services.auth_desc": "Entrez votre mot de passe pour gérer ce service.",
+    "services.auth_password": "Mot de passe",
+    "services.auth_confirm": "Authentifier",
+    "services.auth_cancel": "Annuler",
+    "error.service_auth_failed": "Mot de passe incorrect",
     "error.service_action_failed": "Échec de l'action du service",
 
     "config.theme": "Thème",

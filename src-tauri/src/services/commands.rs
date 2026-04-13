@@ -266,40 +266,64 @@ pub async fn get_services() -> Result<Vec<SystemService>, String> {
     Ok(list_services())
 }
 
-/// Call a systemd manager method (StartUnit, StopUnit, RestartUnit) over the
-/// system D-Bus. Uses `call_method` to await systemd's reply so errors are
-/// properly surfaced instead of silently dropped.
-async fn systemd_unit_action(method: &str, service_name: &str) -> Result<(), String> {
+/// Call systemctl via `sudo -S`, reading the password from stdin.
+/// This lets the frontend collect the password via a GUI dialog instead of
+/// a terminal prompt.
+async fn systemd_unit_action(action: &str, service_name: &str, password: &str) -> Result<(), String> {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+
     let unit = format!("{}.service", service_name);
-    let connection = zbus::Connection::system()
-        .await
-        .map_err(|e| format!("Failed to connect to system D-Bus: {}", e))?;
+    let password = password.to_string();
+    let action = action.to_string();
+    let fallback_msg = format!("Failed to {} {}", action, service_name);
 
-    connection
-        .call_method(
-            Some("org.freedesktop.systemd1"),
-            "/org/freedesktop/systemd1",
-            Some("org.freedesktop.systemd1.Manager"),
-            method,
-            &(unit.as_str(), "replace"),
-        )
-        .await
-        .map_err(|e| format!("{} failed for {}: {}", method, service_name, e))?;
+    let output = tauri::async_runtime::spawn_blocking(move || {
+        let mut child = Command::new("sudo")
+            .args(["-S", "systemctl", &action, &unit])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("Failed to spawn sudo: {}", e))?;
 
-    Ok(())
+        if let Some(mut stdin) = child.stdin.take() {
+            let _ = stdin.write_all(format!("{}\n", password).as_bytes());
+        }
+
+        child.wait_with_output().map_err(|e| format!("Failed to wait: {}", e))
+    })
+    .await
+    .map_err(|e| format!("Task error: {}", e))?
+    .map_err(|e| e)?;
+
+    if output.status.success() {
+        return Ok(());
+    }
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    if stderr.contains("incorrect password")
+        || stderr.contains("Authentication failure")
+        || stderr.contains("Sorry, try again")
+    {
+        return Err("incorrect_password".to_string());
+    }
+
+    let msg = stderr.trim().to_string();
+    Err(if msg.is_empty() { fallback_msg } else { msg })
 }
 
 #[tauri::command]
-pub async fn stop_service(name: String) -> Result<(), String> {
-    systemd_unit_action("StopUnit", &name).await
+pub async fn stop_service(name: String, password: String) -> Result<(), String> {
+    systemd_unit_action("stop", &name, &password).await
 }
 
 #[tauri::command]
-pub async fn restart_service(name: String) -> Result<(), String> {
-    systemd_unit_action("RestartUnit", &name).await
+pub async fn restart_service(name: String, password: String) -> Result<(), String> {
+    systemd_unit_action("restart", &name, &password).await
 }
 
 #[tauri::command]
-pub async fn start_service(name: String) -> Result<(), String> {
-    systemd_unit_action("StartUnit", &name).await
+pub async fn start_service(name: String, password: String) -> Result<(), String> {
+    systemd_unit_action("start", &name, &password).await
 }

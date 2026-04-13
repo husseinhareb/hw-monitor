@@ -231,6 +231,12 @@
     "services.start": "تشغيل",
     "services.stop": "إيقاف",
     "services.restart": "إعادة تشغيل",
+    "services.auth_title": "المصادقة مطلوبة",
+    "services.auth_desc": "أدخل كلمة المرور لإدارة هذه الخدمة.",
+    "services.auth_password": "كلمة المرور",
+    "services.auth_confirm": "مصادقة",
+    "services.auth_cancel": "إلغاء",
+    "error.service_auth_failed": "كلمة المرور غير صحيحة",
     "error.service_action_failed": "فشل إجراء الخدمة",
 
     "config.theme": "السمة",
