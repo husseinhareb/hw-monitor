@@ -1,6 +1,6 @@
-use std::fs;
-use serde::{Serialize, Deserialize};
 use crate::cpu_utils::TotalCpuState;
+use serde::{Deserialize, Serialize};
+use std::fs;
 
 #[derive(Serialize, Deserialize)]
 pub struct TotalUsage {
@@ -56,12 +56,14 @@ fn get_running_processes_count() -> Option<usize> {
             .count();
         Some(count)
     } else {
-        None 
+        None
     }
 }
 
 #[tauri::command]
-pub async fn get_total_usages(prev_total_cpu: tauri::State<'_, TotalCpuState>) -> Result<Option<TotalUsage>, String> {
+pub async fn get_total_usages(
+    prev_total_cpu: tauri::State<'_, TotalCpuState>,
+) -> Result<Option<TotalUsage>, String> {
     let memory = get_memory_usage_percentage();
     let cpu = get_cpu_usage_percentage(&prev_total_cpu);
     let processes = get_running_processes_count();

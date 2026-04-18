@@ -7,32 +7,47 @@ const cache = new Map<string, string | null>();
 // Listeners waiting for an in-flight request.
 const listeners = new Map<string, Set<(src: string | null) => void>>();
 
-function fetchIcon(name: string, onResult: (src: string | null) => void): void {
-    if (cache.has(name)) {
-        onResult(cache.get(name) ?? null);
-        return;
-    }
+// Tracks names currently being fetched to prevent duplicate requests.
+const inFlight = new Set<string>();
 
-    // Register listener before kicking off the request.
+function notifyListeners(name: string, result: string | null) {
+    listeners.get(name)?.forEach((listener) => listener(result));
+}
+
+function subscribe(name: string, onResult: (src: string | null) => void) {
     if (!listeners.has(name)) {
         listeners.set(name, new Set());
     }
-    listeners.get(name)!.add(onResult);
 
-    // Only one in-flight request per name.
-    if (listeners.get(name)!.size > 1) return;
+    const currentListeners = listeners.get(name)!;
+    currentListeners.add(onResult);
+
+    return () => {
+        currentListeners.delete(onResult);
+        if (currentListeners.size === 0) {
+            listeners.delete(name);
+        }
+    };
+}
+
+function fetchIcon(name: string): void {
+    if (cache.has(name) || inFlight.has(name)) {
+        return;
+    }
+
+    inFlight.add(name);
 
     invoke<string | null>('get_process_icon', { name })
         .then(result => {
             cache.set(name, result);
-            listeners.get(name)?.forEach(cb => cb(result));
+            notifyListeners(name, result);
         })
         .catch(() => {
             cache.set(name, null);
-            listeners.get(name)?.forEach(cb => cb(null));
+            notifyListeners(name, null);
         })
         .finally(() => {
-            listeners.delete(name);
+            inFlight.delete(name);
         });
 }
 
@@ -45,17 +60,15 @@ export function useProcessIconSrc(name: string): string | null {
     const [src, setSrc] = useState<string | null>(() => cache.get(name) ?? null);
 
     useEffect(() => {
-        if (!name) return;
+        if (!name) {
+            setSrc(null);
+            return;
+        }
 
-        let cancelled = false;
-
-        fetchIcon(name, result => {
-            if (!cancelled) setSrc(result);
-        });
-
-        return () => {
-            cancelled = true;
-        };
+        setSrc(cache.get(name) ?? null);
+        const unsubscribe = subscribe(name, setSrc);
+        fetchIcon(name);
+        return unsubscribe;
     }, [name]);
 
     return src;

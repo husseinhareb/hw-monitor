@@ -19,7 +19,6 @@ import { useTranslation } from "react-i18next";
 
 interface GpuProps {
     gpuData: GpuData | null;
-    gpuIndex: number;
     performanceConfig: {
         config: {
             performance_update_time: number;
@@ -34,11 +33,10 @@ interface GpuProps {
             performance_sec_graph_color: string;
         }
     };
-    tick: number;
     gpuUsage: number[];
 }
 
-const Gpu: React.FC<GpuProps> = ({ gpuData, performanceConfig, tick, gpuUsage }) => {
+const Gpu: React.FC<GpuProps> = ({ gpuData, performanceConfig, gpuUsage }) => {
     const { t } = useTranslation();
 
     return (
@@ -56,7 +54,6 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, performanceConfig, tick, gpuUsage })
                     firstGraphValue={gpuUsage}
                     maxValue={100}
                     width="100%"
-                    tick={tick}
                 />
             </div>
             {gpuData && (

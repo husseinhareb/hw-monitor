@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { memo, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
 import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from '../../styles/proc-style';
 import { useProcessSearch, notify } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';
-import { lighten } from 'polished';
+import { safeLighten } from '../../utils/safeLighten';
 import styled from 'styled-components';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import Spinner from '../Misc/Spinner';
@@ -14,16 +14,88 @@ import { useTranslation } from 'react-i18next';
 import ProcessMonitor from './ProcessMonitor';
 import ProcessTree from './ProcessTree';
 
+const tableValues = [
+    'name',
+    'pid',
+    'ppid',
+    'user',
+    'state',
+    'memory',
+    'cpu_usage',
+    'read_disk_usage',
+    'write_disk_usage',
+    'read_disk_speed',
+    'write_disk_speed',
+] as const;
+
+type TableColumn = (typeof tableValues)[number];
+
+interface ProcessRowProps {
+    process: Process;
+    columns: TableColumn[];
+    isSelected: boolean;
+    selectedBg: string;
+    bodyBg: string;
+    bodyColor: string;
+    borderColor: string;
+    getCellStyle: (value: string, total: number | null, isCpuUsage: boolean, selected: boolean) => React.CSSProperties;
+    totalReadDiskUsage: number;
+    totalWriteDiskUsage: number;
+    totalMemoryUsage: number;
+    onRowClick: (pid: number) => void;
+}
+
+const ProcessRow = memo<ProcessRowProps>(({
+    process, columns, isSelected, selectedBg, bodyBg, bodyColor, borderColor,
+    getCellStyle, totalReadDiskUsage, totalWriteDiskUsage, totalMemoryUsage, onRowClick,
+}) => (
+    <Tr
+        onClick={() => onRowClick(process.pid)}
+        bodyBackgroundColor={bodyBg}
+        style={{ backgroundColor: isSelected ? selectedBg : 'transparent' }}
+    >
+        {columns.map(column => (
+            <Td
+                key={`${process.pid}-${column}`}
+                style={getCellStyle(
+                    process[column] as string,
+                    column.includes('disk')
+                        ? column.includes('read')
+                            ? totalReadDiskUsage
+                            : totalWriteDiskUsage
+                        : column === 'cpu_usage'
+                            ? null
+                            : totalMemoryUsage,
+                    column === 'cpu_usage',
+                    isSelected,
+                )}
+                bodyBackgroundColor={bodyBg}
+                bodyColor={bodyColor}
+                borderColor={borderColor}
+                columnCount={columns.length}
+            >
+                {column === 'name' ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <ProcessIcon name={String(process[column] || '')} fallbackColor={bodyColor} />
+                        {process[column] || ''}
+                    </span>
+                ) : column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
+            </Td>
+        ))}
+    </Tr>
+));
+
 const Proc: React.FC = () => {
-    const [sortBy, setSortBy] = useState<string | null>('memory');
-    const [sortOrder, setSortOrder] = useState<string>('desc');
+    const [sortBy, setSortBy] = useState<TableColumn | null>('memory');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [selectedPid, setSelectedPid] = useState<number | null>(null);
     const [monitoredPid, setMonitoredPid] = useState<number | null>(null);
     const [monitoredName, setMonitoredName] = useState<string>('');
     const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
     const totalUsages = useTotalUsagesData();
-    const { processes } = useProcessData();
+    const { processes, loading, error } = useProcessData();
     const processSearch = useProcessSearch();
+    const deferredProcessSearch = useDeferredValue(processSearch);
     const processConfig = useProcessConfig();
     const { t } = useTranslation();
     // Function to handle click on a row
@@ -64,18 +136,20 @@ const Proc: React.FC = () => {
     const totalMemoryUsage = useMemo(() => calculateTotalUsage(processes, 'memory'), [processes]);
     const totalReadDiskUsage = useMemo(() => calculateTotalUsage(processes, 'read_disk_usage'), [processes]);
     const totalWriteDiskUsage = useMemo(() => calculateTotalUsage(processes, 'write_disk_usage'), [processes]);
-    const totalCpuUsage = processes.reduce((total, process) => {
-        const cpuUsage = typeof process.cpu_usage === 'string' ? parseFloat(process.cpu_usage) : 0;
-        return total + (cpuUsage || 0);
-    }, 0);
+    const totalCpuUsage = useMemo(() => (
+        processes.reduce((total, process) => {
+            const cpuUsage = typeof process.cpu_usage === 'string' ? parseFloat(process.cpu_usage) : 0;
+            return total + (cpuUsage || 0);
+        }, 0)
+    ), [processes]);
     
 
-    const sortProcessesByColumn = useMemo(() => (processes: Process[], column: string, order: string): Process[] => {
-        if (!column) return processes;
+    const sortProcessesByColumn = (items: Process[], column: TableColumn, order: 'asc' | 'desc'): Process[] => {
+        if (!column) return items;
 
-        return [...processes].sort((a, b) => {
-            let valueA: any;
-            let valueB: any;
+        return [...items].sort((a, b) => {
+            let valueA: number | string;
+            let valueB: number | string;
 
             if (['memory', 'read_disk_usage', 'write_disk_usage', 'read_disk_speed', 'write_disk_speed'].includes(column)) {
                 valueA = convertDataValue(a[column] as string || '0');
@@ -91,24 +165,28 @@ const Proc: React.FC = () => {
                 valueB = (b[column as keyof Process]?.toString().toLowerCase() || '');
             }
 
+            if (valueA === valueB) {
+                return 0;
+            }
+
             if (order === 'asc') {
                 return valueA > valueB ? 1 : -1;
-            } else {
-                return valueA < valueB ? 1 : -1;
             }
+
+            return valueA < valueB ? 1 : -1;
         });
-    }, []);
+    };
 
     const sortedProcesses = useMemo(() => {
         return sortBy ? sortProcessesByColumn(processes, sortBy, sortOrder) : processes;
-    }, [sortBy, sortOrder, processes, sortProcessesByColumn]);
+    }, [sortBy, sortOrder, processes]);
 
-    const sortProcesses = (column: string) => {
+    const sortProcesses = (column: TableColumn) => {
         setSortBy(column);
         setSortOrder(prevOrder => (column === sortBy && prevOrder === 'asc' ? 'desc' : 'asc'));
     };
 
-    const getSortIndicator = (column: string) => {
+    const getSortIndicator = (column: TableColumn) => {
         if (sortBy === column) {
             return sortOrder === 'asc' ? <FaArrowUp style={{ fontSize: '10px', marginLeft: '4px' }} />
                 : <FaArrowDown style={{ fontSize: '10px', marginLeft: '4px' }} />;
@@ -128,17 +206,17 @@ const Proc: React.FC = () => {
         if (isCpuUsage) {
             const cpuUsage = parseFloat(value);
             if (cpuUsage > 20) {
-                backgroundColor = lighten(0.15, processConfig.config.processes_body_background_color);
+                backgroundColor = safeLighten(0.15, processConfig.config.processes_body_background_color);
             } else if (cpuUsage > 5) {
-                backgroundColor = lighten(0.1, processConfig.config.processes_body_background_color);
+                backgroundColor = safeLighten(0.1, processConfig.config.processes_body_background_color);
             } else if (cpuUsage > 3) {
-                backgroundColor = lighten(0.05, processConfig.config.processes_body_background_color);
+                backgroundColor = safeLighten(0.05, processConfig.config.processes_body_background_color);
             }
         } else {
             if (percentage > 10) {
-                backgroundColor = lighten(0.15, processConfig.config.processes_body_background_color);
+                backgroundColor = safeLighten(0.15, processConfig.config.processes_body_background_color);
             } else if (percentage > 5) {
-                backgroundColor = lighten(0.1, processConfig.config.processes_body_background_color);
+                backgroundColor = safeLighten(0.1, processConfig.config.processes_body_background_color);
             }
         }
 
@@ -146,19 +224,28 @@ const Proc: React.FC = () => {
     };
 
     const filteredProcesses = useMemo(() => {
-        if (!processSearch) return sortedProcesses;
+        if (!deferredProcessSearch) return sortedProcesses;
+        const query = deferredProcessSearch.toLowerCase();
         return sortedProcesses.filter(process => {
             return Object.values(process).some(value => {
-                return String(value).toLowerCase().includes(processSearch.toLowerCase());
+                return String(value).toLowerCase().includes(query);
             });
         });
-    }, [processSearch, sortedProcesses]);
- 
-    const tableValues = ["name", "pid", "ppid", "user", "state", "memory", "cpu_usage", "read_disk_usage", "write_disk_usage", "read_disk_speed", "write_disk_speed"];
+    }, [deferredProcessSearch, sortedProcesses]);
 
-    const displayedColumns = processConfig.config.processes_table_values
-        .filter(column => processes.some(process => column in process))
-        .sort((a, b) => tableValues.indexOf(a) - tableValues.indexOf(b));
+    const displayedColumns = useMemo(() => processConfig.config.processes_table_values
+        .filter((column): column is TableColumn => (
+            tableValues.includes(column as TableColumn) &&
+            processes.some((process) => column in process)
+        ))
+        .sort((a, b) => tableValues.indexOf(a) - tableValues.indexOf(b)),
+    [processConfig.config.processes_table_values, processes]);
+
+    useEffect(() => {
+        if (selectedPid !== null && !processes.some((process) => process.pid === selectedPid)) {
+            setSelectedPid(null);
+        }
+    }, [processes, selectedPid]);
 
     const columnLabels: { [key: string]: { percentage: string | null; label: string } } = {
         user: { percentage: null, label: t('proc.table_value_user') },
@@ -181,14 +268,20 @@ const Proc: React.FC = () => {
         return null;
     };
 
+    const [killPending, setKillPending] = useState(false);
+
     const handleKillSelected = async () => {
+        if (killPending) return;
         const proc = getSelectedProcess();
         if (proc) {
+            setKillPending(true);
             try {
                 await invoke('kill_process', { process: proc });
             } catch (error) {
                 console.error('Failed to kill process:', error);
                 notify('error.kill_failed');
+            } finally {
+                setKillPending(false);
             }
         }
     };
@@ -205,7 +298,9 @@ const Proc: React.FC = () => {
 
     return (
         <TableContainer style={{ backgroundColor: processConfig.config.processes_body_background_color, minHeight: '100vh', color: processConfig.config.processes_body_color, position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
-            {processes.length === 0 ? (<Spinner />) : (
+            {loading ? (<Spinner />) : error && processes.length === 0 ? (
+                <p>{t('error.fetch_failed')}</p>
+            ) : (
                 <>
                     <div style={{
                         display: 'flex',
@@ -271,41 +366,21 @@ const Proc: React.FC = () => {
                         bodyColor={processConfig.config.processes_body_color}
                     >
                         {filteredProcesses.map((process) => (
-                            <Tr
+                            <ProcessRow
                                 key={process.pid}
-                                onClick={() => handleRowClick(process.pid)}
-                                bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                                style={{ backgroundColor: selectedPid === process.pid ? lighten(0.15, processConfig.config.processes_body_background_color) : 'transparent' }}
-                            >
-                                {displayedColumns.map(column => (
-                                    <Td
-                                        key={`${process.pid}-${column}`}
-                                        style={getCellStyle(
-                                            process[column] as string,
-                                            column.includes('disk')
-                                                ? column.includes('read')
-                                                    ? totalReadDiskUsage
-                                                    : totalWriteDiskUsage
-                                                : column === 'cpu_usage'
-                                                    ? null  // No total for CPU usage
-                                                    : totalMemoryUsage,
-                                            column === 'cpu_usage',
-                                            selectedPid === process.pid
-                                        )}
-                                        bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                                        bodyColor={processConfig.config.processes_body_color}
-                                        borderColor={processConfig.config.processes_border_color}
-                                        columnCount={displayedColumns.length}
-                                    >
-                                        {column === 'name' ? (
-                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                                                <ProcessIcon name={String(process[column] || '')} fallbackColor={processConfig.config.processes_body_color} />
-                                                {process[column] || ''}
-                                            </span>
-                                        ) : column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
-                                    </Td>
-                                ))}
-                            </Tr>
+                                process={process}
+                                columns={displayedColumns}
+                                isSelected={selectedPid === process.pid}
+                                selectedBg={safeLighten(0.15, processConfig.config.processes_body_background_color)}
+                                bodyBg={processConfig.config.processes_body_background_color}
+                                bodyColor={processConfig.config.processes_body_color}
+                                borderColor={processConfig.config.processes_border_color}
+                                getCellStyle={getCellStyle}
+                                totalReadDiskUsage={totalReadDiskUsage}
+                                totalWriteDiskUsage={totalWriteDiskUsage}
+                                totalMemoryUsage={totalMemoryUsage}
+                                onRowClick={handleRowClick}
+                            />
                         ))}
                     </Tbody>
                 </Table>
@@ -333,7 +408,8 @@ const Proc: React.FC = () => {
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={handleKillSelected}
-                    >{t('proc.kill_process')}</KillButton>
+                        disabled={killPending}
+                    >{killPending ? '…' : t('proc.kill_process')}</KillButton>
                 </BottomBar>
             )}
             {monitoredPid !== null && (
@@ -349,7 +425,7 @@ const Proc: React.FC = () => {
 };
 
 const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: string; borderColor: string }>`
-    background-color: ${props => props.active ? lighten(0.15, props.bgColor) : props.bgColor};
+    background-color: ${props => props.active ? safeLighten(0.15, props.bgColor) : props.bgColor};
     color: ${props => props.color};
     border: ${props => props.active ? `1px solid ${props.borderColor}` : '1px solid transparent'};
     padding: 3px 12px;

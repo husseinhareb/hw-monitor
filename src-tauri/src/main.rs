@@ -1,22 +1,24 @@
-mod proc;
-mod cpu;
-mod network;
-mod memory;
-mod disk;
-mod total_usages;
-mod sensors;
 mod battery;
 mod config;
-mod gpu;
+mod cpu;
 mod cpu_utils;
+mod disk;
+mod gpu;
+mod memory;
+mod network;
+mod proc;
 mod proc_icon;
+mod sensors;
 mod services;
+mod total_usages;
 
 use std::sync::Mutex;
 
 fn main() {
     //let devtools = devtools::init();
-    let _ = config::create_config();
+    if let Err(err) = config::create_config() {
+        panic!("failed to initialize config: {err}");
+    }
     tauri::Builder::default()
         .manage(cpu_utils::PerfCpuState(Mutex::new(None)))
         .manage(cpu_utils::TotalCpuState(Mutex::new(None)))
@@ -53,7 +55,6 @@ fn main() {
             services::start_service,
             services::stop_service,
             services::restart_service,
-
         ])
         //.plugin(devtools)
         .run(tauri::generate_context!())

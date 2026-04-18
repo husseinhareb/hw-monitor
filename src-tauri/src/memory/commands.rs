@@ -1,7 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::{fs, io, process::Command};
-use serde::{Serialize, Deserialize};
 
-const KILO_BYTE:i64 = 1024;
+const KILO_BYTE: i64 = 1024;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Memory {
@@ -22,7 +22,6 @@ pub struct MemoryHardwareInfo {
     memory_type: Option<String>,
 }
 
-
 impl Memory {
     fn new() -> Memory {
         Memory {
@@ -39,17 +38,12 @@ impl Memory {
 
 pub fn parse_meminfo_line(line: &str, keyword: &str) -> Option<i64> {
     if line.starts_with(keyword) {
-        let value = line
-            .split_whitespace()
-            .nth(1)?
-            .parse::<i64>()
-            .ok()?;
+        let value = line.split_whitespace().nth(1)?.parse::<i64>().ok()?;
         Some(value)
     } else {
         None
     }
 }
-
 
 fn read_meminfo() -> io::Result<Memory> {
     let mut memory = Memory::new();
@@ -89,12 +83,16 @@ pub fn get_mem_info() -> Memory {
 /// This works without root — same approach as Mission Center.
 fn read_udevadm_memory_info() -> MemoryHardwareInfo {
     let output = match Command::new("udevadm")
-        .args(["info", "-q", "property", "-p", "/sys/devices/virtual/dmi/id"])
+        .args([
+            "info",
+            "-q",
+            "property",
+            "-p",
+            "/sys/devices/virtual/dmi/id",
+        ])
         .output()
     {
-        Ok(out) if out.status.success() => {
-            String::from_utf8_lossy(&out.stdout).into_owned()
-        }
+        Ok(out) if out.status.success() => String::from_utf8_lossy(&out.stdout).into_owned(),
         _ => return MemoryHardwareInfo::default(),
     };
 

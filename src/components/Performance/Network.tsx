@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Graph from '../Graph/Graph';
 import { useNetworkFullData } from '../../services/store';
-import useDataConverter from '../../helpers/useDataConverter';
+import { convertData } from '../../helpers/useDataConverter';
 import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, LeftLabel, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
 import { useTranslation } from 'react-i18next';
 
@@ -21,29 +21,27 @@ interface NetworkProps {
             performance_sec_graph_color: string;
         }
     };
-    tick: number;
 }
 
-const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tick }) => {
+const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) => {
     const networkFullData = useNetworkFullData();
     const data = networkFullData[interfaceName] || { download: [], upload: [], totalDownload: 0, totalUpload: 0 };
     const { download, upload, totalDownload, totalUpload } = data;
-    const convertData = useDataConverter();
     const { t } = useTranslation();
 
     const downloadValues = useMemo(() => download.map(d => d.value), [download]);
     const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
 
-    // inside your component:
-    const formatSpeed = (arr: Array<{ value: number; unit: string }>) => {
+    const convertedTotalDownload = useMemo(() => convertData(totalDownload), [totalDownload]);
+    const convertedTotalUpload = useMemo(() => convertData(totalUpload), [totalUpload]);
+
+    const formatSpeed = useCallback((arr: Array<{ value: number; unit: string }>) => {
         if (arr.length === 0) {
-            // no data → 0 B/s (or your localized translation)
             return `0${t('network.bytes_per_sec')}`;
         }
         const { value, unit } = arr[arr.length - 1];
-        // always append the “per second” part after the unit
         return `${value} ${unit}${t('network.bytes_per_sec')}`;
-    };
+    }, [t]);
 
     return (
         <MemoryContainer
@@ -63,7 +61,6 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tic
                         firstGraphValue={downloadValues}
                         secondGraphValue={uploadValues}
                         width="100%"
-                        tick={tick}
                     />
                 </div>
 
@@ -78,7 +75,7 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tic
                             </LeftLabel>
                             {totalDownload !== undefined && (
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                                    {convertData(totalDownload).value}{' '}{convertData(totalDownload).unit}
+                                    {convertedTotalDownload.value}{' '}{convertedTotalDownload.unit}
                                 </LeftValue>
                             )}
                         </FixedValueItem>
@@ -88,7 +85,7 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig, tic
                             </LeftLabel>
                             {totalUpload !== undefined && (
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                                    {convertData(totalUpload).value}{' '}{convertData(totalUpload).unit}
+                                    {convertedTotalUpload.value}{' '}{convertedTotalUpload.unit}
                                 </LeftValue>
                             )}
                         </FixedValueItem>

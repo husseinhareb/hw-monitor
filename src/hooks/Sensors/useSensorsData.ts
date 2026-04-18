@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from "../Sensors/useSensorsConfig";
 import { usePaused, notify } from "../../services/store";
+import useSerialPolling from "../useSerialPolling";
 
 interface SensorData {
   name: string;
@@ -22,23 +23,16 @@ const useSensorsData = (): HwMonData[] => {
   const sensorsConfig = useSensorsConfig();
   const paused = usePaused();
 
-  useEffect(() => {
-    if (paused) return;
-    const fetchData = async () => {
-      try {
-        const fetchedSensorsData: HwMonData[] = await invoke("get_sensors");
-        setSensors(fetchedSensorsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        notify('error.fetch_failed');
-      }
-    };
-
-    fetchData();
-    const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
-
-    return () => clearInterval(intervalId);
-  }, [sensorsConfig.config.sensors_update_time, paused]);
+  useSerialPolling({
+    enabled: !paused,
+    interval: sensorsConfig.config.sensors_update_time,
+    poll: () => invoke<HwMonData[]>("get_sensors"),
+    onSuccess: setSensors,
+    onError: (error) => {
+      console.error("Error fetching data:", error);
+      notify('error.fetch_failed');
+    },
+  });
 
   return sensors;
 };

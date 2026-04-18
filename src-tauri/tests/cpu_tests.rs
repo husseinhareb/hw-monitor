@@ -21,7 +21,7 @@ physical id	: 0
 ";
     let result = cpu::parse_static_fields(cpuinfo);
     assert!(result.is_some());
-    let (name, cores, threads, virt, sockets) = result.unwrap();
+    let (name, cores, threads, virt, _vm, sockets) = result.unwrap();
     assert_eq!(name, "Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz");
     assert_eq!(cores, "8");
     assert_eq!(threads, "16");
@@ -41,7 +41,7 @@ physical id	: 0
 ";
     let result = cpu::parse_static_fields(cpuinfo);
     assert!(result.is_some());
-    let (name, cores, threads, virt, _sockets) = result.unwrap();
+    let (name, cores, threads, virt, _vm, _sockets) = result.unwrap();
     assert_eq!(name, "AMD Ryzen 9 5900X");
     assert_eq!(cores, "12");
     assert_eq!(threads, "24");
@@ -60,7 +60,7 @@ physical id	: 0
 ";
     let result = cpu::parse_static_fields(cpuinfo);
     assert!(result.is_some());
-    let (_name, _cores, _threads, virt, _sockets) = result.unwrap();
+    let (_name, _cores, _threads, virt, _vm, _sockets) = result.unwrap();
     assert_eq!(virt, "Disabled");
 }
 
@@ -83,7 +83,7 @@ physical id	: 1
 ";
     let result = cpu::parse_static_fields(cpuinfo);
     assert!(result.is_some());
-    let (_name, _cores, _threads, _virt, sockets) = result.unwrap();
+    let (_name, _cores, _threads, _virt, _vm, sockets) = result.unwrap();
     assert_eq!(sockets, 2);
 }
 
@@ -139,7 +139,7 @@ flags		: fpu
 ";
     let result = cpu::parse_static_fields(cpuinfo);
     assert!(result.is_some());
-    let (_name, _cores, _threads, _virt, sockets) = result.unwrap();
+    let (_name, _cores, _threads, _virt, _vm, sockets) = result.unwrap();
     assert_eq!(sockets, 1); // max(0, 1) = 1
 }
 

@@ -12,21 +12,20 @@ type SensorsConfig = {
     sensors_battery_case_color: string;
 };
 
-const initialSensorsConfig: SensorsConfig = {
-    sensors_update_time: 2000,
-    sensors_background_color: "#2b2b2b",
-    sensors_foreground_color: "#ffffff",
-    sensors_boxes_background_color: "#3a3a3a",
-    sensors_boxes_foreground_color: "#ffffff",
-    sensors_boxes_title_foreground_color: "#0088dd",
-    sensors_battery_background_color: "#38e740",
-    sensors_battery_frame_color: "#ffffff",
-    sensors_battery_case_color: "#060606",
-};
+const sensorsConfigKeys = [
+    "sensors_update_time",
+    "sensors_background_color",
+    "sensors_foreground_color",
+    "sensors_boxes_background_color",
+    "sensors_boxes_foreground_color",
+    "sensors_boxes_title_foreground_color",
+    "sensors_battery_background_color",
+    "sensors_battery_frame_color",
+    "sensors_battery_case_color",
+] as const;
 
 const useSensorsConfig = () => {
-
-    return useFetchAndSetConfig(initialSensorsConfig, "get_configs", "set_sensors_configs");
+    return useFetchAndSetConfig<SensorsConfig>(sensorsConfigKeys, "set_sensors_configs");
 };
 
 export default useSensorsConfig;

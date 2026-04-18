@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import Graph from "../Graph/Graph";
 import { MemoryUsage, MemoryHardwareInfo } from "../../hooks/Performance/useMemoryData";
 import useDataConverter from "../../helpers/useDataConverter";
@@ -22,40 +22,40 @@ interface MemoryProps {
             performance_sec_graph_color: string;
         }
     };
-    tick: number;
     memoryUsage: MemoryUsage | null;
     activeMem: number[];
     hardwareInfo: MemoryHardwareInfo | null;
 }
 
-const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, activeMem, hardwareInfo }) => {
+type ConvertedMemoryData = {
+    total: { value: number; unit: string };
+    free: { value: number; unit: string };
+    available: { value: number; unit: string };
+    cached: { value: number; unit: string };
+    active: { value: number; unit: string };
+    swapTotal: { value: number; unit: string };
+    swapCache: { value: number; unit: string };
+};
+
+const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, activeMem, hardwareInfo }) => {
     const convertData = useDataConverter();
     const { t } = useTranslation();
 
-    const [memoryData, setMemoryData] = useState<{
-        total: { value: number, unit: string },
-        free: { value: number, unit: string },
-        available: { value: number, unit: string },
-        cached: { value: number, unit: string },
-        active: { value: number, unit: string },
-        swapTotal: { value: number, unit: string },
-        swapCache: { value: number, unit: string }
-    } | null>(null);
-
-    useEffect(() => {
-        if (memoryUsage !== null) {
-            const newMemoryData = {
-                total: convertData(memoryUsage.total),
-                free: convertData(memoryUsage.free),
-                available: convertData(memoryUsage.available),
-                cached: convertData(memoryUsage.cached),
-                active: convertData(memoryUsage.active),
-                swapTotal: convertData(memoryUsage.swap_total),
-                swapCache: convertData(memoryUsage.swap_cache)
-            };
-            setMemoryData(newMemoryData);
+    const memoryData = useMemo<ConvertedMemoryData | null>(() => {
+        if (memoryUsage === null) {
+            return null;
         }
-    }, [memoryUsage, convertData]);
+
+        return {
+            total: convertData(memoryUsage.total),
+            free: convertData(memoryUsage.free),
+            available: convertData(memoryUsage.available),
+            cached: convertData(memoryUsage.cached),
+            active: convertData(memoryUsage.active),
+            swapTotal: convertData(memoryUsage.swap_total),
+            swapCache: convertData(memoryUsage.swap_cache)
+        };
+    }, [convertData, memoryUsage]);
 
     return (
         <MemoryContainer 
@@ -72,7 +72,6 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, tick, memoryUsage, a
                             firstGraphValue={activeMem}
                             maxValue={Math.floor(memoryData.total.value)}
                             width="100%"
-                            tick={tick}
                         />
                     </div>
                     <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>

@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import useFetchAndSetConfig, { invalidateConfigCache } from "../../utils/useConfigUtils";
 import useConfigPanelConfig from "../../hooks/Config/useConfigPanelConfig";
-import { invoke } from "@tauri-apps/api/core";
-import { notify } from "../../services/store";
+import { useConfigStore } from "../../services/configStore";
 import ProcessesConfig from "./ProcessesConfig";
 import PerformanceConfig from "./PerformanceConfig";
 import SensorsConfig from "./SensorsConfig";
@@ -63,11 +61,15 @@ const languages = [
 const Config: React.FC = () => {
   const { i18n, t } = useTranslation();
   const [activeSection, setActiveSection] = useState<SectionKey>("processes");
-  const [reloadFlag, setReloadFlag] = React.useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const themeRef = useRef<HTMLDivElement>(null);
+  const config = useConfigStore((state) => state.config);
+  const hydrate = useConfigStore((state) => state.hydrate);
+  const persistPartial = useConfigStore((state) => state.persistPartial);
+  const persistAll = useConfigStore((state) => state.persistAll);
+  const resetToDefault = useConfigStore((state) => state.resetToDefault);
 
   const { config: panelConfig } = useConfigPanelConfig();
 
@@ -81,11 +83,9 @@ const Config: React.FC = () => {
     textColor:    panelConfig.config_text_color,
   };
 
-  const { config, updateConfig } = useFetchAndSetConfig<{ language: string }>(
-    { language: i18n.language },
-    "get_configs",
-    "set_language_config"
-  );
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -102,11 +102,9 @@ const Config: React.FC = () => {
 
   const load_default_config = async () => {
     try {
-      await invoke("set_default_config");
-      invalidateConfigCache();
-      setReloadFlag(f => !f);
+      await resetToDefault();
+      await i18n.changeLanguage(useConfigStore.getState().config.language);
     } catch (error) {
-      notify("error.config_failed");
       console.error("Error loading default config:", error);
     }
   };
@@ -115,34 +113,36 @@ const Config: React.FC = () => {
     const preset = themes[index];
     if (!preset) return;
     try {
-      const configs = { ...preset.values, language: config.language };
-      await invoke("set_all_configs", { configs });
-      invalidateConfigCache();
-      setReloadFlag(f => !f);
+      await persistAll({ ...config, ...preset.values, language: config.language });
       setThemeOpen(false);
     } catch (error) {
-      notify("error.config_failed");
       console.error("Error applying theme:", error);
     }
-  }, [config.language]);
+  }, [config, persistAll]);
 
   const handleLanguageSelect = useCallback(async (langValue: string) => {
-    i18n.changeLanguage(langValue);
-    await updateConfig("language", langValue);
-    setLangOpen(false);
-  }, [i18n, updateConfig]);
+    const previousLanguage = config.language;
+    await i18n.changeLanguage(langValue);
+    try {
+      await persistPartial({ language: langValue }, "set_language_config");
+      setLangOpen(false);
+    } catch (error) {
+      await i18n.changeLanguage(previousLanguage);
+      console.error("Error updating language config:", error);
+    }
+  }, [config.language, i18n, persistPartial]);
 
   const activeLabel = t(sections.find(s => s.key === activeSection)!.labelKey);
 
   const renderSection = () => {
     switch (activeSection) {
-      case "processes":   return <ProcessesConfig   key={reloadFlag ? "r" : "n"} theme={theme} />;
-      case "performance": return <PerformanceConfig key={reloadFlag ? "r" : "n"} theme={theme} />;
-      case "sensors":     return <SensorsConfig     key={reloadFlag ? "r" : "n"} theme={theme} />;
-      case "disks":       return <DisksConfig       key={reloadFlag ? "r" : "n"} theme={theme} />;
-      case "heatbar":     return <HeatbarConfig     key={reloadFlag ? "r" : "n"} theme={theme} />;
-      case "navbar":      return <NavbarConfig      key={reloadFlag ? "r" : "n"} theme={theme} />;
-      case "configpanel": return <ConfigPanelConfigSection key={reloadFlag ? "r" : "n"} theme={theme} />;
+      case "processes":   return <ProcessesConfig theme={theme} />;
+      case "performance": return <PerformanceConfig theme={theme} />;
+      case "sensors":     return <SensorsConfig theme={theme} />;
+      case "disks":       return <DisksConfig theme={theme} />;
+      case "heatbar":     return <HeatbarConfig theme={theme} />;
+      case "navbar":      return <NavbarConfig theme={theme} />;
+      case "configpanel": return <ConfigPanelConfigSection theme={theme} />;
     }
   };
 
@@ -249,4 +249,3 @@ const Config: React.FC = () => {
 };
 
 export default Config;
-

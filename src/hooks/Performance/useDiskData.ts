@@ -1,8 +1,9 @@
 // src/hooks/Performance/useDiskData.ts
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { usePaused, notify } from '../../services/store'
+import useSerialPolling from '../useSerialPolling'
 
 export interface DiskRaw {
   name: string
@@ -21,27 +22,19 @@ interface Hist {
 
 export default function useDiskData(updateInterval: number): Record<string,Hist> {
   const [historyMap, setHistoryMap] = useState<Record<string,Hist>>({})
-  const mounted = useRef(true)
   const paused = usePaused()
 
-  useEffect(() => {
-    if (paused) return
-    mounted.current = true
-    let timerId: number
-
-    // 1) fetch raw stats from Rust
-    async function fetchOnce() {
-      try {
-        const raw: DiskRaw[] = await invoke('get_disks') as DiskRaw[]
-        if (!mounted.current) return
-
+  useSerialPolling({
+    enabled: !paused,
+    interval: updateInterval,
+    poll: () => invoke<DiskRaw[]>('get_disks'),
+    onSuccess: (raw) => {
         setHistoryMap(prev => {
-          // fold each disk into a new map
           const next: Record<string,Hist> = {}
 
           raw.forEach(d => {
             const prevH = prev[d.name] ?? {
-              readHistory:  [0],      // if never seen before, start with a 0 sample
+              readHistory:  [0],
               writeHistory: [0],
               total_read:   d.total_read,
               total_write:  d.total_write,
@@ -60,25 +53,12 @@ export default function useDiskData(updateInterval: number): Record<string,Hist>
 
           return next
         })
-      } catch (err) {
-        console.error('useDiskData › fetchOnce error', err)
-        notify('error.fetch_failed')
-      }
-    }
-
-    // 2) do one immediate pass to both
-    //    • seed every disk with [0]  
-    //    • then overwrite with the real first measurement
-    fetchOnce()
-
-    // 3) now start polling
-    timerId = window.setInterval(fetchOnce, updateInterval)
-
-    return () => {
-      mounted.current = false
-      window.clearInterval(timerId)
-    }
-  }, [updateInterval, paused])
+    },
+    onError: (err) => {
+      console.error('useDiskData › fetchOnce error', err)
+      notify('error.fetch_failed')
+    },
+  })
 
   return historyMap
 }

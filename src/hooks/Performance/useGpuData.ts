@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import usePerformanceConfig from "./usePerformanceConfig";
 import { usePaused, notify } from "../../services/store";
+import useSerialPolling from "../useSerialPolling";
 
 export interface GpuData {
     id: string | null;
@@ -23,28 +24,21 @@ const useGpuData = () => {
     const performanceConfig = usePerformanceConfig();  
     const paused = usePaused();
 
-    useEffect(() => {
-        if (paused) return;
-        const fetchGpuData = async () => {
-            try {
-                const fetched: GpuData[] = await invoke("get_gpu_informations");
-                setGpuList(fetched ?? []);
-            } catch (error) {
-                console.error("Error fetching GPU data:", error);
-                notify('error.fetch_failed');
-                setGpuList([]);
-            }
-        };
-        fetchGpuData();
-        const intervalId = setInterval(fetchGpuData, performanceConfig.config.performance_update_time); 
+    useSerialPolling({
+        enabled: !paused,
+        interval: performanceConfig.config.performance_update_time,
+        poll: () => invoke<GpuData[]>("get_gpu_informations"),
+        onSuccess: (fetched) => {
+            setGpuList(fetched ?? []);
+        },
+        onError: (error) => {
+            console.error("Error fetching GPU data:", error);
+            notify('error.fetch_failed');
+            setGpuList([]);
+        },
+    });
 
-        return () => clearInterval(intervalId);
-    }, [performanceConfig.config.performance_update_time, paused]);
-
-    // Backwards-compatible: expose first GPU as gpuData
-    const gpuData = gpuList.length > 0 ? gpuList[0] : null;
-
-    return { gpuData, gpuList };
+    return { gpuList };
 };
 
 export default useGpuData;

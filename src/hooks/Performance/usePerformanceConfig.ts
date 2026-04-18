@@ -15,24 +15,23 @@ export type PerformanceConfig = {
     performance_scrollbar_color: string;
 };
 
-const initialPerformanceConfig: PerformanceConfig = {
-    performance_update_time: 1000,
-    performance_sidebar_background_color: "#333333",
-    performance_sidebar_color: "#ffffff",
-    performance_sidebar_selected_color: "#ffffff",
-    performance_background_color: "#2d2d2d",
-    performance_title_color: "#ffffff",
-    performance_label_color: "#6d6d6d",
-    performance_value_color: "#ffffff",
-    performance_graph_color: "#09ffff",
-    performance_sec_graph_color: '#ff6384',
-    show_virtual_interfaces: false,
-    performance_scrollbar_color: "#888888",
-};
+const performanceConfigKeys = [
+    "performance_update_time",
+    "performance_sidebar_background_color",
+    "performance_sidebar_color",
+    "performance_sidebar_selected_color",
+    "performance_background_color",
+    "performance_title_color",
+    "performance_label_color",
+    "performance_value_color",
+    "performance_graph_color",
+    "performance_sec_graph_color",
+    "show_virtual_interfaces",
+    "performance_scrollbar_color",
+] as const;
 
 const usePerformanceConfig = () => {
-
-    return useFetchAndSetConfig(initialPerformanceConfig, "get_configs", "set_performance_configs");
+    return useFetchAndSetConfig<PerformanceConfig>(performanceConfigKeys, "set_performance_configs");
 };
 
 export default usePerformanceConfig;

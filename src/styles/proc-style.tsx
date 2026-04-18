@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { lighten } from 'polished';
+import { safeLighten } from '../utils/safeLighten';
 
 const baseFontSize = 15; // Base font size in pixels
 
@@ -60,7 +60,7 @@ export const Th = styled.th<{ headBackgroundColor: string; headColor: string; co
 
     .percentage {
         font-size: 0.8em;
-        color: ${(props) => lighten(0.2, props.headColor)};
+        color: ${(props) => safeLighten(0.2, props.headColor)};
     }
 
     .label {
@@ -68,7 +68,7 @@ export const Th = styled.th<{ headBackgroundColor: string; headColor: string; co
     }
 
     &:hover {
-        background-color: ${(props) => lighten(0.1, props.headBackgroundColor)};
+        background-color: ${(props) => safeLighten(0.1, props.headBackgroundColor)};
     }
 `;
 
@@ -79,7 +79,7 @@ export const Tbody = styled.tbody<{ bodyBackgroundColor: string; bodyColor: stri
 
 export const Tr = styled.tr<{ bodyBackgroundColor?: string }>`
     &:hover > td {
-        background-color: ${(props) => props.bodyBackgroundColor ? lighten(0.05, props.bodyBackgroundColor) : 'inherit'};
+        background-color: ${(props) => props.bodyBackgroundColor ? safeLighten(0.05, props.bodyBackgroundColor) : 'inherit'};
     }
 `;
 
@@ -114,6 +114,6 @@ export const KillButton = styled.button<{ killButtonBackgroundColor: string; kil
     font-size: 12px;
     cursor: pointer;
     &:hover {
-        background-color: ${(props) => lighten(0.01, props.killButtonBackgroundColor)};
+        background-color: ${(props) => safeLighten(0.01, props.killButtonBackgroundColor)};
     }
 `;

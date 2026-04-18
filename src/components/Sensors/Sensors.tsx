@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 const Sensors: React.FC = () => {
   const sensors = useSensorsData();
-  const { batteries: battery } = useBatteryData();
+  const batteryState = useBatteryData();
   const { t } = useTranslation();
 
   const sortedSensors = useMemo(() => {
@@ -34,10 +34,10 @@ const Sensors: React.FC = () => {
     >
       <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>{t('sensors.title')}</Title>
       <SensorGrid>
-        {battery.length > 0 && <SensorList
+        {(batteryState.error || batteryState.batteries.length > 0) && <SensorList
           sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
         >
-          <Battery />
+          <Battery batteries={batteryState.batteries} error={batteryState.error} />
         </SensorList>}
         {sortedSensors.map((hwmon) => (
           <SensorList
@@ -47,10 +47,10 @@ const Sensors: React.FC = () => {
             <SensorGroup>
               <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>{hwmon.name}</SensorName>
               <ContentDiv>
-                {hwmon.sensors.map((sensor, idx) => (
+                {hwmon.sensors.map((sensor) => (
                   <SensorItem
                   sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
-                  key={idx}>
+                  key={`${hwmon.index}-${sensor.name}`}>
 
                     {sensor.name}: {sensor.sensor_type === 'fan'
                       ? `${Math.round(sensor.value)} ${sensor.unit}`

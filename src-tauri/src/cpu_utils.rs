@@ -18,7 +18,8 @@ pub struct TotalCpuState(pub Mutex<Option<CpuSnapshot>>);
 pub fn read_cpu_times() -> Option<(u64, u64)> {
     let content = fs::read_to_string("/proc/stat").ok()?;
     let line = content.lines().find(|l| l.starts_with("cpu "))?;
-    let fields: Vec<u64> = line.split_whitespace()
+    let fields: Vec<u64> = line
+        .split_whitespace()
         .skip(1)
         .filter_map(|s| s.parse().ok())
         .collect();
@@ -42,7 +43,10 @@ pub fn calc_cpu_usage(prev: &Mutex<Option<CpuSnapshot>>) -> Option<f64> {
     } else {
         None
     };
-    *guard = Some(CpuSnapshot { idle: idle2, total: total2 });
+    *guard = Some(CpuSnapshot {
+        idle: idle2,
+        total: total2,
+    });
     result
 }
 
@@ -78,7 +82,7 @@ pub fn calc_per_core_usage(state: &PerCoreCpuState) -> Option<Vec<f64>> {
     }
 
     let mut guard = state.0.lock().ok()?;
-    let prev = std::mem::replace(&mut *guard, Vec::new());
+    let prev = std::mem::take(&mut *guard);
 
     let result = if prev.len() == current.len() {
         let usages: Vec<f64> = current

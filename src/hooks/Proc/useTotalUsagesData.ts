@@ -1,35 +1,23 @@
-import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useProcessConfig from '../Proc/useProcessConfig';
-import { usePaused, notify } from '../../services/store';
-
-interface TotalUsages {
-    memory: number | null;
-    cpu: number | null;
-    processes: number | null
-}
+import { type TotalUsages, usePaused, useTotalUsages, useSetTotalUsages, notify } from '../../services/store';
+import useSerialPolling from '../useSerialPolling';
 
 const useTotalUsagesData = (): TotalUsages => {
-    const [totalUsages, setTotalUsages] = useState<TotalUsages>({ memory: null, cpu: null, processes: null });
+    const totalUsages = useTotalUsages();
+    const setTotalUsages = useSetTotalUsages();
     const processConfig = useProcessConfig();
     const paused = usePaused();
-    useEffect(() => {
-        if (paused) return;
-        const fetchData = async () => {
-            try {
-                const fetchedTotalUsages: TotalUsages = await invoke("get_total_usages");
-                setTotalUsages(fetchedTotalUsages);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                notify('error.fetch_failed');
-            }
-        };
-
-        fetchData();
-        const intervalId = setInterval(fetchData, processConfig.config.processes_update_time);
-
-        return () => clearInterval(intervalId);
-    }, [processConfig.config.processes_update_time, paused]);
+    useSerialPolling({
+        enabled: !paused,
+        interval: processConfig.config.processes_update_time,
+        poll: () => invoke<TotalUsages>("get_total_usages"),
+        onSuccess: setTotalUsages,
+        onError: (error) => {
+            console.error("Error fetching data:", error);
+            notify('error.fetch_failed');
+        },
+    });
 
     return totalUsages;
 };

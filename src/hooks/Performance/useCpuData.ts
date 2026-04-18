@@ -1,8 +1,9 @@
 //useCpudata.ts
-import  { useState, useEffect } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import usePerformanceConfig from "./usePerformanceConfig";
 import { usePaused, notify } from "../../services/store";
+import useSerialPolling from "../useSerialPolling";
 
 
 export interface CpuData {
@@ -31,23 +32,20 @@ const useCpuData = () => {
     const performanceConfig = usePerformanceConfig();  
     const paused = usePaused();
 
-    useEffect(() => {
-        if (paused) return;
-        const fetchCpuData = async () => {
-            try {
-                const fetchedCpuData: CpuData | null = await invoke("get_cpu_informations");
-                if (fetchedCpuData) setCpuData(fetchedCpuData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                notify('error.fetch_failed');
+    useSerialPolling({
+        enabled: !paused,
+        interval: performanceConfig.config.performance_update_time,
+        poll: () => invoke<CpuData | null>("get_cpu_informations"),
+        onSuccess: (fetchedCpuData) => {
+            if (fetchedCpuData) {
+                setCpuData(fetchedCpuData);
             }
-        };
-
-        fetchCpuData();
-        const intervalId = setInterval(fetchCpuData, performanceConfig.config.performance_update_time);
-
-        return () => clearInterval(intervalId);
-    }, [performanceConfig.config.performance_update_time, paused]);
+        },
+        onError: (error) => {
+            console.error("Error fetching data:", error);
+            notify('error.fetch_failed');
+        },
+    });
 
     return { cpuData };
 }

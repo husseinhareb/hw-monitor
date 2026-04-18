@@ -5,7 +5,8 @@ use hw_monitor::battery::sysfs::compute_time_estimates;
 #[test]
 fn time_estimates_discharging_basic() {
     // 50 Wh remaining, 10 W draw → 5 hours = 300 min
-    let (tte, ttf) = compute_time_estimates("Discharging", 50_000_000.0, 100_000_000.0, 10_000_000.0);
+    let (tte, ttf) =
+        compute_time_estimates("Discharging", 50_000_000.0, 100_000_000.0, 10_000_000.0);
     assert_eq!(tte, Some(300));
     assert_eq!(ttf, None);
 }
@@ -35,7 +36,8 @@ fn time_estimates_zero_power() {
 
 #[test]
 fn time_estimates_negative_power() {
-    let (tte, ttf) = compute_time_estimates("Discharging", 50_000_000.0, 100_000_000.0, -5_000_000.0);
+    let (tte, ttf) =
+        compute_time_estimates("Discharging", 50_000_000.0, 100_000_000.0, -5_000_000.0);
     assert_eq!(tte, None);
     assert_eq!(ttf, None);
 }
@@ -57,7 +59,8 @@ fn time_estimates_case_insensitive_charging() {
 
 #[test]
 fn time_estimates_case_insensitive_discharging() {
-    let (tte, ttf) = compute_time_estimates("discharging", 30_000_000.0, 60_000_000.0, 10_000_000.0);
+    let (tte, ttf) =
+        compute_time_estimates("discharging", 30_000_000.0, 60_000_000.0, 10_000_000.0);
     assert_eq!(tte, Some(180)); // 30/10 * 60 = 180 min
     assert_eq!(ttf, None);
 }
@@ -71,7 +74,8 @@ fn time_estimates_unknown_state() {
 
 #[test]
 fn time_estimates_not_charging_state() {
-    let (tte, ttf) = compute_time_estimates("Not charging", 50_000_000.0, 100_000_000.0, 10_000_000.0);
+    let (tte, ttf) =
+        compute_time_estimates("Not charging", 50_000_000.0, 100_000_000.0, 10_000_000.0);
     assert_eq!(tte, None);
     assert_eq!(ttf, None);
 }
@@ -93,6 +97,7 @@ fn time_estimates_charging_near_full() {
 #[test]
 fn time_estimates_high_power_draw() {
     // 50 Wh, 100 W draw → 30 min
-    let (tte, _) = compute_time_estimates("Discharging", 50_000_000.0, 100_000_000.0, 100_000_000.0);
+    let (tte, _) =
+        compute_time_estimates("Discharging", 50_000_000.0, 100_000_000.0, 100_000_000.0);
     assert_eq!(tte, Some(30));
 }

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { usePaused, notify } from "../../services/store";
+import useSerialPolling from "../useSerialPolling";
 
 export interface SystemService {
     name: string;
@@ -13,26 +14,28 @@ export interface SystemService {
 
 const useServicesData = () => {
     const [services, setServices] = useState<SystemService[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const paused = usePaused();
 
-    const fetchServices = async () => {
-        try {
-            const fetched: SystemService[] = await invoke("get_services");
-            setServices(fetched);
-        } catch (error) {
+    const { pollNow } = useSerialPolling({
+        enabled: !paused,
+        interval: 5000,
+        poll: () => invoke<SystemService[]>("get_services"),
+        onSuccess: (fetchedServices) => {
+            setServices(fetchedServices);
+            setLoading(false);
+            setError(null);
+        },
+        onError: (error) => {
             console.error("Error fetching services:", error);
+            setLoading(false);
+            setError(String(error));
             notify("error.fetch_failed");
-        }
-    };
+        },
+    });
 
-    useEffect(() => {
-        if (paused) return;
-        fetchServices();
-        const intervalId = setInterval(fetchServices, 5000);
-        return () => clearInterval(intervalId);
-    }, [paused]);
-
-    return { services, refetch: fetchServices };
+    return { services, loading, error, refetch: pollNow };
 };
 
 export default useServicesData;

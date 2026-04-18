@@ -14,7 +14,7 @@ fn cpu_delta_calculation_basic() {
     let cur_total: u64 = 500;
 
     let total_diff = cur_total.saturating_sub(prev_total); // 100
-    let idle_diff = cur_idle.saturating_sub(prev_idle);     // 10
+    let idle_diff = cur_idle.saturating_sub(prev_idle); // 10
     let usage = 100.0 * (1.0 - (idle_diff as f64 / total_diff as f64));
     assert!((usage - 90.0).abs() < 0.01); // 90% usage
 }
@@ -54,7 +54,10 @@ fn per_core_state_initialization() {
 
 #[test]
 fn cpu_snapshot_fields() {
-    let snap = CpuSnapshot { idle: 42, total: 100 };
+    let snap = CpuSnapshot {
+        idle: 42,
+        total: 100,
+    };
     assert_eq!(snap.idle, 42);
     assert_eq!(snap.total, 100);
 }
@@ -62,11 +65,17 @@ fn cpu_snapshot_fields() {
 #[test]
 fn per_core_usage_calculation_logic() {
     // Test the per-core delta math (equivalent to what calc_per_core_usage does)
-    let prev = vec![
-        CpuSnapshot { idle: 100, total: 400 },
-        CpuSnapshot { idle: 200, total: 800 },
+    let prev = [
+        CpuSnapshot {
+            idle: 100,
+            total: 400,
+        },
+        CpuSnapshot {
+            idle: 200,
+            total: 800,
+        },
     ];
-    let current = vec![(110u64, 500u64), (250u64, 1000u64)];
+    let current = [(110u64, 500u64), (250u64, 1000u64)];
 
     let usages: Vec<f64> = current
         .iter()
@@ -89,8 +98,11 @@ fn per_core_usage_calculation_logic() {
 #[test]
 fn per_core_usage_zero_total_diff() {
     // Same values → 0% usage (not NaN/panic)
-    let prev = vec![CpuSnapshot { idle: 100, total: 400 }];
-    let current = vec![(100u64, 400u64)];
+    let prev = [CpuSnapshot {
+        idle: 100,
+        total: 400,
+    }];
+    let current = [(100u64, 400u64)];
 
     let usages: Vec<f64> = current
         .iter()

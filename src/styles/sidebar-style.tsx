@@ -1,6 +1,6 @@
 // sidebar-style.js
 import styled from 'styled-components';
-import { lighten } from 'polished';
+import { safeLighten } from '../utils/safeLighten';
 // Styled SidebarContainer component
 export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string; performanceScrollbarColor: string }>`
   width: 240px;
@@ -26,7 +26,7 @@ export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: 
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: ${(props) => lighten(0.1, props.performanceScrollbarColor)};
+    background-color: ${(props) => safeLighten(0.1, props.performanceScrollbarColor)};
     cursor: pointer;
   }
 
@@ -69,10 +69,10 @@ export const ListItem = styled.li<{ performanceSidebarBackgroundColor: string; p
   margin-bottom: 10px;
   cursor: pointer;
   padding: 5px;
-  color: ${(props) => props.isSelected ? lighten(0.1, props.performanceSidebarSelectedColor) : props.performanceSidebarSelectedColor};
-  background-color: ${(props) => props.isSelected ? lighten(0.04, props.performanceSidebarBackgroundColor) : props.performanceSidebarBackgroundColor};
+  color: ${(props) => props.isSelected ? safeLighten(0.1, props.performanceSidebarSelectedColor) : props.performanceSidebarSelectedColor};
+  background-color: ${(props) => props.isSelected ? safeLighten(0.04, props.performanceSidebarBackgroundColor) : props.performanceSidebarBackgroundColor};
 
   &:hover {
-    background-color: ${(props) => lighten(0.04, props.performanceSidebarBackgroundColor)};
+    background-color: ${(props) => safeLighten(0.04, props.performanceSidebarBackgroundColor)};
   }
 `;

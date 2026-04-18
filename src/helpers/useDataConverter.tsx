@@ -1,29 +1,25 @@
-import { useCallback } from 'react';
+const kiloBytes = 1000;
 
-const useDataConverter = () => {
-    const kiloBytes = 1000;
+export function convertData(data: number | null): { value: number; unit: string } {
+    let unit = "B";
+    let convertedData = data || 0;
 
-    const convertData = useCallback((data: number | null): { value: number, unit: string } => {
-        let unit = "B";
-        let convertedData = data || 0;
-
-        if (data !== null) {
-            if (data >= kiloBytes * kiloBytes * kiloBytes) {
-                convertedData = parseFloat((data / (kiloBytes * kiloBytes * kiloBytes)).toFixed(2));
-                unit = "GB";
-            } else if (data >= kiloBytes * kiloBytes) {
-                convertedData = parseFloat((data / (kiloBytes * kiloBytes)).toFixed(2));
-                unit = "MB";
-            } else if (data >= kiloBytes) {
-                convertedData = parseFloat((data / kiloBytes).toFixed(2));
-                unit = "KB";
-            }
+    if (data !== null) {
+        if (data >= kiloBytes * kiloBytes * kiloBytes) {
+            convertedData = parseFloat((data / (kiloBytes * kiloBytes * kiloBytes)).toFixed(2));
+            unit = "GB";
+        } else if (data >= kiloBytes * kiloBytes) {
+            convertedData = parseFloat((data / (kiloBytes * kiloBytes)).toFixed(2));
+            unit = "MB";
+        } else if (data >= kiloBytes) {
+            convertedData = parseFloat((data / kiloBytes).toFixed(2));
+            unit = "KB";
         }
+    }
 
-        return { value: convertedData, unit };
-    }, []);
+    return { value: convertedData, unit };
+}
 
-    return convertData;
-};
-
+/** @deprecated Use the named `convertData` export directly. */
+const useDataConverter = () => convertData;
 export default useDataConverter;

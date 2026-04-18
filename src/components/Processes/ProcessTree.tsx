@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Process } from '../../hooks/Proc/useProcessData';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { lighten } from 'polished';
+import { safeLighten } from '../../utils/safeLighten';
 import ProcessIcon from './ProcessIcon';
 
 interface ProcessTreeProps {
@@ -62,10 +62,10 @@ const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number; 
     grid-template-columns: ${props => props.gridCols};
     align-items: center;
     cursor: pointer;
-    background-color: ${props => props.selected ? lighten(0.15, props.bgColor) : 'transparent'};
+    background-color: ${props => props.selected ? safeLighten(0.15, props.bgColor) : 'transparent'};
     border-bottom: 1px solid ${props => props.borderColor};
     &:hover {
-        background-color: ${props => lighten(0.08, props.bgColor)};
+        background-color: ${props => safeLighten(0.08, props.bgColor)};
     }
 `;
 

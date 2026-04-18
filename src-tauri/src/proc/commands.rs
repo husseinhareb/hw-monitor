@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::io;
@@ -48,7 +48,7 @@ fn build_uid_map() -> HashMap<u32, String> {
     if let Ok(passwd_content) = fs::read_to_string("/etc/passwd") {
         for line in passwd_content.lines() {
             let fields: Vec<&str> = line.split(':').collect();
-            if let (Some(name), Some(uid_str)) = (fields.get(0), fields.get(2)) {
+            if let (Some(name), Some(uid_str)) = (fields.first(), fields.get(2)) {
                 if let Ok(uid) = uid_str.parse::<u32>() {
                     map.insert(uid, name.to_string());
                 }
@@ -58,7 +58,10 @@ fn build_uid_map() -> HashMap<u32, String> {
     map
 }
 
-fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(String, String, String, String)> {
+fn read_proc_status_file(
+    pid: &str,
+    uid_map: &HashMap<u32, String>,
+) -> Option<(String, String, String, String)> {
     let status = fs::read_to_string(format!("/proc/{}/status", pid)).ok()?;
     let mut name = None;
     let mut ppid = None;
@@ -73,11 +76,19 @@ fn read_proc_status_file(pid: &str, uid_map: &HashMap<u32, String>) -> Option<(S
         } else if line.starts_with("Uid:") {
             if let Some(uid_str) = line.split_whitespace().nth(1) {
                 if let Ok(parsed_uid) = uid_str.parse::<u32>() {
-                    user = Some(uid_map.get(&parsed_uid).cloned().unwrap_or_else(|| uid_str.to_string()));
+                    user = Some(
+                        uid_map
+                            .get(&parsed_uid)
+                            .cloned()
+                            .unwrap_or_else(|| uid_str.to_string()),
+                    );
                 }
             }
         } else if line.starts_with("VmRSS:") {
-            vm_rss_kb = line.split_whitespace().nth(1).and_then(|s| s.parse::<u64>().ok());
+            vm_rss_kb = line
+                .split_whitespace()
+                .nth(1)
+                .and_then(|s| s.parse::<u64>().ok());
         }
         if name.is_some() && ppid.is_some() && user.is_some() && vm_rss_kb.is_some() {
             break;
@@ -102,24 +113,33 @@ fn parse_proc_stat(pid: &str) -> Option<(String, u64, u64)> {
     let after_comm = &content[content.rfind(')')? + 2..];
     let fields: Vec<&str> = after_comm.split_whitespace().collect();
 
-    let state = fields.first().map(|s| match *s {
-        "R" => "Running",
-        "S" => "Sleeping",
-        "D" => "Disk sleep",
-        "Z" => "Zombie",
-        "T" => "Stopped",
-        "t" => "Tracing stop",
-        "W" => "Paging",
-        "X" | "x" => "Dead",
-        "K" => "Wakekill",
-        "P" => "Parked",
-        "I" => "Idle",
-        _ => "N/A",
-    }.to_string())?;
+    let state = fields.first().map(|s| {
+        match *s {
+            "R" => "Running",
+            "S" => "Sleeping",
+            "D" => "Disk sleep",
+            "Z" => "Zombie",
+            "T" => "Stopped",
+            "t" => "Tracing stop",
+            "W" => "Paging",
+            "X" | "x" => "Dead",
+            "K" => "Wakekill",
+            "P" => "Parked",
+            "I" => "Idle",
+            _ => "N/A",
+        }
+        .to_string()
+    })?;
 
     // fields[11] = utime, fields[12] = stime (0-indexed after state)
-    let utime = fields.get(11).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
-    let stime = fields.get(12).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+    let utime = fields
+        .get(11)
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(0);
+    let stime = fields
+        .get(12)
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(0);
 
     Some((state, utime, stime))
 }
@@ -152,11 +172,18 @@ fn get_total_cpu_time() -> Result<u64, io::Error> {
     let stat_content = fs::read_to_string("/proc/stat")?;
     for line in stat_content.lines() {
         if line.starts_with("cpu ") {
-            let total_cpu_time: u64 = line.split_whitespace().skip(1).filter_map(|x| x.parse::<u64>().ok()).sum();
+            let total_cpu_time: u64 = line
+                .split_whitespace()
+                .skip(1)
+                .filter_map(|x| x.parse::<u64>().ok())
+                .sum();
             return Ok(total_cpu_time);
         }
     }
-    Err(io::Error::new(io::ErrorKind::NotFound, "Total CPU time not found in /proc/stat"))
+    Err(io::Error::new(
+        io::ErrorKind::NotFound,
+        "Total CPU time not found in /proc/stat",
+    ))
 }
 
 pub struct ProcSnapshot {
@@ -173,11 +200,15 @@ struct ProcStatData {
     stime: u64,
 }
 
+type CpuUsageMap = HashMap<i32, f64>;
+type DiskSpeedMap = HashMap<i32, DiskSpeedEntry>;
+type ProcessIoMap = HashMap<i32, (u64, u64)>;
+
 fn calculate_cpu_percentage(
     prev: &Mutex<Option<ProcSnapshot>>,
     pids: &[String],
     stat_cache: &HashMap<i32, ProcStatData>,
-) -> (HashMap<i32, f64>, HashMap<i32, DiskSpeedEntry>, HashMap<i32, (u64, u64)>) {
+) -> (CpuUsageMap, DiskSpeedMap, ProcessIoMap) {
     let total_cpu_time_now = match get_total_cpu_time() {
         Ok(t) => t,
         Err(_) => return (HashMap::new(), HashMap::new(), HashMap::new()),
@@ -212,7 +243,8 @@ fn calculate_cpu_percentage(
         if total_cpu_diff > 0.0 {
             for (&pid, &(utime, stime)) in &cur_cpu {
                 if let Some(&(prev_utime, prev_stime)) = snap.process_cpu_times.get(&pid) {
-                    let cpu_time_diff = (utime + stime).saturating_sub(prev_utime + prev_stime) as f64;
+                    let cpu_time_diff =
+                        (utime + stime).saturating_sub(prev_utime + prev_stime) as f64;
                     let usage = 100.0 * cpu_time_diff / total_cpu_diff;
                     cpu_results.insert(pid, usage);
                 }
@@ -224,10 +256,13 @@ fn calculate_cpu_percentage(
                 if let Some(&(prev_read, prev_write)) = snap.process_io.get(&pid) {
                     let delta_read = read_now.saturating_sub(prev_read) as f64 / elapsed;
                     let delta_write = write_now.saturating_sub(prev_write) as f64 / elapsed;
-                    disk_results.insert(pid, DiskSpeedEntry {
-                        read_speed: format_bytes_per_sec(delta_read),
-                        write_speed: format_bytes_per_sec(delta_write),
-                    });
+                    disk_results.insert(
+                        pid,
+                        DiskSpeedEntry {
+                            read_speed: format_bytes_per_sec(delta_read),
+                            write_speed: format_bytes_per_sec(delta_write),
+                        },
+                    );
                 }
             }
         }
@@ -263,7 +298,9 @@ fn read_proc_io(pid: i32) -> Option<(u64, u64)> {
 }
 
 #[tauri::command]
-pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot>>>) -> Result<Vec<Process>, String> {
+pub async fn get_processes(
+    prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot>>>,
+) -> Result<Vec<Process>, String> {
     let pids = list_proc_pid();
 
     // Phase 1: Parse /proc/[pid]/stat ONCE per process → state + CPU times.
@@ -271,13 +308,21 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
     for pid_str in &pids {
         if let Ok(pid) = pid_str.parse::<i32>() {
             if let Some((state, utime, stime)) = parse_proc_stat(pid_str) {
-                stat_cache.insert(pid, ProcStatData { state, utime, stime });
+                stat_cache.insert(
+                    pid,
+                    ProcStatData {
+                        state,
+                        utime,
+                        stime,
+                    },
+                );
             }
         }
     }
 
     // Phase 2: Compute CPU% and disk speed deltas (reuses stat_cache, reads /proc/[pid]/io).
-    let (cpu_results, disk_speed_results, cur_io) = calculate_cpu_percentage(&prev_proc, &pids, &stat_cache);
+    let (cpu_results, disk_speed_results, cur_io) =
+        calculate_cpu_percentage(&prev_proc, &pids, &stat_cache);
 
     // Phase 3: Read /proc/[pid]/status ONCE per process → name, ppid, user, memory (VmRSS).
     let uid_map = build_uid_map();
@@ -296,23 +341,32 @@ pub async fn get_processes(prev_proc: tauri::State<'_, Mutex<Option<ProcSnapshot
         };
         let ppid_u32: Option<u32> = ppid.parse().ok();
 
-        let state = stat_cache.get(&pid_i32)
+        let state = stat_cache
+            .get(&pid_i32)
             .map(|s| s.state.clone())
             .unwrap_or_else(|| "N/A".to_string());
 
         let cpu_usage = cpu_results.get(&pid_i32).map(|u| format!("{:.2}", u));
 
-        let (read_disk_usage, write_disk_usage) = if let Some(&(read_bytes, write_bytes)) = cur_io.get(&pid_i32) {
-            (format_bytes(read_bytes as f64), format_bytes(write_bytes as f64))
-        } else {
-            ("N/A".to_string(), "N/A".to_string())
-        };
+        let (read_disk_usage, write_disk_usage) =
+            if let Some(&(read_bytes, write_bytes)) = cur_io.get(&pid_i32) {
+                (
+                    format_bytes(read_bytes as f64),
+                    format_bytes(write_bytes as f64),
+                )
+            } else {
+                ("N/A".to_string(), "N/A".to_string())
+            };
 
-        let (read_disk_speed, write_disk_speed) = if let Some(entry) = disk_speed_results.get(&pid_i32) {
-            (Some(entry.read_speed.clone()), Some(entry.write_speed.clone()))
-        } else {
-            (None, None)
-        };
+        let (read_disk_speed, write_disk_speed) =
+            if let Some(entry) = disk_speed_results.get(&pid_i32) {
+                (
+                    Some(entry.read_speed.clone()),
+                    Some(entry.write_speed.clone()),
+                )
+            } else {
+                (None, None)
+            };
 
         processes.push(Process {
             pid: pid_u32,

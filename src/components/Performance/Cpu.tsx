@@ -34,7 +34,6 @@ interface CpuProps {
             performance_sec_graph_color: string;
         }
     };
-    tick: number;
     cpuData: CpuData;
     cpuUsage: number[];
     coreUsageHistories: number[][];
@@ -116,7 +115,7 @@ function getGridColumns(coreCount: number): number {
     return 8;
 }
 
-const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, coreUsageHistories, viewMode, onToggleView }) => {
+const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsageHistories, viewMode, onToggleView }) => {
     const totalUsages = useTotalUsagesData();
     const { t } = useTranslation();
 
@@ -157,7 +156,6 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                         firstGraphValue={cpuUsage}
                         maxValue={100}
                         width="100%"
-                        tick={tick}
                     />
                 </div>
             ) : (
@@ -182,7 +180,6 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, tick, cpuData, cpuUsage, c
                                     maxValue={100}
                                     height="100%"
                                     width="100%"
-                                    tick={tick}
                                     hideScales
                                 />
                             </CoreCell>

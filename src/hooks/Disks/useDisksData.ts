@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import useDataConverter from "../../helpers/useDataConverter";
+import { convertData } from "../../helpers/useDataConverter";
 import useDisksConfig from "./useDisksConfig";
 import { usePaused, notify } from "../../services/store";
+import useSerialPolling from "../useSerialPolling";
 
 interface PartitionData {
     name: string;
@@ -23,29 +24,23 @@ interface DiskData {
 const useDiskData = () => {
     const [diskData, setDiskData] = useState<DiskData[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const convertData = useDataConverter();
     const disksConfig = useDisksConfig();
     const paused = usePaused();
-    useEffect(() => {
-        if (paused) return;
-        const fetchDiskData = async () => {
-            try {
-                const fetchedDiskData: DiskData[] = await invoke("get_disks");
-                setDiskData(fetchedDiskData);
-                setError(null);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-                notify('error.disks_failed');
-                setError(String(err));
-                setDiskData([]);
-            }
-        };
-
-        fetchDiskData();
-        const intervalId = setInterval(fetchDiskData, disksConfig.config.disks_update_time);
-        return () => clearInterval(intervalId);
-
-    }, [disksConfig.config.disks_update_time, paused]);
+    useSerialPolling({
+        enabled: !paused,
+        interval: disksConfig.config.disks_update_time,
+        poll: () => invoke<DiskData[]>("get_disks"),
+        onSuccess: (fetchedDiskData) => {
+            setDiskData(fetchedDiskData);
+            setError(null);
+        },
+        onError: (err) => {
+            console.error("Error fetching data:", err);
+            notify('error.disks_failed');
+            setError(String(err));
+            setDiskData([]);
+        },
+    });
 
     return { diskData, convertData, error };
 };

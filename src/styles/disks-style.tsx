@@ -1,7 +1,7 @@
 import { styled, keyframes } from "styled-components";
 
 export const Container = styled.div<{ $bodyBackgroundColor: string }>`
-  display: ${props => (props.hidden ? 'none' : 'flex')};
+  display: flex;
   flex-wrap: wrap;
   width: 100%;
   height: 100%;

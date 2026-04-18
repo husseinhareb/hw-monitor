@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
@@ -17,7 +17,6 @@ pub struct HwMonData {
     pub name: String,
     pub sensors: Vec<SensorData>,
 }
-
 
 pub fn get_hwmon_data() -> Vec<HwMonData> {
     let hwmon_base = Path::new("/sys/class/hwmon");
@@ -56,13 +55,19 @@ pub fn get_hwmon_data() -> Vec<HwMonData> {
                 let fname = file.file_name();
                 let fname_str = fname.to_string_lossy();
                 if fname_str.starts_with("temp") && fname_str.ends_with("_input") {
-                    if let Some(idx_str) = fname_str.strip_prefix("temp").and_then(|s| s.strip_suffix("_input")) {
+                    if let Some(idx_str) = fname_str
+                        .strip_prefix("temp")
+                        .and_then(|s| s.strip_suffix("_input"))
+                    {
                         if let Ok(idx) = idx_str.parse::<u32>() {
                             temp_indices.push(idx);
                         }
                     }
                 } else if fname_str.starts_with("fan") && fname_str.ends_with("_input") {
-                    if let Some(idx_str) = fname_str.strip_prefix("fan").and_then(|s| s.strip_suffix("_input")) {
+                    if let Some(idx_str) = fname_str
+                        .strip_prefix("fan")
+                        .and_then(|s| s.strip_suffix("_input"))
+                    {
                         if let Ok(idx) = idx_str.parse::<u32>() {
                             fan_indices.push(idx);
                         }

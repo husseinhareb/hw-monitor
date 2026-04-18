@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 use nvml_wrapper::Nvml;
+use serde::{Deserialize, Serialize};
 use std::fs::{read_dir, read_to_string};
-use std::path::PathBuf;
-use std::sync::OnceLock;
+use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GpuInformations {
@@ -30,57 +31,90 @@ enum DetectedGpu {
     Intel { path: PathBuf, index: usize },
 }
 
-/// One-shot cache: detect all GPUs once, reuse forever.
-static GPU_LIST: OnceLock<Vec<DetectedGpu>> = OnceLock::new();
+static GPU_LIST_CACHE: OnceLock<Mutex<GpuCacheEntry>> = OnceLock::new();
+static NVML_HANDLE: OnceLock<Mutex<Option<Nvml>>> = OnceLock::new();
 
-fn get_gpu_list() -> &'static Vec<DetectedGpu> {
-    GPU_LIST.get_or_init(|| {
-        let mut gpus = Vec::new();
+const GPU_DISCOVERY_TTL: Duration = Duration::from_secs(30);
 
-        // NVIDIA
-        let nvidia_count = match Nvml::init() {
-            Ok(nvml) => nvml.device_count().unwrap_or(0),
-            Err(_) => 0,
-        };
-        for i in 0..nvidia_count {
-            gpus.push(DetectedGpu::Nvidia { index: i });
-        }
+type GpuCacheEntry = Option<(Instant, Vec<DetectedGpu>)>;
 
-        // AMD + Intel — single scan of /sys/class/drm/
-        let mut amd_idx = 0usize;
-        let mut intel_idx = 0usize;
-        let drm_path = PathBuf::from("/sys/class/drm/");
-        if let Ok(entries) = read_dir(&drm_path) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if !path.is_dir() { continue; }
-                let name = match path.file_name().and_then(|n| n.to_str()) {
-                    Some(n) => n.to_string(),
-                    None => continue,
-                };
-                if !name.starts_with("card") || name.contains('-') { continue; }
+fn with_nvml<T>(operation: impl FnOnce(&Nvml) -> Option<T>) -> Option<T> {
+    let handle = NVML_HANDLE.get_or_init(|| Mutex::new(None));
+    let mut guard = handle.lock().ok()?;
 
-                let vendor = read_to_string(path.join("device/vendor"))
-                    .unwrap_or_default();
-                let vendor = vendor.trim();
-                if vendor == "0x1002" {
-                    gpus.push(DetectedGpu::Amd { path: path.clone(), index: amd_idx });
-                    amd_idx += 1;
-                } else if vendor == "0x8086" {
-                    gpus.push(DetectedGpu::Intel { path: path.clone(), index: intel_idx });
-                    intel_idx += 1;
-                }
-            }
-        }
+    if guard.is_none() {
+        *guard = Nvml::init().ok();
+    }
 
-        gpus
-    })
+    let nvml = guard.as_ref()?;
+    operation(nvml)
 }
 
-// ── Cached static GPU names ────────────────────────────────────────────
+fn detect_gpus() -> Vec<DetectedGpu> {
+    let mut gpus = Vec::new();
 
-static AMD_GPU_NAME: OnceLock<String> = OnceLock::new();
-static INTEL_GPU_NAMES: OnceLock<Vec<String>> = OnceLock::new();
+    let nvidia_count = with_nvml(|nvml| nvml.device_count().ok()).unwrap_or(0);
+    for i in 0..nvidia_count {
+        gpus.push(DetectedGpu::Nvidia { index: i });
+    }
+
+    let mut amd_idx = 0usize;
+    let mut intel_idx = 0usize;
+    let drm_path = PathBuf::from("/sys/class/drm/");
+    if let Ok(entries) = read_dir(&drm_path) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_dir() {
+                continue;
+            }
+            let name = match path.file_name().and_then(|n| n.to_str()) {
+                Some(n) => n.to_string(),
+                None => continue,
+            };
+            if !name.starts_with("card") || name.contains('-') {
+                continue;
+            }
+
+            let vendor = read_to_string(path.join("device/vendor")).unwrap_or_default();
+            let vendor = vendor.trim();
+            if vendor == "0x1002" {
+                gpus.push(DetectedGpu::Amd {
+                    path: path.clone(),
+                    index: amd_idx,
+                });
+                amd_idx += 1;
+            } else if vendor == "0x8086" {
+                gpus.push(DetectedGpu::Intel {
+                    path: path.clone(),
+                    index: intel_idx,
+                });
+                intel_idx += 1;
+            }
+        }
+    }
+
+    gpus
+}
+
+fn get_gpu_list() -> Vec<DetectedGpu> {
+    let cache: &'static Mutex<GpuCacheEntry> = GPU_LIST_CACHE.get_or_init(|| Mutex::new(None));
+
+    if let Ok(guard) = cache.lock() {
+        if let Some((timestamp, gpus)) = guard.as_ref() {
+            if timestamp.elapsed() < GPU_DISCOVERY_TTL {
+                return gpus.clone();
+            }
+        }
+    }
+
+    let gpus = detect_gpus();
+
+    if let Ok(mut guard) = cache.lock() {
+        *guard = Some((Instant::now(), gpus.clone()));
+    }
+
+    gpus
+}
 
 pub fn add_memory_unit(value: u64) -> String {
     let memory = value as f64;
@@ -103,7 +137,7 @@ pub fn add_clock_speed_unit(value: u32) -> String {
 }
 
 fn read_hwmon_info(
-    device_path: &PathBuf,
+    device_path: &Path,
 ) -> (
     Option<String>,
     Option<String>,
@@ -117,33 +151,31 @@ fn read_hwmon_info(
 
     let hwmon_dir = device_path.join("hwmon");
     if let Ok(entries) = read_dir(&hwmon_dir) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let hwmon_path = entry.path();
+        for entry in entries.flatten() {
+            let hwmon_path = entry.path();
 
-                if let Ok(fan_input) = read_to_string(hwmon_path.join("fan1_input")) {
-                    fan_speed = Some(format!("{} RPM", fan_input.trim()));
-                }
+            if let Ok(fan_input) = read_to_string(hwmon_path.join("fan1_input")) {
+                fan_speed = Some(format!("{} RPM", fan_input.trim()));
+            }
 
-                if let Ok(temp_input) = read_to_string(hwmon_path.join("temp1_input")) {
-                    let temp_celsius = temp_input.trim().parse::<u64>().unwrap_or(0) / 1000;
-                    temperature = Some(format!("{} °C", temp_celsius));
-                }
+            if let Ok(temp_input) = read_to_string(hwmon_path.join("temp1_input")) {
+                let temp_celsius = temp_input.trim().parse::<u64>().unwrap_or(0) / 1000;
+                temperature = Some(format!("{} °C", temp_celsius));
+            }
 
-                let freq_result = read_to_string(hwmon_path.join("freq2_input"))
-                    .or_else(|_| read_to_string(hwmon_path.join("freq1_input")));
-                if let Ok(freq_input) = freq_result {
-                    let freq_mhz = freq_input.trim().parse::<u64>().unwrap_or(0) / 1_000_000;
-                    clock_speed = Some(format!("{} MHz", freq_mhz));
-                }
+            let freq_result = read_to_string(hwmon_path.join("freq2_input"))
+                .or_else(|_| read_to_string(hwmon_path.join("freq1_input")));
+            if let Ok(freq_input) = freq_result {
+                let freq_mhz = freq_input.trim().parse::<u64>().unwrap_or(0) / 1_000_000;
+                clock_speed = Some(format!("{} MHz", freq_mhz));
+            }
 
-                if let Ok(power_input) = read_to_string(hwmon_path.join("power1_average")) {
-                    let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
-                    wattage = Some(format!("{:.3} W", power_mw as f64 / 1000000.0));
-                } else if let Ok(power_input) = read_to_string(hwmon_path.join("power1_input")) {
-                    let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
-                    wattage = Some(format!("{:.3} W", power_mw as f64 / 1000000.0));
-                }
+            if let Ok(power_input) = read_to_string(hwmon_path.join("power1_average")) {
+                let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
+                wattage = Some(format!("{:.3} W", power_mw as f64 / 1000000.0));
+            } else if let Ok(power_input) = read_to_string(hwmon_path.join("power1_input")) {
+                let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
+                wattage = Some(format!("{:.3} W", power_mw as f64 / 1000000.0));
             }
         }
     }
@@ -151,13 +183,36 @@ fn read_hwmon_info(
     (fan_speed, temperature, clock_speed, wattage)
 }
 
-fn get_amd_gpu_name() -> String {
-    AMD_GPU_NAME.get_or_init(|| {
-        get_gpu_name_from_sysfs(0x1002).unwrap_or_else(|| "AMD GPU".to_string())
-    }).clone()
+fn get_device_name(device_path: &Path, fallback_name: &str) -> String {
+    if let Ok(product) = read_to_string(device_path.join("product_name")) {
+        let product = product.trim();
+        if !product.is_empty() {
+            return product.to_string();
+        }
+    }
+
+    if let Ok(label) = read_to_string(device_path.join("label")) {
+        let label = label.trim();
+        if !label.is_empty() {
+            return label.to_string();
+        }
+    }
+
+    if let (Ok(vendor), Ok(device_id)) = (
+        read_to_string(device_path.join("vendor")),
+        read_to_string(device_path.join("device")),
+    ) {
+        let vendor = vendor.trim().trim_start_matches("0x");
+        let device_id = device_id.trim().trim_start_matches("0x");
+        if let Some(name) = lookup_pci_name(vendor, device_id) {
+            return name;
+        }
+    }
+
+    fallback_name.to_string()
 }
 
-fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
+fn get_amd_gpu_info(gpu_path: &Path, index: usize) -> Option<GpuInformations> {
     let device_path = gpu_path.join("device");
 
     let memory_used_raw = read_to_string(device_path.join("mem_info_vram_used"))
@@ -184,7 +239,7 @@ fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations>
 
     Some(GpuInformations {
         id: Some(format!("amd-{}", index)),
-        name: Some(get_amd_gpu_name()),
+        name: Some(get_device_name(&device_path, "AMD GPU")),
         driver_version: read_to_string("/sys/module/amdgpu/version")
             .ok()
             .map(|s| s.trim().to_string()),
@@ -200,7 +255,7 @@ fn get_amd_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations>
     })
 }
 
-fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
+fn read_gpu_busy_percent(device_path: &Path) -> Option<String> {
     let gpu_busy_percent_file = device_path.join("gpu_busy_percent");
 
     if let Ok(contents) = read_to_string(&gpu_busy_percent_file) {
@@ -212,106 +267,38 @@ fn read_gpu_busy_percent(device_path: &PathBuf) -> Option<String> {
 }
 
 fn get_nvidia_gpu_info(device_index: u32) -> Option<GpuInformations> {
-    let nvml = Nvml::init().ok()?;
-    let device = nvml.device_by_index(device_index).ok()?;
+    with_nvml(|nvml| {
+        let device = nvml.device_by_index(device_index).ok()?;
 
-    let name = device.name().ok()?;
-    let driver_version = nvml.sys_driver_version().ok();
-    let memory_info = device.memory_info().ok();
-    let temperature = device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu).ok();
-    let utilization = device.utilization_rates().ok().map(|u| u.gpu);
-    let clock_speed = device.clock_info(nvml_wrapper::enum_wrappers::device::Clock::Graphics).ok();
-    let wattage = device.power_usage().ok();
-    let fan_speed = device.fan_speed(0).ok();
-    let performance_state = device.performance_state().ok();
+        let name = device.name().ok()?;
+        let driver_version = nvml.sys_driver_version().ok();
+        let memory_info = device.memory_info().ok();
+        let temperature = device
+            .temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
+            .ok();
+        let utilization = device.utilization_rates().ok().map(|u| u.gpu);
+        let clock_speed = device
+            .clock_info(nvml_wrapper::enum_wrappers::device::Clock::Graphics)
+            .ok();
+        let wattage = device.power_usage().ok();
+        let fan_speed = device.fan_speed(0).ok();
+        let performance_state = device.performance_state().ok();
 
-    Some(GpuInformations {
-        id: Some(format!("nvidia-{}", device_index)),
-        name: Some(name),
-        driver_version,
-        memory_total: memory_info.as_ref().map(|m| add_memory_unit(m.total)),
-        memory_used: memory_info.as_ref().map(|m| add_memory_unit(m.used)),
-        memory_free: memory_info.as_ref().map(|m| add_memory_unit(m.free)),
-        temperature: temperature.map(|t| format!("{} °C", t)),
-        utilization: utilization.map(|u| format!("{}%", u)),
-        clock_speed: clock_speed.map(add_clock_speed_unit),
-        wattage: wattage.map(|w| format!("{:.1} W", w as f64 / 1000.0)),
-        fan_speed: fan_speed.map(|f| format!("{} %", f)),
-        performance_state: performance_state.map(|p| format!("{:?}", p)),
+        Some(GpuInformations {
+            id: Some(format!("nvidia-{}", device_index)),
+            name: Some(name),
+            driver_version,
+            memory_total: memory_info.as_ref().map(|m| add_memory_unit(m.total)),
+            memory_used: memory_info.as_ref().map(|m| add_memory_unit(m.used)),
+            memory_free: memory_info.as_ref().map(|m| add_memory_unit(m.free)),
+            temperature: temperature.map(|t| format!("{} °C", t)),
+            utilization: utilization.map(|u| format!("{}%", u)),
+            clock_speed: clock_speed.map(add_clock_speed_unit),
+            wattage: wattage.map(|w| format!("{:.1} W", w as f64 / 1000.0)),
+            fan_speed: fan_speed.map(|f| format!("{} %", f)),
+            performance_state: performance_state.map(|p| format!("{:?}", p)),
+        })
     })
-}
-
-fn get_intel_gpu_name(device_path: &PathBuf) -> String {
-    // Cache all Intel GPU names once
-    let names = INTEL_GPU_NAMES.get_or_init(|| {
-        get_gpu_list().iter().filter_map(|g| {
-            if let DetectedGpu::Intel { path, .. } = g {
-                let dp = path.join("device");
-                if let Some(name) = get_gpu_name_from_sysfs(0x8086) {
-                    return Some(name);
-                }
-                if let Ok(label) = read_to_string(dp.join("label")) {
-                    let l = label.trim();
-                    if !l.is_empty() { return Some(l.to_string()); }
-                }
-                Some("Intel GPU".to_string())
-            } else { None }
-        }).collect()
-    });
-    // Try to match by path, fallback to first or generic
-    for gpu in get_gpu_list() {
-        if let DetectedGpu::Intel { path, index } = gpu {
-            if path.join("device") == *device_path || *device_path == path.join("device") {
-                if let Some(name) = names.get(*index) {
-                    return name.clone();
-                }
-            }
-        }
-    }
-    names.first().cloned().unwrap_or_else(|| "Intel GPU".to_string())
-}
-
-fn get_gpu_name_from_sysfs(vendor_id: u32) -> Option<String> {
-    let vendor_str = format!("0x{:04x}", vendor_id);
-    let drm_path = PathBuf::from("/sys/class/drm/");
-    let entries = read_dir(&drm_path).ok()?;
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() {
-            continue;
-        }
-        let name = path.file_name()?.to_str()?;
-        if !name.starts_with("card") || name.contains('-') {
-            continue;
-        }
-        let device_path = path.join("device");
-        let vendor = read_to_string(device_path.join("vendor")).ok()?;
-        if vendor.trim() != vendor_str {
-            continue;
-        }
-        // Try product_name first (available on some drivers)
-        if let Ok(product) = read_to_string(device_path.join("product_name")) {
-            let product = product.trim();
-            if !product.is_empty() {
-                return Some(product.to_string());
-            }
-        }
-        // Try label
-        if let Ok(label) = read_to_string(device_path.join("label")) {
-            let label = label.trim();
-            if !label.is_empty() {
-                return Some(label.to_string());
-            }
-        }
-        // Fallback: read PCI device ID and look up in pci.ids
-        if let Ok(device_id_str) = read_to_string(device_path.join("device")) {
-            let device_id_str = device_id_str.trim().trim_start_matches("0x");
-            if let Some(name) = lookup_pci_name(&vendor_str[2..], device_id_str) {
-                return Some(name);
-            }
-        }
-    }
-    None
 }
 
 pub fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {
@@ -333,8 +320,8 @@ pub fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {
         } else if in_vendor && !line.starts_with("\t\t") {
             // Device line (one tab)
             let trimmed = line.trim();
-            if trimmed.starts_with(device_id) {
-                let name = trimmed[device_id.len()..].trim();
+            if let Some(name) = trimmed.strip_prefix(device_id) {
+                let name = name.trim();
                 if !name.is_empty() {
                     return Some(name.to_string());
                 }
@@ -344,10 +331,10 @@ pub fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {
     None
 }
 
-fn get_intel_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformations> {
+fn get_intel_gpu_info(gpu_path: &Path, index: usize) -> Option<GpuInformations> {
     let device_path = gpu_path.join("device");
 
-    let name = get_intel_gpu_name(&device_path);
+    let name = get_device_name(&device_path, "Intel GPU");
 
     // Read i915 frequency info
     let gt_dir = find_gt_dir(&device_path);
@@ -378,15 +365,14 @@ fn get_intel_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformation
     };
 
     // Read utilization (i915 exposes gpu_busy_percent on some kernels)
-    let utilization = read_gpu_busy_percent(&device_path)
-        .or_else(|| {
-            gt_dir.as_ref().and_then(|gt| {
-                read_to_string(gt.join("gt_busy_percent"))
-                    .ok()
-                    .and_then(|s| s.trim().parse::<u64>().ok())
-                    .map(|v| format!("{}%", v))
-            })
-        });
+    let utilization = read_gpu_busy_percent(&device_path).or_else(|| {
+        gt_dir.as_ref().and_then(|gt| {
+            read_to_string(gt.join("gt_busy_percent"))
+                .ok()
+                .and_then(|s| s.trim().parse::<u64>().ok())
+                .map(|v| format!("{}%", v))
+        })
+    });
 
     // Driver version from i915 module
     let driver_version = read_to_string("/sys/module/i915/version")
@@ -409,7 +395,7 @@ fn get_intel_gpu_info(gpu_path: &PathBuf, index: usize) -> Option<GpuInformation
     })
 }
 
-fn find_gt_dir(device_path: &PathBuf) -> Option<PathBuf> {
+fn find_gt_dir(device_path: &Path) -> Option<PathBuf> {
     // Try i915 gt directory structure: device/tile0/gt0 or device/gt
     let tile0_gt0 = device_path.join("tile0/gt0");
     if tile0_gt0.exists() {
@@ -444,17 +430,17 @@ pub async fn get_gpu_informations() -> Vec<GpuInformations> {
     for detected in get_gpu_list() {
         match detected {
             DetectedGpu::Nvidia { index } => {
-                if let Some(info) = get_nvidia_gpu_info(*index) {
+                if let Some(info) = get_nvidia_gpu_info(index) {
                     gpus.push(info);
                 }
             }
             DetectedGpu::Amd { path, index } => {
-                if let Some(info) = get_amd_gpu_info(path, *index) {
+                if let Some(info) = get_amd_gpu_info(&path, index) {
                     gpus.push(info);
                 }
             }
             DetectedGpu::Intel { path, index } => {
-                if let Some(info) = get_intel_gpu_info(path, *index) {
+                if let Some(info) = get_intel_gpu_info(&path, index) {
                     gpus.push(info);
                 }
             }

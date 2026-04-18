@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Process } from '../../hooks/Proc/useProcessData';
 import Graph from '../Graph/Graph';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
@@ -105,23 +105,21 @@ const parseMemoryToMb = (memStr: string): number => {
     return value / (1000 * 1000);
 };
 
+// NOTE: Process identity is tracked by PID + name. On Linux, PIDs can be
+// reused after a process exits, so in rare cases a new process with the same
+// PID and name could be mistaken for the original. The backend does not
+// currently expose process start_time, which would eliminate this ambiguity.
 const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, onClose }) => {
     const [cpuHistory, setCpuHistory] = useState<number[]>([]);
     const [memHistory, setMemHistory] = useState<number[]>([]);
-    const [tick, setTick] = useState(0);
     const [processAlive, setProcessAlive] = useState(true);
-    const prevProcessesRef = useRef<Process[]>(processes);
     const { t } = useTranslation();
     const performanceConfig = usePerformanceConfig();
     const processConfig = useProcessConfig();
 
     useEffect(() => {
-        // Skip if the processes array reference hasn't changed
-        if (processes === prevProcessesRef.current && tick > 0) return;
-        prevProcessesRef.current = processes;
-
         const proc = processes.find(p => p.pid === pid);
-        if (!proc) {
+        if (!proc || (proc.name ?? '') !== name) {
             setProcessAlive(false);
             return;
         }
@@ -141,8 +139,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
             const next = [...prev, memVal];
             return next.length > MAX_POINTS ? next.slice(-MAX_POINTS) : next;
         });
-        setTick(t => t + 1);
-    }, [processes, pid]);
+    }, [name, pid, processes]);
 
     const currentCpu = cpuHistory.length > 0 ? cpuHistory[cpuHistory.length - 1] : 0;
     const currentMem = memHistory.length > 0 ? memHistory[memHistory.length - 1] : 0;
@@ -175,7 +172,6 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
                         {t('proc.monitor_cpu')}
                     </GraphLabel>
                     <Graph
-                        tick={tick}
                         firstGraphValue={cpuHistory}
                         maxValue={100}
                         height="calc(100% - 50px)"
@@ -191,7 +187,6 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
                         {t('proc.monitor_memory')}
                     </GraphLabel>
                     <Graph
-                        tick={tick}
                         firstGraphValue={memHistory}
                         height="calc(100% - 50px)"
                         width="100%"

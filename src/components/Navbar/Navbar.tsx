@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, FunctionComponent, ChangeEvent } from "react";
+import React, { Suspense, lazy, useState, useEffect, useRef, ChangeEvent } from "react";
 import styled from 'styled-components';
 import { GiProcessor } from "react-icons/gi";
 import { MdSpeed } from "react-icons/md";
@@ -7,25 +7,22 @@ import { FaSearch } from "react-icons/fa";
 import { LuSettings2 } from "react-icons/lu";
 import { VscServerProcess } from "react-icons/vsc";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
-import Proc from "../Processes/Proc";
-import Performance from "../Performance/Performance";
-import Sensors from "../Sensors/Sensors";
-import Disks from "../Disks/Disks";
-import Services from "../Services/Services";
-import Config from "../Config/Config";
-import { useSetProcessSearch } from "../../services/store";
+import Spinner from "../Misc/Spinner";
+import { useSetProcessSearch, useProcessSearch } from "../../services/store";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 import { useTranslation } from "react-i18next";
 
 type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Services" | "Config";
 
-const componentMap: { [key in ComponentName]: FunctionComponent<any> } = {
-    Proc,
-    Performance,
-    Sensors,
-    Disks,
-    Services,
-    Config
+type ZeroPropsComponent = React.LazyExoticComponent<React.ComponentType<Record<string, never>>>;
+
+const componentMap: Record<ComponentName, ZeroPropsComponent> = {
+    Proc: lazy(() => import("../Processes/Proc")),
+    Performance: lazy(() => import("../Performance/Performance")),
+    Sensors: lazy(() => import("../Sensors/Sensors")),
+    Disks: lazy(() => import("../Disks/Disks")),
+    Services: lazy(() => import("../Services/Services")),
+    Config: lazy(() => import("../Config/Config")),
 };
 
 // Create a styled container with overflow: hidden
@@ -49,6 +46,7 @@ const Navbar: React.FC = () => {
     const [activeComponent, setActiveComponent] = useState<ComponentName>("Proc");
     const [showSearchInput, setShowSearchInput] = useState(false);
     const setProcessSearch = useSetProcessSearch();
+    const processSearch = useProcessSearch();
     const searchInputRef = useRef<HTMLInputElement>(null);
     const navbarConfig = useNavbarConfig();
 
@@ -177,7 +175,7 @@ const Navbar: React.FC = () => {
                         {showSearchInput && <SearchInput
                         navbarSearchBackgroundColor={navbarConfig.config.navbar_search_background_color}
                         navbarSearchForegroundColor={navbarConfig.config.navbar_search_foreground_color}
-                        type="text" placeholder={t('navbar.search.placeholder')} onChange={handleSearchInputChange} ref={searchInputRef} />}
+                        type="text" placeholder={t('navbar.search.placeholder')} value={processSearch} onChange={handleSearchInputChange} ref={searchInputRef} />}
                         <StyledSearchButton
                         navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
                         navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
@@ -188,13 +186,15 @@ const Navbar: React.FC = () => {
                 )}
             </StyledNav>
             <ContentContainer>
-                {activeComponent === "Proc" ? (
-                    <ProcContainer>
-                        <Proc />
-                    </ProcContainer>
-                ) : (
-                    DynamicComponent && <DynamicComponent />
-                )}
+                <Suspense fallback={<Spinner />}>
+                    {activeComponent === "Proc" ? (
+                        <ProcContainer>
+                            <DynamicComponent />
+                        </ProcContainer>
+                    ) : (
+                        DynamicComponent && <DynamicComponent />
+                    )}
+                </Suspense>
             </ContentContainer>
         </MainContainer>
     );

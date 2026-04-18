@@ -10,18 +10,18 @@ type ConfigPanelConfig = {
     config_text_color: string;
 };
 
-const initialConfigPanelConfig: ConfigPanelConfig = {
-    config_background_color: "#2b2b2b",
-    config_container_background_color: "#3a3a3a",
-    config_input_background_color: "#333333",
-    config_input_border_color: "#444444",
-    config_button_background_color: "#f3eae8",
-    config_button_foreground_color: "#212830",
-    config_text_color: "#ffffff",
-};
+const configPanelKeys = [
+    "config_background_color",
+    "config_container_background_color",
+    "config_input_background_color",
+    "config_input_border_color",
+    "config_button_background_color",
+    "config_button_foreground_color",
+    "config_text_color",
+] as const;
 
 const useConfigPanelConfig = () => {
-    return useFetchAndSetConfig(initialConfigPanelConfig, "get_configs", "set_config_panel_configs");
+    return useFetchAndSetConfig<ConfigPanelConfig>(configPanelKeys, "set_config_panel_configs");
 };
 
 export default useConfigPanelConfig;

@@ -35,10 +35,12 @@ impl SysFsBattery {
 
     fn read_battery(path: &Path) -> Option<BatteryData> {
         let model = read_sysfs_string(&path.join("model_name"));
-        let technology = read_sysfs_string(&path.join("technology")).unwrap_or_else(|| "Unknown".to_string());
+        let technology =
+            read_sysfs_string(&path.join("technology")).unwrap_or_else(|| "Unknown".to_string());
         let cycle_count = read_sysfs_u32(&path.join("cycle_count")).filter(|&v| v > 0);
 
-        let state = read_sysfs_string(&path.join("status")).unwrap_or_else(|| "Unknown".to_string());
+        let state =
+            read_sysfs_string(&path.join("status")).unwrap_or_else(|| "Unknown".to_string());
 
         let percentage = read_sysfs_u32(&path.join("capacity")).unwrap_or(0);
 
@@ -96,16 +98,11 @@ impl SysFsBattery {
             .unwrap_or(0.0);
 
         // Time to empty / full in minutes
-        let (time_to_empty, time_to_full) = compute_time_estimates(
-            &state,
-            energy_uwh,
-            energy_full_uwh,
-            power_uw,
-        );
+        let (time_to_empty, time_to_full) =
+            compute_time_estimates(&state, energy_uwh, energy_full_uwh, power_uw);
 
         // Temperature: sysfs "temp" is in 1/10 °C
-        let temperature = read_sysfs_f64(&path.join("temp"))
-            .map(|t| (t / 10.0).round() as u32);
+        let temperature = read_sysfs_f64(&path.join("temp")).map(|t| (t / 10.0).round() as u32);
 
         Some(BatteryData {
             model,

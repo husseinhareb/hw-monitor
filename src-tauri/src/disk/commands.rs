@@ -1,10 +1,10 @@
 // src-tauri/src/disk.rs
 
 use serde::{Deserialize, Serialize};
-use std::fs::{self, File};
-use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
 use std::ffi::CString;
+use std::fs::{self, File};
+use std::io::{BufRead, BufReader};
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -23,7 +23,11 @@ fn read_diskstats() -> Result<Vec<DiskStat>, String> {
             let name = fields[2].to_string();
             let sectors_read = fields[5].parse::<u64>().unwrap_or(0);
             let sectors_written = fields[9].parse::<u64>().unwrap_or(0);
-            stats.push(DiskStat { name, sectors_read, sectors_written });
+            stats.push(DiskStat {
+                name,
+                sectors_read,
+                sectors_written,
+            });
         }
     }
     Ok(stats)
@@ -55,10 +59,13 @@ fn read_mount_info() -> HashMap<String, MountInfo> {
         let fields: Vec<&str> = line.split_whitespace().collect();
         if fields.len() >= 3 {
             let device = fields[0].to_string();
-            map.insert(device, MountInfo {
-                mount_point: fields[1].to_string(),
-                file_system: fields[2].to_string(),
-            });
+            map.insert(
+                device,
+                MountInfo {
+                    mount_point: fields[1].to_string(),
+                    file_system: fields[2].to_string(),
+                },
+            );
         }
     }
     map
@@ -69,8 +76,8 @@ fn get_space_info(mount_point: &str) -> Option<(u64, u64)> {
     let mut buf: libc::statvfs = unsafe { std::mem::zeroed() };
     let ret = unsafe { libc::statvfs(c_path.as_ptr(), &mut buf) };
     if ret == 0 {
-        let total = buf.f_blocks as u64 * buf.f_frsize as u64;
-        let available = buf.f_bavail as u64 * buf.f_frsize as u64;
+        let total = buf.f_blocks * buf.f_frsize;
+        let available = buf.f_bavail * buf.f_frsize;
         Some((total, available))
     } else {
         None
@@ -95,10 +102,10 @@ pub struct Disk {
     pub partitions: Vec<Partition>,
 
     // new fields
-    pub read_speed: String,    // KB/s
-    pub write_speed: String,   // KB/s
-    pub total_read: u64,       // bytes
-    pub total_write: u64,      // bytes
+    pub read_speed: String,  // KB/s
+    pub write_speed: String, // KB/s
+    pub total_read: u64,     // bytes
+    pub total_write: u64,    // bytes
 }
 
 fn get_disk_partition_info() -> Vec<Disk> {
@@ -107,42 +114,38 @@ fn get_disk_partition_info() -> Vec<Disk> {
         let reader = BufReader::new(file);
         let mut current_disk: Option<String> = None;
 
-        for line in reader.lines().skip(2) {
-            if let Ok(line) = line {
-                let parts: Vec<&str> = line.split_whitespace().collect();
-                if parts.len() >= 4 {
-                    let name = parts[3].to_string();
-                    let size: u64 = parts[2].parse().unwrap_or(0) * BLOCK_SIZE;
+        for line in reader.lines().skip(2).flatten() {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() >= 4 {
+                let name = parts[3].to_string();
+                let size: u64 = parts[2].parse().unwrap_or(0) * BLOCK_SIZE;
 
-                    // new "base" disk?
-                    if current_disk.is_none()
-                        || !name.starts_with(current_disk.as_ref().unwrap())
-                    {
-                        current_disk = Some(name.clone());
-                        disks.push(Disk {
+                // new "base" disk?
+                if current_disk.is_none() || !name.starts_with(current_disk.as_ref().unwrap()) {
+                    current_disk = Some(name.clone());
+                    disks.push(Disk {
+                        name: name.clone(),
+                        size,
+                        partitions: Vec::new(),
+                        read_speed: "0.0".into(),
+                        write_speed: "0.0".into(),
+                        total_read: 0,
+                        total_write: 0,
+                    });
+                }
+
+                // add partition if it's not the base device
+                if let Some(d) = disks.last_mut() {
+                    if name != d.name {
+                        d.partitions.push(Partition {
                             name: name.clone(),
                             size,
-                            partitions: Vec::new(),
-                            read_speed: "0.0".into(),
-                            write_speed: "0.0".into(),
-                            total_read: 0,
-                            total_write: 0,
+                            available_space: None,
+                            total_space: None,
+                            used_space: None,
+                            file_system: None,
+                            mount_point: None,
                         });
-                    }
-
-                    // add partition if it's not the base device
-                    if let Some(d) = disks.last_mut() {
-                        if name != d.name {
-                            d.partitions.push(Partition {
-                                name: name.clone(),
-                                size,
-                                available_space: None,
-                                total_space: None,
-                                used_space: None,
-                                file_system: None,
-                                mount_point: None,
-                            });
-                        }
                     }
                 }
             }
@@ -159,13 +162,12 @@ pub struct DiskSnapshot {
 }
 
 #[tauri::command]
-pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>) -> Result<Vec<Disk>, String> {
+pub async fn get_disks(
+    prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>,
+) -> Result<Vec<Disk>, String> {
     // 1) current snapshot from /proc/diskstats
     let stats2 = read_diskstats()?;
-    let map2: HashMap<_, _> = stats2
-        .into_iter()
-        .map(|st| (st.name.clone(), st))
-        .collect();
+    let map2: HashMap<_, _> = stats2.into_iter().map(|st| (st.name.clone(), st)).collect();
     let now = Instant::now();
 
     // 2) build out partition list
@@ -200,10 +202,19 @@ pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>)
     }
 
     *guard = Some(DiskSnapshot {
-        stats: map2.iter().map(|(k, v)| {
-            let sector_size = get_sector_size(k);
-            (k.clone(), (v.sectors_read * sector_size, v.sectors_written * sector_size))
-        }).collect(),
+        stats: map2
+            .iter()
+            .map(|(k, v)| {
+                let sector_size = get_sector_size(k);
+                (
+                    k.clone(),
+                    (
+                        v.sectors_read * sector_size,
+                        v.sectors_written * sector_size,
+                    ),
+                )
+            })
+            .collect(),
         time: now,
     });
     drop(guard);
@@ -216,8 +227,8 @@ pub async fn get_disks(prev_disk: tauri::State<'_, Mutex<Option<DiskSnapshot>>>)
             if let Some(mount_info) = mounts.get(&dev_path) {
                 if let Some((total, available)) = get_space_info(&mount_info.mount_point) {
                     part.available_space = Some(available);
-                    part.total_space     = Some(total);
-                    part.used_space      = Some(total.saturating_sub(available));
+                    part.total_space = Some(total);
+                    part.used_space = Some(total.saturating_sub(available));
                 }
                 part.file_system = Some(mount_info.file_system.clone());
                 part.mount_point = Some(mount_info.mount_point.clone());

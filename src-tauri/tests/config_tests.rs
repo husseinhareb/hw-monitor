@@ -28,9 +28,18 @@ fn config_default_colors() {
 #[test]
 fn config_default_table_values() {
     let cfg = config::ConfigData::default();
-    assert_eq!(cfg.processes_table_values, vec![
-        "user", "pid", "ppid", "name", "state", "cpu_usage", "memory"
-    ]);
+    assert_eq!(
+        cfg.processes_table_values,
+        vec![
+            "user",
+            "pid",
+            "ppid",
+            "name",
+            "state",
+            "cpu_usage",
+            "memory"
+        ]
+    );
 }
 
 // ── ConfigData round-trip (write + read) ───────────────────────────────
@@ -103,8 +112,10 @@ fn apply_kv_bool_field_true() {
 
 #[test]
 fn apply_kv_bool_field_false() {
-    let mut cfg = config::ConfigData::default();
-    cfg.show_virtual_interfaces = true;
+    let mut cfg = config::ConfigData {
+        show_virtual_interfaces: true,
+        ..config::ConfigData::default()
+    };
     let applied = cfg.apply_kv("show_virtual_interfaces", "false").unwrap();
     assert!(applied);
     assert!(!cfg.show_virtual_interfaces);
@@ -113,7 +124,9 @@ fn apply_kv_bool_field_false() {
 #[test]
 fn apply_kv_vec_field() {
     let mut cfg = config::ConfigData::default();
-    let applied = cfg.apply_kv("processes_table_values", "pid,name,cpu_usage").unwrap();
+    let applied = cfg
+        .apply_kv("processes_table_values", "pid,name,cpu_usage")
+        .unwrap();
     assert!(applied);
     assert_eq!(cfg.processes_table_values, vec!["pid", "name", "cpu_usage"]);
 }
@@ -177,12 +190,14 @@ fn write_to_produces_key_value_lines() {
 
 #[test]
 fn config_modified_roundtrip() {
-    let mut cfg = config::ConfigData::default();
-    cfg.language = "de".to_string();
-    cfg.processes_update_time = 3000;
-    cfg.show_virtual_interfaces = true;
-    cfg.heatbar_color_five = "#ABCDEF".to_string();
-    cfg.processes_table_values = vec!["pid".into(), "name".into()];
+    let cfg = config::ConfigData {
+        language: "de".to_string(),
+        processes_update_time: 3000,
+        show_virtual_interfaces: true,
+        heatbar_color_five: "#ABCDEF".to_string(),
+        processes_table_values: vec!["pid".into(), "name".into()],
+        ..config::ConfigData::default()
+    };
 
     let dir = std::env::temp_dir().join(format!("hw_monitor_mod_{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
@@ -294,7 +309,11 @@ fn config_writes_all_expected_keys() {
     ];
 
     for key in &expected_keys {
-        assert!(content.contains(&format!("{}=", key)), "Missing key in output: {}", key);
+        assert!(
+            content.contains(&format!("{}=", key)),
+            "Missing key in output: {}",
+            key
+        );
     }
 
     std::fs::remove_dir_all(&dir).ok();

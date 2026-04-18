@@ -28,12 +28,18 @@ interface DiskHist {
 
 interface DiskProps {
   diskName: string;
-  performanceConfig: any;
-  tick: number;
+  performanceConfig: {
+    config: {
+      performance_background_color: string;
+      performance_title_color: string;
+      performance_label_color: string;
+      performance_value_color: string;
+    };
+  };
   diskHist: DiskHist;
 }
 
-const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick, diskHist }) => {
+const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) => {
   const hist = diskHist;
   const convertData = useDataConverter();
   const { t } = useTranslation();
@@ -69,7 +75,6 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, tick, diskHist
           firstGraphValue={readValues}
           secondGraphValue={writeValues}
           width="100%"
-          tick={tick}
         />
       </div>
 

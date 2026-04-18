@@ -1,20 +1,16 @@
-// src/components/Performance/Sidebar.tsx
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
 import {
   useCpu,
+  useCpuCores,
   useGpuUsages,
   useMaxMemory,
   useMemory,
   useNetworkSpeeds,
-  usePaused,
-  useSetCpu,
-  useSetCpuCores,
-  useSetGpuUsage,
-  useSetMemory,
-  useSetNetworkSpeed,
-  useSetNetworkFullData,
+  useAppendCpu,
+  useAppendCpuCores,
+  useAppendGpuUsage,
+  useAppendMemory,
 } from '../../services/store';
 import Graph from '../Graph/Graph';
 import Cpu from './Cpu';
@@ -28,25 +24,8 @@ import useCpuData from '../../hooks/Performance/useCpuData';
 import useMemoryData from '../../hooks/Performance/useMemoryData';
 import { useMemoryHardwareInfo } from '../../hooks/Performance/useMemoryData';
 import useGpuData from '../../hooks/Performance/useGpuData';
-import useNetworkData from '../../hooks/Performance/useNetworkData';
-import useDataConverter from '../../helpers/useDataConverter';
+import { convertData } from '../../helpers/useDataConverter';
 import { useTranslation } from 'react-i18next';
-
-/** Null-rendering component — keeps one network interface polled and pushed to the store. */
-const NetworkPoller: React.FC<{ interfaceName: string }> = ({ interfaceName }) => {
-  const { download, upload, totalDownload, totalUpload } = useNetworkData(interfaceName);
-  const setNetworkSpeed = useSetNetworkSpeed();
-  const setNetworkFullData = useSetNetworkFullData();
-  const downloadValues = useMemo(() => download.map(d => d.value), [download]);
-  const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
-  useEffect(() => {
-    setNetworkSpeed(interfaceName, downloadValues, uploadValues);
-  }, [interfaceName, downloadValues, uploadValues, setNetworkSpeed]);
-  useEffect(() => {
-    setNetworkFullData(interfaceName, { download, upload, totalDownload: totalDownload ?? 0, totalUpload: totalUpload ?? 0 });
-  }, [interfaceName, download, upload, totalDownload, totalUpload, setNetworkFullData]);
-  return null;
-};
 
 interface SidebarProps {
   interfaceNames: string[];
@@ -56,21 +35,12 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // which panel is selected
   const [selectedItem, setSelectedItem] = useState('CPU');
 
-  // shared tick for all graphs
   const perf = usePerformanceConfig();
   const updateInterval = perf.config.performance_update_time;
-  const paused = usePaused();
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    if (paused) return;
-    const id = window.setInterval(() => {
-      setTick((t) => t + 1);
-    }, updateInterval);
-    return () => window.clearInterval(id);
-  }, [updateInterval, paused]);
 
   // raw metrics from store (for sidebar mini-graphs)
   const cpuUsage = useCpu();
+  const cpuCores = useCpuCores();
   const memory = useMemory();
   const maxMemory = useMaxMemory();
   const gpuUsages = useGpuUsages();
@@ -83,90 +53,71 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // disk histories and names
   const diskHistories = useDiskData(updateInterval);
   const diskNames = Object.keys(diskHistories);
+  const validSelections = useMemo(
+    () => new Set([
+      'CPU',
+      'Memory',
+      ...gpuList.map((gpu, index) => `GPU-${gpu.id || index}`),
+      ...interfaceNames.map((name) => `Net-${name}`),
+      ...diskNames,
+    ]),
+    [diskNames, gpuList, interfaceNames],
+  );
 
   const isMaxMemSet = maxMemory > 0;
 
-  // --- Always-running data pumps (keep all sidebar mini-graphs updated) ---
+  // --- Always-running data pumps (push directly to Zustand store) ---
 
-  // CPU pump: fetch raw data -> accumulate history -> push to store
+  // CPU pump: fetch raw data -> append to store
   const { cpuData } = useCpuData();
-  const [cpuUsageHistory, setCpuUsageHistory] = useState<number[]>([]);
-  const [coreUsageHistories, setCoreUsageHistories] = useState<number[][]>([]);
   const [cpuViewMode, setCpuViewMode] = useState<'overall' | 'per-core'>('overall');
-  const setCpuStore = useSetCpu();
-  const setCpuCoresStore = useSetCpuCores();
+  const appendCpu = useAppendCpu();
+  const appendCpuCores = useAppendCpuCores();
   useEffect(() => {
     if (cpuData?.usage != null) {
-      setCpuUsageHistory(prev => [...prev, cpuData.usage as number].slice(-20));
+      appendCpu(cpuData.usage as number);
     }
-  }, [cpuData]);
+  }, [cpuData, appendCpu]);
   useEffect(() => {
     if (cpuData?.core_usages != null) {
-      setCoreUsageHistories(prev => {
-        const coreCount = cpuData.core_usages!.length;
-        const updated = [...prev];
-        // Ensure we have enough arrays
-        while (updated.length < coreCount) updated.push([]);
-        // Trim if core count shrunk (unlikely but safe)
-        if (updated.length > coreCount) updated.length = coreCount;
-        for (let i = 0; i < coreCount; i++) {
-          updated[i] = [...updated[i], cpuData.core_usages![i]].slice(-20);
-        }
-        return updated;
-      });
+      appendCpuCores(cpuData.core_usages);
     }
-  }, [cpuData]);
-  useEffect(() => {
-    if (cpuUsageHistory.length > 0) setCpuStore(cpuUsageHistory);
-  }, [cpuUsageHistory, setCpuStore]);
-  useEffect(() => {
-    if (coreUsageHistories.length > 0) setCpuCoresStore(coreUsageHistories);
-  }, [coreUsageHistories, setCpuCoresStore]);
+  }, [cpuData, appendCpuCores]);
 
-  // Memory pump: fetch raw data → accumulate history → push to store
+  // Memory pump: fetch raw data → append to store
   const memoryRaw = useMemoryData();
   const memoryHardwareInfo = useMemoryHardwareInfo();
-  const convertData = useDataConverter();
-  const [activeMemHistory, setActiveMemHistory] = useState<number[]>([]);
-  const setMemoryStore = useSetMemory();
+  const appendMemory = useAppendMemory();
   useEffect(() => {
     if (memoryRaw?.total != null && memoryRaw.active != null) {
       const totalConverted = convertData(memoryRaw.total).value;
       const activeValue = (memoryRaw.active / memoryRaw.total) * totalConverted;
-      setActiveMemHistory(prev => [...prev, activeValue].slice(-20));
+      appendMemory(activeValue);
     }
-  }, [memoryRaw, convertData]);
-  useEffect(() => {
-    if (activeMemHistory.length > 0) setMemoryStore(activeMemHistory);
-  }, [activeMemHistory, setMemoryStore]);
+  }, [memoryRaw, appendMemory]);
 
-  // GPU pump: gpuList already fetched by useGpuData above → accumulate per-GPU history → push to store
-  const [gpuUsageHistories, setGpuUsageHistories] = useState<Record<string, number[]>>({});
-  const setGpuUsageStore = useSetGpuUsage();
+  // GPU pump: gpuList already fetched by useGpuData above → append per-GPU to store
+  const appendGpuUsage = useAppendGpuUsage();
   useEffect(() => {
     if (gpuList.length === 0) return;
-    setGpuUsageHistories(prev => {
-      const updated = { ...prev };
-      gpuList.forEach(gpu => {
-        if (gpu.id && gpu.utilization != null) {
-          const parsed = parseInt(gpu.utilization as string);
-          const val = isNaN(parsed) ? 0 : parsed;
-          const history = updated[gpu.id] ?? [];
-          updated[gpu.id] = [...history, val].slice(-20);
-        }
-      });
-      return updated;
+    gpuList.forEach(gpu => {
+      if (gpu.id && gpu.utilization != null) {
+        const parsed = parseInt(gpu.utilization as string);
+        const val = isNaN(parsed) ? 0 : parsed;
+        appendGpuUsage(gpu.id, val);
+      }
     });
-  }, [gpuList]);
-  useEffect(() => {
-    Object.entries(gpuUsageHistories).forEach(([id, history]) => {
-      if (history.length > 0) setGpuUsageStore(id, history);
-    });
-  }, [gpuUsageHistories, setGpuUsageStore]);
+  }, [gpuList, appendGpuUsage]);
 
   const handleItemClick = (name: string) => {
     setSelectedItem(name);
   };
+
+  useEffect(() => {
+    if (!validSelections.has(selectedItem)) {
+      setSelectedItem('CPU');
+    }
+  }, [selectedItem, validSelections]);
 
   // Render only the selected detail component
   const renderDetailPane = () => {
@@ -174,34 +125,33 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
       return (
         <Cpu
           performanceConfig={perf}
-          tick={tick}
           cpuData={cpuData}
-          cpuUsage={cpuUsageHistory}
-          coreUsageHistories={coreUsageHistories}
+          cpuUsage={cpuUsage}
+          coreUsageHistories={cpuCores}
           viewMode={cpuViewMode}
           onToggleView={() => setCpuViewMode(m => m === 'overall' ? 'per-core' : 'overall')}
         />
       );
     }
     if (selectedItem === 'Memory') {
-      return <Memory performanceConfig={perf} tick={tick} memoryUsage={memoryRaw} activeMem={activeMemHistory} hardwareInfo={memoryHardwareInfo} />;
+      return <Memory performanceConfig={perf} memoryUsage={memoryRaw} activeMem={memory} hardwareInfo={memoryHardwareInfo} />;
     }
     for (let i = 0; i < gpuList.length; i++) {
       const gpuKey = `GPU-${gpuList[i].id || i}`;
       if (selectedItem === gpuKey) {
-        return <Gpu gpuData={gpuList[i]} gpuIndex={i} performanceConfig={perf} tick={tick} gpuUsage={gpuUsageHistories[gpuList[i].id ?? ''] ?? []} />;
+        return <Gpu gpuData={gpuList[i]} performanceConfig={perf} gpuUsage={gpuUsages[gpuList[i].id ?? ''] ?? []} />;
       }
     }
     for (const name of interfaceNames) {
       const netKey = `Net-${name}`;
       if (selectedItem === netKey) {
-        return <Network interfaceName={name} performanceConfig={perf} tick={tick} />;
+        return <Network interfaceName={name} performanceConfig={perf} />;
       }
     }
     for (const name of diskNames) {
       if (selectedItem === name) {
         const hist = diskHistories[name] || { readHistory: [], writeHistory: [], total_read: 0, total_write: 0 };
-        return <Disk diskName={name} performanceConfig={perf} tick={tick} diskHist={hist} />;
+        return <Disk diskName={name} performanceConfig={perf} diskHist={hist} />;
       }
     }
     return null;
@@ -209,8 +159,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%' }}>
-      {/* Background network pollers — render null, keep all interfaces polled */}
-      {interfaceNames.map(name => <NetworkPoller key={name} interfaceName={name} />)}
       {/* Sidebar List */}
       <SidebarContainer
         performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
@@ -228,7 +176,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
           >
             {t('sidebar.cpu')}
             <Graph
-              tick={tick}
               firstGraphValue={cpuUsage}
               maxValue={100}
               height="120px"
@@ -246,7 +193,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             >
               {t('sidebar.memory')}
               <Graph
-                tick={tick}
                 firstGraphValue={memory}
                 maxValue={maxMemory}
                 height="120px"
@@ -269,7 +215,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
               >
                 {gpu.name || `${t('sidebar.gpu')} ${index}`}
                 <Graph
-                  tick={tick}
                   firstGraphValue={gpuHistory}
                   maxValue={100}
                   height="120px"
@@ -293,7 +238,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
               >
                 {name}
                 <Graph
-                  tick={tick}
                   firstGraphValue={speeds?.download || []}
                   secondGraphValue={speeds?.upload || []}
                   height="120px"
@@ -314,7 +258,6 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
             >
               {name}
               <Graph
-                tick={tick}
                 firstGraphValue={diskHistories[name].readHistory}
                 secondGraphValue={diskHistories[name].writeHistory}
                 height="120px"

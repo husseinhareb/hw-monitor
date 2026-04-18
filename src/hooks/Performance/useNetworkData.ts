@@ -1,63 +1,78 @@
-//useNetworkData.ts
-import { useState, useEffect } from 'react';
+import { useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import useDataConverter from '../../helpers/useDataConverter';
-import usePerformanceConfig from '../Performance/usePerformanceConfig';
-import { usePaused, notify } from '../../services/store';
+import useDataConverter from "../../helpers/useDataConverter";
+import usePerformanceConfig from "./usePerformanceConfig";
+import {
+  type NetworkData,
+  useNetworkInterfaces,
+  usePaused,
+  useSetNetworkSnapshot,
+} from "../../services/store";
+import { notify } from "../../services/store";
+import useSerialPolling from "../useSerialPolling";
 
 interface NetworkUsage {
-    download: number;
-    upload: number;
-    total_download: number;
-    total_upload: number;
-    interface: string;
+  download: number;
+  upload: number;
+  total_download: number;
+  total_upload: number;
+  interface: string;
 }
 
-interface DataWithUnit {
-    value: number;
-    unit: string;
+const MAX_POINTS = 20;
+
+function appendSample<T>(history: T[], value: T) {
+  return [...history, value].slice(-MAX_POINTS);
 }
 
-const useNetworkData = (interfaceName: string) => {
-    const [download, setDownload] = useState<DataWithUnit[]>([]);
-    const [upload, setUpload] = useState<DataWithUnit[]>([]);
-    const [totalDownload, setTotalDownload] = useState<number>();
-    const [totalUpload, setTotalUpload] = useState<number>();
-    const convertData = useDataConverter();
-    const performanceConfig = usePerformanceConfig();
-    const paused = usePaused();
-    useEffect(() => {
-        if (paused) return;
-        const fetchData = async () => {
-            try {
-                const fetchedNetworkUsages: NetworkUsage[] = await invoke("get_network", {
-                    showVirtual: performanceConfig.config.show_virtual_interfaces,
-                });
-                const interfaceData = fetchedNetworkUsages.find(data => data.interface === interfaceName);
-                if (interfaceData) {
-                    setDownload(prevDownload => [...prevDownload, convertData(interfaceData.download)].slice(-20));
-                    setUpload(prevUpload => [...prevUpload, convertData(interfaceData.upload)].slice(-20));
-                    setTotalDownload(interfaceData.total_download);
-                    setTotalUpload(interfaceData.total_upload);
-                } else {
-                    setDownload(prevDownload => [...prevDownload, { value: 0, unit: 'B' }].slice(-20));
-                    setUpload(prevUpload => [...prevUpload, { value: 0, unit: 'B' }].slice(-20));
-                    setTotalDownload(0);
-                    setTotalUpload(0);
-                }   
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                notify('error.fetch_failed');
-            }
-        };
+const useNetworkData = () => {
+  const convertData = useDataConverter();
+  const performanceConfig = usePerformanceConfig();
+  const paused = usePaused();
+  const interfaceNames = useNetworkInterfaces();
+  const setNetworkSnapshot = useSetNetworkSnapshot();
 
-        fetchData(); // Initial fetch
-        const intervalId = setInterval(fetchData, performanceConfig.config.performance_update_time); 
+  useSerialPolling({
+    enabled: !paused,
+    interval: performanceConfig.config.performance_update_time,
+    poll: () =>
+      invoke<NetworkUsage[]>("get_network", {
+        showVirtual: performanceConfig.config.show_virtual_interfaces,
+      }),
+    onSuccess: (fetchedNetworkUsages) => {
+      setNetworkSnapshot((previous) => {
+        const next: Record<string, NetworkData> = {};
 
-        return () => clearInterval(intervalId);
-    }, [interfaceName,performanceConfig.config.performance_update_time, paused]);
+        fetchedNetworkUsages.forEach((usage) => {
+          const previousInterfaceData = previous[usage.interface];
+          next[usage.interface] = {
+            download: appendSample(
+              previousInterfaceData?.download ?? [],
+              convertData(usage.download),
+            ),
+            upload: appendSample(
+              previousInterfaceData?.upload ?? [],
+              convertData(usage.upload),
+            ),
+            totalDownload: usage.total_download,
+            totalUpload: usage.total_upload,
+          };
+        });
 
-    return { download, upload, totalDownload, totalUpload };
+        return next;
+      });
+    },
+    onError: (error) => {
+      console.error("Error fetching network data:", error);
+      notify("error.fetch_failed");
+    },
+    deps: [convertData, performanceConfig.config.show_virtual_interfaces, setNetworkSnapshot],
+  });
+
+  return useMemo(
+    () => ({ interfaceNames }),
+    [interfaceNames],
+  );
 };
 
 export default useNetworkData;

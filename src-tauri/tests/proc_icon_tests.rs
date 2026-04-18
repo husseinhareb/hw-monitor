@@ -105,7 +105,10 @@ Exec=firefox %u
 Icon=firefox
 Type=Application
 ";
-    assert_eq!(proc_icon::extract_desktop_field(desktop, "Icon"), Some("firefox".into()));
+    assert_eq!(
+        proc_icon::extract_desktop_field(desktop, "Icon"),
+        Some("firefox".into())
+    );
 }
 
 #[test]
@@ -116,7 +119,10 @@ Name=Terminal Emulator
 Exec=xterm
 Icon=terminal
 ";
-    assert_eq!(proc_icon::extract_desktop_field(desktop, "Name"), Some("Terminal Emulator".into()));
+    assert_eq!(
+        proc_icon::extract_desktop_field(desktop, "Name"),
+        Some("Terminal Emulator".into())
+    );
 }
 
 #[test]
@@ -126,7 +132,10 @@ fn extract_field_type() {
 Name=App
 Type=Application
 ";
-    assert_eq!(proc_icon::extract_desktop_field(desktop, "Type"), Some("Application".into()));
+    assert_eq!(
+        proc_icon::extract_desktop_field(desktop, "Type"),
+        Some("Application".into())
+    );
 }
 
 #[test]
@@ -158,7 +167,10 @@ Icon=wrong-icon
 [Desktop Entry]
 Icon=correct-icon
 ";
-    assert_eq!(proc_icon::extract_desktop_field(desktop, "Icon"), Some("correct-icon".into()));
+    assert_eq!(
+        proc_icon::extract_desktop_field(desktop, "Icon"),
+        Some("correct-icon".into())
+    );
 }
 
 #[test]
@@ -176,7 +188,10 @@ fn extract_field_with_spaces() {
 [Desktop Entry]
 Icon=  spaced-icon  
 ";
-    assert_eq!(proc_icon::extract_desktop_field(desktop, "Icon"), Some("spaced-icon".into()));
+    assert_eq!(
+        proc_icon::extract_desktop_field(desktop, "Icon"),
+        Some("spaced-icon".into())
+    );
 }
 
 #[test]

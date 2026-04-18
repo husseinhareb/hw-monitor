@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
 import { useTranslation } from "react-i18next";
 import {
@@ -32,15 +32,25 @@ interface Props { theme: ConfigTheme }
 
 const DisksConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig } = useDisksConfig();
+  const [updateTimeDraft, setUpdateTimeDraft] = useState("");
   const { t } = useTranslation();
+
+  useEffect(() => {
+    setUpdateTimeDraft(String(config.disks_update_time));
+  }, [config.disks_update_time]);
 
   const handleConfigChange = (key: keyof DisksConfig, value: string | number) => {
     if (config) updateConfig(key, value);
   };
 
-  const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value >= 1000) handleConfigChange("disks_update_time", value);
+  const commitUpdateTime = () => {
+    const value = Number(updateTimeDraft);
+    if (Number.isFinite(value) && value >= 1000 && value !== config.disks_update_time) {
+      void handleConfigChange("disks_update_time", value);
+      return;
+    }
+
+    setUpdateTimeDraft(String(config.disks_update_time));
   };
 
   const colorRow = (labelKey: string, field: keyof DisksConfig) => (
@@ -68,10 +78,16 @@ const DisksConfig: React.FC<Props> = ({ theme }) => {
         <SettingControl>
           <StyledNumberInput
             type="number"
-            value={config.disks_update_time}
+            value={updateTimeDraft}
             min={1000}
             step={100}
-            onChange={handleUpdateTimeChange}
+            onChange={(e) => setUpdateTimeDraft(e.target.value)}
+            onBlur={commitUpdateTime}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                commitUpdateTime();
+              }
+            }}
             inputBg={theme.inputBg}
             inputBorder={theme.inputBorder}
             textColor={theme.textColor}

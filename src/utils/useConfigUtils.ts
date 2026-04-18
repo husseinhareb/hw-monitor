@@ -1,73 +1,55 @@
-import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { notify } from "../services/store";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { shallow } from "zustand/shallow";
+import {
+  type ConfigData,
+  type ConfigSlice,
+  pickConfig,
+  useConfigStore,
+} from "../services/configStore";
 
 type ConfigType = Record<string, string | number | boolean | string[]>;
 
-// All config hooks call invoke("get_configs") which returns the full ConfigData.
-// Share a single fetch promise so only one backend call is made per session.
-let sharedConfigPromise: Promise<Record<string, unknown>> | null = null;
+const useConfigSection = <T extends ConfigType>(
+  keys: readonly (keyof ConfigData)[],
+  command: string,
+): ConfigSlice<T> => {
+  const keysRef = useRef(keys);
+  const config = useConfigStore(
+    useCallback(
+      (state) => pickConfig(state.config, keysRef.current),
+      [],
+    ),
+    shallow,
+  );
+  const hydrated = useConfigStore((state) => state.hydrated);
+  const hydrating = useConfigStore((state) => state.hydrating);
+  const lastLoadError = useConfigStore((state) => state.lastLoadError);
+  const hydrate = useConfigStore((state) => state.hydrate);
+  const persistPartial = useConfigStore((state) => state.persistPartial);
 
-function fetchAllConfigs(): Promise<Record<string, unknown>> {
-    if (!sharedConfigPromise) {
-        sharedConfigPromise = (invoke("get_configs") as Promise<Record<string, unknown>>)
-            .catch((err) => {
-                sharedConfigPromise = null; // allow retry on next mount
-                return Promise.reject(err);
-            });
-    }
-    return sharedConfigPromise;
-}
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
 
-/** Clear the cached config so the next hook mount re-fetches from the backend. */
-export function invalidateConfigCache() {
-    sharedConfigPromise = null;
-}
+  const slice = useMemo(
+    () => config as unknown as T,
+    [config],
+  );
 
-const useFetchAndSetConfig = <T extends ConfigType>(
-    initialConfig: T,
-    _getConfigKey: string,
-    setConfigCommand: string
-) => {
-    const [config, setConfig] = useState<T>(initialConfig);
+  const updateConfig = useCallback(
+    async <K extends keyof T>(key: K, value: T[K]) => {
+      await persistPartial({ [key as string]: value } as Partial<ConfigData>, command);
+    },
+    [command, persistPartial],
+  );
 
-    useEffect(() => {
-        const loadConfig = async () => {
-            try {
-                const fetchedConfig = await fetchAllConfigs() as T;
-                if (fetchedConfig) {
-                    setConfig(fetchedConfig);
-                } else {
-                    console.warn("Empty response received from server.");
-                }
-            } catch (error) {
-                console.error("Error fetching config:", error);
-                notify('error.config_failed');
-            }
-        };
-
-        loadConfig();
-    }, []);
-
-    const sendData = async (data: T) => {
-        try {
-            await invoke(setConfigCommand, { configs: data });
-        } catch (error) {
-            console.error("Error while sending data to backend:", error);
-            notify('error.save_config_failed');
-        }
-    };
-
-    const updateConfig = async (key: keyof T, value: string | number | boolean | string[]) => {
-        const newConfig = { ...config, [key]: value } as T;
-        setConfig(newConfig);
-        sendData(newConfig);
-    };
-
-    return {
-        config,
-        updateConfig,
-    };
+  return {
+    config: slice,
+    hydrated,
+    hydrating,
+    lastLoadError,
+    updateConfig,
+  };
 };
 
-export default useFetchAndSetConfig;
+export default useConfigSection;

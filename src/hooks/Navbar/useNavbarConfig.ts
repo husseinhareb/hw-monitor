@@ -8,17 +8,16 @@ type NavbarConfig = {
     navbar_search_foreground_color: string;
 };
 
-const initialNavbarConfig: NavbarConfig = {
-    navbar_background_color: "#222222",
-    navbar_buttons_background_color: "#f3eae8",
-    navbar_buttons_foreground_color: "#212830",
-    navbar_search_background_color: "#f3eae8",
-    navbar_search_foreground_color: "#212830",
-};
+const navbarConfigKeys = [
+    "navbar_background_color",
+    "navbar_buttons_background_color",
+    "navbar_buttons_foreground_color",
+    "navbar_search_background_color",
+    "navbar_search_foreground_color",
+] as const;
 
 const useNavbarConfig = () => {
-
-    return useFetchAndSetConfig(initialNavbarConfig, "get_configs", "set_navbar_configs");
+    return useFetchAndSetConfig<NavbarConfig>(navbarConfigKeys, "set_navbar_configs");
 };
 
 export default useNavbarConfig;

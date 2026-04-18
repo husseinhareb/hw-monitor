@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useServicesData, { SystemService } from "../../hooks/Services/useServicesData";
 import useProcessConfig from "../../hooks/Proc/useProcessConfig";
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from "../../styles/proc-style";
-import { lighten } from "polished";
+import { safeLighten } from '../../utils/safeLighten';
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import Spinner from "../Misc/Spinner";
 import { useTranslation } from "react-i18next";
@@ -96,6 +96,14 @@ const columns: { key: keyof SystemService; labelKey: string }[] = [
     { key: "unit_file_state", labelKey: "services.col_enabled" },
 ];
 
+type ServiceAction = "start" | "stop" | "restart";
+
+const serviceActionCommands: Record<ServiceAction, string> = {
+    start: "start_service",
+    stop: "stop_service",
+    restart: "restart_service",
+};
+
 const activeColor = (state: string): string => {
     switch (state) {
         case "active": return "#4ec94e";
@@ -108,7 +116,7 @@ const activeColor = (state: string): string => {
 };
 
 const Services: React.FC = () => {
-    const { services, refetch } = useServicesData();
+    const { services, loading, error, refetch } = useServicesData();
     const processConfig = useProcessConfig();
     const { t } = useTranslation();
 
@@ -116,9 +124,10 @@ const Services: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [selectedName, setSelectedName] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const deferredSearchQuery = useDeferredValue(searchQuery);
     const [authModal, setAuthModal] = useState<{
         show: boolean;
-        pendingAction: "start" | "stop" | "restart" | null;
+        pendingAction: ServiceAction | null;
         password: string;
         error: string;
         loading: boolean;
@@ -134,14 +143,24 @@ const Services: React.FC = () => {
     }, [services, sortBy, sortOrder]);
 
     const filteredServices = useMemo(() => {
-        if (!searchQuery) return sortedServices;
-        const q = searchQuery.toLowerCase();
+        if (!deferredSearchQuery) return sortedServices;
+        const q = deferredSearchQuery.toLowerCase();
         return sortedServices.filter(s =>
             s.name.toLowerCase().includes(q) ||
             s.description.toLowerCase().includes(q) ||
             s.active_state.toLowerCase().includes(q)
         );
-    }, [searchQuery, sortedServices]);
+    }, [deferredSearchQuery, sortedServices]);
+
+    const closeAuthModal = useCallback(() =>
+        setAuthModal({ show: false, pendingAction: null, password: "", error: "", loading: false }), []);
+
+    useEffect(() => {
+        if (selectedName !== null && !services.some((service) => service.name === selectedName)) {
+            setSelectedName(null);
+            closeAuthModal();
+        }
+    }, [selectedName, services, closeAuthModal]);
 
     const sortColumn = (col: keyof SystemService) => {
         if (sortBy === col) {
@@ -159,24 +178,22 @@ const Services: React.FC = () => {
             : <FaArrowDown style={{ fontSize: "10px", marginLeft: "4px" }} />;
     };
 
-    const handleAction = (action: "start" | "stop" | "restart") => {
+    const handleAction = (action: ServiceAction) => {
         if (!selectedName) return;
         setAuthModal({ show: true, pendingAction: action, password: "", error: "", loading: false });
     };
 
-    const closeAuthModal = () =>
-        setAuthModal({ show: false, pendingAction: null, password: "", error: "", loading: false });
-
     const submitAuth = async () => {
         if (!authModal.pendingAction || !selectedName) return;
-        setAuthModal(prev => ({ ...prev, loading: true, error: "" }));
+        const password = authModal.password;
+        setAuthModal(prev => ({ ...prev, loading: true, error: "", password: "" }));
         try {
-            await invoke(`${authModal.pendingAction}_service`, {
+            await invoke(serviceActionCommands[authModal.pendingAction], {
                 name: selectedName,
-                password: authModal.password,
+                password,
             });
             closeAuthModal();
-            refetch();
+            await refetch();
         } catch (error) {
             const errStr = String(error);
             setAuthModal(prev => ({
@@ -184,6 +201,8 @@ const Services: React.FC = () => {
                 loading: false,
                 error: errStr.includes("incorrect_password")
                     ? t("error.service_auth_failed")
+                    : errStr.includes("service_action_timeout")
+                        ? t("error.service_action_failed")
                     : t("error.service_action_failed"),
             }));
         }
@@ -199,8 +218,10 @@ const Services: React.FC = () => {
             color: processConfig.config.processes_body_color,
             position: "relative",
         }}>
-            {services.length === 0 ? (
+            {loading ? (
                 <Spinner />
+            ) : error && services.length === 0 ? (
+                <p>{t("error.fetch_failed")}</p>
             ) : (
                 <>
                     <div style={{
@@ -268,7 +289,7 @@ const Services: React.FC = () => {
                                     bodyBackgroundColor={processConfig.config.processes_body_background_color}
                                     style={{
                                         backgroundColor: selectedName === svc.name
-                                            ? lighten(0.15, processConfig.config.processes_body_background_color)
+                                            ? safeLighten(0.15, processConfig.config.processes_body_background_color)
                                             : "transparent",
                                     }}
                                 >

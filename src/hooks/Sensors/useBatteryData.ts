@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from '../Sensors/useSensorsConfig';
 import { usePaused, notify } from '../../services/store';
+import useSerialPolling from '../useSerialPolling';
 
-interface BatteryData {
+export interface BatteryData {
     model: string | null;
     state: string;
     cycle_count: number | null;
@@ -21,25 +22,20 @@ const useBatteryData = (): { batteries: BatteryData[]; error: string | null } =>
     const [error, setError] = useState<string | null>(null);
     const sensorsConfig = useSensorsConfig();
     const paused = usePaused();
-    useEffect(() => {
-        if (paused) return;
-        const fetchData = async () => {
-            try {
-                const fetchedBatteryData: BatteryData[] = await invoke("get_batteries");
-                setBatteryData(fetchedBatteryData);
-                setError(null);
-            } catch (err) {
-                console.error("Error fetching battery data:", err);
-                notify('error.battery_failed');
-                setError(String(err));
-            }
-        };
-
-        fetchData();
-        const intervalId = setInterval(fetchData, sensorsConfig.config.sensors_update_time);
-
-        return () => clearInterval(intervalId);
-    }, [sensorsConfig.config.sensors_update_time, paused]);
+    useSerialPolling({
+        enabled: !paused,
+        interval: sensorsConfig.config.sensors_update_time,
+        poll: () => invoke<BatteryData[]>("get_batteries"),
+        onSuccess: (fetchedBatteryData) => {
+            setBatteryData(fetchedBatteryData);
+            setError(null);
+        },
+        onError: (err) => {
+            console.error("Error fetching battery data:", err);
+            notify('error.battery_failed');
+            setError(String(err));
+        },
+    });
 
     return { batteries: batteryData, error };
 };

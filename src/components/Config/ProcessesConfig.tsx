@@ -64,6 +64,7 @@ interface Props { theme: ConfigTheme }
 const ProcessesConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig, updateTableValues } = useProcessConfig();
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [updateTimeDraft, setUpdateTimeDraft] = useState("");
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -71,6 +72,10 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
       setSelectedValues(config.processes_table_values);
     }
   }, [config]);
+
+  useEffect(() => {
+    setUpdateTimeDraft(String(config.processes_update_time));
+  }, [config.processes_update_time]);
 
   const handleTableValueChange = (translationKey: string) => {
     const original = translationMap[translationKey];
@@ -87,9 +92,14 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
     if (config) updateConfig(key, value);
   };
 
-  const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value >= 1000) handleConfigChange("processes_update_time", value);
+  const commitUpdateTime = () => {
+    const value = Number(updateTimeDraft);
+    if (Number.isFinite(value) && value >= 1000 && value !== config.processes_update_time) {
+      void handleConfigChange("processes_update_time", value);
+      return;
+    }
+
+    setUpdateTimeDraft(String(config.processes_update_time));
   };
 
   const colorRow = (labelKey: string, field: keyof ProcessConfig) => (
@@ -117,10 +127,16 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
         <SettingControl>
           <StyledNumberInput
             type="number"
-            value={config.processes_update_time}
+            value={updateTimeDraft}
             min={1000}
             step={100}
-            onChange={handleUpdateTimeChange}
+            onChange={(e) => setUpdateTimeDraft(e.target.value)}
+            onBlur={commitUpdateTime}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                commitUpdateTime();
+              }
+            }}
             inputBg={theme.inputBg}
             inputBorder={theme.inputBorder}
             textColor={theme.textColor}

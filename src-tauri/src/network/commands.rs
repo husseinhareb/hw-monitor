@@ -1,6 +1,6 @@
-use serde::{Serialize, Deserialize};
-use std::fs;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -36,10 +36,13 @@ fn read_proc_net_dev() -> HashMap<String, NetDevStats> {
                 .filter_map(|s| s.parse().ok())
                 .collect();
             if fields.len() >= 10 {
-                map.insert(iface, NetDevStats {
-                    rx_bytes: fields[0],
-                    tx_bytes: fields[8],
-                });
+                map.insert(
+                    iface,
+                    NetDevStats {
+                        rx_bytes: fields[0],
+                        tx_bytes: fields[8],
+                    },
+                );
             }
         }
     }
@@ -64,7 +67,10 @@ pub async fn get_interfaces(show_virtual: bool) -> Vec<String> {
 }
 
 #[tauri::command]
-pub async fn get_network(show_virtual: bool, prev_net: tauri::State<'_, Mutex<Option<NetSnapshot>>>) -> Result<Vec<Network>, String> {
+pub async fn get_network(
+    show_virtual: bool,
+    prev_net: tauri::State<'_, Mutex<Option<NetSnapshot>>>,
+) -> Result<Vec<Network>, String> {
     let stats2 = read_proc_net_dev();
     let now = Instant::now();
 
@@ -106,7 +112,10 @@ pub async fn get_network(show_virtual: bool, prev_net: tauri::State<'_, Mutex<Op
     }
 
     *guard = Some(NetSnapshot {
-        stats: stats2.into_iter().map(|(k, v)| (k, (v.rx_bytes, v.tx_bytes))).collect(),
+        stats: stats2
+            .into_iter()
+            .map(|(k, v)| (k, (v.rx_bytes, v.tx_bytes)))
+            .collect(),
         time: now,
     });
 

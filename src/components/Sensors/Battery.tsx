@@ -1,22 +1,29 @@
 //Battery.tsx
 import React from 'react';
-import useBatteryData from '../../hooks/Sensors/useBatteryData';
+import type { BatteryData } from '../../hooks/Sensors/useBatteryData';
 import {  Design, DesignDiv, ContentDiv,Item } from '../../styles/battery-style';
 import { SensorGroup, SensorName} from '../../styles/sensors-style';
 import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 import { useTranslation } from 'react-i18next';
 
-const Battery: React.FC = () => {
-    const { batteries, error } = useBatteryData();
+interface BatteryProps {
+    batteries: BatteryData[];
+    error: string | null;
+}
+
+const Battery: React.FC<BatteryProps> = ({ batteries, error }) => {
     const sensorsConfig = useSensorsConfig();
     const { t } = useTranslation();
+
+    const hasNumber = (value: number | null | undefined) => value !== null && value !== undefined;
+
     return (
         <>
             {error ? (
                 <p>{t('error.battery_failed')}</p>
             ) : batteries.length > 0 ? (
                 batteries.map((battery, index) => (
-                    <SensorGroup key={index}>
+                    <SensorGroup key={battery.model ?? `battery-${index}`}>
                         <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>{t('sensors.battery')} {index + 1}</SensorName>
                         <div style={{ display: 'flex' }}>
                             <DesignDiv>
@@ -28,16 +35,16 @@ const Battery: React.FC = () => {
                                  />
                             </DesignDiv>
                             <ContentDiv>
-                                {battery.percentage && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.percentage')}: {battery.percentage}%</p></Item>}
+                                {hasNumber(battery.percentage) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.percentage')}: {battery.percentage}%</p></Item>}
                                 {battery.model && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.model')}: {battery.model}</p></Item>}
                                 {battery.state && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.state')}: {battery.state}</p></Item>}
-                                {battery.cycle_count && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.cycle_count')}: {battery.cycle_count}</p></Item>}
-                                {battery.energy && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.energy')}: {battery.energy} Wh</p></Item>}
-                                {battery.time_to_full && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.time_to_full')}: {battery.time_to_full} {t('minutes')}</p></Item>}
+                                {hasNumber(battery.cycle_count) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.cycle_count')}: {battery.cycle_count}</p></Item>}
+                                {hasNumber(battery.energy) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.energy')}: {battery.energy} Wh</p></Item>}
+                                {hasNumber(battery.time_to_full) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.time_to_full')}: {battery.time_to_full} {t('minutes')}</p></Item>}
                                 {battery.technology && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.technology')}: {battery.technology}</p></Item>}
-                                {battery.time_to_empty && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.time_to_empty')}: {battery.time_to_empty} {t('minutes')}</p></Item>}
-                                {battery.temperature && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.temperature')}: {battery.temperature} °C</p></Item>}
-                                {battery.state_of_health && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.state_of_health')}: {battery.state_of_health}%</p></Item>}
+                                {hasNumber(battery.time_to_empty) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.time_to_empty')}: {battery.time_to_empty} {t('minutes')}</p></Item>}
+                                {hasNumber(battery.temperature) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.temperature')}: {battery.temperature} °C</p></Item>}
+                                {hasNumber(battery.state_of_health) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.state_of_health')}: {battery.state_of_health}%</p></Item>}
                             </ContentDiv>
 
                         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import usePerformanceConfig from "../../hooks/Performance/usePerformanceConfig";
 import { useTranslation } from "react-i18next";
 import {
@@ -37,15 +37,25 @@ interface Props { theme: ConfigTheme }
 
 const PerformanceConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig } = usePerformanceConfig();
+  const [updateTimeDraft, setUpdateTimeDraft] = useState("");
   const { t } = useTranslation();
+
+  useEffect(() => {
+    setUpdateTimeDraft(String(config.performance_update_time));
+  }, [config.performance_update_time]);
 
   const handleConfigChange = (key: keyof PerformanceConfig, value: string | number | boolean) => {
     if (config) updateConfig(key, value);
   };
 
-  const handleUpdateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value >= 1000) handleConfigChange("performance_update_time", value);
+  const commitUpdateTime = () => {
+    const value = Number(updateTimeDraft);
+    if (Number.isFinite(value) && value >= 1000 && value !== config.performance_update_time) {
+      void handleConfigChange("performance_update_time", value);
+      return;
+    }
+
+    setUpdateTimeDraft(String(config.performance_update_time));
   };
 
   const colorRow = (labelKey: string, field: keyof PerformanceConfig) => (
@@ -73,10 +83,16 @@ const PerformanceConfig: React.FC<Props> = ({ theme }) => {
         <SettingControl>
           <StyledNumberInput
             type="number"
-            value={config.performance_update_time}
+            value={updateTimeDraft}
             min={1000}
             step={100}
-            onChange={handleUpdateTimeChange}
+            onChange={(e) => setUpdateTimeDraft(e.target.value)}
+            onBlur={commitUpdateTime}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                commitUpdateTime();
+              }
+            }}
             inputBg={theme.inputBg}
             inputBorder={theme.inputBorder}
             textColor={theme.textColor}
@@ -127,4 +143,3 @@ const PerformanceConfig: React.FC<Props> = ({ theme }) => {
 };
 
 export default PerformanceConfig;
-
