@@ -31,10 +31,8 @@ fn get_memory_usage_percentage() -> Option<u64> {
                 }
             }
         }
-        if total_memory != 0 {
-            let memory_usage_percentage = ((total_memory - used_memory) * 100) / total_memory;
-            return Some(memory_usage_percentage);
-        }
+        let used_memory = total_memory.checked_sub(used_memory)?;
+        return used_memory.checked_mul(100)?.checked_div(total_memory);
     }
     None
 }
