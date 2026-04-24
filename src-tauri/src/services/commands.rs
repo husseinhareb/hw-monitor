@@ -17,6 +17,14 @@ pub struct SystemService {
     pub unit_file_state: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct ServiceDetails {
+    pub name: String,
+    pub unit_file_path: Option<String>,
+    pub status: String,
+    pub logs: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct RuntimeService {
     description: String,
@@ -164,6 +172,23 @@ fn run_systemctl(args: &[&str]) -> Result<String, String> {
     })
 }
 
+fn command_text(command: &str, args: &[&str]) -> Result<String, String> {
+    let output = Command::new(command)
+        .args(args)
+        .output()
+        .map_err(|e| format!("failed to run {command}: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+
+    Ok(match (stdout.is_empty(), stderr.is_empty()) {
+        (false, false) => format!("{stdout}\n{stderr}"),
+        (false, true) => stdout,
+        (true, false) => stderr,
+        (true, true) => String::new(),
+    })
+}
+
 fn list_services() -> Result<Vec<SystemService>, String> {
     let units_output = run_systemctl(&[
         "list-units",
@@ -187,6 +212,39 @@ pub async fn get_services() -> Result<Vec<SystemService>, String> {
     tauri::async_runtime::spawn_blocking(list_services)
         .await
         .map_err(|e| format!("failed to join service listing task: {e}"))?
+}
+
+fn service_details(service_name: &str) -> Result<ServiceDetails, String> {
+    let unit = format!("{service_name}.service");
+    let unit_file_path = run_systemctl(&["show", &unit, "--property=FragmentPath", "--value"])
+        .ok()
+        .map(|path| path.trim().to_string())
+        .filter(|path| !path.is_empty());
+    let status = command_text("systemctl", &["status", &unit, "--no-pager", "--lines=20"])?;
+    let logs = command_text(
+        "journalctl",
+        &[
+            "-u",
+            &unit,
+            "--no-pager",
+            "--lines=80",
+            "--output=short-iso",
+        ],
+    )?;
+
+    Ok(ServiceDetails {
+        name: service_name.to_string(),
+        unit_file_path,
+        status,
+        logs,
+    })
+}
+
+#[tauri::command]
+pub async fn get_service_details(name: String) -> Result<ServiceDetails, String> {
+    tauri::async_runtime::spawn_blocking(move || service_details(&name))
+        .await
+        .map_err(|e| format!("failed to join service details task: {e}"))?
 }
 
 fn run_privileged_action(action: &str, service_name: &str, password: &str) -> Result<(), String> {

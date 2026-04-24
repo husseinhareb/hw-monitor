@@ -116,4 +116,11 @@ export const KillButton = styled.button<{ killButtonBackgroundColor: string; kil
     &:hover {
         background-color: ${(props) => safeLighten(0.01, props.killButtonBackgroundColor)};
     }
+    &:disabled {
+        opacity: 0.45;
+        cursor: default;
+    }
+    &:disabled:hover {
+        background-color: ${(props) => props.killButtonBackgroundColor};
+    }
 `;

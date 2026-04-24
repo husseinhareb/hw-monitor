@@ -122,6 +122,7 @@ fn main() {
             gpu::get_gpu_informations,
             proc_icon::get_process_icon,
             services::get_services,
+            services::get_service_details,
             services::start_service,
             services::stop_service,
             services::restart_service,
