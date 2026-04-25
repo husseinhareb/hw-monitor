@@ -278,6 +278,16 @@ pub async fn start_service(name: String, password: String) -> Result<(), String>
     systemd_unit_action("start", &name, &password).await
 }
 
+#[tauri::command]
+pub async fn enable_service(name: String, password: String) -> Result<(), String> {
+    systemd_unit_action("enable", &name, &password).await
+}
+
+#[tauri::command]
+pub async fn disable_service(name: String, password: String) -> Result<(), String> {
+    systemd_unit_action("disable", &name, &password).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::{merge_service_views, parse_list_unit_files_output, parse_list_units_output};

@@ -24,7 +24,7 @@ const Disks: React.FC = () => {
 
 
   const usagePercentage = (used: number, total: number) => {
-    return (used / total) * 100;
+    return Math.min(Math.max((used / total) * 100, 0), 100);
   };
 
   return (

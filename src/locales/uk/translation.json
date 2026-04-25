@@ -230,6 +230,8 @@
     "services.start": "Запустити",
     "services.stop": "Зупинити",
     "services.restart": "Перезапустити",
+    "services.enable_startup": "Увімкнути під час запуску",
+    "services.disable_startup": "Вимкнути під час запуску",
     "services.auth_title": "Потрібна аутентифікація",
     "services.auth_desc": "Введіть пароль для керування службою.",
     "services.auth_password": "Пароль",

@@ -231,6 +231,8 @@
     "services.start": "Start",
     "services.stop": "Stop",
     "services.restart": "Restart",
+    "services.enable_startup": "Enable at startup",
+    "services.disable_startup": "Disable at startup",
     "services.auth_title": "Authentication Required",
     "services.auth_desc": "Enter your password to manage this service.",
     "services.auth_password": "Password",

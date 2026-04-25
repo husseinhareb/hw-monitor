@@ -230,6 +230,8 @@
     "services.start": "Iniciar",
     "services.stop": "Detener",
     "services.restart": "Reiniciar",
+    "services.enable_startup": "Habilitar al inicio",
+    "services.disable_startup": "Deshabilitar al inicio",
     "services.auth_title": "Autenticación requerida",
     "services.auth_desc": "Ingrese su contraseña para gestionar este servicio.",
     "services.auth_password": "Contraseña",

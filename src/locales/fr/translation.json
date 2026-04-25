@@ -229,6 +229,8 @@
     "services.start": "Démarrer",
     "services.stop": "Arrêter",
     "services.restart": "Redémarrer",
+    "services.enable_startup": "Activer au démarrage",
+    "services.disable_startup": "Désactiver au démarrage",
     "services.auth_title": "Authentification requise",
     "services.auth_desc": "Entrez votre mot de passe pour gérer ce service.",
     "services.auth_password": "Mot de passe",

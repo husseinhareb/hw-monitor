@@ -63,10 +63,10 @@ export const PartitionItem = styled.li`
 
 const progressAnimation = keyframes`
   from {
-    width: 0%;
+    transform: scaleX(0);
   }
   to {
-    width: 100%;
+    transform: scaleX(1);
   }
 `;
 
@@ -77,6 +77,7 @@ export const PartitionBar = styled.div<{ $partitionUsageBackgroundColor: string 
   top: 0;
   left: 0;
   z-index: 0;
+  transform-origin: left;
   animation: ${progressAnimation} 1s ease-in-out;
 `;
 

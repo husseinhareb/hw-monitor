@@ -230,6 +230,8 @@
     "services.start": "Uruchom",
     "services.stop": "Zatrzymaj",
     "services.restart": "Uruchom ponownie",
+    "services.enable_startup": "Włącz przy starcie",
+    "services.disable_startup": "Wyłącz przy starcie",
     "services.auth_title": "Wymagane uwierzytelnienie",
     "services.auth_desc": "Wprowadź hasło, aby zarządzać tą usługą.",
     "services.auth_password": "Hasło",

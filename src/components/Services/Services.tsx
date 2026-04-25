@@ -96,12 +96,14 @@ const columns: { key: keyof SystemService; labelKey: string }[] = [
     { key: "unit_file_state", labelKey: "services.col_enabled" },
 ];
 
-type ServiceAction = "start" | "stop" | "restart";
+type ServiceAction = "start" | "stop" | "restart" | "enable" | "disable";
 
 const serviceActionCommands: Record<ServiceAction, string> = {
     start: "start_service",
     stop: "stop_service",
     restart: "restart_service",
+    enable: "enable_service",
+    disable: "disable_service",
 };
 
 const activeColor = (state: string): string => {
@@ -337,6 +339,16 @@ const Services: React.FC = () => {
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={() => handleAction("restart")}
                     >{t("services.restart")}</KillButton>
+                    <KillButton
+                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
+                        killButtonColor={processConfig.config.processes_body_color}
+                        onClick={() => handleAction("enable")}
+                    >{t("services.enable_startup")}</KillButton>
+                    <KillButton
+                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
+                        killButtonColor={processConfig.config.processes_body_color}
+                        onClick={() => handleAction("disable")}
+                    >{t("services.disable_startup")}</KillButton>
                 </BottomBar>
             )}
         {authModal.show && (

@@ -12,7 +12,71 @@ mod sensors;
 mod services;
 mod total_usages;
 
-use std::sync::Mutex;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Mutex,
+};
+use tauri::{
+    image::Image,
+    menu::{Menu, MenuEvent, MenuItem},
+    tray::TrayIconBuilder,
+    Manager, WindowEvent,
+};
+
+const MAIN_WINDOW_LABEL: &str = "main";
+const QUIT_MENU_ID: &str = "quit";
+const TRAY_ID: &str = "main-tray";
+const TRAY_ICON: Image<'_> = tauri::include_image!("./icons/32x32.png");
+
+#[derive(Default)]
+struct AppLifecycleState {
+    is_quitting: AtomicBool,
+}
+
+fn build_tray<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
+    let quit_item = MenuItem::with_id(app, QUIT_MENU_ID, "Quit", true, None::<&str>)?;
+    let tray_menu = Menu::with_items(app, &[&quit_item])?;
+
+    TrayIconBuilder::with_id(TRAY_ID)
+        .menu(&tray_menu)
+        .icon(TRAY_ICON)
+        .show_menu_on_left_click(false)
+        .on_menu_event(handle_tray_menu_event)
+        .build(app)?;
+
+    Ok(())
+}
+
+fn handle_tray_menu_event<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: MenuEvent) {
+    if event.id().as_ref() == QUIT_MENU_ID {
+        app.state::<AppLifecycleState>()
+            .is_quitting
+            .store(true, Ordering::SeqCst);
+        app.exit(0);
+    }
+}
+
+fn handle_window_event<R: tauri::Runtime>(window: &tauri::Window<R>, event: &WindowEvent) {
+    if window.label() != MAIN_WINDOW_LABEL {
+        return;
+    }
+
+    if let WindowEvent::CloseRequested { api, .. } = event {
+        if window
+            .state::<AppLifecycleState>()
+            .is_quitting
+            .load(Ordering::SeqCst)
+        {
+            return;
+        }
+
+        api.prevent_close();
+
+        if let Err(error) = window.hide() {
+            eprintln!("failed to hide main window on close request: {error}");
+        }
+    }
+}
 
 fn main() {
     //let devtools = devtools::init();
@@ -20,12 +84,18 @@ fn main() {
         panic!("failed to initialize config: {err}");
     }
     tauri::Builder::default()
+        .manage(AppLifecycleState::default())
         .manage(cpu_utils::PerfCpuState(Mutex::new(None)))
         .manage(cpu_utils::TotalCpuState(Mutex::new(None)))
         .manage(cpu_utils::PerCoreCpuState(Mutex::new(Vec::new())))
         .manage(Mutex::new(None::<network::NetSnapshot>))
         .manage(Mutex::new(None::<disk::DiskSnapshot>))
         .manage(Mutex::new(None::<proc::ProcSnapshot>))
+        .setup(|app| {
+            build_tray(app.handle())?;
+            Ok(())
+        })
+        .on_window_event(handle_window_event)
         .invoke_handler(tauri::generate_handler![
             proc::get_processes,
             proc::kill_process,
@@ -55,6 +125,8 @@ fn main() {
             services::start_service,
             services::stop_service,
             services::restart_service,
+            services::enable_service,
+            services::disable_service,
         ])
         //.plugin(devtools)
         .run(tauri::generate_context!())

@@ -230,6 +230,8 @@
     "services.start": "Starten",
     "services.stop": "Stoppen",
     "services.restart": "Neustarten",
+    "services.enable_startup": "Beim Start aktivieren",
+    "services.disable_startup": "Beim Start deaktivieren",
     "services.auth_title": "Authentifizierung erforderlich",
     "services.auth_desc": "Geben Sie Ihr Passwort ein, um diesen Dienst zu verwalten.",
     "services.auth_password": "Passwort",
@@ -243,4 +245,3 @@
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox"
 }
-

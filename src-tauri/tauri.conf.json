@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "hw-monitor",
         "width": 800,
         "height": 600

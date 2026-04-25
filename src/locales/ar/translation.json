@@ -231,6 +231,8 @@
     "services.start": "تشغيل",
     "services.stop": "إيقاف",
     "services.restart": "إعادة تشغيل",
+    "services.enable_startup": "تفعيل عند بدء التشغيل",
+    "services.disable_startup": "تعطيل عند بدء التشغيل",
     "services.auth_title": "المصادقة مطلوبة",
     "services.auth_desc": "أدخل كلمة المرور لإدارة هذه الخدمة.",
     "services.auth_password": "كلمة المرور",

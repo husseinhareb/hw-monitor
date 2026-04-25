@@ -230,6 +230,8 @@
     "services.start": "Запустить",
     "services.stop": "Остановить",
     "services.restart": "Перезапустить",
+    "services.enable_startup": "Включить при запуске",
+    "services.disable_startup": "Отключить при запуске",
     "services.auth_title": "Требуется аутентификация",
     "services.auth_desc": "Введите пароль для управления службой.",
     "services.auth_password": "Пароль",
