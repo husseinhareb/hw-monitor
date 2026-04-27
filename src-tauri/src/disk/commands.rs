@@ -99,8 +99,19 @@ pub struct Partition {
 pub struct Disk {
     pub name: String,
     pub model: Option<String>,
+    pub vendor: Option<String>,
+    pub serial: Option<String>,
+    pub firmware_rev: Option<String>,
+    pub wwid: Option<String>,
     pub size: u64,
     pub partitions: Vec<Partition>,
+    pub rotational: bool,
+    pub physical_block_size: u64,
+    pub logical_block_size: u64,
+    pub removable: bool,
+    pub read_only: bool,
+    pub trim_supported: bool,
+    pub scheduler: Option<String>,
 
     // new fields
     pub read_speed: String,  // KB/s
@@ -109,8 +120,8 @@ pub struct Disk {
     pub total_write: u64,    // bytes
 }
 
-fn get_disk_model(disk_name: &str) -> Option<String> {
-    let path = format!("/sys/block/{}/device/model", disk_name);
+fn get_sysfs_value(disk_name: &str, sub_path: &str) -> Option<String> {
+    let path = format!("/sys/block/{}/{}", disk_name, sub_path);
     fs::read_to_string(&path).ok().map(|s| s.trim().to_string())
 }
 
@@ -126,24 +137,61 @@ fn get_disk_partition_info() -> Vec<Disk> {
                 let name = parts[3].to_string();
                 let size: u64 = parts[2].parse().unwrap_or(0) * BLOCK_SIZE;
 
-                // new "base" disk?
-                if current_disk.is_none() || !name.starts_with(current_disk.as_ref().unwrap()) {
+                let sys_block_path = format!("/sys/block/{}", name);
+                let is_base_disk = std::path::Path::new(&sys_block_path).exists();
+
+                if is_base_disk {
                     current_disk = Some(name.clone());
-                    let model = get_disk_model(&name);
+                    let model = get_sysfs_value(&name, "device/model");
+                    let vendor = get_sysfs_value(&name, "device/vendor");
+                    let serial = get_sysfs_value(&name, "device/serial");
+                    let firmware_rev = get_sysfs_value(&name, "device/rev");
+                    let wwid = get_sysfs_value(&name, "wwid");
+                    
+                    let rotational = get_sysfs_value(&name, "queue/rotational")
+                        .map(|s| s == "1")
+                        .unwrap_or(false);
+                    let phys_block = get_sysfs_value(&name, "queue/physical_block_size")
+                        .and_then(|s| s.parse().ok())
+                        .unwrap_or(512);
+                    let log_block = get_sysfs_value(&name, "queue/logical_block_size")
+                        .and_then(|s| s.parse().ok())
+                        .unwrap_or(512);
+                    
+                    let removable = get_sysfs_value(&name, "removable")
+                        .map(|s| s == "1")
+                        .unwrap_or(false);
+                    let read_only = get_sysfs_value(&name, "ro")
+                        .map(|s| s == "1")
+                        .unwrap_or(false);
+                    let trim_supported = get_sysfs_value(&name, "queue/discard_granularity")
+                        .and_then(|s| s.parse::<u64>().ok())
+                        .map(|v| v > 0)
+                        .unwrap_or(false);
+                    let scheduler = get_sysfs_value(&name, "queue/scheduler");
+
                     disks.push(Disk {
                         name: name.clone(),
                         model,
+                        vendor,
+                        serial,
+                        firmware_rev,
+                        wwid,
                         size,
                         partitions: Vec::new(),
+                        rotational,
+                        physical_block_size: phys_block,
+                        logical_block_size: log_block,
+                        removable,
+                        read_only,
+                        trim_supported,
+                        scheduler,
                         read_speed: "0.0".into(),
                         write_speed: "0.0".into(),
                         total_read: 0,
                         total_write: 0,
                     });
-                }
-
-                // add partition if it's not the base device
-                if let Some(d) = disks.last_mut() {
+                } else if let Some(d) = disks.last_mut() {
                     if name != d.name {
                         d.partitions.push(Partition {
                             name: name.clone(),

@@ -37,7 +37,7 @@ export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; }>`
 export const SensorGroup = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   height: 100%;
   width: 100%;
 `;

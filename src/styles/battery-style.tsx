@@ -19,12 +19,28 @@ export const Item = styled.p<{ sensorsGroupForegroundColor: string; }>`
 
 export const DesignDiv = styled.div`
   flex: 0 0 auto;
-  margin-right: 20px;
+`;
+
+export const BatteryContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 24px;
+  width: 100%;
+  align-items: center;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 `;
 
 export const ContentDiv = styled.div`
-  flex: 1;
-  margin-top: 30px;
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const full = keyframes`
@@ -43,7 +59,7 @@ const calculatePercentage = (percentage: number) => css`
 export const Design = styled.div<DesignProps>`
   background-color: ${(props) => props.sensorsBatteryCaseColor};
   position: relative;
-  margin: 20px auto;
+  margin: 10px 0;
   width: 130px;
   height: 220px;
   border: 10px solid ${(props) => props.sensorsBatteryFrameColor + "CC"};

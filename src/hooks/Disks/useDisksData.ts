@@ -18,8 +18,23 @@ interface PartitionData {
 interface DiskData {
     name: string;
     model?: string;
+    vendor?: string;
+    serial?: string;
+    firmware_rev?: string;
+    wwid?: string;
     partitions: PartitionData[];
     size: number;
+    rotational: boolean;
+    physical_block_size: number;
+    logical_block_size: number;
+    removable: boolean;
+    read_only: boolean;
+    trim_supported: boolean;
+    scheduler?: string;
+    read_speed: string;
+    write_speed: string;
+    total_read: number;
+    total_write: number;
 }
 
 const useDiskData = () => {
