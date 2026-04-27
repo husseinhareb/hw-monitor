@@ -34,6 +34,10 @@ export interface ConfigData {
   sensors_battery_frame_color: string;
   sensors_boxes_title_foreground_color: string;
   sensors_battery_case_color: string;
+  sensors_hidden_ids: string[];
+  sensors_label_overrides: string;
+  sensors_warning_thresholds: string;
+  sensors_critical_thresholds: string;
   disks_update_time: number;
   disks_background_color: string;
   disks_boxes_background_color: string;
@@ -101,6 +105,10 @@ export const defaultConfig: ConfigData = {
   sensors_battery_frame_color: "#ffffff",
   sensors_boxes_title_foreground_color: "#0088dd",
   sensors_battery_case_color: "#060606",
+  sensors_hidden_ids: [],
+  sensors_label_overrides: "{}",
+  sensors_warning_thresholds: "{}",
+  sensors_critical_thresholds: "{}",
   disks_update_time: 5000,
   disks_background_color: "#2b2b2b",
   disks_boxes_background_color: "#3a3a3a",

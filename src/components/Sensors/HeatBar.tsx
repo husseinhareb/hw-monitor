@@ -5,12 +5,11 @@ import useHeatbarConfig from '../../hooks/Sensors/useHeatbarConfig';
 
 // Style for the heat bar container
 const BarContainer = styled.div<{ bgColor: string }>`
-    width: 100px;
-    height: 15px;
+    width: 100%;
+    height: 10px;
     background-color: ${props => props.bgColor};
     position: relative;
     display: flex;
-    margin-left: 10px;
 `;
 
 // Style for the heat bar fill section

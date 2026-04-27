@@ -10,6 +10,10 @@ type SensorsConfig = {
     sensors_battery_background_color: string;
     sensors_battery_frame_color: string;
     sensors_battery_case_color: string;
+    sensors_hidden_ids: string[];
+    sensors_label_overrides: string;
+    sensors_warning_thresholds: string;
+    sensors_critical_thresholds: string;
 };
 
 const sensorsConfigKeys = [
@@ -22,6 +26,10 @@ const sensorsConfigKeys = [
     "sensors_battery_background_color",
     "sensors_battery_frame_color",
     "sensors_battery_case_color",
+    "sensors_hidden_ids",
+    "sensors_label_overrides",
+    "sensors_warning_thresholds",
+    "sensors_critical_thresholds",
 ] as const;
 
 const useSensorsConfig = () => {

@@ -155,6 +155,10 @@ define_config! {
     sensors_battery_frame_color: String = "#ffffff".into(),
     sensors_boxes_title_foreground_color: String = "#0088dd".into(),
     sensors_battery_case_color: String = "#060606".into(),
+    sensors_hidden_ids: Vec<String> = vec![],
+    sensors_label_overrides: String = "{}".into(),
+    sensors_warning_thresholds: String = "{}".into(),
+    sensors_critical_thresholds: String = "{}".into(),
     disks_update_time: u32 = 5000,
     disks_background_color: String = "#2b2b2b".into(),
     disks_boxes_background_color: String = "#3a3a3a".into(),
@@ -260,9 +264,9 @@ impl ConfigData {
 
 macro_rules! set_config_command {
     ($name:ident, $ConfigType:ident { $( $field:ident : $type:ty ),* $(,)? }) => {
-        #[derive(Debug, Deserialize)]
+        #[derive(Debug, Deserialize, Default)]
         pub struct $ConfigType {
-            $( pub $field: $type, )*
+            $( pub $field: Option<$type>, )*
         }
 
         #[tauri::command]
@@ -270,7 +274,9 @@ macro_rules! set_config_command {
             let file_path = config_file().map_err(|e| e.to_string())?;
             let (mut data, document) = load_config_document_from_path(&file_path)
                 .map_err(|e| e.to_string())?;
-            $( data.$field = configs.$field; )*
+            $( if let Some(value) = configs.$field {
+                data.$field = value;
+            } )*
             data.clamp_update_intervals();
             write_config_document(&file_path, &document, &data)
                 .map_err(|e| e.to_string())?;
@@ -400,6 +406,10 @@ set_config_command!(
         sensors_battery_frame_color: String,
         sensors_boxes_title_foreground_color: String,
         sensors_battery_case_color: String,
+        sensors_hidden_ids: Vec<String>,
+        sensors_label_overrides: String,
+        sensors_warning_thresholds: String,
+        sensors_critical_thresholds: String,
     }
 );
 

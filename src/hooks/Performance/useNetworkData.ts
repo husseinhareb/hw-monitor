@@ -17,6 +17,18 @@ interface NetworkUsage {
   total_download: number;
   total_upload: number;
   interface: string;
+  mac_address: string | null;
+  ipv4_addresses: string[];
+  ipv6_addresses: string[];
+  link_speed_mbps: number | null;
+  connection_state: string;
+  interface_type: string;
+  wifi_signal_percent: number | null;
+  wifi_signal_dbm: number | null;
+  rx_errors: number;
+  tx_errors: number;
+  rx_dropped: number;
+  tx_dropped: number;
 }
 
 const MAX_POINTS = 20;
@@ -56,6 +68,18 @@ const useNetworkData = () => {
             ),
             totalDownload: usage.total_download,
             totalUpload: usage.total_upload,
+            macAddress: usage.mac_address,
+            ipv4Addresses: usage.ipv4_addresses,
+            ipv6Addresses: usage.ipv6_addresses,
+            linkSpeedMbps: usage.link_speed_mbps,
+            connectionState: usage.connection_state,
+            interfaceType: usage.interface_type,
+            wifiSignalPercent: usage.wifi_signal_percent,
+            wifiSignalDbm: usage.wifi_signal_dbm,
+            rxErrors: usage.rx_errors,
+            txErrors: usage.tx_errors,
+            rxDropped: usage.rx_dropped,
+            txDropped: usage.tx_dropped,
           };
         });
 

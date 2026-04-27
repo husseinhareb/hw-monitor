@@ -17,6 +17,7 @@ interface PartitionData {
 
 interface DiskData {
     name: string;
+    model?: string;
     partitions: PartitionData[];
     size: number;
 }

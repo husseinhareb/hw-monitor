@@ -43,7 +43,7 @@ const Disks: React.FC = () => {
           >
             <DiskTitle
               $nameForegroundColor={disksConfig.config.disks_name_foreground_color}
-            >{disk.name}</DiskTitle>
+            >{disk.name} {disk.model && `- ${disk.model}`}</DiskTitle>
             <DiskSize
               $sizeForegroundColor={disksConfig.config.disks_size_foreground_color}
             >
@@ -70,7 +70,7 @@ const Disks: React.FC = () => {
                     <PartitionName
                       $partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
                     >{partition.name}</PartitionName>
-                    {partition.total_space === undefined && (
+                    {!partition.mount_point && (
                       <Space
                         $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
                       >
@@ -87,7 +87,7 @@ const Disks: React.FC = () => {
                         $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
                       >{partition.file_system}</FileSystem>
                     )}
-                    {partition.used_space !== undefined && partition.total_space !== undefined && (
+                    {partition.mount_point && partition.used_space !== undefined && partition.total_space !== undefined && (
                       <Space
                         $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
                       >

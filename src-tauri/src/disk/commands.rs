@@ -98,6 +98,7 @@ pub struct Partition {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Disk {
     pub name: String,
+    pub model: Option<String>,
     pub size: u64,
     pub partitions: Vec<Partition>,
 
@@ -106,6 +107,11 @@ pub struct Disk {
     pub write_speed: String, // KB/s
     pub total_read: u64,     // bytes
     pub total_write: u64,    // bytes
+}
+
+fn get_disk_model(disk_name: &str) -> Option<String> {
+    let path = format!("/sys/block/{}/device/model", disk_name);
+    fs::read_to_string(&path).ok().map(|s| s.trim().to_string())
 }
 
 fn get_disk_partition_info() -> Vec<Disk> {
@@ -123,8 +129,10 @@ fn get_disk_partition_info() -> Vec<Disk> {
                 // new "base" disk?
                 if current_disk.is_none() || !name.starts_with(current_disk.as_ref().unwrap()) {
                     current_disk = Some(name.clone());
+                    let model = get_disk_model(&name);
                     disks.push(Disk {
                         name: name.clone(),
+                        model,
                         size,
                         partitions: Vec::new(),
                         read_speed: "0.0".into(),

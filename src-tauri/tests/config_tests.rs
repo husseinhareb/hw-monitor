@@ -12,6 +12,10 @@ fn config_default_values() {
     assert_eq!(cfg.disks_update_time, 5000);
     assert_eq!(cfg.language, "en");
     assert!(!cfg.show_virtual_interfaces);
+    assert!(cfg.sensors_hidden_ids.is_empty());
+    assert_eq!(cfg.sensors_label_overrides, "{}");
+    assert_eq!(cfg.sensors_warning_thresholds, "{}");
+    assert_eq!(cfg.sensors_critical_thresholds, "{}");
 }
 
 #[test]
@@ -271,6 +275,10 @@ fn config_writes_all_expected_keys() {
         "sensors_battery_frame_color",
         "sensors_boxes_title_foreground_color",
         "sensors_battery_case_color",
+        "sensors_hidden_ids",
+        "sensors_label_overrides",
+        "sensors_warning_thresholds",
+        "sensors_critical_thresholds",
         "disks_update_time",
         "disks_background_color",
         "disks_boxes_background_color",

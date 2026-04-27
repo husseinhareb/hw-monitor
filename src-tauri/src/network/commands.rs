@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
+use std::process::Command;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -11,6 +13,35 @@ pub struct Network {
     download: f64,
     total_upload: u64,
     total_download: u64,
+    mac_address: Option<String>,
+    ipv4_addresses: Vec<String>,
+    ipv6_addresses: Vec<String>,
+    link_speed_mbps: Option<u64>,
+    connection_state: String,
+    interface_type: String,
+    wifi_signal_percent: Option<u8>,
+    wifi_signal_dbm: Option<i32>,
+    rx_errors: u64,
+    tx_errors: u64,
+    rx_dropped: u64,
+    tx_dropped: u64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NetworkInterface {
+    interface: String,
+    mac_address: Option<String>,
+    ipv4_addresses: Vec<String>,
+    ipv6_addresses: Vec<String>,
+    link_speed_mbps: Option<u64>,
+    connection_state: String,
+    interface_type: String,
+    wifi_signal_percent: Option<u8>,
+    wifi_signal_dbm: Option<i32>,
+    rx_errors: u64,
+    tx_errors: u64,
+    rx_dropped: u64,
+    tx_dropped: u64,
 }
 
 pub fn is_physical_interface(name: &str) -> bool {
@@ -20,6 +51,10 @@ pub fn is_physical_interface(name: &str) -> bool {
 struct NetDevStats {
     rx_bytes: u64,
     tx_bytes: u64,
+    rx_errors: u64,
+    tx_errors: u64,
+    rx_dropped: u64,
+    tx_dropped: u64,
 }
 
 fn read_proc_net_dev() -> HashMap<String, NetDevStats> {
@@ -35,12 +70,16 @@ fn read_proc_net_dev() -> HashMap<String, NetDevStats> {
                 .split_whitespace()
                 .filter_map(|s| s.parse().ok())
                 .collect();
-            if fields.len() >= 10 {
+            if fields.len() >= 12 {
                 map.insert(
                     iface,
                     NetDevStats {
                         rx_bytes: fields[0],
                         tx_bytes: fields[8],
+                        rx_errors: fields[2],
+                        tx_errors: fields[10],
+                        rx_dropped: fields[3],
+                        tx_dropped: fields[11],
                     },
                 );
             }
@@ -49,13 +88,233 @@ fn read_proc_net_dev() -> HashMap<String, NetDevStats> {
     map
 }
 
+#[derive(Debug, Default)]
+struct AddressInfo {
+    ipv4_addresses: Vec<String>,
+    ipv6_addresses: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct IpAddressOutput {
+    #[serde(default)]
+    addr_info: Vec<IpAddressEntry>,
+}
+
+#[derive(Debug, Deserialize)]
+struct IpAddressEntry {
+    family: String,
+    local: String,
+    prefixlen: Option<u8>,
+}
+
+fn read_interface_addresses(interface: &str) -> AddressInfo {
+    let output = Command::new("ip")
+        .args(["-j", "addr", "show", "dev", interface])
+        .output();
+
+    let Ok(output) = output else {
+        return AddressInfo::default();
+    };
+
+    if !output.status.success() {
+        return AddressInfo::default();
+    }
+
+    let Ok(stdout) = String::from_utf8(output.stdout) else {
+        return AddressInfo::default();
+    };
+
+    let Ok(entries) = serde_json::from_str::<Vec<IpAddressOutput>>(&stdout) else {
+        return AddressInfo::default();
+    };
+
+    let mut info = AddressInfo::default();
+    for entry in entries {
+        for address in entry.addr_info {
+            let value = match address.prefixlen {
+                Some(prefixlen) => format!("{}/{}", address.local, prefixlen),
+                None => address.local,
+            };
+
+            match address.family.as_str() {
+                "inet" => info.ipv4_addresses.push(value),
+                "inet6" => info.ipv6_addresses.push(value),
+                _ => {}
+            }
+        }
+    }
+
+    info
+}
+
+fn read_trimmed(path: impl AsRef<Path>) -> Option<String> {
+    fs::read_to_string(path)
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+fn sysfs_interface_path(interface: &str) -> String {
+    format!("/sys/class/net/{interface}")
+}
+
+fn read_mac_address(interface: &str) -> Option<String> {
+    read_trimmed(format!("{}/address", sysfs_interface_path(interface)))
+        .filter(|value| value != "00:00:00:00:00:00")
+}
+
+fn read_link_speed(interface: &str) -> Option<u64> {
+    read_trimmed(format!("{}/speed", sysfs_interface_path(interface)))
+        .and_then(|value| value.parse::<i64>().ok())
+        .and_then(|value| u64::try_from(value).ok())
+        .filter(|value| *value > 0)
+}
+
+fn read_connection_state(interface: &str) -> String {
+    let operstate = read_trimmed(format!("{}/operstate", sysfs_interface_path(interface)))
+        .unwrap_or_else(|| "unknown".to_string());
+    let carrier = read_trimmed(format!("{}/carrier", sysfs_interface_path(interface)));
+
+    match (operstate.as_str(), carrier.as_deref()) {
+        ("up", Some("1")) => "connected".to_string(),
+        ("up", Some("0")) => "disconnected".to_string(),
+        ("down", _) => "down".to_string(),
+        ("dormant", _) => "dormant".to_string(),
+        ("unknown", _) => "unknown".to_string(),
+        _ => operstate,
+    }
+}
+
+fn infer_interface_type(interface: &str) -> String {
+    let base_path = sysfs_interface_path(interface);
+
+    if Path::new(&format!("{base_path}/wireless")).exists() || interface.starts_with("wl") {
+        return "wifi".to_string();
+    }
+    if interface == "lo" {
+        return "loopback".to_string();
+    }
+    if interface.starts_with("br")
+        || interface.starts_with("docker")
+        || interface.starts_with("virbr")
+    {
+        return "bridge".to_string();
+    }
+    if interface.starts_with("tun") || interface.starts_with("tap") || interface.starts_with("wg") {
+        return "vpn".to_string();
+    }
+    if interface.starts_with("veth") {
+        return "virtual".to_string();
+    }
+    if interface.starts_with("en") || interface.starts_with("eth") {
+        return "ethernet".to_string();
+    }
+
+    match fs::canonicalize(&base_path) {
+        Ok(path) if path.to_string_lossy().contains("/devices/virtual/net/") => {
+            "virtual".to_string()
+        }
+        _ => "unknown".to_string(),
+    }
+}
+
+fn parse_wireless_number(value: &str) -> Option<f64> {
+    value.trim_end_matches('.').parse::<f64>().ok()
+}
+
+fn parse_wifi_signal_line(line: &str, interface: &str) -> Option<(Option<u8>, Option<i32>)> {
+    let (name, stats) = line.split_once(':')?;
+    if name.trim() != interface {
+        return None;
+    }
+
+    let fields: Vec<&str> = stats.split_whitespace().collect();
+    if fields.len() < 4 {
+        return Some((None, None));
+    }
+
+    let quality = parse_wireless_number(fields[1])
+        .map(|value| ((value / 70.0) * 100.0).clamp(0.0, 100.0).round() as u8);
+    let dbm = parse_wireless_number(fields[2])
+        .filter(|value| *value <= 0.0)
+        .map(|value| value.round() as i32);
+
+    Some((quality, dbm))
+}
+
+fn read_wifi_signal(interface: &str) -> (Option<u8>, Option<i32>) {
+    let content = match fs::read_to_string("/proc/net/wireless") {
+        Ok(content) => content,
+        Err(_) => return (None, None),
+    };
+
+    content
+        .lines()
+        .find_map(|line| parse_wifi_signal_line(line, interface))
+        .unwrap_or((None, None))
+}
+
+fn network_interface_from_parts(interface: &str, stats: Option<&NetDevStats>) -> NetworkInterface {
+    let addresses = read_interface_addresses(interface);
+    let (wifi_signal_percent, wifi_signal_dbm) = read_wifi_signal(interface);
+    let zero_stats = NetDevStats {
+        rx_bytes: 0,
+        tx_bytes: 0,
+        rx_errors: 0,
+        tx_errors: 0,
+        rx_dropped: 0,
+        tx_dropped: 0,
+    };
+    let stats = stats.unwrap_or(&zero_stats);
+
+    NetworkInterface {
+        interface: interface.to_string(),
+        mac_address: read_mac_address(interface),
+        ipv4_addresses: addresses.ipv4_addresses,
+        ipv6_addresses: addresses.ipv6_addresses,
+        link_speed_mbps: read_link_speed(interface),
+        connection_state: read_connection_state(interface),
+        interface_type: infer_interface_type(interface),
+        wifi_signal_percent,
+        wifi_signal_dbm,
+        rx_errors: stats.rx_errors,
+        tx_errors: stats.tx_errors,
+        rx_dropped: stats.rx_dropped,
+        tx_dropped: stats.tx_dropped,
+    }
+}
+
+fn network_from_stats(interface: &str, stats: &NetDevStats, download: f64, upload: f64) -> Network {
+    let details = network_interface_from_parts(interface, Some(stats));
+
+    Network {
+        interface: details.interface,
+        download,
+        upload,
+        total_download: stats.rx_bytes,
+        total_upload: stats.tx_bytes,
+        mac_address: details.mac_address,
+        ipv4_addresses: details.ipv4_addresses,
+        ipv6_addresses: details.ipv6_addresses,
+        link_speed_mbps: details.link_speed_mbps,
+        connection_state: details.connection_state,
+        interface_type: details.interface_type,
+        wifi_signal_percent: details.wifi_signal_percent,
+        wifi_signal_dbm: details.wifi_signal_dbm,
+        rx_errors: details.rx_errors,
+        tx_errors: details.tx_errors,
+        rx_dropped: details.rx_dropped,
+        tx_dropped: details.tx_dropped,
+    }
+}
+
 pub struct NetSnapshot {
     pub stats: HashMap<String, (u64, u64)>,
     pub time: Instant,
 }
 
 #[tauri::command]
-pub async fn get_interfaces(show_virtual: bool) -> Vec<String> {
+pub async fn get_interfaces(show_virtual: bool) -> Vec<NetworkInterface> {
     let stats = read_proc_net_dev();
     let mut interfaces: Vec<String> = stats
         .keys()
@@ -64,6 +323,9 @@ pub async fn get_interfaces(show_virtual: bool) -> Vec<String> {
         .collect();
     interfaces.sort();
     interfaces
+        .into_iter()
+        .map(|interface| network_interface_from_parts(&interface, stats.get(&interface)))
+        .collect()
 }
 
 #[tauri::command]
@@ -102,13 +364,7 @@ pub async fn get_network(
             (0.0, 0.0)
         };
 
-        result.push(Network {
-            interface: iface.clone(),
-            download: rx_per_sec,
-            upload: tx_per_sec,
-            total_download: s2.rx_bytes,
-            total_upload: s2.tx_bytes,
-        });
+        result.push(network_from_stats(iface, s2, rx_per_sec, tx_per_sec));
     }
 
     *guard = Some(NetSnapshot {
@@ -120,4 +376,31 @@ pub async fn get_network(
     });
 
     Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{infer_interface_type, parse_wifi_signal_line};
+
+    #[test]
+    fn infers_common_interface_types() {
+        assert_eq!(infer_interface_type("wlan0"), "wifi");
+        assert_eq!(infer_interface_type("wlp3s0"), "wifi");
+        assert_eq!(infer_interface_type("eth0"), "ethernet");
+        assert_eq!(infer_interface_type("enp0s25"), "ethernet");
+        assert_eq!(infer_interface_type("lo"), "loopback");
+        assert_eq!(infer_interface_type("docker0"), "bridge");
+        assert_eq!(infer_interface_type("br-abc123"), "bridge");
+        assert_eq!(infer_interface_type("veth1234"), "virtual");
+        assert_eq!(infer_interface_type("wg0"), "vpn");
+    }
+
+    #[test]
+    fn parses_wifi_signal_from_proc_net_wireless_line() {
+        let line = "wlan0: 0000   49.  -61.  -256        0      0      0      0      0        0";
+        let (quality, dbm) = parse_wifi_signal_line(line, "wlan0").unwrap();
+        assert_eq!(quality, Some(70));
+        assert_eq!(dbm, Some(-61));
+        assert!(parse_wifi_signal_line(line, "wlan1").is_none());
+    }
 }

@@ -10,6 +10,18 @@ export interface NetworkData {
   upload: NetworkPoint[];
   totalDownload: number;
   totalUpload: number;
+  macAddress: string | null;
+  ipv4Addresses: string[];
+  ipv6Addresses: string[];
+  linkSpeedMbps: number | null;
+  connectionState: string;
+  interfaceType: string;
+  wifiSignalPercent: number | null;
+  wifiSignalDbm: number | null;
+  rxErrors: number;
+  txErrors: number;
+  rxDropped: number;
+  txDropped: number;
 }
 
 export interface NetworkSpeedData {

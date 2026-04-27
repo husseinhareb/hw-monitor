@@ -5,8 +5,10 @@ import { usePaused, notify } from "../../services/store";
 import useSerialPolling from "../useSerialPolling";
 
 interface SensorData {
+  id: string;
   name: string;
   value: number;
+  warning: number | null;
   critical: number | null;
   sensor_type: string;
   unit: string;

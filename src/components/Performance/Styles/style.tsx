@@ -135,3 +135,35 @@ export const MemoryFixedValues = styled(FixedValues)`
 padding: 8px;
 min-width: 0;
 `;
+
+export const NetworkInfoGrid = styled.div`
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+gap: 8px 18px;
+width: 100%;
+padding: 0 10px;
+box-sizing: border-box;
+flex-shrink: 0;
+`;
+
+export const NetworkInfoItem = styled.div`
+display: flex;
+justify-content: space-between;
+gap: 12px;
+min-width: 0;
+`;
+
+export const NetworkInfoLabel = styled.span<{ performanceLabelColor: string; }>`
+color: ${(props) => props.performanceLabelColor};
+font-size: 13px;
+min-width: 0;
+`;
+
+export const NetworkInfoValue = styled.span<{ performanceValueColor: string; }>`
+color: ${(props) => props.performanceValueColor};
+font-size: 14px;
+text-align: right;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+`;
