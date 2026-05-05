@@ -1213,7 +1213,6 @@ dependencies = [
  "libc",
  "nvml-wrapper",
  "serde",
- "serde_json",
  "tauri",
  "tauri-build",
 ]

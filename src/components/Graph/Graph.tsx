@@ -20,10 +20,11 @@ interface GraphProps {
 }
 
 const MAX_POINTS = 20;
+const EMPTY: number[] = [];
 
 const Graph: React.FC<GraphProps> = ({
   firstGraphValue,
-  secondGraphValue = [],
+  secondGraphValue = EMPTY,
   maxValue,
   height = '100%',
   width = '80vw',
@@ -32,6 +33,8 @@ const Graph: React.FC<GraphProps> = ({
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
+  const totalPointsRef = useRef(0);
+  const prevDataRef = useRef<{ first: number[]; second: number[] }>({ first: EMPTY, second: EMPTY });
   const performanceConfig = usePerformanceConfig();
 
   useEffect(() => {
@@ -142,9 +145,24 @@ const Graph: React.FC<GraphProps> = ({
     const intervalSec =
       (updateInterval ?? performanceConfig.config.performance_update_time) / 1000;
 
+    // Advance total counter only when new data actually arrives
+    const prev = prevDataRef.current;
+    const dataChanged =
+      firstSeries.length !== prev.first.length ||
+      firstSeries[firstSeries.length - 1] !== prev.first[prev.first.length - 1] ||
+      secondSeries[secondSeries.length - 1] !== prev.second[prev.second.length - 1];
+    prevDataRef.current = { first: firstSeries, second: secondSeries };
+
+    if (totalPointsRef.current < pointCount) {
+      totalPointsRef.current = pointCount;
+    } else if (dataChanged) {
+      totalPointsRef.current += 1;
+    }
+    const total = totalPointsRef.current;
+
     chart.data.labels = Array.from(
       { length: pointCount },
-      (_, index) => `${(index + 1) * intervalSec}s`,
+      (_, index) => `${((total - pointCount + index + 1) * intervalSec).toFixed(0)}s`,
     );
     chart.data.datasets[0].data = firstSeries;
     chart.data.datasets[1].data = secondSeries;

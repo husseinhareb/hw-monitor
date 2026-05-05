@@ -1,8 +1,10 @@
+use libc::{AF_INET, AF_INET6};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::ffi::CStr;
 use std::fs;
+use std::net::{Ipv4Addr, Ipv6Addr};
 use std::path::Path;
-use std::process::Command;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -94,56 +96,57 @@ struct AddressInfo {
     ipv6_addresses: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
-struct IpAddressOutput {
-    #[serde(default)]
-    addr_info: Vec<IpAddressEntry>,
-}
-
-#[derive(Debug, Deserialize)]
-struct IpAddressEntry {
-    family: String,
-    local: String,
-    prefixlen: Option<u8>,
-}
-
 fn read_interface_addresses(interface: &str) -> AddressInfo {
-    let output = Command::new("ip")
-        .args(["-j", "addr", "show", "dev", interface])
-        .output();
+    let mut info = AddressInfo::default();
 
-    let Ok(output) = output else {
-        return AddressInfo::default();
-    };
-
-    if !output.status.success() {
-        return AddressInfo::default();
+    let mut ifap: *mut libc::ifaddrs = std::ptr::null_mut();
+    if unsafe { libc::getifaddrs(&mut ifap) } != 0 || ifap.is_null() {
+        return info;
     }
 
-    let Ok(stdout) = String::from_utf8(output.stdout) else {
-        return AddressInfo::default();
-    };
+    let mut ifa = ifap;
+    while !ifa.is_null() {
+        let entry = unsafe { &*ifa };
+        ifa = entry.ifa_next;
 
-    let Ok(entries) = serde_json::from_str::<Vec<IpAddressOutput>>(&stdout) else {
-        return AddressInfo::default();
-    };
+        if entry.ifa_addr.is_null() || entry.ifa_name.is_null() {
+            continue;
+        }
 
-    let mut info = AddressInfo::default();
-    for entry in entries {
-        for address in entry.addr_info {
-            let value = match address.prefixlen {
-                Some(prefixlen) => format!("{}/{}", address.local, prefixlen),
-                None => address.local,
+        let name = match unsafe { CStr::from_ptr(entry.ifa_name).to_str() } {
+            Ok(n) => n,
+            Err(_) => continue,
+        };
+        if name != interface {
+            continue;
+        }
+
+        let family = unsafe { (*entry.ifa_addr).sa_family } as i32;
+
+        if family == AF_INET {
+            let addr = unsafe { &*(entry.ifa_addr as *const libc::sockaddr_in) };
+            let ip = Ipv4Addr::from(addr.sin_addr.s_addr.to_ne_bytes());
+            let prefix = if !entry.ifa_netmask.is_null() {
+                let mask = unsafe { &*(entry.ifa_netmask as *const libc::sockaddr_in) };
+                mask.sin_addr.s_addr.count_ones()
+            } else {
+                32
             };
-
-            match address.family.as_str() {
-                "inet" => info.ipv4_addresses.push(value),
-                "inet6" => info.ipv6_addresses.push(value),
-                _ => {}
-            }
+            info.ipv4_addresses.push(format!("{}/{}", ip, prefix));
+        } else if family == AF_INET6 {
+            let addr = unsafe { &*(entry.ifa_addr as *const libc::sockaddr_in6) };
+            let ip = Ipv6Addr::from(addr.sin6_addr.s6_addr);
+            let prefix = if !entry.ifa_netmask.is_null() {
+                let mask = unsafe { &*(entry.ifa_netmask as *const libc::sockaddr_in6) };
+                mask.sin6_addr.s6_addr.iter().map(|b| b.count_ones()).sum::<u32>()
+            } else {
+                128
+            };
+            info.ipv6_addresses.push(format!("{}/{}", ip, prefix));
         }
     }
 
+    unsafe { libc::freeifaddrs(ifap) };
     info
 }
 

@@ -58,68 +58,87 @@ export const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
 `;
 
-export const ModalContent = styled.div<{ $backgroundColor: string; $textColor: string }>`
+export const ModalContent = styled.div<{
+  $backgroundColor: string;
+  $textColor: string;
+  $borderColor: string;
+}>`
   background: ${(props) => props.$backgroundColor};
   color: ${(props) => props.$textColor};
-  padding: 30px;
-  border-radius: 12px;
-  width: 50%;
-  height: 50%;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  width: min(860px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
   position: relative;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${(props) => props.$borderColor};
+  box-sizing: border-box;
 
   @media (max-width: 1024px) {
-    width: 70%;
-    height: 70%;
+    width: calc(100vw - 32px);
   }
 
   @media (max-width: 600px) {
-    width: 90%;
-    height: 90%;
+    width: 100%;
+    max-height: 100%;
   }
 `;
 
-export const ModalHeader = styled.div`
+export const ModalHeader = styled.div<{
+  $borderColor: string;
+  $headerBackgroundColor: string;
+}>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid rgba(128, 128, 128, 0.2);
-  padding-bottom: 15px;
+  border-bottom: 1px solid ${(props) => props.$borderColor};
+  background: ${(props) => props.$headerBackgroundColor};
+  padding: 12px 14px;
+  flex-shrink: 0;
 
   h3 {
     margin: 0;
-    font-size: 1.5em;
-    letter-spacing: 0.5px;
+    font-size: 18px;
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 `;
 
-export const CloseButton = styled.div`
+export const CloseButton = styled.button<{ $color: string; $borderColor: string }>`
+  background: transparent;
+  border: 1px solid ${(props) => props.$borderColor};
+  color: ${(props) => props.$color};
   cursor: pointer;
-  font-size: 2em;
+  font-size: 20px;
   line-height: 1;
-  transition: transform 0.2s;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  flex-shrink: 0;
   
   &:hover {
-    transform: scale(1.1);
+    opacity: 0.72;
   }
 `;
 
 export const ModalBody = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding-right: 10px;
+  padding: 14px;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  align-content: start;
+  gap: 14px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -129,42 +148,63 @@ export const ModalBody = styled.div`
   }
   &::-webkit-scrollbar-thumb {
     background: rgba(128, 128, 128, 0.5);
-    border-radius: 3px;
   }
 `;
 
-export const DetailSection = styled.div`
-  margin-bottom: 25px;
+export const DetailSection = styled.div<{ $borderColor: string }>`
+  border: 1px solid ${(props) => props.$borderColor};
+  min-width: 0;
 `;
 
-export const SectionTitle = styled.h4`
-  margin: 0 0 12px 0;
-  opacity: 0.7;
+export const SectionTitle = styled.h4<{
+  $backgroundColor: string;
+  $color: string;
+  $borderColor: string;
+}>`
+  margin: 0;
+  background: ${(props) => props.$backgroundColor};
+  color: ${(props) => props.$color};
   text-transform: uppercase;
-  font-size: 0.85em;
-  letter-spacing: 1px;
-  border-left: 3px solid currentColor;
-  padding-left: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-bottom: 1px solid ${(props) => props.$borderColor};
+  padding: 7px 10px;
 `;
 
-export const DetailRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+export const DetailRow = styled.div<{ $borderColor: string }>`
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1fr);
+  gap: 14px;
+  padding: 8px 10px;
+  border-bottom: 1px solid ${(props) => props.$borderColor};
+  min-width: 0;
   
   &:last-child {
     border-bottom: none;
   }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
 `;
 
-export const DetailLabel = styled.span`
-  opacity: 0.8;
+export const DetailLabel = styled.span<{ $color: string }>`
+  color: ${(props) => props.$color};
+  min-width: 0;
 `;
 
-export const DetailValue = styled.span`
+export const DetailValue = styled.span<{ $color: string }>`
+  color: ${(props) => props.$color};
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-weight: 500;
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: anywhere;
+
+  @media (max-width: 600px) {
+    text-align: left;
+  }
 `;
 
 export const DiskSize = styled.p<{ $sizeForegroundColor: string }>`

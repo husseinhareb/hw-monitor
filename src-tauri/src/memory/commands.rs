@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{fs, io, process::Command};
+use std::{fs, io};
 
 const KILO_BYTE: i64 = 1024;
 
@@ -79,22 +79,24 @@ pub fn get_mem_info() -> Memory {
     }
 }
 
-/// Read memory hardware info using `udevadm info` on the DMI sysfs node.
-/// This works without root — same approach as Mission Center.
+/// Read memory hardware info from the udev property database.
+/// udevd (running as root at boot) parses /sys/firmware/dmi/tables/DMI and writes
+/// the decoded SMBIOS properties to /run/udev/data/+dmi:id (world-readable, rw-r--r--).
+/// Reading that file directly avoids spawning a subprocess entirely.
 fn read_udevadm_memory_info() -> MemoryHardwareInfo {
-    let output = match Command::new("udevadm")
-        .args([
-            "info",
-            "-q",
-            "property",
-            "-p",
-            "/sys/devices/virtual/dmi/id",
-        ])
-        .output()
-    {
-        Ok(out) if out.status.success() => String::from_utf8_lossy(&out.stdout).into_owned(),
-        _ => return MemoryHardwareInfo::default(),
+    let raw = match fs::read_to_string("/run/udev/data/+dmi:id") {
+        Ok(s) => s,
+        Err(_) => return MemoryHardwareInfo::default(),
     };
+
+    // The database format is one entry per line: "E:KEY=VALUE". Strip the prefix so
+    // the rest of the parsing code sees plain "KEY=VALUE" lines, identical to what
+    // `udevadm info -q property` would have printed.
+    let output: String = raw
+        .lines()
+        .filter_map(|l| l.strip_prefix("E:"))
+        .flat_map(|l| [l, "\n"])
+        .collect();
 
     let mut speed: Option<String> = None;
     let mut form_factor: Option<String> = None;

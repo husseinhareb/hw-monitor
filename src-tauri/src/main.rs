@@ -19,11 +19,12 @@ use std::sync::{
 use tauri::{
     image::Image,
     menu::{Menu, MenuEvent, MenuItem},
-    tray::TrayIconBuilder,
+    tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent},
     Manager, WindowEvent,
 };
 
 const MAIN_WINDOW_LABEL: &str = "main";
+const OPEN_MENU_ID: &str = "open";
 const QUIT_MENU_ID: &str = "quit";
 const TRAY_ID: &str = "main-tray";
 const TRAY_ICON: Image<'_> = tauri::include_image!("./icons/32x32.png");
@@ -33,26 +34,62 @@ struct AppLifecycleState {
     is_quitting: AtomicBool,
 }
 
+fn show_main_window<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) else {
+        eprintln!("failed to show main window: window '{MAIN_WINDOW_LABEL}' was not found");
+        return;
+    };
+
+    if let Err(error) = window.unminimize() {
+        eprintln!("failed to unminimize main window: {error}");
+    }
+
+    if let Err(error) = window.show() {
+        eprintln!("failed to show main window: {error}");
+    }
+
+    if let Err(error) = window.set_focus() {
+        eprintln!("failed to focus main window: {error}");
+    }
+}
+
 fn build_tray<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
+    let open_item = MenuItem::with_id(app, OPEN_MENU_ID, "Open", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, QUIT_MENU_ID, "Quit", true, None::<&str>)?;
-    let tray_menu = Menu::with_items(app, &[&quit_item])?;
+    let tray_menu = Menu::with_items(app, &[&open_item, &quit_item])?;
 
     TrayIconBuilder::with_id(TRAY_ID)
         .menu(&tray_menu)
         .icon(TRAY_ICON)
         .show_menu_on_left_click(false)
         .on_menu_event(handle_tray_menu_event)
+        .on_tray_icon_event(handle_tray_icon_event)
         .build(app)?;
 
     Ok(())
 }
 
 fn handle_tray_menu_event<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: MenuEvent) {
-    if event.id().as_ref() == QUIT_MENU_ID {
-        app.state::<AppLifecycleState>()
-            .is_quitting
-            .store(true, Ordering::SeqCst);
-        app.exit(0);
+    match event.id().as_ref() {
+        OPEN_MENU_ID => show_main_window(app),
+        QUIT_MENU_ID => {
+            app.state::<AppLifecycleState>()
+                .is_quitting
+                .store(true, Ordering::SeqCst);
+            app.exit(0);
+        }
+        _ => {}
+    }
+}
+
+fn handle_tray_icon_event<R: tauri::Runtime>(tray: &TrayIcon<R>, event: TrayIconEvent) {
+    if let TrayIconEvent::Click {
+        button: MouseButton::Left,
+        button_state: MouseButtonState::Down,
+        ..
+    } = event
+    {
+        show_main_window(tray.app_handle());
     }
 }
 
