@@ -25,6 +25,8 @@ import {
   DetailValue,
   DetailSection,
   SectionTitle,
+  PartitionCard,
+  PartitionCardHeader,
 } from "../../styles/disks-style";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
 import { useTranslation } from "react-i18next";
@@ -310,22 +312,21 @@ const Disks: React.FC = () => {
                 {renderSectionTitle("Partitions")}
                 {selectedDisk.partitions.length === 0
                   ? renderDetailRow("Partitions", "N/A")
-                  : selectedDisk.partitions.map((partition: any) => renderDetailRow(
-                    partition.name,
-                    [
-                      showBytes(partition.size),
-                      `dev ${partition.dev_path || `/dev/${partition.name}`}`,
-                      `major:minor ${showMajorMinor(partition.major, partition.minor)}`,
-                      partition.partition_number !== undefined ? `part ${partition.partition_number}` : null,
-                      partition.start_sector !== undefined ? `start ${partition.start_sector}` : null,
-                      partition.partuuid ? `partuuid ${partition.partuuid}` : null,
-                      partition.file_system ? `fs ${partition.file_system}` : null,
-                      partition.mount_point ? `mount ${partition.mount_point}` : null,
-                      partition.total_space !== undefined ? `used ${showBytes(partition.used_space)} / ${showBytes(partition.total_space)}` : null,
-                      partition.read_only !== undefined ? `ro ${showBoolean(partition.read_only)}` : null,
-                      partition.holders?.length ? `holders ${showList(partition.holders)}` : null,
-                    ].filter(Boolean).join(" | "),
-                    partition.name
+                  : selectedDisk.partitions.map((partition: any) => (
+                    <PartitionCard key={partition.name} $borderColor={modalBorderColor}>
+                      <PartitionCardHeader $color={modalSectionColor} $borderColor={modalBorderColor}>
+                        <span>{partition.name}</span>
+                        <span>{showBytes(partition.size)}</span>
+                      </PartitionCardHeader>
+                      {renderDetailRow("Device", partition.dev_path || `/dev/${partition.name}`)}
+                      {renderDetailRow("Major:Minor", showMajorMinor(partition.major, partition.minor))}
+                      {partition.file_system && renderDetailRow("Filesystem", partition.file_system)}
+                      {partition.mount_point && renderDetailRow("Mount", partition.mount_point)}
+                      {partition.total_space !== undefined && renderDetailRow("Used", `${showBytes(partition.used_space)} / ${showBytes(partition.total_space)}`)}
+                      {partition.partuuid && renderDetailRow("Part UUID", partition.partuuid)}
+                      {partition.read_only !== undefined && renderDetailRow("Read only", showBoolean(partition.read_only))}
+                      {!!partition.holders?.length && renderDetailRow("Holders", showList(partition.holders))}
+                    </PartitionCard>
                   ))}
               </DetailSection>
             </ModalBody>

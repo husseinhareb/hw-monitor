@@ -138,7 +138,11 @@ fn read_interface_addresses(interface: &str) -> AddressInfo {
             let ip = Ipv6Addr::from(addr.sin6_addr.s6_addr);
             let prefix = if !entry.ifa_netmask.is_null() {
                 let mask = unsafe { &*(entry.ifa_netmask as *const libc::sockaddr_in6) };
-                mask.sin6_addr.s6_addr.iter().map(|b| b.count_ones()).sum::<u32>()
+                mask.sin6_addr
+                    .s6_addr
+                    .iter()
+                    .map(|b| b.count_ones())
+                    .sum::<u32>()
             } else {
                 128
             };

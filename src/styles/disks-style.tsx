@@ -72,17 +72,13 @@ export const ModalContent = styled.div<{
 }>`
   background: ${(props) => props.$backgroundColor};
   color: ${(props) => props.$textColor};
-  width: min(860px, calc(100vw - 40px));
-  max-height: calc(100vh - 40px);
+  width: min(660px, calc(100vw - 40px));
+  max-height: calc(100vh - 60px);
   position: relative;
   display: flex;
   flex-direction: column;
   border: 1px solid ${(props) => props.$borderColor};
   box-sizing: border-box;
-
-  @media (max-width: 1024px) {
-    width: calc(100vw - 32px);
-  }
 
   @media (max-width: 600px) {
     width: 100%;
@@ -133,12 +129,13 @@ export const CloseButton = styled.button<{ $color: string; $borderColor: string 
 export const ModalBody = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: 12px;
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   align-content: start;
-  gap: 14px;
+  align-items: start;
+  gap: 10px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -173,31 +170,32 @@ export const SectionTitle = styled.h4<{
 
 export const DetailRow = styled.div<{ $borderColor: string }>`
   display: grid;
-  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1fr);
-  gap: 14px;
-  padding: 8px 10px;
+  grid-template-columns: minmax(100px, 0.85fr) minmax(0, 1fr);
+  gap: 8px;
+  padding: 5px 10px;
   border-bottom: 1px solid ${(props) => props.$borderColor};
   min-width: 0;
-  
+
   &:last-child {
     border-bottom: none;
   }
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
-    gap: 3px;
+    gap: 2px;
   }
 `;
 
 export const DetailLabel = styled.span<{ $color: string }>`
   color: ${(props) => props.$color};
+  font-size: 12px;
+  opacity: 0.75;
   min-width: 0;
 `;
 
 export const DetailValue = styled.span<{ $color: string }>`
   color: ${(props) => props.$color};
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-weight: 500;
+  font-size: 12px;
   text-align: right;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -267,4 +265,21 @@ export const FileSystem = styled.span<{ $partitionTypeForegroundColor: string }>
 
 export const Space = styled.span<{ $partitionUsageForegroundColor: string }>`
   color:  ${(props) => props.$partitionUsageForegroundColor};
+`;
+
+export const PartitionCard = styled.div<{ $borderColor: string }>`
+  &:not(:first-child) {
+    border-top: 1px solid ${(props) => props.$borderColor};
+  }
+`;
+
+export const PartitionCardHeader = styled.div<{ $color: string; $borderColor: string }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  border-bottom: 1px solid ${(props) => props.$borderColor};
+  color: ${(props) => props.$color};
+  font-size: 12px;
+  font-weight: 700;
 `;

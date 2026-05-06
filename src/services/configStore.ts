@@ -214,16 +214,12 @@ export const useConfigStore = create<ConfigStoreState>((set, get) => ({
   },
 
   persistPartial: async (partial, command) => {
+    const previousConfig = get().config;
+    const nextConfig = { ...previousConfig, ...partial };
+
+    set({ config: nextConfig, hydrated: true, lastLoadError: null });
+
     return enqueuePersist(async () => {
-      const previousConfig = get().config;
-      const nextConfig = { ...previousConfig, ...partial };
-
-      set({
-        config: nextConfig,
-        hydrated: true,
-        lastLoadError: null,
-      });
-
       try {
         await invoke(command, { configs: partial });
       } catch (error) {
@@ -239,15 +235,11 @@ export const useConfigStore = create<ConfigStoreState>((set, get) => ({
   },
 
   persistAll: async (nextConfig, command = "set_all_configs") => {
+    const previousConfig = get().config;
+
+    set({ config: nextConfig, hydrated: true, lastLoadError: null });
+
     return enqueuePersist(async () => {
-      const previousConfig = get().config;
-
-      set({
-        config: nextConfig,
-        hydrated: true,
-        lastLoadError: null,
-      });
-
       try {
         await invoke(command, { configs: nextConfig });
       } catch (error) {
