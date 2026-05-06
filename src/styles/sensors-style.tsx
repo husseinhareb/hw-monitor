@@ -7,7 +7,6 @@ export const Container = styled.div<{ sensorsBackgroundColors: string; }>`
   height: 100%;
   padding: 20px;
   background-color: ${(props) => props.sensorsBackgroundColors};
-  overflow-y: auto;
 `;
 
 export const Title = styled.h1<{ sensorsForegroundColor: string; }>`
@@ -20,6 +19,9 @@ export const SensorGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 `;
 
 export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; }>`
@@ -30,15 +32,12 @@ export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; }>`
   background-color: ${(props) => props.sensorsBoxesBackgroundColor};
   padding: 20px;
   min-height: 100px;
-  height: 100%;
-  overflow: hidden;
 `;
 
 export const SensorGroup = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  height: 100%;
   width: 100%;
 `;
 
@@ -103,8 +102,6 @@ export const ContentDiv = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
 `;
 
 export const SensorRow = styled.div`
