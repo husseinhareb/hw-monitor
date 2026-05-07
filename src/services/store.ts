@@ -1,4 +1,7 @@
 import { create } from "zustand";
+import type { TotalUsages } from "../bindings";
+
+export type { TotalUsages } from "../bindings";
 
 export interface NetworkPoint {
   value: number;
@@ -27,12 +30,6 @@ export interface NetworkData {
 export interface NetworkSpeedData {
   download: number[];
   upload: number[];
-}
-
-export interface TotalUsages {
-  memory: number | null;
-  cpu: number | null;
-  processes: number | null;
 }
 
 interface Store {

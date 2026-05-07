@@ -1,10 +1,11 @@
 /** Full config objects for each bundled theme. Keys must match ConfigData fields. */
+import type { ConfigData } from "../../bindings";
 
 export interface ThemePreset {
   label: string;
   /** Translation key for the theme name (used in UI) */
   labelKey: string;
-  values: Record<string, string | number | boolean | string[]>;
+  values: Partial<ConfigData>;
 }
 
 export const themes: ThemePreset[] = [

@@ -5,23 +5,9 @@ import { useSetMaxMemory, usePaused, notify } from "../../services/store";
 import useDataConverter from "../../helpers/useDataConverter";
 import usePerformanceConfig from "../Performance/usePerformanceConfig";
 import useSerialPolling from "../useSerialPolling";
+import type { MemoryHardwareInfo, MemoryUsage } from "../../bindings";
 
-export interface MemoryUsage {
-    total: number | null;
-    free: number | null;
-    available: number | null;
-    cached: number | null;
-    active: number | null;
-    swap_total: number | null;
-    swap_cache: number | null;
-}
-
-export interface MemoryHardwareInfo {
-    speed: string | null;
-    slots_used: string | null;
-    form_factor: string | null;
-    memory_type: string | null;
-}
+export type { MemoryHardwareInfo, MemoryUsage } from "../../bindings";
 
 let memoryHardwareInfoCache: MemoryHardwareInfo | null = null;
 let memoryHardwareInfoPromise: Promise<MemoryHardwareInfo> | null = null;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import useDiskData from "../../hooks/Disks/useDisksData";
+import useDiskData, { type DiskData, type PartitionData } from "../../hooks/Disks/useDisksData";
 import useSmartData from "../../hooks/Disks/useSmartData";
 import { type AtaSmartData, type NvmeSmartData } from "../../hooks/Disks/useSmartData";
 import { convertData } from "../../helpers/useDataConverter";
@@ -48,7 +48,7 @@ const Disks: React.FC = () => {
   const { diskData, error } = useDiskData();
   const disksConfig = useDisksConfig();
   const { t } = useTranslation();
-  const [selectedDisk, setSelectedDisk] = useState<any>(null);
+  const [selectedDisk, setSelectedDisk] = useState<DiskData | null>(null);
   const smart = useSmartData();
   const [showFixForm, setShowFixForm] = useState(false);
   const [fixPassword, setFixPassword] = useState("");
@@ -97,7 +97,7 @@ const Disks: React.FC = () => {
     return String(value);
   };
 
-  const showBoolean = (value?: boolean) => {
+  const showBoolean = (value?: boolean | null) => {
     if (value === undefined || value === null) {
       return "N/A";
     }
@@ -202,7 +202,7 @@ const Disks: React.FC = () => {
                 onChange={(e) => setFixPassword(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && fixPassword) {
-                    smart.fixPermissions(selectedDisk.dev_path, fixPassword);
+                    smart.fixPermissions(selectedDisk?.dev_path ?? "", fixPassword);
                     setShowFixForm(false);
                     setFixPassword("");
                   } else if (e.key === "Escape") {
@@ -214,7 +214,7 @@ const Disks: React.FC = () => {
               <SmartFixButton
                 disabled={!fixPassword || smart.loading}
                 onClick={() => {
-                  smart.fixPermissions(selectedDisk.dev_path, fixPassword);
+                  smart.fixPermissions(selectedDisk?.dev_path ?? "", fixPassword);
                   setShowFixForm(false);
                   setFixPassword("");
                 }}
@@ -367,7 +367,7 @@ const Disks: React.FC = () => {
                 $partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
                 key={partition.name}
               >
-                {partition.used_space !== undefined && partition.total_space !== undefined && partition.total_space > 0 && (
+                {partition.used_space != null && partition.total_space != null && partition.total_space > 0 && (
                   <PartitionBar
                     $partitionUsageBackgroundColor={disksConfig.config.disks_partition_usage_background_color}
                     style={{
@@ -521,7 +521,7 @@ const Disks: React.FC = () => {
                 {renderSectionTitle("Partitions")}
                 {selectedDisk.partitions.length === 0
                   ? renderDetailRow("Partitions", "N/A")
-                  : selectedDisk.partitions.map((partition: any) => (
+                  : selectedDisk.partitions.map((partition: PartitionData) => (
                     <PartitionCard key={partition.name} $borderColor={modalBorderColor}>
                       <PartitionCardHeader $color={modalSectionColor} $borderColor={modalBorderColor}>
                         <span>{partition.name}</span>
@@ -531,9 +531,9 @@ const Disks: React.FC = () => {
                       {renderDetailRow("Major:Minor", showMajorMinor(partition.major, partition.minor))}
                       {partition.file_system && renderDetailRow("Filesystem", partition.file_system)}
                       {partition.mount_point && renderDetailRow("Mount", partition.mount_point)}
-                      {partition.total_space !== undefined && renderDetailRow("Used", `${showBytes(partition.used_space)} / ${showBytes(partition.total_space)}`)}
+                      {partition.total_space != null && renderDetailRow("Used", `${showBytes(partition.used_space)} / ${showBytes(partition.total_space)}`)}
                       {partition.partuuid && renderDetailRow("Part UUID", partition.partuuid)}
-                      {partition.read_only !== undefined && renderDetailRow("Read only", showBoolean(partition.read_only))}
+                      {partition.read_only != null && renderDetailRow("Read only", showBoolean(partition.read_only))}
                       {!!partition.holders?.length && renderDetailRow("Holders", showList(partition.holders))}
                     </PartitionCard>
                   ))}

@@ -13,27 +13,17 @@ import {
   type ConfigTheme,
 } from "./Styles/style";
 
-interface ConfigPanelConfig {
-  config_background_color: string;
-  config_container_background_color: string;
-  config_input_background_color: string;
-  config_input_border_color: string;
-  config_button_background_color: string;
-  config_button_foreground_color: string;
-  config_text_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const ConfigPanelConfigSection: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig } = useConfigPanelConfig();
   const { t } = useTranslation();
 
-  const handleConfigChange = (key: keyof ConfigPanelConfig, value: string) => {
+  const handleConfigChange = (key: keyof typeof config, value: string) => {
     if (config) updateConfig(key, value);
   };
 
-  const colorRow = (labelKey: string, field: keyof ConfigPanelConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

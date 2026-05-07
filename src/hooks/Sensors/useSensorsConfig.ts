@@ -1,20 +1,5 @@
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
-
-type SensorsConfig = {
-    sensors_update_time: number;
-    sensors_background_color: string;
-    sensors_foreground_color: string;
-    sensors_boxes_background_color: string;
-    sensors_boxes_foreground_color: string;
-    sensors_boxes_title_foreground_color: string;
-    sensors_battery_background_color: string;
-    sensors_battery_frame_color: string;
-    sensors_battery_case_color: string;
-    sensors_hidden_ids: string[];
-    sensors_label_overrides: string;
-    sensors_warning_thresholds: string;
-    sensors_critical_thresholds: string;
-};
+import type { ConfigData } from "../../bindings";
 
 const sensorsConfigKeys = [
     "sensors_update_time",
@@ -31,6 +16,8 @@ const sensorsConfigKeys = [
     "sensors_warning_thresholds",
     "sensors_critical_thresholds",
 ] as const;
+
+type SensorsConfig = Pick<ConfigData, (typeof sensorsConfigKeys)[number]>;
 
 const useSensorsConfig = () => {
     return useFetchAndSetConfig<SensorsConfig>(sensorsConfigKeys, "set_sensors_configs");

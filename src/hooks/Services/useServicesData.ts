@@ -2,15 +2,9 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { usePaused, notify } from "../../services/store";
 import useSerialPolling from "../useSerialPolling";
+import type { SystemService } from "../../bindings";
 
-export interface SystemService {
-    name: string;
-    description: string;
-    load_state: string;
-    active_state: string;
-    sub_state: string;
-    unit_file_state: string;
-}
+export type { SystemService } from "../../bindings";
 
 const useServicesData = () => {
     const [services, setServices] = useState<SystemService[]>([]);

@@ -4,14 +4,7 @@ import { useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { usePaused, notify } from '../../services/store'
 import useSerialPolling from '../useSerialPolling'
-
-export interface DiskRaw {
-  name: string
-  read_speed: string    // KB/s serialized from Rust
-  write_speed: string   // KB/s
-  total_read: number    // bytes
-  total_write: number   // bytes
-}
+import type { Disk } from '../../bindings'
 
 interface Hist {
   readHistory:  number[]
@@ -27,7 +20,7 @@ export default function useDiskData(updateInterval: number): Record<string,Hist>
   useSerialPolling({
     enabled: !paused,
     interval: updateInterval,
-    poll: () => invoke<DiskRaw[]>('get_disks'),
+    poll: () => invoke<Disk[]>('get_disks'),
     onSuccess: (raw) => {
         setHistoryMap(prev => {
           const next: Record<string,Hist> = {}

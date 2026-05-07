@@ -13,25 +13,17 @@ import {
   type ConfigTheme,
 } from "./Styles/style";
 
-interface NavbarConfig {
-  navbar_background_color: string;
-  navbar_buttons_background_color: string;
-  navbar_buttons_foreground_color: string;
-  navbar_search_background_color: string;
-  navbar_search_foreground_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const NavbarConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig } = useNavbarConfig();
   const { t } = useTranslation();
 
-  const handleConfigChange = (key: keyof NavbarConfig, value: string) => {
+  const handleConfigChange = (key: keyof typeof config, value: string) => {
     if (config) updateConfig(key, value);
   };
 
-  const colorRow = (labelKey: string, field: keyof NavbarConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

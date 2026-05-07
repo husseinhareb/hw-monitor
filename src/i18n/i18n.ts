@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
 import { notify } from '../services/store';
+import type { ConfigData } from '../bindings';
 
 import translationEN from '../locales/en/translation.json';
 import translationFR from '../locales/fr/translation.json';
@@ -11,10 +12,6 @@ import translationES from '../locales/es/translation.json';
 import translationPL from '../locales/pl/translation.json';
 import translationAR from '../locales/ar/translation.json';
 import translationRU from '../locales/ru/translation.json';
-interface Config {
-  language: string;
-}
-
 const resources = {
   en: { translation: translationEN },
   fr: { translation: translationFR },
@@ -30,7 +27,7 @@ const resources = {
 const fetchLanguageConfig = async (): Promise<string> => {
   try {
     // Apply type assertion here
-    const config = await invoke<Config>('get_configs');
+    const config = await invoke<Pick<ConfigData, 'language'>>('get_configs');
     return config?.language || 'en'; // Default to 'en' if no language is found
   } catch (error) {
     console.error('Error fetching language configuration:', error);

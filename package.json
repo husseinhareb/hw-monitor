@@ -4,7 +4,11 @@
   "version": "0.3.1",
   "type": "module",
   "scripts": {
+    "generate:bindings": "node scripts/generate-bindings.mjs",
+    "check:bindings": "node scripts/generate-bindings.mjs --check",
+    "predev": "npm run generate:bindings",
     "dev": "vite",
+    "prebuild": "npm run generate:bindings",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri"

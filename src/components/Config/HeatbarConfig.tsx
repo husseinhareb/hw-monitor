@@ -13,31 +13,17 @@ import {
   type ConfigTheme,
 } from "./Styles/style";
 
-interface HeatbarConfig {
-  heatbar_color_one: string;
-  heatbar_color_two: string;
-  heatbar_color_three: string;
-  heatbar_color_four: string;
-  heatbar_color_five: string;
-  heatbar_color_six: string;
-  heatbar_color_seven: string;
-  heatbar_color_eight: string;
-  heatbar_color_nine: string;
-  heatbar_color_ten: string;
-  heatbar_background_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const HeatbarConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig } = useHeatbarConfig();
   const { t } = useTranslation();
 
-  const handleConfigChange = (key: keyof HeatbarConfig, value: string) => {
+  const handleConfigChange = (key: keyof typeof config, value: string) => {
     if (config) updateConfig(key, value);
   };
 
-  const colorRow = (labelKey: string, field: keyof HeatbarConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

@@ -18,21 +18,6 @@ import {
   type ConfigTheme,
 } from "./Styles/style";
 
-interface PerformanceConfig {
-  performance_update_time: number;
-  performance_sidebar_background_color: string;
-  performance_sidebar_color: string;
-  performance_sidebar_selected_color: string;
-  performance_background_color: string;
-  performance_title_color: string;
-  performance_label_color: string;
-  performance_value_color: string;
-  performance_graph_color: string;
-  performance_sec_graph_color: string;
-  show_virtual_interfaces: boolean;
-  performance_scrollbar_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const PerformanceConfig: React.FC<Props> = ({ theme }) => {
@@ -44,7 +29,7 @@ const PerformanceConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.performance_update_time));
   }, [config.performance_update_time]);
 
-  const handleConfigChange = (key: keyof PerformanceConfig, value: string | number | boolean) => {
+  const handleConfigChange = (key: keyof typeof config, value: string | number | boolean) => {
     if (config) updateConfig(key, value);
   };
 
@@ -58,7 +43,7 @@ const PerformanceConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.performance_update_time));
   };
 
-  const colorRow = (labelKey: string, field: keyof PerformanceConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

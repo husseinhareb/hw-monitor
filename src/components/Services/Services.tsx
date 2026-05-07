@@ -8,6 +8,7 @@ import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import Spinner from "../Misc/Spinner";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import type { ServiceDetails } from "../../bindings";
 
 const StatusDot = styled.span<{ color: string }>`
     display: inline-block;
@@ -219,13 +220,6 @@ const serviceActionCommands: Record<ServiceAction, string> = {
     disable: "disable_service",
 };
 
-interface ServiceDetailsData {
-    name: string;
-    unit_file_path: string | null;
-    status: string;
-    logs: string;
-}
-
 const installableStates = new Set(["disabled", "indirect"]);
 const removableStates = new Set(["enabled", "enabled-runtime", "linked", "linked-runtime"]);
 
@@ -277,7 +271,7 @@ const Services: React.FC = () => {
     }>({ show: false, pendingAction: null, password: "", error: "", loading: false });
     const [serviceDetails, setServiceDetails] = useState<{
         name: string | null;
-        data: ServiceDetailsData | null;
+        data: ServiceDetails | null;
         loading: boolean;
         error: string | null;
     }>({ name: null, data: null, loading: false, error: null });
@@ -312,7 +306,7 @@ const Services: React.FC = () => {
         detailsRequestId.current = requestId;
         setServiceDetails({ name, data: null, loading: true, error: null });
         try {
-            const details = await invoke<ServiceDetailsData>("get_service_details", { name });
+            const details = await invoke<ServiceDetails>("get_service_details", { name });
             if (detailsRequestId.current === requestId) {
                 setServiceDetails({ name, data: details, loading: false, error: null });
             }

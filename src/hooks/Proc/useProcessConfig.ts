@@ -1,16 +1,5 @@
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
-
-type ProcessConfig = {
-    processes_update_time: number;
-    processes_body_background_color: string;
-    processes_body_color: string;
-    processes_head_background_color: string;
-    processes_head_color: string;
-    processes_table_values: string[];
-    processes_border_color: string;
-    processes_tree_toggle_color: string;
-    processes_monitor_border_color: string;
-};
+import type { ConfigData } from "../../bindings";
 
 const processConfigKeys = [
     "processes_update_time",
@@ -23,6 +12,8 @@ const processConfigKeys = [
     "processes_tree_toggle_color",
     "processes_monitor_border_color",
 ] as const;
+
+type ProcessConfig = Pick<ConfigData, (typeof processConfigKeys)[number]>;
 
 const useProcessConfig = () => {
     const { config, updateConfig, hydrated, hydrating, lastLoadError } = useFetchAndSetConfig<ProcessConfig>(

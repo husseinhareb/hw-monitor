@@ -15,19 +15,6 @@ import {
   type ConfigTheme,
 } from "./Styles/style";
 
-interface DisksConfig {
-  disks_update_time: number;
-  disks_background_color: string;
-  disks_boxes_background_color: string;
-  disks_name_foreground_color: string;
-  disks_size_foreground_color: string;
-  disks_partition_background_color: string;
-  disks_partition_usage_background_color: string;
-  disks_partition_name_foreground_color: string;
-  disks_partition_type_foreground_color: string;
-  disks_partition_usage_foreground_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const DisksConfig: React.FC<Props> = ({ theme }) => {
@@ -39,7 +26,7 @@ const DisksConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.disks_update_time));
   }, [config.disks_update_time]);
 
-  const handleConfigChange = (key: keyof DisksConfig, value: string | number) => {
+  const handleConfigChange = (key: keyof typeof config, value: string | number) => {
     if (config) updateConfig(key, value);
   };
 
@@ -53,7 +40,7 @@ const DisksConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.disks_update_time));
   };
 
-  const colorRow = (labelKey: string, field: keyof DisksConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

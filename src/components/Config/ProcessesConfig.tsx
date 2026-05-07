@@ -47,18 +47,6 @@ const translationMap: Record<string, string> = {
   "processes_config.table_value_write_disk_speed": "write_disk_speed",
 };
 
-interface ProcessConfig {
-  processes_update_time: number;
-  processes_body_background_color: string;
-  processes_body_color: string;
-  processes_head_background_color: string;
-  processes_head_color: string;
-  processes_table_values: string[];
-  processes_border_color: string;
-  processes_tree_toggle_color: string;
-  processes_monitor_border_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const ProcessesConfig: React.FC<Props> = ({ theme }) => {
@@ -88,7 +76,7 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
     });
   };
 
-  const handleConfigChange = (key: keyof ProcessConfig, value: string | number) => {
+  const handleConfigChange = (key: keyof typeof config, value: string | number) => {
     if (config) updateConfig(key, value);
   };
 
@@ -102,7 +90,7 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.processes_update_time));
   };
 
-  const colorRow = (labelKey: string, field: keyof ProcessConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

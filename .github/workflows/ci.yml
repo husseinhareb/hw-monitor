@@ -45,6 +45,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Check generated bindings
+        run: npm run check:bindings
+
       - name: Check formatting
         working-directory: src-tauri
         run: cargo fmt --check

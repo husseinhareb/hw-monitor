@@ -1,79 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { notify } from "./store";
+import type { ConfigData } from "../bindings";
 
 type ConfigPrimitive = string | number | boolean | string[];
 
-export interface ConfigData {
-  processes_update_time: number;
-  processes_body_background_color: string;
-  processes_body_color: string;
-  processes_head_background_color: string;
-  processes_head_color: string;
-  processes_table_values: string[];
-  processes_border_color: string;
-  processes_tree_toggle_color: string;
-  processes_monitor_border_color: string;
-  performance_update_time: number;
-  performance_sidebar_background_color: string;
-  performance_sidebar_color: string;
-  performance_sidebar_selected_color: string;
-  performance_background_color: string;
-  performance_title_color: string;
-  performance_label_color: string;
-  performance_value_color: string;
-  performance_graph_color: string;
-  performance_sec_graph_color: string;
-  performance_scrollbar_color: string;
-  sensors_update_time: number;
-  sensors_background_color: string;
-  sensors_foreground_color: string;
-  sensors_boxes_background_color: string;
-  sensors_boxes_foreground_color: string;
-  sensors_battery_background_color: string;
-  sensors_battery_frame_color: string;
-  sensors_boxes_title_foreground_color: string;
-  sensors_battery_case_color: string;
-  sensors_hidden_ids: string[];
-  sensors_label_overrides: string;
-  sensors_warning_thresholds: string;
-  sensors_critical_thresholds: string;
-  disks_update_time: number;
-  disks_background_color: string;
-  disks_boxes_background_color: string;
-  disks_name_foreground_color: string;
-  disks_size_foreground_color: string;
-  disks_partition_background_color: string;
-  disks_partition_usage_background_color: string;
-  disks_partition_name_foreground_color: string;
-  disks_partition_type_foreground_color: string;
-  disks_partition_usage_foreground_color: string;
-  navbar_background_color: string;
-  navbar_buttons_background_color: string;
-  navbar_buttons_foreground_color: string;
-  navbar_search_background_color: string;
-  navbar_search_foreground_color: string;
-  heatbar_color_one: string;
-  heatbar_color_two: string;
-  heatbar_color_three: string;
-  heatbar_color_four: string;
-  heatbar_color_five: string;
-  heatbar_color_six: string;
-  heatbar_color_seven: string;
-  heatbar_color_eight: string;
-  heatbar_color_nine: string;
-  heatbar_color_ten: string;
-  heatbar_background_color: string;
-  config_background_color: string;
-  config_container_background_color: string;
-  config_input_background_color: string;
-  config_input_border_color: string;
-  config_button_background_color: string;
-  config_button_foreground_color: string;
-  config_text_color: string;
-  language: string;
-  show_virtual_interfaces: boolean;
-}
+export type { ConfigData } from "../bindings";
 
 export const defaultConfig: ConfigData = {
   processes_update_time: 2000,

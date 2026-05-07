@@ -3,19 +3,9 @@ import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from '../Sensors/useSensorsConfig';
 import { usePaused, notify } from '../../services/store';
 import useSerialPolling from '../useSerialPolling';
+import type { BatteryData } from '../../bindings';
 
-export interface BatteryData {
-    model: string | null;
-    state: string;
-    cycle_count: number | null;
-    energy: number; // in Wh
-    time_to_full: number | null; // in minutes
-    technology: string;
-    time_to_empty: number | null; // in minutes
-    temperature: number | null; // in Celsius
-    state_of_health: number; 
-    percentage: number,
-}
+export type { BatteryData } from '../../bindings';
 
 const useBatteryData = (): { batteries: BatteryData[]; error: string | null } => {
     const [batteryData, setBatteryData] = useState<BatteryData[]>([]);

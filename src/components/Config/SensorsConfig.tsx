@@ -15,18 +15,6 @@ import {
   type ConfigTheme,
 } from "./Styles/style";
 
-interface SensorsConfig {
-  sensors_update_time: number;
-  sensors_background_color: string;
-  sensors_foreground_color: string;
-  sensors_boxes_background_color: string;
-  sensors_boxes_foreground_color: string;
-  sensors_boxes_title_foreground_color: string;
-  sensors_battery_background_color: string;
-  sensors_battery_frame_color: string;
-  sensors_battery_case_color: string;
-}
-
 interface Props { theme: ConfigTheme }
 
 const SensorsConfig: React.FC<Props> = ({ theme }) => {
@@ -38,7 +26,7 @@ const SensorsConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.sensors_update_time));
   }, [config.sensors_update_time]);
 
-  const handleConfigChange = (key: keyof SensorsConfig, value: string | number) => {
+  const handleConfigChange = (key: keyof typeof config, value: string | number) => {
     if (config) updateConfig(key, value);
   };
 
@@ -52,7 +40,7 @@ const SensorsConfig: React.FC<Props> = ({ theme }) => {
     setUpdateTimeDraft(String(config.sensors_update_time));
   };
 
-  const colorRow = (labelKey: string, field: keyof SensorsConfig) => (
+  const colorRow = (labelKey: string, field: keyof typeof config) => (
     <SettingRow inputBorder={theme.inputBorder}>
       <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
       <SettingControl>

@@ -1,18 +1,5 @@
 import useFetchAndSetConfig from "../../utils/useConfigUtils";
-
-type HeatbarConfig = {
-    heatbar_color_one: string;
-    heatbar_color_two: string;
-    heatbar_color_three: string;
-    heatbar_color_four: string;
-    heatbar_color_five: string;
-    heatbar_color_six: string;
-    heatbar_color_seven: string;
-    heatbar_color_eight: string;
-    heatbar_color_nine: string;
-    heatbar_color_ten: string;
-    heatbar_background_color: string;
-};
+import type { ConfigData } from "../../bindings";
 
 const heatbarConfigKeys = [
     "heatbar_color_one",
@@ -27,6 +14,8 @@ const heatbarConfigKeys = [
     "heatbar_color_ten",
     "heatbar_background_color",
 ] as const;
+
+type HeatbarConfig = Pick<ConfigData, (typeof heatbarConfigKeys)[number]>;
 
 const useHeatbarConfig = () => {
     return useFetchAndSetConfig<HeatbarConfig>(heatbarConfigKeys, "set_heatbar_configs");

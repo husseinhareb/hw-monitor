@@ -3,21 +3,9 @@ import { invoke } from "@tauri-apps/api/core";
 import useProcessConfig from "../Proc/useProcessConfig";
 import { usePaused, notify } from "../../services/store";
 import useSerialPolling from "../useSerialPolling";
+import type { Process as BackendProcess } from "../../bindings";
 
-export interface Process {
-    user: string | null;
-    pid: number;
-    ppid: number | null;
-    name: string | null;
-    state: string | null;
-    memory: string | null;
-    cpu_usage: string | null;
-    read_disk_usage: string | null;
-    write_disk_usage: string | null;
-    read_disk_speed: string | null;
-    write_disk_speed: string | null;
-    [key: string]: string | number | null;
-}
+export type Process = BackendProcess & { [key: string]: string | number | null };
 
 
 const useProcessData = () => {

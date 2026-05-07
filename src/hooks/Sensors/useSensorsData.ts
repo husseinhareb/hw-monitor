@@ -3,22 +3,9 @@ import { invoke } from "@tauri-apps/api/core";
 import useSensorsConfig from "../Sensors/useSensorsConfig";
 import { usePaused, notify } from "../../services/store";
 import useSerialPolling from "../useSerialPolling";
+import type { HwMonData } from "../../bindings";
 
-interface SensorData {
-  id: string;
-  name: string;
-  value: number;
-  warning: number | null;
-  critical: number | null;
-  sensor_type: string;
-  unit: string;
-}
-
-interface HwMonData {
-  index: number;
-  name: string;
-  sensors: SensorData[];
-}
+export type { HwMonData, SensorData } from "../../bindings";
 
 const useSensorsData = (): HwMonData[] => {
   const [sensors, setSensors] = useState<HwMonData[]>([]);

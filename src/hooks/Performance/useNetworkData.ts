@@ -10,26 +10,7 @@ import {
 } from "../../services/store";
 import { notify } from "../../services/store";
 import useSerialPolling from "../useSerialPolling";
-
-interface NetworkUsage {
-  download: number;
-  upload: number;
-  total_download: number;
-  total_upload: number;
-  interface: string;
-  mac_address: string | null;
-  ipv4_addresses: string[];
-  ipv6_addresses: string[];
-  link_speed_mbps: number | null;
-  connection_state: string;
-  interface_type: string;
-  wifi_signal_percent: number | null;
-  wifi_signal_dbm: number | null;
-  rx_errors: number;
-  tx_errors: number;
-  rx_dropped: number;
-  tx_dropped: number;
-}
+import type { NetworkUsage } from "../../bindings";
 
 const MAX_POINTS = 20;
 
