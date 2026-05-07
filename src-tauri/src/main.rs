@@ -10,6 +10,7 @@ mod proc;
 mod proc_icon;
 mod sensors;
 mod services;
+mod smart;
 mod total_usages;
 
 use std::sync::{
@@ -115,6 +116,11 @@ fn handle_window_event<R: tauri::Runtime>(window: &tauri::Window<R>, event: &Win
     }
 }
 
+#[tauri::command]
+fn restart_app(app: tauri::AppHandle) {
+    app.exit(0);
+}
+
 fn main() {
     //let devtools = devtools::init();
     if let Err(err) = config::create_config() {
@@ -165,6 +171,9 @@ fn main() {
             services::restart_service,
             services::enable_service,
             services::disable_service,
+            smart::get_smart_data,
+            smart::fix_nvme_permissions,
+            restart_app,
         ])
         //.plugin(devtools)
         .run(tauri::generate_context!())

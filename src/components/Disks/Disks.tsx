@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import useDiskData from "../../hooks/Disks/useDisksData";
+import useSmartData from "../../hooks/Disks/useSmartData";
+import { type AtaSmartData, type NvmeSmartData } from "../../hooks/Disks/useSmartData";
 import { convertData } from "../../helpers/useDataConverter";
 import {
   Container,
@@ -27,6 +30,15 @@ import {
   SectionTitle,
   PartitionCard,
   PartitionCardHeader,
+  SmartHealthBanner,
+  SmartHealthDot,
+  SmartTable,
+  SmartBadge,
+  SmartError,
+  SmartLoading,
+  SmartLimitedBanner,
+  SmartFixButton,
+  SmartPasswordInput,
 } from "../../styles/disks-style";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
 import { useTranslation } from "react-i18next";
@@ -35,8 +47,21 @@ import { FaCircleInfo } from "react-icons/fa6";
 const Disks: React.FC = () => {
   const { diskData, error } = useDiskData();
   const disksConfig = useDisksConfig();
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
   const [selectedDisk, setSelectedDisk] = useState<any>(null);
+  const smart = useSmartData();
+  const [showFixForm, setShowFixForm] = useState(false);
+  const [fixPassword, setFixPassword] = useState("");
+
+  useEffect(() => {
+    if (selectedDisk) {
+      smart.fetchSmart(selectedDisk.dev_path);
+    } else {
+      setShowFixForm(false);
+      setFixPassword("");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDisk?.dev_path]);
 
   const usagePercentage = (used: number, total: number) => {
     return Math.min(Math.max((used / total) * 100, 0), 100);
@@ -112,6 +137,188 @@ const Disks: React.FC = () => {
 
     return `${major}:${minor}`;
   };
+
+  const renderSmartSection = () => {
+    if (smart.loading) {
+      return (
+        <DetailSection $borderColor={modalBorderColor}>
+          {renderSectionTitle("SMART Health")}
+          <SmartLoading>Reading SMART data…</SmartLoading>
+        </DetailSection>
+      );
+    }
+
+    if (smart.error) {
+      return (
+        <DetailSection $borderColor={modalBorderColor}>
+          {renderSectionTitle("SMART Health")}
+          <SmartError>{smart.error}</SmartError>
+        </DetailSection>
+      );
+    }
+
+    if (!smart.data) return null;
+
+    const { data } = smart;
+
+    if (data.type === "Nvme") {
+      return renderNvmeSmart(data);
+    }
+
+    return renderAtaSmart(data);
+  };
+
+  const formatGb = (gb: number) =>
+    gb >= 1000
+      ? `${(gb / 1000).toFixed(2)} TB`
+      : `${gb.toLocaleString()} GB`;
+
+  const renderNvmeSmart = (d: NvmeSmartData) => {
+    const warnings: string[] = [];
+    if (d.critical_warning & 0x01) warnings.push("Available spare below threshold");
+    if (d.critical_warning & 0x02) warnings.push("Temperature above threshold");
+    if (d.critical_warning & 0x04) warnings.push("NVM subsystem reliability degraded");
+    if (d.critical_warning & 0x08) warnings.push("Media in read-only mode");
+    if (d.critical_warning & 0x10) warnings.push("Volatile memory backup failed");
+
+    return (
+      <DetailSection $borderColor={modalBorderColor}>
+        {renderSectionTitle("SMART Health")}
+        {d.limited ? (
+          smart.restartRequired ? (
+            <SmartLimitedBanner>
+              <span>Full SMART enabled — reopen the app to apply.</span>
+              <SmartFixButton onClick={() => invoke("restart_app")}>
+                Quit
+              </SmartFixButton>
+            </SmartLimitedBanner>
+          ) : showFixForm ? (
+            <SmartLimitedBanner>
+              <SmartPasswordInput
+                type="password"
+                placeholder="sudo password"
+                value={fixPassword}
+                autoFocus
+                onChange={(e) => setFixPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && fixPassword) {
+                    smart.fixPermissions(selectedDisk.dev_path, fixPassword);
+                    setShowFixForm(false);
+                    setFixPassword("");
+                  } else if (e.key === "Escape") {
+                    setShowFixForm(false);
+                    setFixPassword("");
+                  }
+                }}
+              />
+              <SmartFixButton
+                disabled={!fixPassword || smart.loading}
+                onClick={() => {
+                  smart.fixPermissions(selectedDisk.dev_path, fixPassword);
+                  setShowFixForm(false);
+                  setFixPassword("");
+                }}
+              >
+                OK
+              </SmartFixButton>
+              <SmartFixButton onClick={() => { setShowFixForm(false); setFixPassword(""); }}>
+                Cancel
+              </SmartFixButton>
+            </SmartLimitedBanner>
+          ) : (
+            <SmartLimitedBanner>
+              <span>Limited data — SMART requires elevated access.</span>
+              <SmartFixButton onClick={() => setShowFixForm(true)}>
+                Fix permissions
+              </SmartFixButton>
+            </SmartLimitedBanner>
+          )
+        ) : (
+          <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
+            <SmartHealthDot $pass={d.overall_health} />
+            {d.overall_health ? "PASSED" : "FAILED"}
+          </SmartHealthBanner>
+        )}
+        {warnings.map((w, i) => renderDetailRow("Warning", w, i))}
+        {renderDetailRow("Temperature", d.temperature_celsius !== null ? `${d.temperature_celsius} °C` : "N/A")}
+        {!d.limited && renderDetailRow("Available Spare", `${d.available_spare_percent}% (threshold: ${d.available_spare_threshold}%)`)}
+        {!d.limited && renderDetailRow("Percentage Used", `${d.percentage_used}%`)}
+        {!d.limited && renderDetailRow("Power-On Hours", d.power_on_hours !== null ? `${d.power_on_hours.toLocaleString()} h` : "N/A")}
+        {!d.limited && renderDetailRow("Power Cycles", d.power_cycles !== null ? d.power_cycles.toLocaleString() : "N/A")}
+        {!d.limited && renderDetailRow("Unsafe Shutdowns", d.unsafe_shutdowns !== null ? d.unsafe_shutdowns.toLocaleString() : "N/A")}
+        {!d.limited && renderDetailRow("Media Errors", d.media_errors !== null ? d.media_errors.toLocaleString() : "N/A")}
+        {!d.limited && renderDetailRow("Data Read", d.data_units_read_gb !== null ? formatGb(d.data_units_read_gb) : "N/A")}
+        {!d.limited && renderDetailRow("Data Written", d.data_units_written_gb !== null ? formatGb(d.data_units_written_gb) : "N/A")}
+      </DetailSection>
+    );
+  };
+
+  const renderAtaSmart = (d: AtaSmartData) => (
+    <DetailSection $borderColor={modalBorderColor}>
+      {renderSectionTitle("SMART Health")}
+      <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
+        <SmartHealthDot $pass={d.overall_health} />
+        {d.overall_health ? "PASSED" : "FAILED"}
+        {d.temperature_celsius !== null && (
+          <span style={{ marginLeft: "auto", fontWeight: 400, opacity: 0.8 }}>
+            {d.temperature_celsius} °C
+          </span>
+        )}
+        {d.power_on_hours !== null && (
+          <span style={{ fontWeight: 400, opacity: 0.8 }}>
+            {d.power_on_hours.toLocaleString()} h
+          </span>
+        )}
+        {d.reallocated_sectors !== null && d.reallocated_sectors > 0 && (
+          <span style={{ color: "#f0c04a" }}>
+            {d.reallocated_sectors} reallocated
+          </span>
+        )}
+        {d.pending_sectors !== null && d.pending_sectors > 0 && (
+          <span style={{ color: "#d64545" }}>
+            {d.pending_sectors} pending
+          </span>
+        )}
+      </SmartHealthBanner>
+      <SmartTable
+        $borderColor={modalBorderColor}
+        $labelColor={modalLabelColor}
+        $valueColor={modalValueColor}
+      >
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Attribute</th>
+            <th style={{ textAlign: "right" }}>Val</th>
+            <th style={{ textAlign: "right" }}>Wst</th>
+            <th style={{ textAlign: "right" }}>Thr</th>
+            <th style={{ textAlign: "right" }}>Raw</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {d.attributes.map((attr) => (
+            <tr
+              key={attr.id}
+              className={attr.failed ? "failed" : attr.pre_failure ? "prefail" : ""}
+            >
+              <td style={{ opacity: 0.55 }}>{attr.id}</td>
+              <td>{attr.name}</td>
+              <td style={{ textAlign: "right" }}>{attr.current}</td>
+              <td style={{ textAlign: "right" }}>{attr.worst}</td>
+              <td style={{ textAlign: "right" }}>{attr.threshold}</td>
+              <td style={{ textAlign: "right", opacity: 0.7 }}>{attr.raw_string}</td>
+              <td>
+                <SmartBadge $pass={!attr.failed}>
+                  {attr.failed ? "FAIL" : "OK"}
+                </SmartBadge>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </SmartTable>
+    </DetailSection>
+  );
 
   if (error) {
     return (
@@ -247,6 +454,8 @@ const Disks: React.FC = () => {
                 {renderDetailRow(t('disks.logical_block_size'), `${selectedDisk.logical_block_size} B`)}
                 {renderDetailRow("Sysfs path", showValue(selectedDisk.sysfs_path))}
               </DetailSection>
+
+              {renderSmartSection()}
 
               <DetailSection $borderColor={modalBorderColor}>
                 {renderSectionTitle(t('disks.section_advanced'))}

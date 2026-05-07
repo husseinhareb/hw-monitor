@@ -283,3 +283,134 @@ export const PartitionCardHeader = styled.div<{ $color: string; $borderColor: st
   font-size: 12px;
   font-weight: 700;
 `;
+
+export const SmartHealthBanner = styled.div<{ $pass: boolean; $borderColor: string }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-bottom: 1px solid ${(props) => props.$borderColor};
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: ${(props) =>
+    props.$pass ? "rgba(123, 216, 143, 0.12)" : "rgba(214, 69, 69, 0.12)"};
+  color: ${(props) => (props.$pass ? "#7bd88f" : "#d64545")};
+`;
+
+export const SmartHealthDot = styled.span<{ $pass: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${(props) => (props.$pass ? "#7bd88f" : "#d64545")};
+  flex-shrink: 0;
+`;
+
+export const SmartTable = styled.table<{ $borderColor: string; $labelColor: string; $valueColor: string }>`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  color: ${(props) => props.$valueColor};
+
+  th {
+    padding: 4px 6px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: ${(props) => props.$labelColor};
+    border-bottom: 1px solid ${(props) => props.$borderColor};
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 3px 6px;
+    border-bottom: 1px solid ${(props) => props.$borderColor};
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr.prefail td:first-child {
+    border-left: 2px solid rgba(240, 192, 74, 0.6);
+    padding-left: 4px;
+  }
+
+  tr.failed td:first-child {
+    border-left: 2px solid #d64545;
+    padding-left: 4px;
+  }
+`;
+
+export const SmartBadge = styled.span<{ $pass: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: ${(props) => (props.$pass ? "rgba(123, 216, 143, 0.18)" : "rgba(214, 69, 69, 0.22)")};
+  color: ${(props) => (props.$pass ? "#7bd88f" : "#d64545")};
+`;
+
+export const SmartError = styled.div`
+  padding: 10px;
+  font-size: 12px;
+  opacity: 0.65;
+  font-style: italic;
+`;
+
+export const SmartLimitedBanner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  opacity: 0.75;
+`;
+
+export const SmartPasswordInput = styled.input`
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  color: inherit;
+  font-size: 12px;
+  padding: 3px 8px;
+  flex: 1;
+  min-width: 0;
+  outline: none;
+
+  &:focus {
+    border-color: rgba(123, 216, 143, 0.5);
+  }
+`;
+
+export const SmartFixButton = styled.button`
+  background: transparent;
+  border: 1px solid rgba(123, 216, 143, 0.45);
+  color: rgba(123, 216, 143, 0.9);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(123, 216, 143, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+`;
+
+export const SmartLoading = styled.div`
+  padding: 10px;
+  font-size: 12px;
+  opacity: 0.55;
+`;

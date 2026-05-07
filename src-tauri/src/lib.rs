@@ -10,4 +10,5 @@ pub mod proc;
 pub mod proc_icon;
 pub mod sensors;
 pub mod services;
+pub mod smart;
 pub mod total_usages;
