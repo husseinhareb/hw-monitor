@@ -54,6 +54,13 @@ const ModalDesc = styled.p`
     opacity: 0.8;
 `;
 
+const ModalTrustNote = styled.p`
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+    opacity: 0.65;
+`;
+
 const ModalInput = styled.input<{ bg: string; fg: string; border: string }>`
     background: ${p => p.bg};
     color: ${p => p.fg};
@@ -621,6 +628,7 @@ const Services: React.FC = () => {
                 >
                     <ModalTitle>{t("services.auth_title")}</ModalTitle>
                     <ModalDesc>{t("services.auth_desc")}</ModalDesc>
+                    <ModalTrustNote>{t("services.auth_trust_note")}</ModalTrustNote>
                     <ModalInput
                         type="password"
                         autoFocus

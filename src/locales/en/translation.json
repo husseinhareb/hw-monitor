@@ -317,6 +317,7 @@
     "services.no_logs": "No recent logs",
     "services.auth_title": "Authentication Required",
     "services.auth_desc": "Enter your password to manage this service.",
+    "services.auth_trust_note": "The password is sent only to sudo for this action and is not stored.",
     "services.auth_password": "Password",
     "services.auth_confirm": "Authenticate",
     "services.auth_cancel": "Cancel",

@@ -291,6 +291,7 @@
     "services.no_logs": "Aucun journal récent",
     "services.auth_title": "Authentification requise",
     "services.auth_desc": "Entrez votre mot de passe pour gérer ce service.",
+    "services.auth_trust_note": "Le mot de passe est envoyé uniquement à sudo pour cette action et n'est pas stocké.",
     "services.auth_password": "Mot de passe",
     "services.auth_confirm": "Authentifier",
     "services.auth_cancel": "Annuler",

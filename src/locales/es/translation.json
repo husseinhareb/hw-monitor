@@ -292,6 +292,7 @@
     "services.no_logs": "Sin registros recientes",
     "services.auth_title": "Autenticación requerida",
     "services.auth_desc": "Ingrese su contraseña para gestionar este servicio.",
+    "services.auth_trust_note": "La contraseña solo se envía a sudo para esta acción y no se almacena.",
     "services.auth_password": "Contraseña",
     "services.auth_confirm": "Autenticar",
     "services.auth_cancel": "Cancelar",

@@ -292,6 +292,7 @@
     "services.no_logs": "Нет последних журналов",
     "services.auth_title": "Требуется аутентификация",
     "services.auth_desc": "Введите пароль для управления службой.",
+    "services.auth_trust_note": "Пароль отправляется только в sudo для этого действия и не сохраняется.",
     "services.auth_password": "Пароль",
     "services.auth_confirm": "Аутентифицировать",
     "services.auth_cancel": "Отмена",

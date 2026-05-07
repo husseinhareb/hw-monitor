@@ -37,6 +37,22 @@ fn service_name(unit: &str) -> Option<String> {
     unit.strip_suffix(".service").map(ToOwned::to_owned)
 }
 
+fn validate_service_name_argument(name: &str) -> Result<(), String> {
+    if name.is_empty() {
+        return Err("invalid_service_name".to_string());
+    }
+
+    if name.starts_with('-')
+        || name.contains('/')
+        || name.contains('\0')
+        || name.chars().any(char::is_whitespace)
+    {
+        return Err("invalid_service_name".to_string());
+    }
+
+    Ok(())
+}
+
 fn parse_list_units_output(output: &str) -> HashMap<String, RuntimeService> {
     let mut services = HashMap::new();
 
@@ -207,6 +223,16 @@ fn list_services() -> Result<Vec<SystemService>, String> {
     Ok(merge_service_views(&units_output, &unit_files_output))
 }
 
+fn ensure_known_service_name(name: &str) -> Result<(), String> {
+    validate_service_name_argument(name)?;
+
+    if list_services()?.iter().any(|service| service.name == name) {
+        Ok(())
+    } else {
+        Err("unknown_service".to_string())
+    }
+}
+
 #[tauri::command]
 pub async fn get_services() -> Result<Vec<SystemService>, String> {
     tauri::async_runtime::spawn_blocking(list_services)
@@ -215,6 +241,8 @@ pub async fn get_services() -> Result<Vec<SystemService>, String> {
 }
 
 fn service_details(service_name: &str) -> Result<ServiceDetails, String> {
+    ensure_known_service_name(service_name)?;
+
     let unit = format!("{service_name}.service");
     let unit_file_path = run_systemctl(&["show", &unit, "--property=FragmentPath", "--value"])
         .ok()
@@ -248,6 +276,8 @@ pub async fn get_service_details(name: String) -> Result<ServiceDetails, String>
 }
 
 fn run_privileged_action(action: &str, service_name: &str, password: &str) -> Result<(), String> {
+    ensure_known_service_name(service_name)?;
+
     let unit = format!("{service_name}.service");
     let fallback_msg = format!("failed to {action} {service_name}");
 
@@ -348,7 +378,10 @@ pub async fn disable_service(name: String, password: String) -> Result<(), Strin
 
 #[cfg(test)]
 mod tests {
-    use super::{merge_service_views, parse_list_unit_files_output, parse_list_units_output};
+    use super::{
+        merge_service_views, parse_list_unit_files_output, parse_list_units_output,
+        validate_service_name_argument,
+    };
 
     #[test]
     fn parses_runtime_states_including_active_exited() {
@@ -364,6 +397,21 @@ masked-demo.service masked inactive dead Demo
         assert_eq!(parsed["dbus"].sub_state, "running");
         assert_eq!(parsed["systemd-tmpfiles-clean"].sub_state, "exited");
         assert_eq!(parsed["masked-demo"].load_state, "masked");
+    }
+
+    #[test]
+    fn validates_service_name_arguments_before_systemctl_calls() {
+        assert!(validate_service_name_argument("ssh").is_ok());
+        assert!(validate_service_name_argument("user@1000").is_ok());
+        assert!(validate_service_name_argument("dbus-org.freedesktop.resolve1").is_ok());
+        assert!(validate_service_name_argument("systemd\\x2dresolved").is_ok());
+        assert!(validate_service_name_argument("custom+escaped:name").is_ok());
+
+        assert!(validate_service_name_argument("").is_err());
+        assert!(validate_service_name_argument("--system").is_err());
+        assert!(validate_service_name_argument("../ssh").is_err());
+        assert!(validate_service_name_argument("ssh service").is_err());
+        assert!(validate_service_name_argument("ssh\0service").is_err());
     }
 
     #[test]

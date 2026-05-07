@@ -292,6 +292,7 @@
     "services.no_logs": "Keine aktuellen Protokolle",
     "services.auth_title": "Authentifizierung erforderlich",
     "services.auth_desc": "Geben Sie Ihr Passwort ein, um diesen Dienst zu verwalten.",
+    "services.auth_trust_note": "Das Passwort wird nur für diese Aktion an sudo gesendet und nicht gespeichert.",
     "services.auth_password": "Passwort",
     "services.auth_confirm": "Authentifizieren",
     "services.auth_cancel": "Abbrechen",

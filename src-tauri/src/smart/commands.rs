@@ -584,16 +584,11 @@ fn is_nvme(dev_path: &str) -> bool {
 #[tauri::command]
 pub async fn fix_nvme_permissions(password: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
-        let exe = std::env::current_exe()
-            .map_err(|e| format!("Cannot find binary path: {}", e))?;
-
-        let script = format!(
-            "setcap cap_sys_admin+eip '{}'",
-            exe.to_string_lossy()
-        );
+        let exe = std::env::current_exe().map_err(|e| format!("Cannot find binary path: {}", e))?;
 
         let mut child = std::process::Command::new("sudo")
-            .args(["-S", "-p", "", "sh", "-c", &script])
+            .args(["-S", "-p", "", "setcap", "cap_sys_admin+eip"])
+            .arg(&exe)
             .stdin(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
@@ -611,15 +606,20 @@ pub async fn fix_nvme_permissions(password: String) -> Result<(), String> {
             Ok(())
         } else {
             let stderr = String::from_utf8_lossy(&out.stderr).to_lowercase();
-            Err(if stderr.contains("incorrect") || stderr.contains("failure") || stderr.contains("try again") {
-                "Incorrect password".to_string()
-            } else if stderr.contains("not found") {
-                "setcap not found — install the 'libcap' package".to_string()
-            } else if stderr.is_empty() {
-                "sudo failed".to_string()
-            } else {
-                String::from_utf8_lossy(&out.stderr).trim().to_string()
-            })
+            Err(
+                if stderr.contains("incorrect")
+                    || stderr.contains("failure")
+                    || stderr.contains("try again")
+                {
+                    "Incorrect password".to_string()
+                } else if stderr.contains("not found") {
+                    "setcap not found — install the 'libcap' package".to_string()
+                } else if stderr.is_empty() {
+                    "sudo failed".to_string()
+                } else {
+                    String::from_utf8_lossy(&out.stderr).trim().to_string()
+                },
+            )
         }
     })
     .await
@@ -628,6 +628,10 @@ pub async fn fix_nvme_permissions(password: String) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn get_smart_data(dev_path: String) -> Result<SmartData, String> {
+    if !crate::disk::is_allowed_smart_dev_path(&dev_path) {
+        return Err("SMART device is not an allowed discovered disk".to_string());
+    }
+
     tauri::async_runtime::spawn_blocking(move || {
         if is_nvme(&dev_path) {
             read_nvme_smart(&dev_path).map(SmartData::Nvme)

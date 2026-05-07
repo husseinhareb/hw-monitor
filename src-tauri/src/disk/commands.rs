@@ -237,6 +237,23 @@ fn read_dir_names<P: AsRef<Path>>(path: P) -> Vec<String> {
     names
 }
 
+fn dev_path_for_sys_block_name(name: &str) -> Option<String> {
+    let valid_name = !name.is_empty()
+        && !name.contains('/')
+        && !name.contains('\0')
+        && name != "."
+        && name != "..";
+
+    valid_name.then(|| format!("/dev/{name}"))
+}
+
+pub(crate) fn is_allowed_smart_dev_path(dev_path: &str) -> bool {
+    read_dir_names("/sys/block")
+        .iter()
+        .filter_map(|name| dev_path_for_sys_block_name(name))
+        .any(|allowed_path| allowed_path == dev_path)
+}
+
 fn canonical_path<P: AsRef<Path>>(path: P) -> Option<String> {
     fs::canonicalize(path)
         .ok()
@@ -618,5 +635,20 @@ mod tests {
             infer_transport("vda", None, None).as_deref(),
             Some("virtio")
         );
+    }
+
+    #[test]
+    fn dev_path_for_sys_block_name_rejects_invalid_names() {
+        assert_eq!(
+            dev_path_for_sys_block_name("nvme0n1").as_deref(),
+            Some("/dev/nvme0n1")
+        );
+        assert_eq!(dev_path_for_sys_block_name("").as_deref(), None);
+        assert_eq!(dev_path_for_sys_block_name("../sda").as_deref(), None);
+        assert_eq!(
+            dev_path_for_sys_block_name("disk/by-id/sda").as_deref(),
+            None
+        );
+        assert_eq!(dev_path_for_sys_block_name("sda\0x").as_deref(), None);
     }
 }

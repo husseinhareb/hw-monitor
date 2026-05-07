@@ -64,7 +64,7 @@ The Disks page shows the disks and partitions detected by the Linux kernel, simi
 
 The Services section lists all systemd services on the system with their current state (load, active, sub-state, and enabled status). Services can be searched and sorted by any column.
 
-Selecting a service reveals a bottom action bar with **Start**, **Stop**, and **Restart** buttons. Performing any action opens an in-app password dialog — no terminal required. The password is passed to `sudo -S systemctl` and errors (including wrong password) are reported directly in the UI.
+Selecting a service reveals a bottom action bar with **Start**, **Stop**, and **Restart** buttons. Performing any action opens an in-app password dialog — no terminal required. The password is passed only to `sudo -S systemctl` for the requested action, is not stored by hw-monitor, and errors (including wrong password) are reported directly in the UI.
 
 ### Performance — CPU details
 

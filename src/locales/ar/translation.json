@@ -293,6 +293,7 @@
     "services.no_logs": "لا توجد سجلات حديثة",
     "services.auth_title": "المصادقة مطلوبة",
     "services.auth_desc": "أدخل كلمة المرور لإدارة هذه الخدمة.",
+    "services.auth_trust_note": "تُرسل كلمة المرور إلى sudo لهذا الإجراء فقط ولا يتم تخزينها.",
     "services.auth_password": "كلمة المرور",
     "services.auth_confirm": "مصادقة",
     "services.auth_cancel": "إلغاء",
