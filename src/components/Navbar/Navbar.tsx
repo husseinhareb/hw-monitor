@@ -27,7 +27,8 @@ const componentMap: Record<ComponentName, ZeroPropsComponent> = {
 
 // Create a styled container with overflow: hidden
 const ProcContainer = styled.div`
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     width: 100%;
     overflow: hidden;
 `;

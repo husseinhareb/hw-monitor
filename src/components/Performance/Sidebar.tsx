@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { List, ListItem, SidebarContainer, Title } from '../../styles/sidebar-style';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { List, ListItem, SidebarContainer, SidebarToggleButton, Title } from '../../styles/sidebar-style';
 import {
   useCpu,
   useCpuCores,
@@ -34,6 +35,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   // which panel is selected
   const [selectedItem, setSelectedItem] = useState('CPU');
+  const [collapsed, setCollapsed] = useState(false);
 
   const perf = usePerformanceConfig();
   const updateInterval = perf.config.performance_update_time;
@@ -158,12 +160,13 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100%', width: '100%' }}>
+    <div style={{ display: 'flex', height: '100%', width: '100%', backgroundColor: perf.config.performance_background_color }}>
       {/* Sidebar List */}
       <SidebarContainer
         performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
         performanceSidebarColor={perf.config.performance_sidebar_color}
         performanceScrollbarColor={perf.config.performance_scrollbar_color}
+        $collapsed={collapsed}
       >
         <Title>{t('sidebar.performance')}</Title>
         <List>
@@ -267,6 +270,16 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
           ))}
         </List>
       </SidebarContainer>
+
+      {/* Collapse / expand toggle */}
+      <SidebarToggleButton
+        performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
+        performanceSidebarColor={perf.config.performance_sidebar_color}
+        onClick={() => setCollapsed(c => !c)}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
+      </SidebarToggleButton>
 
       {/* Detail Pane — only the selected component is rendered */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'auto' }}>

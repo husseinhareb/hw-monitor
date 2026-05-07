@@ -9,6 +9,7 @@ import {
   SensorGroup,
   SensorItem,
   SensorToolbar,
+  SensorControls,
   SensorFilterInput,
   ShowHiddenToggle,
   SensorRow,
@@ -242,22 +243,26 @@ const Sensors: React.FC = () => {
     <Container
       sensorsBackgroundColors={sensorsConfig.config.sensors_background_color}
     >
-      <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>{t('sensors.title')}</Title>
       <SensorToolbar sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>
-        <SensorFilterInput
-          type="search"
-          value={sensorFilter}
-          placeholder={t('sensors.filter_placeholder')}
-          onChange={(event) => setSensorFilter(event.target.value)}
-        />
-        <ShowHiddenToggle>
-          <input
-            type="checkbox"
-            checked={showHidden}
-            onChange={(event) => setShowHidden(event.target.checked)}
+        <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>
+          {t('sensors.title')}
+        </Title>
+        <SensorControls>
+          <SensorFilterInput
+            type="search"
+            value={sensorFilter}
+            placeholder={t('sensors.filter_placeholder')}
+            onChange={(event) => setSensorFilter(event.target.value)}
           />
-          {t('sensors.show_hidden')}
-        </ShowHiddenToggle>
+          <ShowHiddenToggle>
+            <input
+              type="checkbox"
+              checked={showHidden}
+              onChange={(event) => setShowHidden(event.target.checked)}
+            />
+            {t('sensors.show_hidden')}
+          </ShowHiddenToggle>
+        </SensorControls>
       </SensorToolbar>
       <SensorGrid>
         {(batteryState.error || batteryState.batteries.length > 0) && <SensorList
@@ -298,10 +303,12 @@ const Sensors: React.FC = () => {
                         <SensorLabelBlock>
                           <SensorLabel title={displayName(sensor)}>{displayName(sensor)}</SensorLabel>
                           <SensorMetaLine>
-                            <SensorStatusBadge $status={status}>
-                              {t(`sensors.status_${status}`)}
-                            </SensorStatusBadge>
-                            <SensorMeta title={sensor.id}>{typeLabel} - {sensor.id}</SensorMeta>
+                            {status !== 'normal' && (
+                              <SensorStatusBadge $status={status}>
+                                {t(`sensors.status_${status}`)}
+                              </SensorStatusBadge>
+                            )}
+                            <SensorMeta>{typeLabel}</SensorMeta>
                           </SensorMetaLine>
                         </SensorLabelBlock>
                         <SensorValue>{formatSensorValue(sensor)}</SensorValue>

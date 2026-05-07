@@ -78,7 +78,11 @@ export const StyledUl = styled.ul`
 `;
 
 export const ContentContainer = styled.div`
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  padding-top: 30px; 
+  padding-top: 30px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;

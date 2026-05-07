@@ -36,7 +36,7 @@ export const DiskHeader = styled.div`
 
 export const DiskTitle = styled.h3<{ $nameForegroundColor: string }>`
   margin-top: 0;
-  color:  ${(props) => props.$nameForegroundColor};
+  color: ${(props) => props.$nameForegroundColor};
 `;
 
 export const DetailsIcon = styled.div<{ $color: string }>`
@@ -72,7 +72,7 @@ export const ModalContent = styled.div<{
 }>`
   background: ${(props) => props.$backgroundColor};
   color: ${(props) => props.$textColor};
-  width: min(660px, calc(100vw - 40px));
+  width: min(900px, calc(100vw - 40px));
   max-height: calc(100vh - 60px);
   position: relative;
   display: flex;
@@ -128,24 +128,19 @@ export const CloseButton = styled.button<{ $color: string; $borderColor: string 
 
 export const ModalBody = styled.div`
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 12px;
-  min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   align-content: start;
   align-items: start;
   gap: 10px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.5);
-  }
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
 `;
 
 export const DetailSection = styled.div<{ $borderColor: string }>`
@@ -163,9 +158,10 @@ export const SectionTitle = styled.h4<{
   color: ${(props) => props.$color};
   text-transform: uppercase;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   border-bottom: 1px solid ${(props) => props.$borderColor};
-  padding: 7px 10px;
+  padding: 6px 10px;
 `;
 
 export const DetailRow = styled.div<{ $borderColor: string }>`

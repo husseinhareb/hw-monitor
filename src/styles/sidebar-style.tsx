@@ -1,23 +1,29 @@
 // sidebar-style.js
 import styled from 'styled-components';
 import { safeLighten } from '../utils/safeLighten';
-// Styled SidebarContainer component
-export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string; performanceScrollbarColor: string }>`
-  width: 240px;
+
+export const SidebarContainer = styled.div<{
+  performanceSidebarBackgroundColor: string;
+  performanceSidebarColor: string;
+  performanceScrollbarColor: string;
+  $collapsed: boolean;
+}>`
+  width: ${(props) => (props.$collapsed ? '0' : '240px')};
+  min-width: ${(props) => (props.$collapsed ? '0' : '240px')};
   height: 100%;
   background-color: ${(props) => props.performanceSidebarBackgroundColor};
   color: ${(props) => props.performanceSidebarColor};
-  padding: 14px;
-  overflow-y: hidden;
+  padding: ${(props) => (props.$collapsed ? '0' : '14px')};
+  overflow: hidden;
+  transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease;
+  flex-shrink: 0;
 
   &:hover {
-    overflow-y: auto;
+    overflow-y: ${(props) => (props.$collapsed ? 'hidden' : 'auto')};
   }
 
   &::-webkit-scrollbar {
     width: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -27,26 +33,44 @@ export const SidebarContainer = styled.div<{ performanceSidebarBackgroundColor: 
 
   &::-webkit-scrollbar-thumb:hover {
     background-color: ${(props) => safeLighten(0.1, props.performanceScrollbarColor)};
-    cursor: pointer;
   }
 
   &::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  &:hover::-webkit-scrollbar {
+  scrollbar-width: none;
+
+  &:hover {
+    scrollbar-width: ${(props) => (props.$collapsed ? 'none' : 'thin')};
+    scrollbar-color: ${(props) => props.performanceScrollbarColor} transparent;
+  }
+`;
+
+export const SidebarToggleButton = styled.button<{ performanceSidebarBackgroundColor: string; performanceSidebarColor: string }>`
+  position: relative;
+  width: 16px;
+  flex-shrink: 0;
+  align-self: stretch;
+  background: transparent;
+  color: ${(props) => props.performanceSidebarColor};
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  padding: 0;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  outline: none;
+
+  &:hover {
     opacity: 1;
   }
 
-  scrollbar-width: none; 
-  
-  &:hover {
-    scrollbar-width: thin; 
-    scrollbar-color: ${(props) => props.performanceScrollbarColor} transparent; 
-  }
-
-  &::-webkit-scrollbar-thumb {
-    pointer-events: all;
+  svg {
+    display: block;
   }
 `;
 
