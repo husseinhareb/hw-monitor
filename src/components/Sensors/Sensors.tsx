@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { FaCog, FaEye, FaEyeSlash, FaUndo } from 'react-icons/fa';
+import { FaCog, FaEye, FaEyeSlash, FaUndo, FaChartLine } from 'react-icons/fa';
 import {
   Container,
   Title,
@@ -29,6 +29,7 @@ import {
 import useSensorsData from '../../hooks/Sensors/useSensorsData';
 import Battery from '../Sensors/Battery';
 import HeatBar from '../Sensors/HeatBar';
+import SensorGraphModal from '../Sensors/SensorGraphModal';
 import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 import useBatteryData from '../../hooks/Sensors/useBatteryData';
 import { useTranslation } from 'react-i18next';
@@ -110,8 +111,13 @@ const Sensors: React.FC = () => {
   const { t } = useTranslation();
   const sensorsConfig = useSensorsConfig();
   const [showHidden, setShowHidden] = useState(false);
+  const [pollCount, setPollCount] = useState(0);
   const [sensorFilter, setSensorFilter] = useState('');
   const [editingSensorId, setEditingSensorId] = useState<string | null>(null);
+  const [graphSensorId, setGraphSensorId] = useState<string | null>(null);
+
+  // Increment on every poll so the graph modal refreshes even when values are unchanged
+  React.useEffect(() => { setPollCount(c => c + 1); }, [sensors]);
 
   const hiddenIds = sensorsConfig.config.sensors_hidden_ids ?? [];
   const hiddenSet = useMemo(() => new Set(hiddenIds), [hiddenIds]);
@@ -315,6 +321,15 @@ const Sensors: React.FC = () => {
                         <SensorActions>
                           <SensorIconButton
                             type="button"
+                            title="Graph"
+                            aria-label="Graph"
+                            $active={graphSensorId === sensor.id}
+                            onClick={() => setGraphSensorId(graphSensorId === sensor.id ? null : sensor.id)}
+                          >
+                            <FaChartLine />
+                          </SensorIconButton>
+                          <SensorIconButton
+                            type="button"
                             title={t('sensors.edit')}
                             aria-label={t('sensors.edit')}
                             $active={isEditing}
@@ -396,6 +411,24 @@ const Sensors: React.FC = () => {
           </SensorList>
         ))}
       </SensorGrid>
+
+      {graphSensorId && (() => {
+        const allSensors = sortedSensors.flatMap(h => h.sensors);
+        const sensor = allSensors.find(s => s.id === graphSensorId);
+        if (!sensor) return null;
+        return (
+          <SensorGraphModal
+            key={graphSensorId}
+            sensorName={labelOverrides[sensor.id]?.trim() || sensor.name}
+            unit={sensor.unit ?? ''}
+            currentValue={sensor.value}
+            pollTick={pollCount}
+            updateInterval={sensorsConfig.config.sensors_update_time}
+            backgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+            onClose={() => setGraphSensorId(null)}
+          />
+        );
+      })()}
     </Container>
   );
 };

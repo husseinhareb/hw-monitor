@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import usePerformanceConfig from '../../hooks/Performance/usePerformanceConfig';
+import { useTick } from '../../services/store';
 
 // NOTE: Each Graph instance creates a full Chart.js chart object. The sidebar
 // renders one per metric (CPU, Memory, each GPU, each NIC, each disk) plus
@@ -33,8 +34,7 @@ const Graph: React.FC<GraphProps> = ({
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
-  const totalPointsRef = useRef(0);
-  const prevDataRef = useRef<{ first: number[]; second: number[] }>({ first: EMPTY, second: EMPTY });
+  const tick = useTick();
   const performanceConfig = usePerformanceConfig();
 
   useEffect(() => {
@@ -145,29 +145,16 @@ const Graph: React.FC<GraphProps> = ({
     const intervalSec =
       (updateInterval ?? performanceConfig.config.performance_update_time) / 1000;
 
-    // Advance total counter only when new data actually arrives
-    const prev = prevDataRef.current;
-    const dataChanged =
-      firstSeries.length !== prev.first.length ||
-      firstSeries[firstSeries.length - 1] !== prev.first[prev.first.length - 1] ||
-      secondSeries[secondSeries.length - 1] !== prev.second[prev.second.length - 1];
-    prevDataRef.current = { first: firstSeries, second: secondSeries };
-
-    if (totalPointsRef.current < pointCount) {
-      totalPointsRef.current = pointCount;
-    } else if (dataChanged) {
-      totalPointsRef.current += 1;
-    }
-    const total = totalPointsRef.current;
-
+    // All graphs share the global tick so their rightmost label is always identical
     chart.data.labels = Array.from(
       { length: pointCount },
-      (_, index) => `${((total - pointCount + index + 1) * intervalSec).toFixed(0)}s`,
+      (_, index) => `${((tick - pointCount + index + 1) * intervalSec).toFixed(0)}s`,
     );
     chart.data.datasets[0].data = firstSeries;
     chart.data.datasets[1].data = secondSeries;
     chart.update('none');
   }, [
+    tick,
     firstGraphValue,
     secondGraphValue,
     performanceConfig?.config.performance_update_time,

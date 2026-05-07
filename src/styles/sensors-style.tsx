@@ -231,6 +231,83 @@ export const SensorStatusBadge = styled.span<{ $status: 'normal' | 'warning' | '
   }};
 `;
 
+/* ── Sensor graph modal ─────────────────────────────────────────────────── */
+
+export const GraphModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+`;
+
+export const GraphModalContent = styled.div<{ $backgroundColor: string }>`
+  background: ${p => p.$backgroundColor};
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: min(860px, calc(100vw - 40px));
+  height: min(500px, calc(100vh - 80px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+export const GraphModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+`;
+
+export const GraphModalTitle = styled.span`
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const GraphModalValue = styled.span`
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  white-space: nowrap;
+  flex-shrink: 0;
+`;
+
+export const GraphModalClose = styled.button`
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: inherit;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  flex-shrink: 0;
+  &:hover { background: rgba(255, 255, 255, 0.08); }
+`;
+
+export const GraphModalBody = styled.div`
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+  position: relative;
+`;
+
 /* ── Inline editor ──────────────────────────────────────────────────────── */
 
 export const SensorEditor = styled.div`

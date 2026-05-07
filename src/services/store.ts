@@ -36,6 +36,8 @@ export interface TotalUsages {
 }
 
 interface Store {
+  tick: number;
+
   cpu: number[];
   appendCpu: (value: number) => void;
 
@@ -81,8 +83,11 @@ export interface Notification {
 }
 
 export const useStore = create<Store>((set) => ({
+  tick: 0,
+
   cpu: [],
   appendCpu: (value) => set((state) => ({
+    tick: state.tick + 1,
     cpu: [...state.cpu, value].slice(-20),
   })),
 
@@ -166,6 +171,8 @@ export const useStore = create<Store>((set) => ({
 }));
 
 
+
+export const useTick = () => useStore((state) => state.tick);
 
 export const useCpu = () => useStore((state) => state.cpu);
 export const useAppendCpu = () => useStore((state) => state.appendCpu);
