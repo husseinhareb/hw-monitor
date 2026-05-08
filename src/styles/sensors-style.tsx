@@ -243,8 +243,9 @@ export const GraphModalOverlay = styled.div`
   z-index: 2000;
 `;
 
-export const GraphModalContent = styled.div<{ $backgroundColor: string }>`
+export const GraphModalContent = styled.div<{ $backgroundColor: string; $color: string }>`
   background: ${p => p.$backgroundColor};
+  color: ${p => p.$color};
   border: 1px solid rgba(255, 255, 255, 0.1);
   width: min(860px, calc(100vw - 40px));
   height: min(500px, calc(100vh - 80px));
@@ -262,7 +263,8 @@ export const GraphModalHeader = styled.div`
   flex-shrink: 0;
 `;
 
-export const GraphModalTitle = styled.span`
+export const GraphModalTitle = styled.span<{ $color: string }>`
+  color: ${p => p.$color};
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;

@@ -35,16 +35,16 @@ const Battery: React.FC<BatteryProps> = ({ batteries, error }) => {
                                  />
                             </DesignDiv>
                             <ContentDiv>
-                                {hasNumber(battery.percentage) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.percentage')}: {battery.percentage}%</p></Item>}
-                                {battery.model && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.model')}: {battery.model}</p></Item>}
-                                {battery.state && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.state')}: {battery.state}</p></Item>}
-                                {hasNumber(battery.cycle_count) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.cycle_count')}: {battery.cycle_count}</p></Item>}
-                                {hasNumber(battery.energy) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.energy')}: {battery.energy} Wh</p></Item>}
-                                {hasNumber(battery.time_to_full) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.time_to_full')}: {battery.time_to_full} {t('minutes')}</p></Item>}
-                                {battery.technology && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.technology')}: {battery.technology}</p></Item>}
-                                {hasNumber(battery.time_to_empty) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.time_to_empty')}: {battery.time_to_empty} {t('minutes')}</p></Item>}
-                                {hasNumber(battery.temperature) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.temperature')}: {battery.temperature} °C</p></Item>}
-                                {hasNumber(battery.state_of_health) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}><p>{t('battery.state_of_health')}: {battery.state_of_health}%</p></Item>}
+                                {hasNumber(battery.percentage) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.percentage')}: {battery.percentage}%</Item>}
+                                {battery.model && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.model')}: {battery.model}</Item>}
+                                {battery.state && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.state')}: {battery.state}</Item>}
+                                {hasNumber(battery.cycle_count) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.cycle_count')}: {battery.cycle_count}</Item>}
+                                {hasNumber(battery.energy) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.energy')}: {battery.energy} Wh</Item>}
+                                {hasNumber(battery.time_to_full) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.time_to_full')}: {battery.time_to_full} {t('minutes')}</Item>}
+                                {battery.technology && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.technology')}: {battery.technology}</Item>}
+                                {hasNumber(battery.time_to_empty) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.time_to_empty')}: {battery.time_to_empty} {t('minutes')}</Item>}
+                                {hasNumber(battery.temperature) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.temperature')}: {battery.temperature} °C</Item>}
+                                {hasNumber(battery.state_of_health) && <Item sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}>{t('battery.state_of_health')}: {battery.state_of_health}%</Item>}
                             </ContentDiv>
                         </BatteryContainer>
                     </SensorGroup>

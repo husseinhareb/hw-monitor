@@ -72,7 +72,7 @@ export const ModalContent = styled.div<{
 }>`
   background: ${(props) => props.$backgroundColor};
   color: ${(props) => props.$textColor};
-  width: min(900px, calc(100vw - 40px));
+  width: min(1200px, calc(100vw - 40px));
   max-height: calc(100vh - 60px);
   position: relative;
   display: flex;

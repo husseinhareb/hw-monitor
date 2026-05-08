@@ -14,6 +14,10 @@ export interface ConfigData {
   processes_border_color: string;
   processes_tree_toggle_color: string;
   processes_monitor_border_color: string;
+  processes_services_active_color: string;
+  processes_services_inactive_color: string;
+  processes_services_failed_color: string;
+  processes_services_transitioning_color: string;
   performance_update_time: number;
   performance_sidebar_background_color: string;
   performance_sidebar_color: string;
@@ -38,6 +42,10 @@ export interface ConfigData {
   sensors_label_overrides: string;
   sensors_warning_thresholds: string;
   sensors_critical_thresholds: string;
+  sensors_graph_color: string;
+  sensors_status_ok_color: string;
+  sensors_status_warning_color: string;
+  sensors_status_critical_color: string;
   disks_update_time: number;
   disks_background_color: string;
   disks_boxes_background_color: string;
@@ -48,6 +56,9 @@ export interface ConfigData {
   disks_partition_name_foreground_color: string;
   disks_partition_type_foreground_color: string;
   disks_partition_usage_foreground_color: string;
+  disks_smart_ok_color: string;
+  disks_smart_fail_color: string;
+  disks_smart_warning_color: string;
   navbar_background_color: string;
   navbar_buttons_background_color: string;
   navbar_buttons_foreground_color: string;

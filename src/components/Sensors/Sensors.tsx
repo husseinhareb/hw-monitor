@@ -141,24 +141,39 @@ const Sensors: React.FC = () => {
   const normalizedSensorFilter = sensorFilter.trim().toLowerCase();
 
   const sortedSensors = useMemo(() => {
+    const nameCount = new Map<string, number>();
+    for (const hwmon of sensors) {
+      nameCount.set(hwmon.name, (nameCount.get(hwmon.name) ?? 0) + 1);
+    }
+    const nameSeq = new Map<string, number>();
+
     return sensors
-      .map(hwmon => ({
-        ...hwmon,
-        sensors: hwmon.sensors.filter(sensor => {
-          if (!showHidden && hiddenSet.has(sensor.id)) return false;
-          if (!normalizedSensorFilter) return true;
+      .map(hwmon => {
+        let resolvedName = hwmon.name;
+        if ((nameCount.get(hwmon.name) ?? 1) > 1) {
+          const seq = (nameSeq.get(hwmon.name) ?? 0) + 1;
+          nameSeq.set(hwmon.name, seq);
+          resolvedName = `${hwmon.name} ${seq}`;
+        }
+        return {
+          ...hwmon,
+          name: resolvedName,
+          sensors: hwmon.sensors.filter(sensor => {
+            if (!showHidden && hiddenSet.has(sensor.id)) return false;
+            if (!normalizedSensorFilter) return true;
 
-          const searchableText = [
-            labelOverrides[sensor.id],
-            sensor.name,
-            sensor.id,
-            sensor.sensor_type,
-            hwmon.name,
-          ].filter(Boolean).join(' ').toLowerCase();
+            const searchableText = [
+              labelOverrides[sensor.id],
+              sensor.name,
+              sensor.id,
+              sensor.sensor_type,
+              resolvedName,
+            ].filter(Boolean).join(' ').toLowerCase();
 
-          return searchableText.includes(normalizedSensorFilter);
-        }),
-      }))
+            return searchableText.includes(normalizedSensorFilter);
+          }),
+        };
+      })
       .filter(hwmon => hwmon.sensors.length > 0)
       .sort((a, b) => b.sensors.length - a.sensors.length);
   }, [hiddenSet, labelOverrides, normalizedSensorFilter, sensors, showHidden]);
@@ -425,6 +440,8 @@ const Sensors: React.FC = () => {
             pollTick={pollCount}
             updateInterval={sensorsConfig.config.sensors_update_time}
             backgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+            foregroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
+            titleColor={sensorsConfig.config.sensors_boxes_title_foreground_color}
             onClose={() => setGraphSensorId(null)}
           />
         );

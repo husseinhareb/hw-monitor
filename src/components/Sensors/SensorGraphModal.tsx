@@ -23,6 +23,8 @@ interface Props {
   pollTick: number;
   updateInterval: number;
   backgroundColor: string;
+  foregroundColor: string;
+  titleColor: string;
   onClose: () => void;
 }
 
@@ -33,6 +35,8 @@ const SensorGraphModal: React.FC<Props> = ({
   pollTick,
   updateInterval,
   backgroundColor,
+  foregroundColor,
+  titleColor,
   onClose,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -136,9 +140,9 @@ const SensorGraphModal: React.FC<Props> = ({
 
   return (
     <GraphModalOverlay onClick={onClose}>
-      <GraphModalContent $backgroundColor={backgroundColor} onClick={e => e.stopPropagation()}>
+      <GraphModalContent $backgroundColor={backgroundColor} $color={foregroundColor} onClick={e => e.stopPropagation()}>
         <GraphModalHeader>
-          <GraphModalTitle title={sensorName}>{sensorName}</GraphModalTitle>
+          <GraphModalTitle $color={titleColor} title={sensorName}>{sensorName}</GraphModalTitle>
           <GraphModalValue>{displayValue}</GraphModalValue>
           <GraphModalClose type="button" aria-label="Close" onClick={onClose}>
             &times;

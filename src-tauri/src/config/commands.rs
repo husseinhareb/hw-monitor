@@ -135,6 +135,10 @@ define_config! {
     processes_border_color: String = "#333333".into(),
     processes_tree_toggle_color: String = "#888888".into(),
     processes_monitor_border_color: String = "#555555".into(),
+    processes_services_active_color: String = "#4ec94e".into(),
+    processes_services_inactive_color: String = "#888888".into(),
+    processes_services_failed_color: String = "#ee5555".into(),
+    processes_services_transitioning_color: String = "#e5c245".into(),
     performance_update_time: u32 = 1000,
     performance_sidebar_background_color: String = "#333333".into(),
     performance_sidebar_color: String = "#ffffff".into(),
@@ -159,6 +163,10 @@ define_config! {
     sensors_label_overrides: String = "{}".into(),
     sensors_warning_thresholds: String = "{}".into(),
     sensors_critical_thresholds: String = "{}".into(),
+    sensors_graph_color: String = "#09ffff".into(),
+    sensors_status_ok_color: String = "#7bd88f".into(),
+    sensors_status_warning_color: String = "#f0c04a".into(),
+    sensors_status_critical_color: String = "#d64545".into(),
     disks_update_time: u32 = 5000,
     disks_background_color: String = "#2b2b2b".into(),
     disks_boxes_background_color: String = "#3a3a3a".into(),
@@ -169,6 +177,9 @@ define_config! {
     disks_partition_name_foreground_color: String = "#61dafb".into(),
     disks_partition_type_foreground_color: String = "#a3be8c".into(),
     disks_partition_usage_foreground_color: String = "#ffcb6b".into(),
+    disks_smart_ok_color: String = "#7bd88f".into(),
+    disks_smart_fail_color: String = "#d64545".into(),
+    disks_smart_warning_color: String = "#f0c04a".into(),
     navbar_background_color: String = "#222222".into(),
     navbar_buttons_background_color: String = "#f3eae8".into(),
     navbar_buttons_foreground_color: String = "#212830".into(),
@@ -374,6 +385,10 @@ set_config_command!(set_processes_configs, ProcessesConfig {
     processes_border_color: String,
     processes_tree_toggle_color: String,
     processes_monitor_border_color: String,
+    processes_services_active_color: String,
+    processes_services_inactive_color: String,
+    processes_services_failed_color: String,
+    processes_services_transitioning_color: String,
 });
 
 set_config_command!(
@@ -410,6 +425,10 @@ set_config_command!(
         sensors_label_overrides: String,
         sensors_warning_thresholds: String,
         sensors_critical_thresholds: String,
+        sensors_graph_color: String,
+        sensors_status_ok_color: String,
+        sensors_status_warning_color: String,
+        sensors_status_critical_color: String,
     }
 );
 
@@ -426,6 +445,9 @@ set_config_command!(
         disks_partition_name_foreground_color: String,
         disks_partition_type_foreground_color: String,
         disks_partition_usage_foreground_color: String,
+        disks_smart_ok_color: String,
+        disks_smart_fail_color: String,
+        disks_smart_warning_color: String,
     }
 );
 

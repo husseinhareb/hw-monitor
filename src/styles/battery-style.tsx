@@ -59,19 +59,19 @@ const calculatePercentage = (percentage: number) => css`
 export const Design = styled.div<DesignProps>`
   background-color: ${(props) => props.sensorsBatteryCaseColor};
   position: relative;
-  margin: 10px 0;
-  width: 130px;
-  height: 220px;
-  border: 10px solid ${(props) => props.sensorsBatteryFrameColor + "CC"};
+  margin: 8px 0;
+  width: 90px;
+  height: 155px;
+  border: 7px solid ${(props) => props.sensorsBatteryFrameColor + "CC"};
 
   ${({ percentage }) => calculatePercentage(percentage)}
 
   &::before {
     content: "";
     position: absolute;
-    bottom: 6px;
-    left: 6px;
-    width: 98px;
+    bottom: 4px;
+    left: 4px;
+    width: 68px;
     height: 0%;
     background-color: ${(props) => props.sensorsBatteryBackgroundColor};
     animation: ${full} 2s linear forwards;
@@ -80,11 +80,11 @@ export const Design = styled.div<DesignProps>`
   &::after {
     content: "";
     position: absolute;
-    top: -27px;
+    top: -19px;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
-    height: 15px;
+    width: 42px;
+    height: 11px;
     background-color: ${(props) => props.sensorsBatteryFrameColor + "CC"};
   }
 `;
