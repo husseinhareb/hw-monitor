@@ -22,7 +22,7 @@ Detailed information about each process running on the machine. Processes can be
 - Disk Read Speed
 - Disk Write Speed
 
-![Processes](https://github.com/user-attachments/assets/19b84674-fcce-4d42-9e9f-eb39136df9f7)
+<img width="1216" height="916" alt="screenshot" src="https://github.com/user-attachments/assets/212bdcb4-e06a-477f-b46b-e1504cb46c29" />
 
 ### Performance
 
@@ -32,7 +32,9 @@ Live graphs of key hardware components (CPU, RAM, GPU, disks, and network interf
 
 Name, socket, core/thread/live-thread counts, base/current/maximum speed, virtualisation flag, VM/hypervisor detection, uptime, temperature, and per-level cache sizes (L1d, L1i, L2, L3).
 
-![CPU](https://github.com/user-attachments/assets/88d6b300-c4bf-4af5-96f9-2706ba08fc40)
+<img width="1213" height="919" alt="screenshot" src="https://github.com/user-attachments/assets/70b4300c-2e6f-4e9c-9941-dc413a154df7" />
+<img width="1365" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/7e81c0b4-6e7e-456d-b46d-276d662e70a5" />
+
 
 #### Memory
 
@@ -43,19 +45,20 @@ Live totals (total, free, available, cached, active, swap) plus hardware informa
 - **Form Factor**: e.g. SODIMM, DIMM
 - **Type**: e.g. DDR4, DDR5
 
-![Memory](https://github.com/user-attachments/assets/e923d001-1cd7-4735-9ce2-cfc1b96e93cb)
+<img width="1215" height="919" alt="screenshot" src="https://github.com/user-attachments/assets/bbdc536e-1878-4965-933a-7997a0c1488b" />
 
 #### GPU
 
 NVIDIA cards via NVML and AMD cards via sysfs: name, driver version, memory totals, temperature, utilisation, clock speed, wattage, fan speed, performance state.
 
-![GPU](https://github.com/user-attachments/assets/e13d7ee5-ad4b-45c9-8a52-b065f4d64bd4)
+<img width="1216" height="918" alt="screenshot" src="https://github.com/user-attachments/assets/05394fa4-f4b8-47c7-9b1f-bc1050d68b55" />
 
 #### Network
 
 Per-interface upload/download speeds, totals transferred, MAC, IPv4/IPv6 addresses, link speed, connection state, interface type, WiFi signal strength, and RX/TX errors and drops. Virtual interfaces are hidden by default and can be toggled from the config panel.
 
-![Network](https://github.com/user-attachments/assets/3431f04a-3697-4332-8d01-23019aa2dba3)
+<img width="1215" height="917" alt="Untitled design" src="https://github.com/user-attachments/assets/d33e50cc-154b-4461-b2d2-c01a86aa29f7" />
+
 
 ### Sensors
 
@@ -70,7 +73,9 @@ For each individual sensor you can:
 
 On laptops, a battery box surfaces cycle count, technology, energy, time-to-full/time-to-empty, temperature, state-of-health, and current charge.
 
-![Sensors](https://github.com/user-attachments/assets/6892ef7f-2343-4882-86dc-6ec7a67df6a8)
+<img width="1366" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/4362d17f-f6a8-404c-bb58-538c1f80a8b9" />
+
+<img width="1365" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/5a302e55-1ea8-43a8-befc-c4b688ddb20a" />
 
 ### Disks
 
@@ -84,7 +89,9 @@ Selecting a disk opens a **details modal** with the full picture pulled from `/s
 - aggregate I/O counters and queue stats;
 - **SMART data** for both ATA and NVMe drives, covering overall health, attribute table, power-on hours, temperature, reallocated/pending/uncorrectable sectors (ATA) and critical warnings, available spare, percentage used, power cycles, unsafe shutdowns, media errors, data units read/written (NVMe).
 
-![Disks](https://github.com/user-attachments/assets/5dcc2261-2e00-4eb3-89bd-c73a63d8c819)
+<img width="1218" height="943" alt="screenshot" src="https://github.com/user-attachments/assets/f6d80f2a-9610-46be-a4b6-ba0c577997ef" />
+<img width="1365" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/6fed8f69-5816-45de-a020-538ce08eef43" />
+
 
 ### Services
 
@@ -96,7 +103,8 @@ Selecting a service reveals an action bar with **Start**, **Stop**, and **Restar
 
 The application ships with eight languages: Arabic, German, English, Spanish, French, Polish, Russian, and Ukrainian. Switch from the configuration panel.
 
-![Languages](https://github.com/user-attachments/assets/e7b1fae4-9929-43e5-87d5-157ac4c36094)
+<img width="1364" height="990" alt="screenshot" src="https://github.com/user-attachments/assets/59bbcbeb-1b64-42e1-ace9-a88280482f21" />
+
 
 ## Themes
 
@@ -106,10 +114,11 @@ Three presets bundle with the app and can be switched from the config panel:
 - **Catppuccin**: Mocha palette
 - **Gruvbox**: classic warm dark
 
-![Catppuccin](https://github.com/user-attachments/assets/035d8c1c-1dbb-46b9-a1b9-60927b05ef61)
-![Catppuccin performance](https://github.com/user-attachments/assets/5e55ce4e-804d-481f-a5f8-4f6abaf19476)
-![Gruvbox](https://github.com/user-attachments/assets/cfdb6f44-2470-49da-88fe-add741904988)
-![Gruvbox performance](https://github.com/user-attachments/assets/87e0bbce-d9dc-492f-aaeb-7301115366d0)
+<img width="1365" height="987" alt="screenshot" src="https://github.com/user-attachments/assets/a7a7df1c-64a9-4231-b9bc-a9dc98aed3c2" />
+<img width="1365" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/42251a16-fccb-40f3-a9aa-cba174399eb0" />
+<img width="1364" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/d78cd662-9b12-46d6-89d1-1cd1863287f4" />
+<img width="1366" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/f9d55fee-8bf4-4b03-b0cf-1888c60b3d99" />
+
 
 Every individual colour, update interval, and visible table column is editable from the config panel. The in-app picker is the source of truth, and edits persist to `~/.config/hw-monitor/hw-monitor.conf`. The bundled presets live in `src/components/Config/themes.ts`; new presets added there are validated automatically by `npm run check:themes` (palette completeness, valid hex values, monotonic heatbar gradient, foreground/background contrast).
 
@@ -124,8 +133,9 @@ The app creates a configuration file at startup at `~/.config/hw-monitor/hw-moni
 - per-sensor preferences (hidden IDs, custom labels, custom warning/critical thresholds);
 - the "show virtual network interfaces" toggle.
 
-![Config panel](https://github.com/user-attachments/assets/37c15497-36bc-4d23-bf83-0811780e7cc7)
-![Config panel colours](https://github.com/user-attachments/assets/aec3639a-c2e9-4b22-ba21-48f2c6799bd6)
+<img width="1364" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/716c592f-0fd2-4c30-9de9-6c8ae6c6e3be" />
+<img width="1365" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/ba3507a9-1ce9-4d58-ad6a-ccca8123ce5a" />
+
 
 ## Installation
 
