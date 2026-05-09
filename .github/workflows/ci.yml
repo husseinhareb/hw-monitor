@@ -48,6 +48,9 @@ jobs:
       - name: Check generated bindings
         run: npm run check:bindings
 
+      - name: Validate themes
+        run: npm run check:themes
+
       - name: Check formatting
         working-directory: src-tauri
         run: cargo fmt --check

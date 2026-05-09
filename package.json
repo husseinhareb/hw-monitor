@@ -6,6 +6,7 @@
   "scripts": {
     "generate:bindings": "node scripts/generate-bindings.mjs",
     "check:bindings": "node scripts/generate-bindings.mjs --check",
+    "check:themes": "node scripts/check-themes.mjs",
     "predev": "npm run generate:bindings",
     "dev": "vite",
     "prebuild": "npm run generate:bindings",
