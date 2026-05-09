@@ -239,17 +239,25 @@ set -Ux QT_XCB_FORCE_SOFTWARE_OPENGL 1
 
 ## Changelog
 
-### Unreleased
-
-- **feat**: per-sensor live graph modal with recent-history plotting
-- **feat**: per-sensor controls (hide/show, custom label, custom warning/critical thresholds)
-- **feat**: disk details modal with full `/sys/block` metadata, queue parameters, and live I/O counters
-- **feat**: SMART data for ATA and NVMe drives (health, attributes, power-on hours, temperature, wear)
-- **feat**: theme-integrity validator (`npm run check:themes`) wired into CI
-- **fix**: re-tuned Catppuccin and Gruvbox heatbars to be strictly monotonic and palette-correct
-- **fix**: Gruvbox contrast bumped on title, value, and disk-name colours
+### v0.4.0
+- **feat**: disk details modal exposing full `/sys/block` metadata (model, vendor, serial, firmware, WWID, transport, schedulers, queue depth, read-ahead, write cache, FUA, DAX, TRIM, discard limits)
+- **feat**: SMART data for ATA and NVMe drives (overall health, attribute table, power-on hours, temperature, reallocated/pending/uncorrectable sectors, NVMe wear, available spare, media errors, data units read/written)
+- **feat**: per-sensor live graph modal plotting recent history
+- **feat**: per-sensor controls (hide/show, custom label, custom warning/critical thresholds, filter)
+- **feat**: system tray icon with Open/Quit menu, close-to-tray instead of close-to-quit
+- **feat**: service startup management (enable/disable systemd units)
+- **feat**: recent service logs displayed inside the service details panel
+- **feat**: detailed network interface panel (MAC, IPv4/IPv6, link speed, type, WiFi signal, RX/TX errors and drops)
+- **feat**: theme integrity validator (`npm run check:themes`) wired into CI
+- **feat**: frontend bindings auto-generated from Rust command models (`npm run check:bindings`, predev/prebuild hooks)
+- **feat**: dedicated CI workflow (rustfmt, clippy, backend tests, bindings check, theme check, frontend build)
+- **fix**: Catppuccin and Gruvbox heatbars re-tuned to be palette-correct and strictly monotonic, no duplicate stops
+- **fix**: Gruvbox contrast bumped on performance title, value, and disk-name colours
 - **fix**: sensor graph modal now follows the configured foreground and title colours
 - **fix**: disk details modal width widened for readability
+- **fix**: multiple sensor and disk modal styling regressions
+- **fix**: replaced `polished` dependency with a small in-tree `safeLighten` helper
+- **fix**: `zbus` dependency dropped, all data now read via direct sysfs and procfs
 
 ### v0.3.1
 - **fix**: memory hardware info (speed, slots, form factor, type) now reads via `udevadm info`, no root required
