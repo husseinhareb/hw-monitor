@@ -136,6 +136,42 @@ padding: 8px;
 min-width: 0;
 `;
 
+// Memory composition bar (mirrors the Windows Task Manager "memory composition" strip)
+export const CompositionSection = styled.div`
+display: flex;
+flex-direction: column;
+gap: 6px;
+padding: 4px 20px 0;
+flex-shrink: 0;
+min-width: 0;
+`;
+
+export const CompositionTitle = styled.span<{ performanceLabelColor: string; }>`
+color: ${(props) => props.performanceLabelColor};
+font-size: 13px;
+`;
+
+export const CompositionBar = styled.div<{ performanceValueColor: string; }>`
+display: flex;
+width: 100%;
+height: 34px;
+border: 1px solid ${(props) => props.performanceValueColor};
+box-sizing: border-box;
+overflow: hidden;
+`;
+
+export const CompositionSegment = styled.div<{ widthPercent: number; fillColor: string; }>`
+width: ${(props) => props.widthPercent}%;
+height: 100%;
+background-color: ${(props) => props.fillColor};
+border-right: 1px solid ${(props) => props.fillColor === 'transparent' ? 'transparent' : 'rgba(0,0,0,0.25)'};
+transition: width 0.3s ease;
+min-width: 0;
+&:last-child {
+  border-right: none;
+}
+`;
+
 export const NetworkInfoGrid = styled.div`
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));

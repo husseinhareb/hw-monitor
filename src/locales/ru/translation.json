@@ -189,6 +189,8 @@
     "performance.available": "Доступно",
     "performance.cached": "Кэшировано",
     "performance.active": "Активно",
+    "performance.memory_composition": "Состав памяти",
+    "performance.in_use": "Используется",
     "performance.swap_cache": "Кэш подкачки",
     "performance.hardware_info": "Аппаратная информация",
     "performance.mem_speed": "Скорость",

@@ -189,6 +189,8 @@
     "performance.available": "Доступно",
     "performance.cached": "Кешовано",
     "performance.active": "Активна",
+    "performance.memory_composition": "Склад пам'яті",
+    "performance.in_use": "Використовується",
     "performance.swap_cache": "Swap кеш",
     "performance.hardware_info": "Інформація про обладнання",
     "performance.mem_speed": "Швидкість",

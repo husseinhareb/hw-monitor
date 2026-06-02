@@ -2,10 +2,11 @@ import React, { useMemo } from "react";
 import Graph from "../Graph/Graph";
 import { MemoryUsage, MemoryHardwareInfo } from "../../hooks/Performance/useMemoryData";
 import useDataConverter from "../../helpers/useDataConverter";
-import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer } from "./Styles/style";
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer, CompositionSection, CompositionTitle, CompositionBar, CompositionSegment } from "./Styles/style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
 import { useTranslation } from "react-i18next";
+import { safeLighten } from "../../utils/safeLighten";
 
 interface MemoryProps {
     performanceConfig: {
@@ -57,6 +58,35 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, activeM
         };
     }, [convertData, memoryUsage]);
 
+    // Memory composition: split total RAM into "in use" (non-reclaimable),
+    // "cached" (reclaimable, i.e. available minus free) and "free".
+    const composition = useMemo(() => {
+        if (memoryUsage === null || memoryUsage.total == null || memoryUsage.total <= 0) {
+            return null;
+        }
+
+        const total = memoryUsage.total;
+        const free = memoryUsage.free ?? 0;
+        const available = Math.min(memoryUsage.available ?? free, total);
+        const inUse = Math.max(0, total - available);
+        const cached = Math.max(0, available - free);
+
+        const segments = [
+            { key: 'in_use', label: t('performance.in_use'), bytes: inUse, color: performanceConfig.config.performance_graph_color },
+            { key: 'cached', label: t('performance.cached'), bytes: cached, color: safeLighten(0.18, performanceConfig.config.performance_graph_color) },
+            { key: 'free', label: t('performance.free'), bytes: free, color: 'transparent' },
+        ];
+
+        return segments.map((segment) => {
+            const converted = convertData(segment.bytes);
+            return {
+                ...segment,
+                widthPercent: (segment.bytes / total) * 100,
+                display: `${converted.value} ${converted.unit}`,
+            };
+        });
+    }, [convertData, memoryUsage, performanceConfig.config.performance_graph_color, t]);
+
     return (
         <MemoryContainer 
             performanceBackgroundColor={performanceConfig.config.performance_background_color}
@@ -74,6 +104,23 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, activeM
                             width="100%"
                         />
                     </div>
+                    {composition && (
+                        <CompositionSection>
+                            <CompositionTitle performanceLabelColor={performanceConfig.config.performance_label_color}>
+                                {t('performance.memory_composition')}
+                            </CompositionTitle>
+                            <CompositionBar performanceValueColor={performanceConfig.config.performance_value_color}>
+                                {composition.map((segment) => (
+                                    <CompositionSegment
+                                        key={segment.key}
+                                        widthPercent={segment.widthPercent}
+                                        fillColor={segment.color}
+                                        title={`${segment.label}: ${segment.display}`}
+                                    />
+                                ))}
+                            </CompositionBar>
+                        </CompositionSection>
+                    )}
                     <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>
                         <RealTimeValues>
                             <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.ram')} <FaMemory style={{ marginLeft: '0.5em' }} /></MemoryTypes>

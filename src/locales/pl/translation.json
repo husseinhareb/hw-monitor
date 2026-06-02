@@ -189,6 +189,8 @@
     "performance.available": "Dostępne",
     "performance.cached": "Buforowane",
     "performance.active": "Aktywne",
+    "performance.memory_composition": "Skład pamięci",
+    "performance.in_use": "W użyciu",
     "performance.swap_cache": "Bufor Swap",
     "performance.hardware_info": "Informacje o sprzęcie",
     "performance.mem_speed": "Prędkość",

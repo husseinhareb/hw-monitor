@@ -187,6 +187,8 @@
     "performance.available": "Disponible",
     "performance.cached": "En Cache",
     "performance.active": "Actif",
+    "performance.memory_composition": "Composition de la mémoire",
+    "performance.in_use": "Utilisée",
     "performance.swap_cache": "Cache du Swap",
     "performance.hardware_info": "Info Matériel",
     "performance.mem_speed": "Vitesse",

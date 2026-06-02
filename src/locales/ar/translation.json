@@ -189,6 +189,8 @@
     "performance.available": "المتاحة",
     "performance.cached": "المخزنة مؤقتا",
     "performance.active": "النشطة",
+    "performance.memory_composition": "تكوين الذاكرة",
+    "performance.in_use": "قيد الاستخدام",
     "performance.swap_cache": "ذاكرة التبديل",
     "performance.hardware_info": "معلومات العتاد",
     "performance.mem_speed": "السرعة",

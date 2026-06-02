@@ -213,6 +213,8 @@
     "performance.available": "Available",
     "performance.cached": "Cached",
     "performance.active": "Active",
+    "performance.memory_composition": "Memory composition",
+    "performance.in_use": "In use",
     "performance.swap_cache": "Swap Cache",
     "performance.hardware_info": "Hardware Info",
     "performance.mem_speed": "Speed",
