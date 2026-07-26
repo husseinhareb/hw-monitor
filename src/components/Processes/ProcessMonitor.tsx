@@ -8,6 +8,7 @@ import styled from 'styled-components';
 
 interface ProcessMonitorProps {
     pid: number;
+    startTime: number;
     name: string;
     processes: Process[];
     onClose: () => void;
@@ -105,11 +106,7 @@ const parseMemoryToMb = (memStr: string): number => {
     return value / (1000 * 1000);
 };
 
-// NOTE: Process identity is tracked by PID + name. On Linux, PIDs can be
-// reused after a process exits, so in rare cases a new process with the same
-// PID and name could be mistaken for the original. The backend does not
-// currently expose process start_time, which would eliminate this ambiguity.
-const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, onClose }) => {
+const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, processes, onClose }) => {
     const [cpuHistory, setCpuHistory] = useState<number[]>([]);
     const [memHistory, setMemHistory] = useState<number[]>([]);
     const [processAlive, setProcessAlive] = useState(true);
@@ -118,8 +115,8 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
     const processConfig = useProcessConfig();
 
     useEffect(() => {
-        const proc = processes.find(p => p.pid === pid);
-        if (!proc || (proc.name ?? '') !== name) {
+        const proc = processes.find(p => p.pid === pid && p.start_time === startTime);
+        if (!proc) {
             setProcessAlive(false);
             return;
         }
@@ -139,7 +136,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, name, processes, o
             const next = [...prev, memVal];
             return next.length > MAX_POINTS ? next.slice(-MAX_POINTS) : next;
         });
-    }, [name, pid, processes]);
+    }, [pid, processes, startTime]);
 
     const currentCpu = cpuHistory.length > 0 ? cpuHistory[cpuHistory.length - 1] : 0;
     const currentMem = memHistory.length > 0 ? memHistory[memHistory.length - 1] : 0;

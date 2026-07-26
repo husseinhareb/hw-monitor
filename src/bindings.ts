@@ -176,6 +176,7 @@ export interface NetworkInterface {
 
 export interface Process {
   pid: number;
+  start_time: number;
   name: string | null;
   ppid: number | null;
   state: string | null;

@@ -90,6 +90,7 @@ const Proc: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [selectedPid, setSelectedPid] = useState<number | null>(null);
     const [monitoredPid, setMonitoredPid] = useState<number | null>(null);
+    const [monitoredStartTime, setMonitoredStartTime] = useState<number | null>(null);
     const [monitoredName, setMonitoredName] = useState<string>('');
     const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
     const totalUsages = useTotalUsagesData();
@@ -290,6 +291,7 @@ const Proc: React.FC = () => {
         const proc = getSelectedProcess();
         if (proc) {
             setMonitoredPid(proc.pid);
+            setMonitoredStartTime(proc.start_time);
             setMonitoredName(proc.name ?? '');
         }
     };
@@ -415,9 +417,13 @@ const Proc: React.FC = () => {
             {monitoredPid !== null && (
                 <ProcessMonitor
                     pid={monitoredPid}
+                    startTime={monitoredStartTime ?? 0}
                     name={monitoredName}
                     processes={processes}
-                    onClose={() => setMonitoredPid(null)}
+                    onClose={() => {
+                        setMonitoredPid(null);
+                        setMonitoredStartTime(null);
+                    }}
                 />
             )}
         </TableContainer>

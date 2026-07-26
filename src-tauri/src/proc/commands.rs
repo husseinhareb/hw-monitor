@@ -2,12 +2,14 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::io;
+use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
 use std::sync::Mutex;
 use std::time::Instant;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Process {
     pid: u32,
+    start_time: u64,
     name: Option<String>,
     ppid: Option<u32>,
     state: Option<String>,
@@ -107,9 +109,8 @@ fn read_proc_status_file(
     Some((name?, ppid?, user?, mem_str))
 }
 
-/// Parse /proc/[pid]/stat ONCE and return (state, utime, stime).
-fn parse_proc_stat(pid: &str) -> Option<(String, u64, u64)> {
-    let content = fs::read_to_string(format!("/proc/{}/stat", pid)).ok()?;
+/// Parse /proc/[pid]/stat and return (state, utime, stime, starttime).
+fn parse_proc_stat_content(content: &str) -> Option<(String, u64, u64, u64)> {
     let after_comm = &content[content.rfind(')')? + 2..];
     let fields: Vec<&str> = after_comm.split_whitespace().collect();
 
@@ -140,8 +141,14 @@ fn parse_proc_stat(pid: &str) -> Option<(String, u64, u64)> {
         .get(12)
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(0);
+    let start_time = fields.get(19)?.parse::<u64>().ok()?;
 
-    Some((state, utime, stime))
+    Some((state, utime, stime, start_time))
+}
+
+fn parse_proc_stat(pid: &str) -> Option<(String, u64, u64, u64)> {
+    let content = fs::read_to_string(format!("/proc/{pid}/stat")).ok()?;
+    parse_proc_stat_content(&content)
 }
 
 pub fn format_bytes(bytes: f64) -> String {
@@ -198,6 +205,7 @@ struct ProcStatData {
     state: String,
     utime: u64,
     stime: u64,
+    start_time: u64,
 }
 
 type CpuUsageMap = HashMap<i32, f64>;
@@ -307,13 +315,14 @@ pub async fn get_processes(
     let mut stat_cache: HashMap<i32, ProcStatData> = HashMap::with_capacity(pids.len());
     for pid_str in &pids {
         if let Ok(pid) = pid_str.parse::<i32>() {
-            if let Some((state, utime, stime)) = parse_proc_stat(pid_str) {
+            if let Some((state, utime, stime, start_time)) = parse_proc_stat(pid_str) {
                 stat_cache.insert(
                     pid,
                     ProcStatData {
                         state,
                         utime,
                         stime,
+                        start_time,
                     },
                 );
             }
@@ -339,12 +348,15 @@ pub async fn get_processes(
             Some(info) => info,
             None => continue,
         };
+        let Some(stat_data) = stat_cache.get(&pid_i32) else {
+            continue;
+        };
+        if parse_proc_stat(pid).map(|stat| stat.3) != Some(stat_data.start_time) {
+            continue;
+        }
         let ppid_u32: Option<u32> = ppid.parse().ok();
 
-        let state = stat_cache
-            .get(&pid_i32)
-            .map(|s| s.state.clone())
-            .unwrap_or_else(|| "N/A".to_string());
+        let state = stat_data.state.clone();
 
         let cpu_usage = cpu_results.get(&pid_i32).map(|u| format!("{:.2}", u));
 
@@ -370,6 +382,7 @@ pub async fn get_processes(
 
         processes.push(Process {
             pid: pid_u32,
+            start_time: stat_data.start_time,
             name: Some(name),
             ppid: ppid_u32,
             state: Some(state),
@@ -386,17 +399,82 @@ pub async fn get_processes(
     Ok(processes)
 }
 
+fn pidfd_open(pid: i32) -> io::Result<OwnedFd> {
+    let raw_fd = unsafe { libc::syscall(libc::SYS_pidfd_open, pid, 0) };
+    if raw_fd < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(unsafe { OwnedFd::from_raw_fd(raw_fd as i32) })
+    }
+}
+
+fn pidfd_send_signal(pidfd: &OwnedFd, signal: i32) -> io::Result<()> {
+    let result = unsafe {
+        libc::syscall(
+            libc::SYS_pidfd_send_signal,
+            pidfd.as_raw_fd(),
+            signal,
+            std::ptr::null::<libc::siginfo_t>(),
+            0,
+        )
+    };
+    if result < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
 #[tauri::command]
 pub fn kill_process(process: Process) -> Result<(), String> {
-    if process.pid > i32::MAX as u32 {
+    if process.pid == 0 || process.pid > i32::MAX as u32 {
         return Err(format!("Process ID {} out of valid range", process.pid));
     }
     let pid = process.pid as i32;
-    let ret = unsafe { libc::kill(pid, libc::SIGTERM) };
-    if ret == 0 {
-        Ok(())
-    } else {
-        let err = std::io::Error::last_os_error();
-        Err(format!("Failed to kill process with PID {}: {}", pid, err))
+    let pidfd = pidfd_open(pid)
+        .map_err(|error| format!("Failed to open process with PID {pid}: {error}"))?;
+    let current_start_time = parse_proc_stat(&process.pid.to_string())
+        .map(|stat| stat.3)
+        .ok_or_else(|| format!("Process with PID {pid} no longer exists"))?;
+    if current_start_time != process.start_time {
+        return Err(format!(
+            "Process with PID {pid} has changed; refusing to terminate it"
+        ));
+    }
+
+    pidfd_send_signal(&pidfd, libc::SIGTERM)
+        .map_err(|error| format!("Failed to terminate process with PID {pid}: {error}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{kill_process, parse_proc_stat, parse_proc_stat_content, Process};
+
+    #[test]
+    fn proc_stat_parser_handles_parentheses_and_extracts_start_time() {
+        let input =
+            "1234 (worker (test) process) S 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 424242 20";
+        let parsed = parse_proc_stat_content(input).expect("valid stat line");
+
+        assert_eq!(parsed.0, "Sleeping");
+        assert_eq!(parsed.1, 11);
+        assert_eq!(parsed.2, 12);
+        assert_eq!(parsed.3, 424242);
+    }
+
+    #[test]
+    fn kill_rejects_a_stale_process_identity() {
+        let pid = std::process::id();
+        let current_start_time = parse_proc_stat(&pid.to_string())
+            .expect("test process must have a stat entry")
+            .3;
+        let stale_process = Process {
+            pid,
+            start_time: current_start_time.saturating_add(1),
+            ..Process::default()
+        };
+
+        let error = kill_process(stale_process).expect_err("stale identity must be refused");
+        assert!(error.contains("has changed"));
     }
 }
