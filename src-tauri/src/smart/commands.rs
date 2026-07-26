@@ -464,6 +464,17 @@ fn read_u128_le(buf: &[u8], off: usize) -> u128 {
     u128::from_le_bytes(b)
 }
 
+fn nvme_data_units_to_gb(data_units: u128) -> u64 {
+    // One NVMe data unit is 1,000 blocks of 512 bytes. The UI reports
+    // decimal gigabytes, so divide the byte count by 1,000,000,000.
+    let gigabytes = data_units.saturating_mul(512) / 1_000_000;
+    gigabytes.min(u64::MAX as u128) as u64
+}
+
+fn saturating_u128_to_u64(value: u128) -> u64 {
+    value.min(u64::MAX as u128) as u64
+}
+
 fn read_nvme_log(dev_path: &str, buf: &mut [u8]) -> Result<(), std::io::Error> {
     let file = OpenOptions::new().read(true).write(true).open(dev_path)?;
 
@@ -517,17 +528,17 @@ pub fn read_nvme_smart(dev_path: &str) -> Result<NvmeSmartData, String> {
     let available_spare_threshold = buf[4];
     let percentage_used = buf[5];
 
-    // 128-bit counters; we truncate to u64 for practical display purposes
+    // The protocol exposes 128-bit counters; saturate values that cannot fit
+    // in the serialized u64 fields rather than wrapping them.
     let data_units_read = read_u128_le(&buf, 32);
     let data_units_written = read_u128_le(&buf, 48);
-    // Each unit = 1000 × 512 bytes ≈ 500 KB; convert to GB
-    let data_units_read_gb = Some((data_units_read.saturating_mul(512) / 2_000_000) as u64);
-    let data_units_written_gb = Some((data_units_written.saturating_mul(512) / 2_000_000) as u64);
+    let data_units_read_gb = Some(nvme_data_units_to_gb(data_units_read));
+    let data_units_written_gb = Some(nvme_data_units_to_gb(data_units_written));
 
-    let power_cycles = Some(read_u128_le(&buf, 112) as u64);
-    let power_on_hours = Some(read_u128_le(&buf, 128) as u64);
-    let unsafe_shutdowns = Some(read_u128_le(&buf, 144) as u64);
-    let media_errors = Some(read_u128_le(&buf, 160) as u64);
+    let power_cycles = Some(saturating_u128_to_u64(read_u128_le(&buf, 112)));
+    let power_on_hours = Some(saturating_u128_to_u64(read_u128_le(&buf, 128)));
+    let unsafe_shutdowns = Some(saturating_u128_to_u64(read_u128_le(&buf, 144)));
+    let media_errors = Some(saturating_u128_to_u64(read_u128_le(&buf, 160)));
 
     let overall_health = critical_warning == 0 && available_spare >= available_spare_threshold;
 
@@ -573,4 +584,21 @@ pub async fn get_smart_data(dev_path: String) -> Result<SmartData, String> {
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{nvme_data_units_to_gb, saturating_u128_to_u64};
+
+    #[test]
+    fn converts_nvme_data_units_to_decimal_gigabytes() {
+        assert_eq!(nvme_data_units_to_gb(1_000_000), 512);
+        assert_eq!(nvme_data_units_to_gb(2_000_000), 1024);
+    }
+
+    #[test]
+    fn nvme_counters_saturate_instead_of_wrapping() {
+        assert_eq!(nvme_data_units_to_gb(u128::MAX), u64::MAX);
+        assert_eq!(saturating_u128_to_u64(u128::MAX), u64::MAX);
+    }
 }
