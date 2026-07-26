@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import useDiskData, { type DiskData, type PartitionData } from "../../hooks/Disks/useDisksData";
 import useSmartData from "../../hooks/Disks/useSmartData";
 import { type AtaSmartData, type NvmeSmartData } from "../../hooks/Disks/useSmartData";
@@ -37,8 +36,6 @@ import {
   SmartError,
   SmartLoading,
   SmartLimitedBanner,
-  SmartFixButton,
-  SmartPasswordInput,
 } from "../../styles/disks-style";
 import useDisksConfig from "../../hooks/Disks/useDisksConfig";
 import { useTranslation } from "react-i18next";
@@ -50,15 +47,12 @@ const Disks: React.FC = () => {
   const { t } = useTranslation();
   const [selectedDisk, setSelectedDisk] = useState<DiskData | null>(null);
   const smart = useSmartData();
-  const [showFixForm, setShowFixForm] = useState(false);
-  const [fixPassword, setFixPassword] = useState("");
 
   useEffect(() => {
     if (selectedDisk) {
       smart.fetchSmart(selectedDisk.dev_path);
     } else {
-      setShowFixForm(false);
-      setFixPassword("");
+      smart.cancel();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDisk?.dev_path]);
@@ -185,54 +179,9 @@ const Disks: React.FC = () => {
       <DetailSection $borderColor={modalBorderColor}>
         {renderSectionTitle("SMART Health")}
         {d.limited ? (
-          smart.restartRequired ? (
-            <SmartLimitedBanner>
-              <span>Full SMART enabled — reopen the app to apply.</span>
-              <SmartFixButton onClick={() => invoke("restart_app")}>
-                Quit
-              </SmartFixButton>
-            </SmartLimitedBanner>
-          ) : showFixForm ? (
-            <SmartLimitedBanner>
-              <SmartPasswordInput
-                type="password"
-                placeholder="sudo password"
-                value={fixPassword}
-                autoFocus
-                onChange={(e) => setFixPassword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && fixPassword) {
-                    smart.fixPermissions(selectedDisk?.dev_path ?? "", fixPassword);
-                    setShowFixForm(false);
-                    setFixPassword("");
-                  } else if (e.key === "Escape") {
-                    setShowFixForm(false);
-                    setFixPassword("");
-                  }
-                }}
-              />
-              <SmartFixButton
-                disabled={!fixPassword || smart.loading}
-                onClick={() => {
-                  smart.fixPermissions(selectedDisk?.dev_path ?? "", fixPassword);
-                  setShowFixForm(false);
-                  setFixPassword("");
-                }}
-              >
-                OK
-              </SmartFixButton>
-              <SmartFixButton onClick={() => { setShowFixForm(false); setFixPassword(""); }}>
-                Cancel
-              </SmartFixButton>
-            </SmartLimitedBanner>
-          ) : (
-            <SmartLimitedBanner>
-              <span>Limited data — SMART requires elevated access.</span>
-              <SmartFixButton onClick={() => setShowFixForm(true)}>
-                Fix permissions
-              </SmartFixButton>
-            </SmartLimitedBanner>
-          )
+          <SmartLimitedBanner>
+            <span>Limited data — full SMART is not available to this user.</span>
+          </SmartLimitedBanner>
         ) : (
           <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
             <SmartHealthDot $pass={d.overall_health} />

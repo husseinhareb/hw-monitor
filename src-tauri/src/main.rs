@@ -172,7 +172,6 @@ fn main() {
             services::enable_service,
             services::disable_service,
             smart::get_smart_data,
-            smart::fix_nvme_permissions,
             restart_app,
         ])
         //.plugin(devtools)

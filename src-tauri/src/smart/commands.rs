@@ -1,7 +1,6 @@
 use libc::c_void;
 use serde::{Deserialize, Serialize};
 use std::fs::OpenOptions;
-use std::io::Write;
 use std::os::unix::io::AsRawFd;
 
 // ── Shared output types ─────────────────────────────────────────────────────
@@ -465,64 +464,45 @@ fn read_u128_le(buf: &[u8], off: usize) -> u128 {
     u128::from_le_bytes(b)
 }
 
-pub fn read_nvme_smart(dev_path: &str) -> Result<NvmeSmartData, String> {
-    let file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .open(dev_path)
-        .map_err(|e| {
-            if e.kind() == std::io::ErrorKind::PermissionDenied {
-                "Permission denied — add your user to the 'disk' group".to_string()
-            } else {
-                format!("Cannot open {}: {}", dev_path, e)
-            }
-        })?;
+fn read_nvme_log(dev_path: &str, buf: &mut [u8]) -> Result<(), std::io::Error> {
+    let file = OpenOptions::new().read(true).write(true).open(dev_path)?;
 
-    let fd = file.as_raw_fd();
+    nvme_get_log_page(file.as_raw_fd(), 0x02, buf)
+}
+
+fn limited_nvme_data(dev_path: &str) -> NvmeSmartData {
+    let ctrl = nvme_ctrl_name(dev_path);
+    NvmeSmartData {
+        limited: true,
+        overall_health: true,
+        critical_warning: 0,
+        temperature_celsius: read_nvme_temp_sysfs(&ctrl),
+        available_spare_percent: 0,
+        available_spare_threshold: 0,
+        percentage_used: 0,
+        power_on_hours: None,
+        power_cycles: None,
+        unsafe_shutdowns: None,
+        media_errors: None,
+        data_units_read_gb: None,
+        data_units_written_gb: None,
+    }
+}
+
+pub fn read_nvme_smart(dev_path: &str) -> Result<NvmeSmartData, String> {
     let mut buf = [0u8; 512];
-    match nvme_get_log_page(fd, 0x02, &mut buf) {
+    match read_nvme_log(dev_path, &mut buf) {
         Ok(()) => {}
         Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {
-            // The block device ioctl requires CAP_SYS_ADMIN on most kernels.
-            // Try the namespace generic char device (/dev/ng0n1) instead — these are
-            // designed for unprivileged admin commands but need a udev rule to be
-            // accessible: SUBSYSTEM=="nvme-generic", GROUP="disk", MODE="0660"
+            // The block device may reject either open(2) or the admin ioctl.
+            // Try the namespace generic character device before falling back
+            // to the non-privileged temperature data exposed by sysfs.
             let ng = nvme_ng_path(dev_path);
-            let ng_result = OpenOptions::new()
-                .read(true)
-                .write(true)
-                .open(&ng)
-                .ok()
-                .and_then(|f| {
-                    let mut b = [0u8; 512];
-                    nvme_get_log_page(f.as_raw_fd(), 0x02, &mut b).ok()?;
-                    Some(b)
-                });
-
-            if let Some(b) = ng_result {
-                buf = b;
-            } else {
-                // Both paths failed — return what sysfs can give us.
-                let ctrl = nvme_ctrl_name(dev_path);
-                let temperature_celsius = read_nvme_temp_sysfs(&ctrl);
-                return Ok(NvmeSmartData {
-                    limited: true,
-                    overall_health: true,
-                    critical_warning: 0,
-                    temperature_celsius,
-                    available_spare_percent: 0,
-                    available_spare_threshold: 0,
-                    percentage_used: 0,
-                    power_on_hours: None,
-                    power_cycles: None,
-                    unsafe_shutdowns: None,
-                    media_errors: None,
-                    data_units_read_gb: None,
-                    data_units_written_gb: None,
-                });
+            if read_nvme_log(&ng, &mut buf).is_err() {
+                return Ok(limited_nvme_data(dev_path));
             }
         }
-        Err(e) => return Err(format!("NVMe ioctl failed: {}", e)),
+        Err(e) => return Err(format!("Cannot read NVMe SMART data from {dev_path}: {e}")),
     }
 
     // NVMe SMART/Health Information Log layout (NVM Express 1.4, section 5.14.1.2)
@@ -576,54 +556,6 @@ fn is_nvme(dev_path: &str) -> bool {
         .and_then(|n| n.to_str())
         .map(|n| n.starts_with("nvme"))
         .unwrap_or(false)
-}
-
-/// Grant the running binary CAP_SYS_ADMIN via setcap so the NVMe ioctl works
-/// without root on subsequent launches. The caller supplies the sudo password;
-/// it is piped to stdin and never stored beyond this call.
-#[tauri::command]
-pub async fn fix_nvme_permissions(password: String) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        let exe = std::env::current_exe().map_err(|e| format!("Cannot find binary path: {}", e))?;
-
-        let mut child = std::process::Command::new("sudo")
-            .args(["-S", "-p", "", "setcap", "cap_sys_admin+eip"])
-            .arg(&exe)
-            .stdin(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
-            .map_err(|e| format!("sudo not available: {}", e))?;
-
-        if let Some(mut stdin) = child.stdin.take() {
-            let _ = writeln!(stdin, "{}", password);
-        }
-
-        let out = child
-            .wait_with_output()
-            .map_err(|e| format!("sudo failed: {}", e))?;
-
-        if out.status.success() {
-            Ok(())
-        } else {
-            let stderr = String::from_utf8_lossy(&out.stderr).to_lowercase();
-            Err(
-                if stderr.contains("incorrect")
-                    || stderr.contains("failure")
-                    || stderr.contains("try again")
-                {
-                    "Incorrect password".to_string()
-                } else if stderr.contains("not found") {
-                    "setcap not found — install the 'libcap' package".to_string()
-                } else if stderr.is_empty() {
-                    "sudo failed".to_string()
-                } else {
-                    String::from_utf8_lossy(&out.stderr).trim().to_string()
-                },
-            )
-        }
-    })
-    .await
-    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
