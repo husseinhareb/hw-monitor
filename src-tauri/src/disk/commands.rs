@@ -51,13 +51,12 @@ fn read_diskstats() -> Result<Vec<DiskStat>, String> {
 
 // /proc/partitions reports size in 1024-byte blocks
 const BLOCK_SIZE: u64 = 1024;
+// Linux reports the sector counters in /proc/diskstats in 512-byte units,
+// regardless of a device's logical or physical sector size.
+const DISKSTATS_SECTOR_BYTES: u64 = 512;
 
-fn get_sector_size(disk_name: &str) -> u64 {
-    let path = format!("/sys/block/{}/queue/hw_sector_size", disk_name);
-    fs::read_to_string(&path)
-        .ok()
-        .and_then(|s| s.trim().parse().ok())
-        .unwrap_or(512)
+fn diskstats_sectors_to_bytes(sectors: u64) -> u64 {
+    sectors.saturating_mul(DISKSTATS_SECTOR_BYTES)
 }
 
 struct MountInfo {
@@ -505,10 +504,9 @@ pub async fn get_disks(
 
     for d in &mut disks {
         if let Some(s2) = map2.get(&d.name) {
-            let sector_size = get_sector_size(&d.name);
-            let bytes2_r = s2.sectors_read * sector_size;
-            let bytes2_w = s2.sectors_written * sector_size;
-            let bytes2_discarded = s2.sectors_discarded * sector_size;
+            let bytes2_r = diskstats_sectors_to_bytes(s2.sectors_read);
+            let bytes2_w = diskstats_sectors_to_bytes(s2.sectors_written);
+            let bytes2_discarded = diskstats_sectors_to_bytes(s2.sectors_discarded);
 
             if let Some(ref snap) = *guard {
                 let elapsed = now.duration_since(snap.time).as_secs_f64();
@@ -552,12 +550,11 @@ pub async fn get_disks(
         stats: map2
             .iter()
             .map(|(k, v)| {
-                let sector_size = get_sector_size(k);
                 (
                     k.clone(),
                     DiskStatSnapshot {
-                        bytes_read: v.sectors_read * sector_size,
-                        bytes_written: v.sectors_written * sector_size,
+                        bytes_read: diskstats_sectors_to_bytes(v.sectors_read),
+                        bytes_written: diskstats_sectors_to_bytes(v.sectors_written),
                         reads_completed: v.reads_completed,
                         writes_completed: v.writes_completed,
                         io_time_ms: v.io_time_ms,
@@ -592,6 +589,16 @@ pub async fn get_disks(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn diskstats_sector_count_always_uses_512_byte_units() {
+        assert_eq!(diskstats_sectors_to_bytes(8), 4096);
+    }
+
+    #[test]
+    fn diskstats_byte_conversion_does_not_overflow() {
+        assert_eq!(diskstats_sectors_to_bytes(u64::MAX), u64::MAX);
+    }
 
     #[test]
     fn parse_scheduler_extracts_active_and_available_values() {
