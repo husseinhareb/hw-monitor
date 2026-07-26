@@ -292,13 +292,6 @@
     "services.details_failed": "Не вдалося завантажити відомості про службу",
     "services.no_details": "Немає виводу стану",
     "services.no_logs": "Немає останніх журналів",
-    "services.auth_title": "Потрібна аутентифікація",
-    "services.auth_desc": "Введіть пароль для керування службою.",
-    "services.auth_trust_note": "Пароль надсилається лише до sudo для цієї дії та не зберігається.",
-    "services.auth_password": "Пароль",
-    "services.auth_confirm": "Аутентифікувати",
-    "services.auth_cancel": "Скасувати",
-    "error.service_auth_failed": "Неправильний пароль",
     "error.service_action_failed": "Помилка дії зі службою",
 
     "config.theme": "Тема",

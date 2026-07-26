@@ -292,13 +292,6 @@
     "services.details_failed": "Dienstdetails konnten nicht geladen werden",
     "services.no_details": "Keine Statusausgabe",
     "services.no_logs": "Keine aktuellen Protokolle",
-    "services.auth_title": "Authentifizierung erforderlich",
-    "services.auth_desc": "Geben Sie Ihr Passwort ein, um diesen Dienst zu verwalten.",
-    "services.auth_trust_note": "Das Passwort wird nur für diese Aktion an sudo gesendet und nicht gespeichert.",
-    "services.auth_password": "Passwort",
-    "services.auth_confirm": "Authentifizieren",
-    "services.auth_cancel": "Abbrechen",
-    "error.service_auth_failed": "Falsches Passwort",
     "error.service_action_failed": "Dienstaktion fehlgeschlagen",
 
     "config.theme": "Farbschema",

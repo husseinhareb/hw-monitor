@@ -292,13 +292,6 @@
     "services.details_failed": "Не удалось загрузить сведения о службе",
     "services.no_details": "Нет вывода статуса",
     "services.no_logs": "Нет последних журналов",
-    "services.auth_title": "Требуется аутентификация",
-    "services.auth_desc": "Введите пароль для управления службой.",
-    "services.auth_trust_note": "Пароль отправляется только в sudo для этого действия и не сохраняется.",
-    "services.auth_password": "Пароль",
-    "services.auth_confirm": "Аутентифицировать",
-    "services.auth_cancel": "Отмена",
-    "error.service_auth_failed": "Неверный пароль",
     "error.service_action_failed": "Ошибка действия со службой",
 
     "config.theme": "Тема",

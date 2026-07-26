@@ -20,81 +20,6 @@ const StatusDot = styled.span<{ color: string }>`
     flex-shrink: 0;
 `;
 
-const ModalOverlay = styled.div`
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-`;
-
-const ModalBox = styled.div<{ bg: string; fg: string; border: string }>`
-    background: ${p => p.bg};
-    color: ${p => p.fg};
-    border: 1px solid ${p => p.border};
-    padding: 20px 24px;
-    min-width: 300px;
-    max-width: 380px;
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-`;
-
-const ModalTitle = styled.h3`
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-`;
-
-const ModalDesc = styled.p`
-    margin: 0;
-    font-size: 12px;
-    opacity: 0.8;
-`;
-
-const ModalTrustNote = styled.p`
-    margin: 0;
-    font-size: 11px;
-    line-height: 1.35;
-    opacity: 0.65;
-`;
-
-const ModalInput = styled.input<{ bg: string; fg: string; border: string }>`
-    background: ${p => p.bg};
-    color: ${p => p.fg};
-    border: 1px solid ${p => p.border};
-    padding: 6px 10px;
-    font-size: 13px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-`;
-
-const ModalError = styled.p`
-    margin: 0;
-    font-size: 12px;
-    color: #e55;
-`;
-
-const ModalActions = styled.div`
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-`;
-
-const ModalButton = styled.button<{ bg: string; fg: string; border: string }>`
-    background: ${p => p.bg};
-    color: ${p => p.fg};
-    border: 1px solid ${p => p.border};
-    padding: 5px 14px;
-    font-size: 12px;
-    cursor: pointer;
-    &:disabled { opacity: 0.5; cursor: default; }
-`;
-
 const DetailsPanel = styled.div<{ bg: string; fg: string; border: string }>`
     position: fixed;
     left: 0;
@@ -262,13 +187,8 @@ const Services: React.FC = () => {
     const [selectedName, setSelectedName] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const deferredSearchQuery = useDeferredValue(searchQuery);
-    const [authModal, setAuthModal] = useState<{
-        show: boolean;
-        pendingAction: ServiceAction | null;
-        password: string;
-        error: string;
-        loading: boolean;
-    }>({ show: false, pendingAction: null, password: "", error: "", loading: false });
+    const [actionPending, setActionPending] = useState<ServiceAction | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
     const [serviceDetails, setServiceDetails] = useState<{
         name: string | null;
         data: ServiceDetails | null;
@@ -317,15 +237,11 @@ const Services: React.FC = () => {
         }
     }, []);
 
-    const closeAuthModal = useCallback(() =>
-        setAuthModal({ show: false, pendingAction: null, password: "", error: "", loading: false }), []);
-
     useEffect(() => {
         if (selectedName !== null && !services.some((service) => service.name === selectedName)) {
             setSelectedName(null);
-            closeAuthModal();
         }
-    }, [selectedName, services, closeAuthModal]);
+    }, [selectedName, services]);
 
     useEffect(() => {
         if (!selectedName) {
@@ -353,36 +269,20 @@ const Services: React.FC = () => {
             : <FaArrowDown style={{ fontSize: "10px", marginLeft: "4px" }} />;
     };
 
-    const handleAction = (action: ServiceAction) => {
+    const handleAction = async (action: ServiceAction) => {
         if (!selectedName || !selectedService || !canRunAction(selectedService, action)) return;
-        setAuthModal({ show: true, pendingAction: action, password: "", error: "", loading: false });
-    };
-
-    const submitAuth = async () => {
-        if (!authModal.pendingAction || !selectedName) return;
-        const action = authModal.pendingAction;
         const name = selectedName;
-        const password = authModal.password;
-        setAuthModal(prev => ({ ...prev, loading: true, error: "", password: "" }));
+        setActionPending(action);
+        setActionError(null);
         try {
-            await invoke(serviceActionCommands[action], {
-                name,
-                password,
-            });
-            closeAuthModal();
+            await invoke(serviceActionCommands[action], { name });
             await refetch();
             await fetchServiceDetails(name);
         } catch (error) {
-            const errStr = String(error);
-            setAuthModal(prev => ({
-                ...prev,
-                loading: false,
-                error: errStr.includes("incorrect_password")
-                    ? t("error.service_auth_failed")
-                    : errStr.includes("service_action_timeout")
-                        ? t("error.service_action_failed")
-                    : t("error.service_action_failed"),
-            }));
+            console.error(`Failed to ${action} service:`, error);
+            setActionError(t("error.service_action_failed"));
+        } finally {
+            setActionPending(null);
         }
     };
 
@@ -580,81 +480,41 @@ const Services: React.FC = () => {
                     <span style={{ fontSize: "12px", marginRight: "auto", paddingLeft: "8px" }}>
                         {selectedName}
                     </span>
+                    {actionError && (
+                        <span style={{ color: "#e55", fontSize: "11px" }}>{actionError}</span>
+                    )}
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={() => handleAction("start")}
-                        disabled={!actionEnabled("start")}
-                    >{t("services.start")}</KillButton>
+                        disabled={actionPending !== null || !actionEnabled("start")}
+                    >{actionPending === "start" ? "…" : t("services.start")}</KillButton>
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={() => handleAction("stop")}
-                        disabled={!actionEnabled("stop")}
-                    >{t("services.stop")}</KillButton>
+                        disabled={actionPending !== null || !actionEnabled("stop")}
+                    >{actionPending === "stop" ? "…" : t("services.stop")}</KillButton>
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={() => handleAction("restart")}
-                        disabled={!actionEnabled("restart")}
-                    >{t("services.restart")}</KillButton>
+                        disabled={actionPending !== null || !actionEnabled("restart")}
+                    >{actionPending === "restart" ? "…" : t("services.restart")}</KillButton>
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={() => handleAction("enable")}
-                        disabled={!actionEnabled("enable")}
-                    >{t("services.enable_startup")}</KillButton>
+                        disabled={actionPending !== null || !actionEnabled("enable")}
+                    >{actionPending === "enable" ? "…" : t("services.enable_startup")}</KillButton>
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={() => handleAction("disable")}
-                        disabled={!actionEnabled("disable")}
-                    >{t("services.disable_startup")}</KillButton>
+                        disabled={actionPending !== null || !actionEnabled("disable")}
+                    >{actionPending === "disable" ? "…" : t("services.disable_startup")}</KillButton>
                 </BottomBar>
             )}
-        {authModal.show && (
-            <ModalOverlay onClick={closeAuthModal}>
-                <ModalBox
-                    bg={processConfig.config.processes_body_background_color}
-                    fg={processConfig.config.processes_body_color}
-                    border={processConfig.config.processes_border_color}
-                    onClick={e => e.stopPropagation()}
-                >
-                    <ModalTitle>{t("services.auth_title")}</ModalTitle>
-                    <ModalDesc>{t("services.auth_desc")}</ModalDesc>
-                    <ModalTrustNote>{t("services.auth_trust_note")}</ModalTrustNote>
-                    <ModalInput
-                        type="password"
-                        autoFocus
-                        placeholder={t("services.auth_password")}
-                        value={authModal.password}
-                        bg={processConfig.config.processes_head_background_color}
-                        fg={processConfig.config.processes_body_color}
-                        border={processConfig.config.processes_border_color}
-                        onChange={e => setAuthModal(prev => ({ ...prev, password: e.target.value }))}
-                        onKeyDown={e => { if (e.key === "Enter") submitAuth(); }}
-                        disabled={authModal.loading}
-                    />
-                    {authModal.error && <ModalError>{authModal.error}</ModalError>}
-                    <ModalActions>
-                        <ModalButton
-                            bg={processConfig.config.processes_body_background_color}
-                            fg={processConfig.config.processes_body_color}
-                            border={processConfig.config.processes_border_color}
-                            onClick={closeAuthModal}
-                            disabled={authModal.loading}
-                        >{t("services.auth_cancel")}</ModalButton>
-                        <ModalButton
-                            bg={processConfig.config.processes_body_background_color}
-                            fg={processConfig.config.processes_body_color}
-                            border={processConfig.config.processes_border_color}
-                            onClick={submitAuth}
-                            disabled={authModal.loading}
-                        >{authModal.loading ? "…" : t("services.auth_confirm")}</ModalButton>
-                    </ModalActions>
-                </ModalBox>
-            </ModalOverlay>
-        )}
         </TableContainer>
     );
 };

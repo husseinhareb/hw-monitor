@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};
-use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::thread;
 use std::time::{Duration, Instant};
 
-const ACTION_TIMEOUT: Duration = Duration::from_secs(15);
+const ACTION_TIMEOUT: Duration = Duration::from_secs(120);
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct SystemService {
@@ -51,6 +51,14 @@ fn validate_service_name_argument(name: &str) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+fn validate_service_action(action: &str) -> Result<(), String> {
+    if matches!(action, "start" | "stop" | "restart" | "enable" | "disable") {
+        Ok(())
+    } else {
+        Err("invalid_service_action".to_string())
+    }
 }
 
 fn parse_list_units_output(output: &str) -> HashMap<String, RuntimeService> {
@@ -166,8 +174,17 @@ fn merge_service_views(units_output: &str, unit_files_output: &str) -> Vec<Syste
         .collect()
 }
 
+fn trusted_command_path(command: &str) -> Result<PathBuf, String> {
+    ["/usr/bin", "/bin"]
+        .iter()
+        .map(|directory| Path::new(directory).join(command))
+        .find(|path| path.is_file())
+        .ok_or_else(|| format!("{command} is not installed in a trusted system directory"))
+}
+
 fn run_systemctl(args: &[&str]) -> Result<String, String> {
-    let output = Command::new("systemctl")
+    let systemctl = trusted_command_path("systemctl")?;
+    let output = Command::new(systemctl)
         .args(args)
         .output()
         .map_err(|e| format!("failed to run systemctl: {e}"))?;
@@ -189,7 +206,8 @@ fn run_systemctl(args: &[&str]) -> Result<String, String> {
 }
 
 fn command_text(command: &str, args: &[&str]) -> Result<String, String> {
-    let output = Command::new(command)
+    let command_path = trusted_command_path(command)?;
+    let output = Command::new(command_path)
         .args(args)
         .output()
         .map_err(|e| format!("failed to run {command}: {e}"))?;
@@ -275,25 +293,25 @@ pub async fn get_service_details(name: String) -> Result<ServiceDetails, String>
         .map_err(|e| format!("failed to join service details task: {e}"))?
 }
 
-fn run_privileged_action(action: &str, service_name: &str, password: &str) -> Result<(), String> {
+fn run_privileged_action(action: &str, service_name: &str) -> Result<(), String> {
+    validate_service_action(action)?;
     ensure_known_service_name(service_name)?;
 
     let unit = format!("{service_name}.service");
     let fallback_msg = format!("failed to {action} {service_name}");
+    let pkexec = trusted_command_path("pkexec")?;
+    let systemctl = trusted_command_path("systemctl")?;
 
-    let mut child = Command::new("sudo")
-        .args(["-S", "systemctl", action, &unit])
-        .stdin(Stdio::piped())
+    // Authentication is handled by the desktop's native polkit agent. User
+    // credentials never enter the webview, Tauri IPC, or this process.
+    let mut child = Command::new(pkexec)
+        .arg(systemctl)
+        .args([action, &unit])
+        .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|e| format!("failed to spawn sudo: {e}"))?;
-
-    if let Some(mut stdin) = child.stdin.take() {
-        stdin
-            .write_all(format!("{password}\n").as_bytes())
-            .map_err(|e| format!("failed to write password to sudo stdin: {e}"))?;
-    }
+        .map_err(|e| format!("failed to start native authorization: {e}"))?;
 
     let started_at = Instant::now();
 
@@ -308,18 +326,15 @@ fn run_privileged_action(action: &str, service_name: &str, password: &str) -> Re
             Ok(Some(_)) => {
                 let output = child
                     .wait_with_output()
-                    .map_err(|e| format!("failed to wait for sudo: {e}"))?;
+                    .map_err(|e| format!("failed to wait for native authorization: {e}"))?;
 
                 if output.status.success() {
                     return Ok(());
                 }
 
                 let stderr = String::from_utf8_lossy(&output.stderr);
-                if stderr.contains("incorrect password")
-                    || stderr.contains("Authentication failure")
-                    || stderr.contains("Sorry, try again")
-                {
-                    return Err("incorrect_password".to_string());
+                if output.status.code() == Some(126) || output.status.code() == Some(127) {
+                    return Err("service_authorization_cancelled".to_string());
                 }
 
                 let stderr = stderr.trim();
@@ -330,57 +345,54 @@ fn run_privileged_action(action: &str, service_name: &str, password: &str) -> Re
                 });
             }
             Ok(None) => thread::sleep(Duration::from_millis(50)),
-            Err(e) => return Err(format!("failed while waiting for sudo: {e}")),
+            Err(e) => {
+                return Err(format!(
+                    "failed while waiting for native authorization: {e}"
+                ))
+            }
         }
     }
 }
 
-async fn systemd_unit_action(
-    action: &str,
-    service_name: &str,
-    password: &str,
-) -> Result<(), String> {
+async fn systemd_unit_action(action: &str, service_name: &str) -> Result<(), String> {
     let action = action.to_string();
     let service_name = service_name.to_string();
-    let password = password.to_string();
 
-    tauri::async_runtime::spawn_blocking(move || {
-        run_privileged_action(&action, &service_name, &password)
-    })
-    .await
-    .map_err(|e| format!("failed to join service action task: {e}"))?
+    tauri::async_runtime::spawn_blocking(move || run_privileged_action(&action, &service_name))
+        .await
+        .map_err(|e| format!("failed to join service action task: {e}"))?
 }
 
 #[tauri::command]
-pub async fn stop_service(name: String, password: String) -> Result<(), String> {
-    systemd_unit_action("stop", &name, &password).await
+pub async fn stop_service(name: String) -> Result<(), String> {
+    systemd_unit_action("stop", &name).await
 }
 
 #[tauri::command]
-pub async fn restart_service(name: String, password: String) -> Result<(), String> {
-    systemd_unit_action("restart", &name, &password).await
+pub async fn restart_service(name: String) -> Result<(), String> {
+    systemd_unit_action("restart", &name).await
 }
 
 #[tauri::command]
-pub async fn start_service(name: String, password: String) -> Result<(), String> {
-    systemd_unit_action("start", &name, &password).await
+pub async fn start_service(name: String) -> Result<(), String> {
+    systemd_unit_action("start", &name).await
 }
 
 #[tauri::command]
-pub async fn enable_service(name: String, password: String) -> Result<(), String> {
-    systemd_unit_action("enable", &name, &password).await
+pub async fn enable_service(name: String) -> Result<(), String> {
+    systemd_unit_action("enable", &name).await
 }
 
 #[tauri::command]
-pub async fn disable_service(name: String, password: String) -> Result<(), String> {
-    systemd_unit_action("disable", &name, &password).await
+pub async fn disable_service(name: String) -> Result<(), String> {
+    systemd_unit_action("disable", &name).await
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
         merge_service_views, parse_list_unit_files_output, parse_list_units_output,
-        validate_service_name_argument,
+        validate_service_action, validate_service_name_argument,
     };
 
     #[test]
@@ -412,6 +424,15 @@ masked-demo.service masked inactive dead Demo
         assert!(validate_service_name_argument("../ssh").is_err());
         assert!(validate_service_name_argument("ssh service").is_err());
         assert!(validate_service_name_argument("ssh\0service").is_err());
+    }
+
+    #[test]
+    fn only_exposes_the_intended_privileged_actions() {
+        for action in ["start", "stop", "restart", "enable", "disable"] {
+            assert!(validate_service_action(action).is_ok());
+        }
+        assert!(validate_service_action("mask").is_err());
+        assert!(validate_service_action("--root=/tmp").is_err());
     }
 
     #[test]
