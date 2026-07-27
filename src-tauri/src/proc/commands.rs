@@ -64,19 +64,29 @@ fn read_proc_status_file(
     pid: &str,
     uid_map: &HashMap<u32, String>,
 ) -> Option<(String, String, String, String)> {
-    let status = fs::read_to_string(format!("/proc/{}/status", pid)).ok()?;
+    let status = fs::read_to_string(format!("/proc/{pid}/status")).ok()?;
+    parse_proc_status_content(&status, uid_map)
+}
+
+fn parse_proc_status_content(
+    status: &str,
+    uid_map: &HashMap<u32, String>,
+) -> Option<(String, String, String, String)> {
     let mut name = None;
     let mut ppid = None;
     let mut user = None;
     let mut vm_rss_kb: Option<u64> = None;
 
     for line in status.lines() {
-        if line.starts_with("Name:") {
-            name = line.split_whitespace().nth(1).map(String::from);
-        } else if line.starts_with("PPid:") {
-            ppid = line.split_whitespace().nth(1).map(String::from);
-        } else if line.starts_with("Uid:") {
-            if let Some(uid_str) = line.split_whitespace().nth(1) {
+        if let Some(value) = line.strip_prefix("Name:") {
+            let value = value.trim();
+            if !value.is_empty() {
+                name = Some(value.to_string());
+            }
+        } else if let Some(value) = line.strip_prefix("PPid:") {
+            ppid = value.split_whitespace().next().map(String::from);
+        } else if let Some(value) = line.strip_prefix("Uid:") {
+            if let Some(uid_str) = value.split_whitespace().next() {
                 if let Ok(parsed_uid) = uid_str.parse::<u32>() {
                     user = Some(
                         uid_map
@@ -86,11 +96,11 @@ fn read_proc_status_file(
                     );
                 }
             }
-        } else if line.starts_with("VmRSS:") {
-            vm_rss_kb = line
+        } else if let Some(value) = line.strip_prefix("VmRSS:") {
+            vm_rss_kb = value
                 .split_whitespace()
-                .nth(1)
-                .and_then(|s| s.parse::<u64>().ok());
+                .next()
+                .and_then(|value| value.parse::<u64>().ok());
         }
         if name.is_some() && ppid.is_some() && user.is_some() && vm_rss_kb.is_some() {
             break;
@@ -448,7 +458,10 @@ pub fn kill_process(process: Process) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{kill_process, parse_proc_stat, parse_proc_stat_content, Process};
+    use super::{
+        kill_process, parse_proc_stat, parse_proc_stat_content, parse_proc_status_content, Process,
+    };
+    use std::collections::HashMap;
 
     #[test]
     fn proc_stat_parser_handles_parentheses_and_extracts_start_time() {
@@ -476,5 +489,22 @@ mod tests {
 
         let error = kill_process(stale_process).expect_err("stale identity must be refused");
         assert!(error.contains("has changed"));
+    }
+
+    #[test]
+    fn proc_status_parser_preserves_spaces_in_process_names() {
+        let status = "\
+Name:\tworker process
+PPid:\t1
+Uid:\t1000\t1000\t1000\t1000
+VmRSS:\t2048 kB
+";
+        let uid_map = HashMap::from([(1000, "alice".to_string())]);
+        let parsed = parse_proc_status_content(status, &uid_map).expect("valid status");
+
+        assert_eq!(parsed.0, "worker process");
+        assert_eq!(parsed.1, "1");
+        assert_eq!(parsed.2, "alice");
+        assert_eq!(parsed.3, "2.00 Mb");
     }
 }
