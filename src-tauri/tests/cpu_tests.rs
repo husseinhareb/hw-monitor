@@ -83,7 +83,9 @@ physical id	: 1
 ";
     let result = cpu::parse_static_fields(cpuinfo);
     assert!(result.is_some());
-    let (_name, _cores, _threads, _virt, _vm, sockets) = result.unwrap();
+    let (_name, cores, threads, _virt, _vm, sockets) = result.unwrap();
+    assert_eq!(cores, "28");
+    assert_eq!(threads, "56");
     assert_eq!(sockets, 2);
 }
 

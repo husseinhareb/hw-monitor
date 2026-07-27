@@ -1,6 +1,7 @@
 use crate::cpu_utils::{PerCoreCpuState, PerfCpuState};
 use crate::sensors;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 use std::fs;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
@@ -190,7 +191,7 @@ pub fn parse_static_fields(
     let mut threads = None;
     let mut virtualization = None;
     let mut is_vm = false;
-    let mut counted_sockets: Vec<String> = Vec::new();
+    let mut counted_sockets = BTreeSet::new();
 
     for line in cpu_info.lines() {
         if line.starts_with("model name") {
@@ -221,12 +222,14 @@ pub fn parse_static_fields(
             }
         } else if line.starts_with("physical id") {
             if let Some(id) = line.split(':').nth(1).map(|s| s.trim().to_string()) {
-                if !counted_sockets.contains(&id) {
-                    counted_sockets.push(id);
-                }
+                counted_sockets.insert(id);
             }
         }
     }
+
+    let num_sockets = counted_sockets.len().max(1);
+    let total_cores = cores?.parse::<usize>().ok()?.saturating_mul(num_sockets);
+    let total_threads = threads?.parse::<usize>().ok()?.saturating_mul(num_sockets);
 
     // Also check /sys/class/dmi/id/sys_vendor as a fallback
     let vm_str = if is_vm {
@@ -254,11 +257,11 @@ pub fn parse_static_fields(
 
     Some((
         cpu_name?,
-        cores?,
-        threads?,
+        total_cores.to_string(),
+        total_threads.to_string(),
         virtualization.unwrap_or_default(),
         vm_str,
-        counted_sockets.len().max(1),
+        num_sockets,
     ))
 }
 
