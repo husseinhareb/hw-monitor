@@ -82,17 +82,14 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) =
     } = data;
     const { t } = useTranslation();
 
-    const downloadValues = useMemo(() => download.map(d => d.value), [download]);
-    const uploadValues = useMemo(() => upload.map(u => u.value), [upload]);
-
     const convertedTotalDownload = useMemo(() => convertData(totalDownload), [totalDownload]);
     const convertedTotalUpload = useMemo(() => convertData(totalUpload), [totalUpload]);
 
-    const formatSpeed = useCallback((arr: Array<{ value: number; unit: string }>) => {
+    const formatSpeed = useCallback((arr: number[]) => {
         if (arr.length === 0) {
             return `0${t('network.bytes_per_sec')}`;
         }
-        const { value, unit } = arr[arr.length - 1];
+        const { value, unit } = convertData(arr[arr.length - 1]);
         return `${value} ${unit}${t('network.bytes_per_sec')}`;
     }, [t]);
 
@@ -149,8 +146,8 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) =
                 </NameContainer>
                 <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
                     <Graph
-                        firstGraphValue={downloadValues}
-                        secondGraphValue={uploadValues}
+                        firstGraphValue={download}
+                        secondGraphValue={upload}
                         width="100%"
                     />
                 </div>

@@ -3,14 +3,9 @@ import type { TotalUsages } from "../bindings";
 
 export type { TotalUsages } from "../bindings";
 
-export interface NetworkPoint {
-  value: number;
-  unit: string;
-}
-
 export interface NetworkData {
-  download: NetworkPoint[];
-  upload: NetworkPoint[];
+  download: number[];
+  upload: number[];
   totalDownload: number;
   totalUpload: number;
   macAddress: string | null;
@@ -136,8 +131,8 @@ export const useStore = create<Store>((set) => ({
         Object.entries(nextSnapshot).map(([name, data]) => [
           name,
           {
-            download: data.download.map((point) => point.value),
-            upload: data.upload.map((point) => point.value),
+            download: data.download,
+            upload: data.upload,
           },
         ]),
       ),

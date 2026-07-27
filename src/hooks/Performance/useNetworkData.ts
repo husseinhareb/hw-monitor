@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import useDataConverter from "../../helpers/useDataConverter";
 import usePerformanceConfig from "./usePerformanceConfig";
 import {
   type NetworkData,
@@ -19,7 +18,6 @@ function appendSample<T>(history: T[], value: T) {
 }
 
 const useNetworkData = () => {
-  const convertData = useDataConverter();
   const performanceConfig = usePerformanceConfig();
   const paused = usePaused();
   const interfaceNames = useNetworkInterfaces();
@@ -41,11 +39,11 @@ const useNetworkData = () => {
           next[usage.interface] = {
             download: appendSample(
               previousInterfaceData?.download ?? [],
-              convertData(usage.download),
+              usage.download,
             ),
             upload: appendSample(
               previousInterfaceData?.upload ?? [],
-              convertData(usage.upload),
+              usage.upload,
             ),
             totalDownload: usage.total_download,
             totalUpload: usage.total_upload,
@@ -71,7 +69,7 @@ const useNetworkData = () => {
       console.error("Error fetching network data:", error);
       notify("error.fetch_failed");
     },
-    deps: [convertData, performanceConfig.config.show_virtual_interfaces, setNetworkSnapshot],
+    deps: [performanceConfig.config.show_virtual_interfaces, setNetworkSnapshot],
   });
 
   return useMemo(
