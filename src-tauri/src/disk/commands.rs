@@ -59,31 +59,96 @@ fn diskstats_sectors_to_bytes(sectors: u64) -> u64 {
     sectors.saturating_mul(DISKSTATS_SECTOR_BYTES)
 }
 
-struct MountInfo {
-    mount_point: String,
-    file_system: String,
+type DeviceId = (u32, u32);
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct MountPoint {
+    pub mount_point: String,
+    pub file_system: String,
+    pub available_space: Option<u64>,
+    pub total_space: Option<u64>,
+    pub used_space: Option<u64>,
 }
 
-fn read_mount_info() -> HashMap<String, MountInfo> {
-    let mut map = HashMap::new();
-    let content = match fs::read_to_string("/proc/mounts") {
-        Ok(c) => c,
-        Err(_) => return map,
-    };
-    for line in content.lines() {
-        let fields: Vec<&str> = line.split_whitespace().collect();
-        if fields.len() >= 3 {
-            let device = fields[0].to_string();
-            map.insert(
-                device,
-                MountInfo {
-                    mount_point: fields[1].to_string(),
-                    file_system: fields[2].to_string(),
-                },
-            );
+fn decode_mountinfo_field(field: &str) -> String {
+    let input = field.as_bytes();
+    let mut decoded = Vec::with_capacity(input.len());
+    let mut index = 0;
+
+    while index < input.len() {
+        if input[index] == b'\\'
+            && index + 3 < input.len()
+            && input[index + 1..=index + 3]
+                .iter()
+                .all(|byte| (b'0'..=b'7').contains(byte))
+        {
+            let value = (input[index + 1] - b'0') * 64
+                + (input[index + 2] - b'0') * 8
+                + (input[index + 3] - b'0');
+            decoded.push(value);
+            index += 4;
+        } else {
+            decoded.push(input[index]);
+            index += 1;
         }
     }
+
+    String::from_utf8_lossy(&decoded).into_owned()
+}
+
+fn parse_mount_info(content: &str) -> HashMap<DeviceId, Vec<MountPoint>> {
+    let mut map = HashMap::new();
+
+    for line in content.lines() {
+        let Some((mount_fields, filesystem_fields)) = line.split_once(" - ") else {
+            continue;
+        };
+        let mount_fields: Vec<&str> = mount_fields.split_whitespace().collect();
+        let filesystem_fields: Vec<&str> = filesystem_fields.split_whitespace().collect();
+        let Some((major, minor)) = mount_fields
+            .get(2)
+            .and_then(|identity| identity.split_once(':'))
+            .and_then(|(major, minor)| Some((major.parse().ok()?, minor.parse().ok()?)))
+        else {
+            continue;
+        };
+        let Some(mount_point) = mount_fields.get(4) else {
+            continue;
+        };
+        let Some(file_system) = filesystem_fields.first() else {
+            continue;
+        };
+
+        map.entry((major, minor))
+            .or_insert_with(Vec::new)
+            .push(MountPoint {
+                mount_point: decode_mountinfo_field(mount_point),
+                file_system: decode_mountinfo_field(file_system),
+                available_space: None,
+                total_space: None,
+                used_space: None,
+            });
+    }
+
     map
+}
+
+fn read_mount_info() -> HashMap<DeviceId, Vec<MountPoint>> {
+    let content = match fs::read_to_string("/proc/self/mountinfo") {
+        Ok(content) => content,
+        Err(_) => return HashMap::new(),
+    };
+    let mut mounts = parse_mount_info(&content);
+    for entries in mounts.values_mut() {
+        for mount in entries {
+            if let Some((total, available)) = get_space_info(&mount.mount_point) {
+                mount.available_space = Some(available);
+                mount.total_space = Some(total);
+                mount.used_space = Some(total.saturating_sub(available));
+            }
+        }
+    }
+    mounts
 }
 
 fn get_space_info(mount_point: &str) -> Option<(u64, u64)> {
@@ -118,6 +183,7 @@ pub struct Partition {
     pub used_space: Option<u64>,
     pub file_system: Option<String>,
     pub mount_point: Option<String>,
+    pub mounts: Vec<MountPoint>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -166,6 +232,7 @@ pub struct Disk {
     pub subsystem_nqn: Option<String>,
     pub holders: Vec<String>,
     pub slaves: Vec<String>,
+    pub mounts: Vec<MountPoint>,
 
     pub read_speed: String,  // KB/s
     pub write_speed: String, // KB/s
@@ -419,6 +486,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
                         subsystem_nqn: get_sysfs_value(&name, "device/subsysnqn"),
                         holders: read_dir_names(format!("/sys/block/{name}/holders")),
                         slaves: read_dir_names(format!("/sys/block/{name}/slaves")),
+                        mounts: Vec::new(),
                         read_speed: "0.0".into(),
                         write_speed: "0.0".into(),
                         read_iops: "0.0".into(),
@@ -462,6 +530,7 @@ fn get_disk_partition_info() -> Vec<Disk> {
                             used_space: None,
                             file_system: None,
                             mount_point: None,
+                            mounts: Vec::new(),
                         });
                     }
                 }
@@ -566,19 +635,22 @@ pub async fn get_disks(
     });
     drop(guard);
 
-    // 4) populate partition mount/fs/usage via /proc/mounts + statvfs
+    // 4) join mount/fs/usage by kernel device identity. This handles aliases
+    // such as /dev/mapper/* and /dev/disk/by-*, plus whole-disk filesystems.
     let mounts = read_mount_info();
     for d in &mut disks {
+        d.mounts = mounts.get(&(d.major, d.minor)).cloned().unwrap_or_default();
         for part in &mut d.partitions {
-            let dev_path = format!("/dev/{}", part.name);
-            if let Some(mount_info) = mounts.get(&dev_path) {
-                if let Some((total, available)) = get_space_info(&mount_info.mount_point) {
-                    part.available_space = Some(available);
-                    part.total_space = Some(total);
-                    part.used_space = Some(total.saturating_sub(available));
-                }
-                part.file_system = Some(mount_info.file_system.clone());
-                part.mount_point = Some(mount_info.mount_point.clone());
+            part.mounts = mounts
+                .get(&(part.major, part.minor))
+                .cloned()
+                .unwrap_or_default();
+            if let Some(primary_mount) = part.mounts.first() {
+                part.available_space = primary_mount.available_space;
+                part.total_space = primary_mount.total_space;
+                part.used_space = primary_mount.used_space;
+                part.file_system = Some(primary_mount.file_system.clone());
+                part.mount_point = Some(primary_mount.mount_point.clone());
             }
         }
     }
@@ -598,6 +670,21 @@ mod tests {
     #[test]
     fn diskstats_byte_conversion_does_not_overflow() {
         assert_eq!(diskstats_sectors_to_bytes(u64::MAX), u64::MAX);
+    }
+
+    #[test]
+    fn mountinfo_matches_aliases_by_device_id_and_decodes_paths() {
+        let fixture = "\
+36 29 253:0 / /media/My\\040Disk rw,relatime - ext4 /dev/mapper/vg-root rw
+37 29 253:0 / /mnt/second rw,relatime - ext4 /dev/dm-0 rw
+38 29 8:0 / /mnt/whole rw,relatime - xfs /dev/sda rw
+";
+        let mounts = parse_mount_info(fixture);
+
+        assert_eq!(mounts[&(253, 0)].len(), 2);
+        assert_eq!(mounts[&(253, 0)][0].mount_point, "/media/My Disk");
+        assert_eq!(mounts[&(253, 0)][1].mount_point, "/mnt/second");
+        assert_eq!(mounts[&(8, 0)][0].file_system, "xfs");
     }
 
     #[test]

@@ -311,6 +311,37 @@ const Disks: React.FC = () => {
             {(() => { const d = convertData(disk.size); return `${t('disks.size')}: ${d.value} ${d.unit}`; })()}
           </DiskSize>
           <PartitionList>
+            {disk.mounts.map((mount) => (
+              <PartitionContainer
+                $partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
+                key={`${disk.name}:${mount.mount_point}`}
+              >
+                {mount.used_space != null && mount.total_space != null && mount.total_space > 0 && (
+                  <PartitionBar
+                    $partitionUsageBackgroundColor={disksConfig.config.disks_partition_usage_background_color}
+                    style={{ width: `${usagePercentage(mount.used_space, mount.total_space)}%` }}
+                  />
+                )}
+                <PartitionItem>
+                  <PartitionName
+                    $partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
+                  >{disk.name}</PartitionName>
+                  <FileSystem
+                    $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                  >{mount.mount_point}</FileSystem>
+                  <FileSystem
+                    $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                  >{mount.file_system}</FileSystem>
+                  {mount.used_space != null && mount.total_space != null && (
+                    <Space
+                      $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                    >
+                      {showBytes(mount.used_space)} / {showBytes(mount.total_space)}
+                    </Space>
+                  )}
+                </PartitionItem>
+              </PartitionContainer>
+            ))}
             {disk.partitions.map((partition) => (
               <PartitionContainer
                 $partitionBackgroundColor={disksConfig.config.disks_partition_background_color}
@@ -331,24 +362,24 @@ const Disks: React.FC = () => {
                   <PartitionName
                     $partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
                   >{partition.name}</PartitionName>
-                  {!partition.mount_point && (
+                  {partition.mounts.length === 0 && (
                     <Space
                       $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
                     >
                       {(() => { const d = convertData(partition.size); return `${d.value} ${d.unit}`; })()}
                     </Space>
                   )}
-                  {partition.mount_point && (
+                  {partition.mounts.length > 0 && (
                     <FileSystem
                       $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
-                    >{partition.mount_point}</FileSystem>
+                    >{partition.mounts.map((mount) => mount.mount_point).join(", ")}</FileSystem>
                   )}
-                  {partition.file_system && (
+                  {partition.mounts.length > 0 && (
                     <FileSystem
                       $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
-                    >{partition.file_system}</FileSystem>
+                    >{[...new Set(partition.mounts.map((mount) => mount.file_system))].join(", ")}</FileSystem>
                   )}
-                  {partition.mount_point && partition.used_space !== undefined && partition.total_space !== undefined && (
+                  {partition.mount_point && partition.used_space != null && partition.total_space != null && (
                     <Space
                       $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
                     >
@@ -449,6 +480,24 @@ const Disks: React.FC = () => {
                 {renderDetailRow("Slaves", showList(selectedDisk.slaves))}
               </DetailSection>
 
+              {selectedDisk.mounts.length > 0 && (
+                <DetailSection $borderColor={modalBorderColor}>
+                  {renderSectionTitle("Filesystems")}
+                  {selectedDisk.mounts.map((mount, index) => (
+                    <PartitionCard key={`${mount.mount_point}:${index}`} $borderColor={modalBorderColor}>
+                      <PartitionCardHeader $color={modalSectionColor} $borderColor={modalBorderColor}>
+                        <span>{mount.mount_point}</span>
+                        <span>{mount.file_system}</span>
+                      </PartitionCardHeader>
+                      {mount.total_space != null && renderDetailRow(
+                        "Used",
+                        `${showBytes(mount.used_space)} / ${showBytes(mount.total_space)}`,
+                      )}
+                    </PartitionCard>
+                  ))}
+                </DetailSection>
+              )}
+
               <DetailSection $borderColor={modalBorderColor}>
                 {renderSectionTitle(t('disks.section_performance'))}
                 {renderDetailRow(t('disks.read_speed'), `${selectedDisk.read_speed} KB/s`)}
@@ -478,9 +527,16 @@ const Disks: React.FC = () => {
                       </PartitionCardHeader>
                       {renderDetailRow("Device", partition.dev_path || `/dev/${partition.name}`)}
                       {renderDetailRow("Major:Minor", showMajorMinor(partition.major, partition.minor))}
-                      {partition.file_system && renderDetailRow("Filesystem", partition.file_system)}
-                      {partition.mount_point && renderDetailRow("Mount", partition.mount_point)}
-                      {partition.total_space != null && renderDetailRow("Used", `${showBytes(partition.used_space)} / ${showBytes(partition.total_space)}`)}
+                      {partition.mounts.map((mount, index) => (
+                        <React.Fragment key={`${mount.mount_point}:${index}`}>
+                          {renderDetailRow(`Mount ${index + 1}`, mount.mount_point)}
+                          {renderDetailRow("Filesystem", mount.file_system)}
+                          {mount.total_space != null && renderDetailRow(
+                            "Used",
+                            `${showBytes(mount.used_space)} / ${showBytes(mount.total_space)}`,
+                          )}
+                        </React.Fragment>
+                      ))}
                       {partition.partuuid && renderDetailRow("Part UUID", partition.partuuid)}
                       {partition.read_only != null && renderDetailRow("Read only", showBoolean(partition.read_only))}
                       {!!partition.holders?.length && renderDetailRow("Holders", showList(partition.holders))}

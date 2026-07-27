@@ -243,6 +243,14 @@ export interface NvmeSmartData {
   limited: boolean;
 }
 
+export interface MountPoint {
+  mount_point: string;
+  file_system: string;
+  available_space: number | null;
+  total_space: number | null;
+  used_space: number | null;
+}
+
 export interface Partition {
   name: string;
   dev_path: string;
@@ -261,6 +269,7 @@ export interface Partition {
   used_space: number | null;
   file_system: string | null;
   mount_point: string | null;
+  mounts: MountPoint[];
 }
 
 export interface Disk {
@@ -308,6 +317,7 @@ export interface Disk {
   subsystem_nqn: string | null;
   holders: string[];
   slaves: string[];
+  mounts: MountPoint[];
   read_speed: string;
   write_speed: string;
   read_iops: string;

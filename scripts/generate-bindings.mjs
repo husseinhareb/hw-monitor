@@ -20,6 +20,7 @@ const structSources = [
   ["SmartAttribute", "src-tauri/src/smart/commands.rs"],
   ["AtaSmartData", "src-tauri/src/smart/commands.rs"],
   ["NvmeSmartData", "src-tauri/src/smart/commands.rs"],
+  ["MountPoint", "src-tauri/src/disk/commands.rs"],
   ["Partition", "src-tauri/src/disk/commands.rs"],
   ["Disk", "src-tauri/src/disk/commands.rs"],
   ["BatteryData", "src-tauri/src/battery/data.rs"],
