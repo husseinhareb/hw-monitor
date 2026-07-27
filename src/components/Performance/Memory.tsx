@@ -24,7 +24,7 @@ interface MemoryProps {
         }
     };
     memoryUsage: MemoryUsage | null;
-    activeMem: number[];
+    usedMem: number[];
     hardwareInfo: MemoryHardwareInfo | null;
 }
 
@@ -38,7 +38,7 @@ type ConvertedMemoryData = {
     swapCache: { value: number; unit: string };
 };
 
-const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, activeMem, hardwareInfo }) => {
+const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem, hardwareInfo }) => {
     const convertData = useDataConverter();
     const { t } = useTranslation();
 
@@ -66,8 +66,12 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, activeM
         }
 
         const total = memoryUsage.total;
-        const free = memoryUsage.free ?? 0;
-        const available = Math.min(memoryUsage.available ?? free, total);
+        const free = Math.min(total, Math.max(0, memoryUsage.free ?? 0));
+        const fallbackAvailable = free + Math.max(0, memoryUsage.cached ?? 0);
+        const available = Math.min(
+            total,
+            Math.max(free, memoryUsage.available ?? fallbackAvailable),
+        );
         const inUse = Math.max(0, total - available);
         const cached = Math.max(0, available - free);
 
@@ -99,7 +103,7 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, activeM
                     </NameContainer>
                     <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
                         <Graph
-                            firstGraphValue={activeMem}
+                            firstGraphValue={usedMem}
                             maxValue={Math.floor(memoryData.total.value)}
                             width="100%"
                         />

@@ -26,6 +26,7 @@ import useMemoryData from '../../hooks/Performance/useMemoryData';
 import { useMemoryHardwareInfo } from '../../hooks/Performance/useMemoryData';
 import useGpuData from '../../hooks/Performance/useGpuData';
 import { convertData } from '../../helpers/useDataConverter';
+import { calculateUsedMemoryBytes } from '../../helpers/memoryUsage';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
@@ -91,10 +92,17 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
   const memoryHardwareInfo = useMemoryHardwareInfo();
   const appendMemory = useAppendMemory();
   useEffect(() => {
-    if (memoryRaw?.total != null && memoryRaw.active != null) {
+    if (memoryRaw?.total != null) {
+      const usedBytes = calculateUsedMemoryBytes(
+        memoryRaw.total,
+        memoryRaw.available,
+        memoryRaw.free,
+        memoryRaw.cached,
+      );
+      if (usedBytes === null) return;
       const totalConverted = convertData(memoryRaw.total).value;
-      const activeValue = (memoryRaw.active / memoryRaw.total) * totalConverted;
-      appendMemory(activeValue);
+      const usedValue = (usedBytes / memoryRaw.total) * totalConverted;
+      appendMemory(usedValue);
     }
   }, [memoryRaw, appendMemory]);
 
@@ -136,7 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
       );
     }
     if (selectedItem === 'Memory') {
-      return <Memory performanceConfig={perf} memoryUsage={memoryRaw} activeMem={memory} hardwareInfo={memoryHardwareInfo} />;
+      return <Memory performanceConfig={perf} memoryUsage={memoryRaw} usedMem={memory} hardwareInfo={memoryHardwareInfo} />;
     }
     for (let i = 0; i < gpuList.length; i++) {
       const gpuKey = `GPU-${gpuList[i].id || i}`;
