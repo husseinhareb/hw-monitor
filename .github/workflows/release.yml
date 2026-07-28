@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install system dependencies
         run: |
@@ -24,16 +26,19 @@ jobs:
             patchelf
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        with:
+          toolchain: 1.97.1
+          components: rustfmt, clippy
 
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.cargo/registry
@@ -45,17 +50,32 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Run frontend checks
+        run: |
+          npm run check:bindings
+          npm run check:themes
+          npm run typecheck
+          npm run lint
+          npm test
+          npm audit --audit-level=high
+
       - name: Check formatting
         working-directory: src-tauri
         run: cargo fmt --check
 
       - name: Lint backend
         working-directory: src-tauri
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Run backend tests
         working-directory: src-tauri
-        run: cargo test --quiet
+        run: cargo test --all-targets --all-features --quiet
+
+      - name: Audit backend dependencies
+        uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: src-tauri
 
       - name: Build frontend
         run: npm run build
@@ -63,15 +83,24 @@ jobs:
       - name: Build Tauri app
         run: npx tauri build --bundles deb,rpm
 
-      - name: Get version from tag
-        id: version
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Generate SHA-256 checksums
+        working-directory: src-tauri/target/release
+        run: sha256sum hw-monitor bundle/deb/*.deb bundle/rpm/*.rpm > SHA256SUMS
+
+      - name: Attest release artifacts
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            src-tauri/target/release/hw-monitor
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/rpm/*.rpm
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           draft: false
           files: |
             src-tauri/target/release/bundle/deb/*.deb
             src-tauri/target/release/bundle/rpm/*.rpm
             src-tauri/target/release/hw-monitor
+            src-tauri/target/release/SHA256SUMS

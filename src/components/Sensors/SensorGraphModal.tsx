@@ -49,7 +49,6 @@ const SensorGraphModal: React.FC<Props> = ({
     modalTickRef.current += 1;
     setHistory(prev => [...prev, { value: currentValue }].slice(-MAX_HISTORY));
   // pollTick drives the cadence; currentValue is captured at that moment
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollTick]);
 
   // Close on Escape

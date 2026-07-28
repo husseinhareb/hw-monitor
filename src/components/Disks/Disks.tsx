@@ -54,7 +54,6 @@ const Disks: React.FC = () => {
     } else {
       smart.cancel();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDisk?.dev_path]);
 
   const usagePercentage = (used: number, total: number) => {

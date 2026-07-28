@@ -123,7 +123,7 @@ pub fn add_memory_unit(value: u64) -> String {
 
     let format_scaled = |divisor: u64, unit: &str| {
         let scaled = value as f64 / divisor as f64;
-        if value % divisor == 0 {
+        if value.is_multiple_of(divisor) {
             format!("{scaled:.0} {unit}")
         } else {
             format!("{scaled:.2} {unit}")

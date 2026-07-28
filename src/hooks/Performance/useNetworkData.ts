@@ -10,12 +10,9 @@ import {
 import { notify } from "../../services/store";
 import useSerialPolling from "../useSerialPolling";
 import type { NetworkUsage } from "../../bindings";
+import { appendBoundedSample } from "../../helpers/sampleHistory";
 
 const MAX_POINTS = 20;
-
-function appendSample<T>(history: T[], value: T) {
-  return [...history, value].slice(-MAX_POINTS);
-}
 
 const useNetworkData = () => {
   const performanceConfig = usePerformanceConfig();
@@ -37,13 +34,15 @@ const useNetworkData = () => {
         fetchedNetworkUsages.forEach((usage) => {
           const previousInterfaceData = previous[usage.interface];
           next[usage.interface] = {
-            download: appendSample(
+            download: appendBoundedSample(
               previousInterfaceData?.download ?? [],
               usage.download,
+              MAX_POINTS,
             ),
-            upload: appendSample(
+            upload: appendBoundedSample(
               previousInterfaceData?.upload ?? [],
               usage.upload,
+              MAX_POINTS,
             ),
             totalDownload: usage.total_download,
             totalUpload: usage.total_upload,

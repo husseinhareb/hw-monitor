@@ -180,6 +180,11 @@ install the WebKit2GTK 4.1 package for your distribution:
 | Gentoo | `sudo emerge --ask net-libs/webkit-gtk:4.1` |
 | Void Linux | `sudo xbps-install -S webkit2gtk-devel` |
 
+Managing system services also requires polkit and a running desktop
+authentication agent (`policykit-1` on Debian/Ubuntu, `polkit` on most other
+distributions). Passwords are entered only in the native polkit dialog and are
+never sent through the application's webview or IPC layer.
+
 ### Fixing NVIDIA GPU Errors
 
 If you use an NVIDIA GPU and encounter errors like:
@@ -236,6 +241,9 @@ set -Ux QT_XCB_FORCE_SOFTWARE_OPENGL 1
 
 - `npm run check:bindings`: verify `src/bindings.ts` is in sync with the Rust command models.
 - `npm run check:themes`: validate the bundled theme presets (palette completeness, valid hex, monotonic heatbar gradient, foreground/background contrast).
+- `npm run typecheck`: run the TypeScript compiler without emitting files.
+- `npm run lint`: lint JavaScript, TypeScript, and React hook usage.
+- `npm test`: run the frontend regression tests.
 
 ## Changelog
 

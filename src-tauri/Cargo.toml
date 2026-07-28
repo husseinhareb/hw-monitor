@@ -4,6 +4,9 @@ version = "0.4.0"
 description = "Hardware Monitor"
 authors = ["husseinhareb"]
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/husseinhareb/hw-monitor"
+homepage = "https://github.com/husseinhareb/hw-monitor"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
