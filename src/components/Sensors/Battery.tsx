@@ -8,10 +8,11 @@ import { useTranslation } from 'react-i18next';
 
 interface BatteryProps {
     batteries: BatteryData[];
+    loading: boolean;
     error: string | null;
 }
 
-const Battery: React.FC<BatteryProps> = ({ batteries, error }) => {
+const Battery: React.FC<BatteryProps> = ({ batteries, loading, error }) => {
     const sensorsConfig = useSensorsConfig();
     const { t } = useTranslation();
 
@@ -19,7 +20,9 @@ const Battery: React.FC<BatteryProps> = ({ batteries, error }) => {
 
     return (
         <>
-            {error ? (
+            {loading ? (
+                <p>{t('loading.battery')}</p>
+            ) : error ? (
                 <p>{t('error.battery_failed')}</p>
             ) : batteries.length > 0 ? (
                 batteries.map((battery, index) => (
@@ -50,7 +53,7 @@ const Battery: React.FC<BatteryProps> = ({ batteries, error }) => {
                     </SensorGroup>
                 ))
             ) : (
-                <p>{t('loading.battery')}</p>
+                <p>{t('empty.battery')}</p>
             )}
         </>
     );

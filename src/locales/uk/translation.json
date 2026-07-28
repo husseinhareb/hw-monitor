@@ -268,6 +268,8 @@
     "error.reload": "Перезавантажити",
     "loading.generic": "Завантаження...",
     "loading.battery": "Завантаження даних акумулятора...",
+    "empty.disks": "Диски не виявлено",
+    "empty.battery": "Акумулятор не виявлено",
 
     "services.col_name": "Назва",
     "services.col_description": "Опис",

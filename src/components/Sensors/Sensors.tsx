@@ -286,11 +286,15 @@ const Sensors: React.FC = () => {
         </SensorControls>
       </SensorToolbar>
       <SensorGrid>
-        {(batteryState.error || batteryState.batteries.length > 0) && <SensorList
+        <SensorList
           sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
         >
-          <Battery batteries={batteryState.batteries} error={batteryState.error} />
-        </SensorList>}
+          <Battery
+            batteries={batteryState.batteries}
+            loading={batteryState.loading}
+            error={batteryState.error}
+          />
+        </SensorList>
         {sortedSensors.map((hwmon) => (
           <SensorList
             key={hwmon.index}

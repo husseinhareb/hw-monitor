@@ -268,6 +268,8 @@
     "error.reload": "Recargar",
     "loading.generic": "Cargando...",
     "loading.battery": "Cargando datos de batería...",
+    "empty.disks": "No se detectaron discos",
+    "empty.battery": "No se detectó ninguna batería",
 
     "services.col_name": "Nombre",
     "services.col_description": "Descripción",

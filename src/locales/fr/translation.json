@@ -267,6 +267,8 @@
     "error.reload": "Recharger",
     "loading.generic": "Chargement...",
     "loading.battery": "Chargement des données de batterie...",
+    "empty.disks": "Aucun disque détecté",
+    "empty.battery": "Aucune batterie détectée",
 
     "services.col_name": "Nom",
     "services.col_description": "Description",

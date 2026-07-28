@@ -42,7 +42,7 @@ import { useTranslation } from "react-i18next";
 import { FaCircleInfo } from "react-icons/fa6";
 
 const Disks: React.FC = () => {
-  const { diskData, error } = useDiskData();
+  const { diskData, loading, error } = useDiskData();
   const disksConfig = useDisksConfig();
   const { t } = useTranslation();
   const [selectedDisk, setSelectedDisk] = useState<DiskData | null>(null);
@@ -269,6 +269,14 @@ const Disks: React.FC = () => {
     </DetailSection>
   );
 
+  if (loading) {
+    return (
+      <Container $bodyBackgroundColor={disksConfig.config.disks_background_color}>
+        <p>{t('loading.generic')}</p>
+      </Container>
+    );
+  }
+
   if (error) {
     return (
       <Container $bodyBackgroundColor={disksConfig.config.disks_background_color}>
@@ -280,7 +288,7 @@ const Disks: React.FC = () => {
   if (diskData.length === 0) {
     return (
       <Container $bodyBackgroundColor={disksConfig.config.disks_background_color}>
-        <p>{t('loading.generic')}</p>
+        <p>{t('empty.disks')}</p>
       </Container>
     );
   }

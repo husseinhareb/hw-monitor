@@ -269,6 +269,8 @@
     "error.reload": "إعادة التحميل",
     "loading.generic": "جاري التحميل...",
     "loading.battery": "جاري تحميل بيانات البطارية...",
+    "empty.disks": "لم يتم اكتشاف أقراص",
+    "empty.battery": "لم يتم اكتشاف بطارية",
 
     "services.col_name": "الاسم",
     "services.col_description": "الوصف",
