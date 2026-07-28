@@ -65,7 +65,13 @@ fn parse_list_units_output(output: &str) -> HashMap<String, RuntimeService> {
     let mut services = HashMap::new();
 
     for line in output.lines() {
-        let trimmed = line.trim();
+        let mut trimmed = line.trim();
+        for marker in ["● ", "○ ", "× ", "* "] {
+            if let Some(without_marker) = trimmed.strip_prefix(marker) {
+                trimmed = without_marker;
+                break;
+            }
+        }
         if trimmed.is_empty() {
             continue;
         }
@@ -230,6 +236,7 @@ fn list_services() -> Result<Vec<SystemService>, String> {
         "--all",
         "--no-pager",
         "--no-legend",
+        "--plain",
     ])?;
     let unit_files_output = run_systemctl(&[
         "list-unit-files",
@@ -409,6 +416,15 @@ masked-demo.service masked inactive dead Demo
         assert_eq!(parsed["dbus"].sub_state, "running");
         assert_eq!(parsed["systemd-tmpfiles-clean"].sub_state, "exited");
         assert_eq!(parsed["masked-demo"].load_state, "masked");
+    }
+
+    #[test]
+    fn parses_failed_units_with_systemctl_status_markers() {
+        let input = "● broken.service loaded failed failed Broken service\n";
+        let parsed = parse_list_units_output(input);
+
+        assert_eq!(parsed["broken"].active_state, "failed");
+        assert_eq!(parsed["broken"].sub_state, "failed");
     }
 
     #[test]
