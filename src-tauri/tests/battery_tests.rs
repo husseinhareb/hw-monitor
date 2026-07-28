@@ -1,4 +1,18 @@
-use hw_monitor::battery::sysfs::compute_time_estimates;
+use hw_monitor::battery::sysfs::{compute_state_of_health, compute_time_estimates};
+
+#[test]
+fn battery_health_is_unknown_without_capacity_inputs() {
+    assert_eq!(compute_state_of_health(0.0, 60_000_000.0), None);
+    assert_eq!(compute_state_of_health(50_000_000.0, 0.0), None);
+}
+
+#[test]
+fn battery_health_uses_full_and_design_capacity() {
+    assert_eq!(
+        compute_state_of_health(48_000_000.0, 60_000_000.0),
+        Some(80)
+    );
+}
 
 // ── compute_time_estimates ─────────────────────────────────────────────
 

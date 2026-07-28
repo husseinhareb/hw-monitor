@@ -78,11 +78,7 @@ impl SysFsBattery {
             .unwrap_or(0.0);
 
         // State of health (%)
-        let state_of_health = if energy_full_design_uwh > 0.0 {
-            ((energy_full_uwh / energy_full_design_uwh) * 100.0).round() as u32
-        } else {
-            100
-        };
+        let state_of_health = compute_state_of_health(energy_full_uwh, energy_full_design_uwh);
 
         // Power draw (µW) for time estimates
         let power_uw = read_sysfs_f64(&path.join("power_now"))
@@ -117,6 +113,18 @@ impl SysFsBattery {
             percentage,
         })
     }
+}
+
+pub fn compute_state_of_health(energy_full_uwh: f64, energy_full_design_uwh: f64) -> Option<u32> {
+    if !energy_full_uwh.is_finite()
+        || !energy_full_design_uwh.is_finite()
+        || energy_full_uwh <= 0.0
+        || energy_full_design_uwh <= 0.0
+    {
+        return None;
+    }
+
+    Some(((energy_full_uwh / energy_full_design_uwh) * 100.0).round() as u32)
 }
 
 pub fn compute_time_estimates(

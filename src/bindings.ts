@@ -344,7 +344,7 @@ export interface BatteryData {
   technology: string;
   time_to_empty: number | null;
   temperature: number | null;
-  state_of_health: number;
+  state_of_health: number | null;
   percentage: number;
 }
 

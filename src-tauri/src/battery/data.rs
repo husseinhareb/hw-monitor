@@ -10,6 +10,6 @@ pub struct BatteryData {
     pub technology: String,
     pub time_to_empty: Option<u32>,
     pub temperature: Option<u32>,
-    pub state_of_health: u32,
+    pub state_of_health: Option<u32>,
     pub percentage: u32,
 }
