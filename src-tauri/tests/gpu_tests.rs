@@ -4,8 +4,8 @@ use hw_monitor::gpu;
 
 #[test]
 fn add_memory_unit_bytes() {
-    // Less than 1 MB → raw "MB" (fallback: just shows the value as MB)
-    assert_eq!(gpu::add_memory_unit(500), "500 MB");
+    assert_eq!(gpu::add_memory_unit(500), "500 B");
+    assert_eq!(gpu::add_memory_unit(1536), "1.50 KB");
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn add_memory_unit_8gb() {
 
 #[test]
 fn add_memory_unit_zero() {
-    assert_eq!(gpu::add_memory_unit(0), "0 MB");
+    assert_eq!(gpu::add_memory_unit(0), "0 B");
 }
 
 #[test]

@@ -117,13 +117,27 @@ fn get_gpu_list() -> Vec<DetectedGpu> {
 }
 
 pub fn add_memory_unit(value: u64) -> String {
-    let memory = value as f64;
-    if memory >= 1024.0 * 1024.0 * 1024.0 {
-        format!("{:.0} GB", memory / (1024.0 * 1024.0 * 1024.0))
-    } else if memory >= 1024.0 * 1024.0 {
-        format!("{:.0} MB", memory / (1024.0 * 1024.0))
+    const KB: u64 = 1024;
+    const MB: u64 = KB * 1024;
+    const GB: u64 = MB * 1024;
+
+    let format_scaled = |divisor: u64, unit: &str| {
+        let scaled = value as f64 / divisor as f64;
+        if value % divisor == 0 {
+            format!("{scaled:.0} {unit}")
+        } else {
+            format!("{scaled:.2} {unit}")
+        }
+    };
+
+    if value >= GB {
+        format_scaled(GB, "GB")
+    } else if value >= MB {
+        format_scaled(MB, "MB")
+    } else if value >= KB {
+        format_scaled(KB, "KB")
     } else {
-        format!("{} MB", memory)
+        format!("{value} B")
     }
 }
 
