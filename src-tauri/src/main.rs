@@ -142,6 +142,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             proc::get_processes,
             proc::kill_process,
+            proc::set_process_priority,
+            proc::get_process_affinity,
+            proc::set_process_affinity,
             total_usages::get_total_usages,
             cpu::get_cpu_informations,
             network::get_network,
