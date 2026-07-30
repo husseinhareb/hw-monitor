@@ -187,6 +187,12 @@ export interface Process {
   write_disk_usage: string | null;
   read_disk_speed: string | null;
   write_disk_speed: string | null;
+  nice: number | null;
+}
+
+export interface ProcessAffinity {
+  total_cpus: number;
+  allowed_cpus: number[];
 }
 
 export interface SystemService {
