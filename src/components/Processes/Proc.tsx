@@ -12,6 +12,7 @@ import Spinner from '../Misc/Spinner';
 import ProcessIcon from './ProcessIcon';
 import { useTranslation } from 'react-i18next';
 import ProcessMonitor from './ProcessMonitor';
+import ProcessManageModal from './ProcessManageModal';
 import ProcessTree from './ProcessTree';
 
 const tableValues = [
@@ -26,6 +27,7 @@ const tableValues = [
     'write_disk_usage',
     'read_disk_speed',
     'write_disk_speed',
+    'nice',
 ] as const;
 
 type TableColumn = (typeof tableValues)[number];
@@ -79,7 +81,9 @@ const ProcessRow = memo<ProcessRowProps>(({
                         <ProcessIcon name={String(process[column] || '')} fallbackColor={bodyColor} />
                         {process[column] || ''}
                     </span>
-                ) : column === 'cpu_usage' ? `${process[column] || ''} %` : process[column] || ''}
+                ) : column === 'cpu_usage' ? `${process[column] || ''} %`
+                    : column === 'nice' ? (process[column] ?? '')
+                        : process[column] || ''}
             </Td>
         ))}
     </Tr>
@@ -155,7 +159,7 @@ const Proc: React.FC = () => {
             if (['memory', 'read_disk_usage', 'write_disk_usage', 'read_disk_speed', 'write_disk_speed'].includes(column)) {
                 valueA = convertDataValue(a[column] as string || '0');
                 valueB = convertDataValue(b[column] as string || '0');
-            } else if (['pid', 'ppid'].includes(column)) {
+            } else if (['pid', 'ppid', 'nice'].includes(column)) {
                 valueA = parseInt(String(a[column] || '0'), 10);
                 valueB = parseInt(String(b[column] || '0'), 10);
             } else if (column === 'cpu_usage') {
@@ -260,6 +264,7 @@ const Proc: React.FC = () => {
         write_disk_usage: { percentage: null, label:  t('proc.table_value_write_disk_usage') },
         read_disk_speed: { percentage: null, label:  t('proc.table_value_read_disk_speed') },
         write_disk_speed: { percentage: null, label:  t('proc.table_value_write_disk_speed') },
+        nice: { percentage: null, label: t('proc.table_value_nice') },
     };
 
     const getSelectedProcess = (): Process | null => {
@@ -270,6 +275,7 @@ const Proc: React.FC = () => {
     };
 
     const [killPending, setKillPending] = useState(false);
+    const [manageOpen, setManageOpen] = useState(false);
 
     const handleKillSelected = async () => {
         if (killPending) return;
@@ -277,7 +283,7 @@ const Proc: React.FC = () => {
         if (proc) {
             setKillPending(true);
             try {
-                await invoke('kill_process', { process: proc });
+                await invoke('kill_process', { process: proc, force: false });
             } catch (error) {
                 console.error('Failed to kill process:', error);
                 notify('error.kill_failed');
@@ -296,7 +302,19 @@ const Proc: React.FC = () => {
         }
     };
 
+    const handleManageSelected = () => {
+        if (getSelectedProcess()) {
+            setManageOpen(true);
+        }
+    };
+
+    const handleProcessKilledFromModal = () => {
+        setManageOpen(false);
+        setSelectedPid(null);
+    };
+
     const hasSelection = selectedPid !== null;
+    const managedProcess = manageOpen ? getSelectedProcess() : null;
 
     return (
         <TableContainer style={{ backgroundColor: processConfig.config.processes_body_background_color, minHeight: '100vh', color: processConfig.config.processes_body_color, position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
@@ -409,6 +427,11 @@ const Proc: React.FC = () => {
                     <KillButton
                         killButtonBackgroundColor={processConfig.config.processes_body_background_color}
                         killButtonColor={processConfig.config.processes_body_color}
+                        onClick={handleManageSelected}
+                    >{t('proc.manage_button')}</KillButton>
+                    <KillButton
+                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
+                        killButtonColor={processConfig.config.processes_body_color}
                         onClick={handleKillSelected}
                         disabled={killPending}
                     >{killPending ? '…' : t('proc.kill_process')}</KillButton>
@@ -424,6 +447,15 @@ const Proc: React.FC = () => {
                         setMonitoredPid(null);
                         setMonitoredStartTime(null);
                     }}
+                />
+            )}
+            {managedProcess && (
+                <ProcessManageModal
+                    process={managedProcess}
+                    backgroundColor={processConfig.config.processes_body_background_color}
+                    color={processConfig.config.processes_body_color}
+                    onClose={() => setManageOpen(false)}
+                    onKilled={handleProcessKilledFromModal}
                 />
             )}
         </TableContainer>

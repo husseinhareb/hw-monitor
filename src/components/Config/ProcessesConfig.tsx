@@ -31,6 +31,7 @@ const tableValues = [
   "processes_config.table_value_write_disk_usage",
   "processes_config.table_value_read_disk_speed",
   "processes_config.table_value_write_disk_speed",
+  "processes_config.table_value_nice",
 ];
 
 const translationMap: Record<string, string> = {
@@ -45,6 +46,7 @@ const translationMap: Record<string, string> = {
   "processes_config.table_value_write_disk_usage": "write_disk_usage",
   "processes_config.table_value_read_disk_speed":  "read_disk_speed",
   "processes_config.table_value_write_disk_speed": "write_disk_speed",
+  "processes_config.table_value_nice":             "nice",
 };
 
 interface Props { theme: ConfigTheme }
