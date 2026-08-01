@@ -102,7 +102,7 @@ const ProcessManageModal: React.FC<Props> = ({ process, backgroundColor, color, 
 
     const handleSelectAllCpus = () => {
         if (!affinity) return;
-        setSelectedCpus(new Set(Array.from({ length: affinity.total_cpus }, (_, i) => i)));
+        setSelectedCpus(new Set(affinity.available_cpus));
     };
 
     const handleClearCpus = () => {
@@ -181,7 +181,7 @@ const ProcessManageModal: React.FC<Props> = ({ process, backgroundColor, color, 
                         ) : affinity ? (
                             <>
                                 <AffinityGrid>
-                                    {Array.from({ length: affinity.total_cpus }, (_, cpu) => (
+                                    {affinity.available_cpus.map((cpu) => (
                                         <AffinityCpuButton
                                             key={cpu}
                                             type="button"

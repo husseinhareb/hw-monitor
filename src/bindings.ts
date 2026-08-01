@@ -191,7 +191,7 @@ export interface Process {
 }
 
 export interface ProcessAffinity {
-  total_cpus: number;
+  available_cpus: number[];
   allowed_cpus: number[];
 }
 
