@@ -25,9 +25,14 @@ pub struct Process {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct ProcessAffinity {
-    total_cpus: usize,
+    available_cpus: Vec<usize>,
     allowed_cpus: Vec<usize>,
 }
+
+/// Scheduling priority bounds accepted by `setpriority(2)`; -20 is the most
+/// favourable to the process and 19 the least.
+const NICE_MIN: i32 = -20;
+const NICE_MAX: i32 = 19;
 
 fn list_proc_pid() -> Vec<String> {
     if let Ok(entries) = fs::read_dir("/proc") {
@@ -453,15 +458,20 @@ fn pidfd_send_signal(pidfd: &OwnedFd, signal: i32) -> io::Result<()> {
     }
 }
 
-/// Validates that `process` still refers to the same process it claims to
-/// (same PID, same start time), guarding every mutating command below
-/// against a PID-reuse race between when the frontend fetched the process
-/// list and when the user acted on it. Returns the validated PID.
-fn validate_identity(process: &Process) -> Result<i32, String> {
+/// Bounds-checks a PID before it is handed to the kernel, without inspecting
+/// the process itself.
+fn checked_pid(process: &Process) -> Result<i32, String> {
     if process.pid == 0 || process.pid > i32::MAX as u32 {
         return Err(format!("Process ID {} out of valid range", process.pid));
     }
-    let pid = process.pid as i32;
+    Ok(process.pid as i32)
+}
+
+/// Confirms that `pid` still refers to the same process the frontend listed,
+/// by comparing the kernel's start time against the one captured in the
+/// snapshot. This is what stops a PID recycled between the poll and the user's
+/// click from being acted on by mistake.
+fn verify_identity(process: &Process, pid: i32) -> Result<(), String> {
     let current_start_time = get_process_start_time(&process.pid.to_string())
         .ok_or_else(|| format!("Process with PID {pid} no longer exists"))?;
     if current_start_time != process.start_time {
@@ -469,33 +479,109 @@ fn validate_identity(process: &Process) -> Result<i32, String> {
             "Process with PID {pid} has changed; refusing to act on it"
         ));
     }
+    Ok(())
+}
+
+/// Bounds-check and identity-check in one step, for commands that address a
+/// PID directly rather than through a pidfd.
+fn validate_identity(process: &Process) -> Result<i32, String> {
+    let pid = checked_pid(process)?;
+    verify_identity(process, pid)?;
     Ok(pid)
 }
 
-fn online_cpu_count() -> usize {
-    let n = unsafe { libc::sysconf(libc::_SC_NPROCESSORS_ONLN) };
-    if n > 0 {
-        n as usize
-    } else {
-        1
+/// Parses a Linux CPU list such as `0-3,8,10-11` into sorted, deduplicated
+/// CPU indices. This is the format used by both `/sys/devices/system/cpu/online`
+/// and the `Cpus_allowed_list` field of `/proc/[pid]/status`.
+fn parse_cpu_list(list: &str) -> Vec<usize> {
+    let mut cpus: Vec<usize> = Vec::new();
+
+    for part in list.trim().split(',') {
+        let part = part.trim();
+        if part.is_empty() {
+            continue;
+        }
+
+        match part.split_once('-') {
+            Some((start, end)) => {
+                if let (Ok(start), Ok(end)) =
+                    (start.trim().parse::<usize>(), end.trim().parse::<usize>())
+                {
+                    if start <= end {
+                        cpus.extend(start..=end);
+                    }
+                }
+            }
+            None => {
+                if let Ok(cpu) = part.parse::<usize>() {
+                    cpus.push(cpu);
+                }
+            }
+        }
     }
+
+    cpus.sort_unstable();
+    cpus.dedup();
+    cpus
+}
+
+/// Extracts the per-CPU ids from the `cpuN` lines of `/proc/stat`, skipping the
+/// leading aggregate `cpu` line. Used as a fallback when
+/// `/sys/devices/system/cpu/online` is unavailable.
+fn parse_cpu_ids_from_stat(content: &str) -> Vec<usize> {
+    let mut cpus: Vec<usize> = content
+        .lines()
+        .filter_map(|line| line.strip_prefix("cpu"))
+        .filter_map(|rest| {
+            let id: String = rest.chars().take_while(char::is_ascii_digit).collect();
+            id.parse::<usize>().ok()
+        })
+        .collect();
+
+    cpus.sort_unstable();
+    cpus.dedup();
+    cpus
+}
+
+/// The ids of every CPU currently online. Returned as explicit ids rather than
+/// a count, because offline CPUs leave gaps and `0..count` would then address
+/// the wrong cores.
+fn online_cpus() -> Vec<usize> {
+    if let Ok(content) = fs::read_to_string("/sys/devices/system/cpu/online") {
+        let cpus = parse_cpu_list(&content);
+        if !cpus.is_empty() {
+            return cpus;
+        }
+    }
+
+    fs::read_to_string("/proc/stat")
+        .map(|content| parse_cpu_ids_from_stat(&content))
+        .unwrap_or_default()
+}
+
+/// Reads the CPUs a process is currently allowed to run on from
+/// `/proc/[pid]/status`, which exposes the affinity mask without any syscall.
+fn parse_cpus_allowed_list(status: &str) -> Option<Vec<usize>> {
+    status
+        .lines()
+        .find_map(|line| line.strip_prefix("Cpus_allowed_list:"))
+        .map(parse_cpu_list)
+}
+
+fn read_allowed_cpus(pid: &str) -> Option<Vec<usize>> {
+    let status = fs::read_to_string(format!("/proc/{pid}/status")).ok()?;
+    parse_cpus_allowed_list(&status)
 }
 
 #[tauri::command]
 pub fn kill_process(process: Process, force: bool) -> Result<(), String> {
-    if process.pid == 0 || process.pid > i32::MAX as u32 {
-        return Err(format!("Process ID {} out of valid range", process.pid));
-    }
-    let pid = process.pid as i32;
+    let pid = checked_pid(&process)?;
+    // Pin the process identity *before* validating it: once the pidfd is open
+    // it refers to this exact process, so a PID recycled after the check below
+    // can never end up receiving the signal.
     let pidfd = pidfd_open(pid)
         .map_err(|error| format!("Failed to open process with PID {pid}: {error}"))?;
-    let current_start_time = get_process_start_time(&process.pid.to_string())
-        .ok_or_else(|| format!("Process with PID {pid} no longer exists"))?;
-    if current_start_time != process.start_time {
-        return Err(format!(
-            "Process with PID {pid} has changed; refusing to terminate it"
-        ));
-    }
+    verify_identity(&process, pid)?;
 
     let signal = if force { libc::SIGKILL } else { libc::SIGTERM };
     pidfd_send_signal(&pidfd, signal)
@@ -504,15 +590,18 @@ pub fn kill_process(process: Process, force: bool) -> Result<(), String> {
 
 #[tauri::command]
 pub fn set_process_priority(process: Process, niceness: i32) -> Result<(), String> {
-    if !(-20..=19).contains(&niceness) {
+    if !(NICE_MIN..=NICE_MAX).contains(&niceness) {
         return Err(format!(
-            "Niceness {niceness} out of valid range (-20 to 19)"
+            "Niceness {niceness} out of valid range ({NICE_MIN} to {NICE_MAX})"
         ));
     }
     let pid = validate_identity(&process)?;
 
+    // SAFETY: `setpriority` takes only scalars — no pointers or buffers — so
+    // there is nothing for the kernel to read out of bounds. `pid` is bounds
+    // checked by `validate_identity` and `niceness` by the guard above.
     let result = unsafe { libc::setpriority(libc::PRIO_PROCESS, pid as libc::id_t, niceness) };
-    if result != 0 {
+    if result == -1 {
         return Err(format!(
             "Failed to set priority for PID {pid}: {}",
             io::Error::last_os_error()
@@ -524,24 +613,17 @@ pub fn set_process_priority(process: Process, niceness: i32) -> Result<(), Strin
 #[tauri::command]
 pub fn get_process_affinity(process: Process) -> Result<ProcessAffinity, String> {
     let pid = validate_identity(&process)?;
-    let total_cpus = online_cpu_count();
 
-    let mut set: libc::cpu_set_t = unsafe { std::mem::zeroed() };
-    let result =
-        unsafe { libc::sched_getaffinity(pid, std::mem::size_of::<libc::cpu_set_t>(), &mut set) };
-    if result != 0 {
-        return Err(format!(
-            "Failed to read CPU affinity for PID {pid}: {}",
-            io::Error::last_os_error()
-        ));
+    let available_cpus = online_cpus();
+    if available_cpus.is_empty() {
+        return Err("Could not determine which CPUs are online".to_string());
     }
 
-    let allowed_cpus = (0..total_cpus)
-        .filter(|&cpu| libc::CPU_ISSET(cpu, &set))
-        .collect();
+    let allowed_cpus = read_allowed_cpus(&process.pid.to_string())
+        .ok_or_else(|| format!("Could not read the CPU affinity of PID {pid}"))?;
 
     Ok(ProcessAffinity {
-        total_cpus,
+        available_cpus,
         allowed_cpus,
     })
 }
@@ -549,28 +631,38 @@ pub fn get_process_affinity(process: Process) -> Result<ProcessAffinity, String>
 #[tauri::command]
 pub fn set_process_affinity(process: Process, cpus: Vec<usize>) -> Result<(), String> {
     let pid = validate_identity(&process)?;
-    let total_cpus = online_cpu_count();
 
     if cpus.is_empty() {
         return Err("At least one CPU must remain selected".to_string());
     }
-    if let Some(&invalid) = cpus.iter().find(|&&cpu| cpu >= total_cpus) {
+
+    let available_cpus = online_cpus();
+    if let Some(offline) = cpus.iter().find(|cpu| !available_cpus.contains(cpu)) {
+        return Err(format!("CPU {offline} is not online"));
+    }
+    // `CPU_SET` indexes a fixed-width bitmask; anything at or beyond
+    // `CPU_SETSIZE` would write past it. Online CPUs never reach that bound in
+    // practice, but the check is what makes the `unsafe` block below sound.
+    if let Some(out_of_range) = cpus.iter().find(|&&cpu| cpu >= libc::CPU_SETSIZE as usize) {
         return Err(format!(
-            "CPU index {invalid} is out of range (0..{total_cpus})"
+            "CPU {out_of_range} exceeds the maximum addressable CPU index"
         ));
     }
 
-    let mut set: libc::cpu_set_t = unsafe { std::mem::zeroed() };
-    libc::CPU_ZERO(&mut set);
-    for cpu in cpus {
-        libc::CPU_SET(cpu, &mut set);
-    }
-
-    let result =
-        unsafe { libc::sched_setaffinity(pid, std::mem::size_of::<libc::cpu_set_t>(), &set) };
-    if result != 0 {
+    // SAFETY: `cpu_set_t` is a plain bitmask with no invalid bit patterns, so
+    // an all-zero value is a valid (empty) set. Every index handed to `CPU_SET`
+    // is bounds checked against `CPU_SETSIZE` above, and `sched_setaffinity`
+    // receives the exact size of `set`, which lives until the call returns.
+    let result = unsafe {
+        let mut set: libc::cpu_set_t = std::mem::zeroed();
+        for cpu in cpus {
+            libc::CPU_SET(cpu, &mut set);
+        }
+        libc::sched_setaffinity(pid, std::mem::size_of::<libc::cpu_set_t>(), &set)
+    };
+    if result == -1 {
         return Err(format!(
-            "Failed to set CPU affinity for PID {pid}: {}",
+            "Failed to set the CPU affinity of PID {pid}: {}",
             io::Error::last_os_error()
         ));
     }
@@ -580,10 +672,34 @@ pub fn set_process_affinity(process: Process, cpus: Vec<usize>) -> Result<(), St
 #[cfg(test)]
 mod tests {
     use super::{
-        get_process_affinity, kill_process, parse_proc_stat, parse_proc_stat_content,
+        get_process_affinity, kill_process, online_cpus, parse_cpu_ids_from_stat, parse_cpu_list,
+        parse_cpus_allowed_list, parse_proc_stat, parse_proc_stat_content,
         parse_proc_status_content, set_process_affinity, set_process_priority, Process,
     };
     use std::collections::HashMap;
+
+    /// Builds a `Process` that refers to the running test process itself.
+    fn current_process() -> Process {
+        let pid = std::process::id();
+        let start_time = parse_proc_stat(&pid.to_string())
+            .expect("test process must have a stat entry")
+            .4;
+        Process {
+            pid,
+            start_time,
+            ..Process::default()
+        }
+    }
+
+    /// Builds a `Process` whose start time no longer matches the running one,
+    /// simulating a PID that was recycled after the frontend listed it.
+    fn stale_process() -> Process {
+        let process = current_process();
+        Process {
+            start_time: process.start_time.saturating_add(1),
+            ..process
+        }
+    }
 
     #[test]
     fn proc_stat_parser_handles_parentheses_and_extracts_start_time() {
@@ -600,121 +716,126 @@ mod tests {
 
     #[test]
     fn kill_rejects_a_stale_process_identity() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let stale_process = Process {
-            pid,
-            start_time: current_start_time.saturating_add(1),
-            ..Process::default()
-        };
-
         let error =
-            kill_process(stale_process, false).expect_err("stale identity must be refused");
+            kill_process(stale_process(), false).expect_err("stale identity must be refused");
         assert!(error.contains("has changed"));
     }
 
     #[test]
-    fn kill_force_rejects_a_stale_process_identity() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let stale_process = Process {
-            pid,
-            start_time: current_start_time.saturating_add(1),
-            ..Process::default()
-        };
-
+    fn force_kill_rejects_a_stale_process_identity() {
         let error =
-            kill_process(stale_process, true).expect_err("stale identity must be refused");
+            kill_process(stale_process(), true).expect_err("stale identity must be refused");
         assert!(error.contains("has changed"));
     }
 
     #[test]
-    fn set_priority_rejects_out_of_range_niceness() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let process = Process {
-            pid,
-            start_time: current_start_time,
-            ..Process::default()
-        };
+    fn set_priority_rejects_niceness_above_the_maximum() {
+        let error = set_process_priority(current_process(), 20)
+            .expect_err("out-of-range niceness must be refused");
+        assert!(error.contains("out of valid range"));
+    }
 
-        let error =
-            set_process_priority(process, 20).expect_err("out-of-range niceness must be refused");
+    #[test]
+    fn set_priority_rejects_niceness_below_the_minimum() {
+        let error = set_process_priority(current_process(), -21)
+            .expect_err("out-of-range niceness must be refused");
         assert!(error.contains("out of valid range"));
     }
 
     #[test]
     fn set_priority_rejects_a_stale_process_identity() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let stale_process = Process {
-            pid,
-            start_time: current_start_time.saturating_add(1),
-            ..Process::default()
-        };
+        let error =
+            set_process_priority(stale_process(), 0).expect_err("stale identity must be refused");
+        assert!(error.contains("has changed"));
+    }
 
-        let error = set_process_priority(stale_process, 0)
+    #[test]
+    fn affinity_reports_online_and_allowed_cpus_for_the_current_process() {
+        let affinity = get_process_affinity(current_process()).expect("affinity must be readable");
+
+        assert!(!affinity.available_cpus.is_empty());
+        assert!(!affinity.allowed_cpus.is_empty());
+        // A process can only be allowed to run on CPUs that are actually online.
+        for cpu in &affinity.allowed_cpus {
+            assert!(
+                affinity.available_cpus.contains(cpu),
+                "allowed CPU {cpu} is not in the online set"
+            );
+        }
+    }
+
+    #[test]
+    fn set_affinity_rejects_a_cpu_that_is_not_online() {
+        let error = set_process_affinity(current_process(), vec![100_000])
+            .expect_err("an offline CPU must be refused");
+        assert!(error.contains("is not online"));
+    }
+
+    #[test]
+    fn set_affinity_rejects_an_empty_selection() {
+        let error = set_process_affinity(current_process(), vec![])
+            .expect_err("empty selection must be refused");
+        assert!(error.contains("At least one CPU"));
+    }
+
+    #[test]
+    fn set_affinity_rejects_a_stale_process_identity() {
+        let error = set_process_affinity(stale_process(), vec![0])
             .expect_err("stale identity must be refused");
         assert!(error.contains("has changed"));
     }
 
     #[test]
-    fn affinity_round_trips_for_current_process() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let process = Process {
-            pid,
-            start_time: current_start_time,
-            ..Process::default()
-        };
-
-        let affinity = get_process_affinity(process).expect("affinity must be readable");
-        assert!(affinity.total_cpus > 0);
-        assert!(!affinity.allowed_cpus.is_empty());
+    fn cpu_list_parser_expands_ranges_and_singletons() {
+        assert_eq!(parse_cpu_list("0-3,8,10-11"), vec![0, 1, 2, 3, 8, 10, 11]);
+        assert_eq!(parse_cpu_list("0"), vec![0]);
+        assert_eq!(parse_cpu_list("3-3"), vec![3]);
     }
 
     #[test]
-    fn set_affinity_rejects_an_out_of_range_cpu() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let process = Process {
-            pid,
-            start_time: current_start_time,
-            ..Process::default()
-        };
-
-        let error = set_process_affinity(process, vec![100_000])
-            .expect_err("out-of-range CPU index must be refused");
-        assert!(error.contains("out of range"));
+    fn cpu_list_parser_sorts_deduplicates_and_ignores_malformed_input() {
+        assert_eq!(parse_cpu_list("2,0,2,1\n"), vec![0, 1, 2]);
+        // A reversed range describes nothing and must not panic or wrap around.
+        assert_eq!(parse_cpu_list("5-2"), Vec::<usize>::new());
+        assert_eq!(parse_cpu_list(""), Vec::<usize>::new());
+        assert_eq!(parse_cpu_list("nonsense,,4"), vec![4]);
     }
 
     #[test]
-    fn set_affinity_rejects_an_empty_selection() {
-        let pid = std::process::id();
-        let current_start_time = parse_proc_stat(&pid.to_string())
-            .expect("test process must have a stat entry")
-            .4;
-        let process = Process {
-            pid,
-            start_time: current_start_time,
-            ..Process::default()
-        };
+    fn stat_cpu_id_parser_skips_the_aggregate_line() {
+        let stat = "\
+cpu  100 200 300
+cpu0 1 2 3
+cpu1 4 5 6
+intr 999
+";
+        assert_eq!(parse_cpu_ids_from_stat(stat), vec![0, 1]);
+    }
 
-        let error = set_process_affinity(process, vec![])
-            .expect_err("empty selection must be refused");
-        assert!(error.contains("At least one CPU"));
+    #[test]
+    fn cpus_allowed_parser_reads_the_affinity_mask_from_status() {
+        let status = "\
+Name:\tworker
+Cpus_allowed:\tff
+Cpus_allowed_list:\t0-3,6
+";
+        assert_eq!(
+            parse_cpus_allowed_list(status).expect("field must be found"),
+            vec![0, 1, 2, 3, 6]
+        );
+    }
+
+    #[test]
+    fn cpus_allowed_parser_reports_a_missing_field() {
+        assert!(parse_cpus_allowed_list("Name:\tworker\n").is_none());
+    }
+
+    #[test]
+    fn online_cpus_are_discovered_without_a_syscall() {
+        assert!(
+            !online_cpus().is_empty(),
+            "every running system has at least one online CPU"
+        );
     }
 
     #[test]
