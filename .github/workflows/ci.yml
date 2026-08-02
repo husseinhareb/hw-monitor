@@ -81,11 +81,14 @@ jobs:
         working-directory: src-tauri
         run: cargo test --all-targets --all-features --quiet
 
-      - name: Audit backend dependencies
-        uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 # v2.85.7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: src-tauri
+          tool: cargo-audit
+
+      - name: Audit backend dependencies
+        working-directory: src-tauri
+        run: cargo audit
 
       - name: Build frontend
         run: npm run build
