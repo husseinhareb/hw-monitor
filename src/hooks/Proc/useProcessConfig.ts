@@ -11,6 +11,10 @@ const processConfigKeys = [
     "processes_border_color",
     "processes_tree_toggle_color",
     "processes_monitor_border_color",
+    "processes_services_active_color",
+    "processes_services_inactive_color",
+    "processes_services_failed_color",
+    "processes_services_transitioning_color",
 ] as const;
 
 type ProcessConfig = Pick<ConfigData, (typeof processConfigKeys)[number]>;

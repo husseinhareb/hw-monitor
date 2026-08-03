@@ -99,6 +99,21 @@ Lists all systemd services on the system with their load state, active state, su
 
 Selecting a service reveals an action bar with **Start**, **Stop**, and **Restart**. Performing any action opens an in-app password dialog, no terminal required. The password is passed only to `sudo -S systemctl` for the requested action, is not stored by hw-monitor, and errors (including a wrong password) surface directly in the UI.
 
+### Connections
+
+Every TCP and UDP socket in the machine's network namespace, read directly from `/proc/net/tcp`, `/proc/net/tcp6`, `/proc/net/udp`, and `/proc/net/udp6`. The columns shown:
+
+- Protocol (`tcp`, `tcp6`, `udp`, `udp6`)
+- Local address and port
+- Remote address and port
+- State (the full TCP state machine, plus `UNCONN` for bound datagram sockets)
+- PID and process name
+- User
+
+Sockets are matched to the process holding them by resolving socket inodes through `/proc/[pid]/fd`. Reading another user's descriptors requires privileges, so an unprivileged run attributes only your own sockets and leaves the rest blank, the same way `ss(8)` and `netstat(8)` behave; the table says so rather than silently showing an empty column.
+
+The list can be searched across every field and filtered by protocol (TCP/UDP) and by state (listening or established). Any column sorts, with addresses ordered by octet and ports ordered numerically rather than as text. Selecting a row reveals its full endpoints, owning UID, socket inode, and receive/send queue depths.
+
 ## Multilingual Support
 
 The application ships with eight languages: Arabic, German, English, Spanish, French, Polish, Russian, and Ukrainian. Switch from the configuration panel.
