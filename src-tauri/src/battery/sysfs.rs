@@ -50,7 +50,7 @@ impl SysFsBattery {
             .or_else(|| read_sysfs_f64(&path.join("voltage_now")))
             .unwrap_or(0.0);
 
-        // Energy in Wh — try energy_now (µWh), fallback to charge_now (µAh) * voltage
+        // Energy in Wh: try energy_now (µWh), fallback to charge_now (µAh) * voltage
         let energy_uwh = read_sysfs_f64(&path.join("energy_now"))
             .or_else(|| read_sysfs_f64(&path.join("energy_avg")))
             .or_else(|| {

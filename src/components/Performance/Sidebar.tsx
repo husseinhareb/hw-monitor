@@ -289,7 +289,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
       </SidebarToggleButton>
 
-      {/* Detail Pane — only the selected component is rendered */}
+      {/* Detail Pane: only the selected component is rendered */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'auto' }}>
         {renderDetailPane()}
       </div>

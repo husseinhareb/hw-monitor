@@ -73,7 +73,7 @@ const SMART_READ_THRESHOLDS: u8 = 0xD1;
 const SMART_LBA_MID: u8 = 0x4F;
 const SMART_LBA_HIGH: u8 = 0xC2;
 
-// sg_io_hdr — must match the kernel's C definition exactly on x86-64.
+// sg_io_hdr: must match the kernel's C definition exactly on x86-64.
 // The explicit _pad field aligns usr_ptr to offset 56 (matching C's implicit padding).
 #[repr(C)]
 struct SgIoHdr {
@@ -249,7 +249,7 @@ pub fn read_ata_smart(dev_path: &str) -> Result<AtaSmartData, String> {
         .open(dev_path)
         .map_err(|e| {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
-                "Permission denied — add your user to the 'disk' group".to_string()
+                "Permission denied: add your user to the 'disk' group".to_string()
             } else {
                 format!("Cannot open {}: {}", dev_path, e)
             }

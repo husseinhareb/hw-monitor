@@ -100,7 +100,7 @@ pub fn calc_per_core_usage(state: &PerCoreCpuState) -> Option<Vec<f64>> {
             .collect();
         Some(usages)
     } else {
-        None // First call or core count changed — need one tick to establish delta
+        None // First call or core count changed; need one tick to establish delta
     };
 
     *guard = current

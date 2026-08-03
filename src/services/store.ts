@@ -198,7 +198,7 @@ export const useSetPaused = () => useStore((state) => state.setPaused);
 export const useNotifications = () => useStore((state) => state.notifications);
 export const useDismissNotification = () => useStore((state) => state.dismissNotification);
 
-/** Fire-and-forget — safe to call from custom hooks and event handlers */
+/** Fire-and-forget: safe to call from custom hooks and event handlers */
 export const notify = (
   messageKey: string,
   type: 'error' | 'warning' | 'info' = 'error'

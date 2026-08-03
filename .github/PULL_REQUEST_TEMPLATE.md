@@ -30,5 +30,5 @@ Describe how you tested your changes:
 
 - [ ] My code follows the project's existing style
 - [ ] Rust `Option<T>` fields are matched with `T | null` in TypeScript interfaces
-- [ ] No hardcoded strings — all user-facing text goes through `t()`
+- [ ] No hardcoded strings: all user-facing text goes through `t()`
 - [ ] I have read [CONTRIBUTING.md](../CONTRIBUTING.md)

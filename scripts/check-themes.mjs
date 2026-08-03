@@ -169,7 +169,7 @@ function validateTheme(theme, requiredKeys) {
     const bg = values[bgKey];
     if (!fg || !bg || !HEX_RE.test(fg) || !HEX_RE.test(bg)) continue;
     if (fg.toLowerCase() === bg.toLowerCase()) {
-      errors.push(`${fgKey} equals ${bgKey} (${fg}) — text invisible`);
+      errors.push(`${fgKey} equals ${bgKey} (${fg}): text invisible`);
       continue;
     }
     const ratio = contrastRatio(fg, bg);
@@ -215,7 +215,7 @@ function main() {
   }
 
   console.log(
-    `OK — ${themes.length} theme(s) validated against ${requiredKeys.length} *_color keys.`,
+    `OK: ${themes.length} theme(s) validated against ${requiredKeys.length} *_color keys.`,
   );
 }
 

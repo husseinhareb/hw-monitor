@@ -179,7 +179,7 @@ const Disks: React.FC = () => {
         {renderSectionTitle("SMART Health")}
         {d.limited ? (
           <SmartLimitedBanner>
-            <span>Limited data — full SMART is not available to this user.</span>
+            <span>Limited data: full SMART is not available to this user.</span>
           </SmartLimitedBanner>
         ) : (
           <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>

@@ -9,20 +9,20 @@
 
 | Finding | Status | Fix |
 |---|---|---|
-| BUG-001, BUG-005, BUG-006 | Fixed | `fb342f6` — safe SMART fallback and ordered refreshes |
-| BUG-002 | Fixed | `f4197ca` — start-time validation and pidfd signaling |
-| BUG-003 | Fixed | `8ae31c6` — fixed 512-byte diskstat units |
-| BUG-004 | Fixed | `51d43f8` — correct NVMe data-unit conversion |
-| BUG-007 | Fixed | `8dee422` — raw-byte network chart history |
-| BUG-008 | Fixed | `50e80b4` — used-memory graph semantics |
-| BUG-009 | Fixed | `71d261d` — mountinfo major:minor matching |
-| BUG-010 | Fixed | `88979c1` — multi-socket totals |
-| BUG-011 | Fixed | `72890f8` — complete process names |
-| BUG-012 | Fixed | `0359710` — systemd marker handling |
-| BUG-013 | Fixed | `fd3726d` — optional battery health |
-| BUG-014 | Fixed | `e9813c4` — correct small GPU-memory units |
-| BUG-015 | Fixed | `3381dbf` — explicit loading and empty states |
-| BUG-017 | Fixed | `dd75eec` — native polkit authorization |
+| BUG-001, BUG-005, BUG-006 | Fixed | `fb342f6`: safe SMART fallback and ordered refreshes |
+| BUG-002 | Fixed | `f4197ca`: start-time validation and pidfd signaling |
+| BUG-003 | Fixed | `8ae31c6`: fixed 512-byte diskstat units |
+| BUG-004 | Fixed | `51d43f8`: correct NVMe data-unit conversion |
+| BUG-007 | Fixed | `8dee422`: raw-byte network chart history |
+| BUG-008 | Fixed | `50e80b4`: used-memory graph semantics |
+| BUG-009 | Fixed | `71d261d`: mountinfo major:minor matching |
+| BUG-010 | Fixed | `88979c1`: multi-socket totals |
+| BUG-011 | Fixed | `72890f8`: complete process names |
+| BUG-012 | Fixed | `0359710`: systemd marker handling |
+| BUG-013 | Fixed | `fd3726d`: optional battery health |
+| BUG-014 | Fixed | `e9813c4`: correct small GPU-memory units |
+| BUG-015 | Fixed | `3381dbf`: explicit loading and empty states |
+| BUG-017 | Fixed | `dd75eec`: native polkit authorization |
 | BUG-016, BUG-018, BUG-019 | Fixed | Dependency, test, CI, and release hardening in the final remediation change |
 
 ## Executive summary

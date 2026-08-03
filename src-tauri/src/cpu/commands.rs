@@ -27,7 +27,7 @@ pub struct CpuInformations {
     cache_l3: Option<String>,
 }
 
-/// Static CPU info that never changes at runtime — cached after first read.
+/// Static CPU info that never changes at runtime, cached after first read.
 #[derive(Clone)]
 struct StaticCpuInfo {
     name: String,
