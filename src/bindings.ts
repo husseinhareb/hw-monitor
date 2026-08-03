@@ -195,6 +195,22 @@ export interface ProcessAffinity {
   allowed_cpus: number[];
 }
 
+export interface Connection {
+  protocol: string;
+  local_address: string;
+  local_port: number;
+  remote_address: string;
+  remote_port: number;
+  state: string;
+  tx_queue: number;
+  rx_queue: number;
+  inode: number;
+  uid: number;
+  user: string | null;
+  pid: number | null;
+  process_name: string | null;
+}
+
 export interface SystemService {
   name: string;
   description: string;

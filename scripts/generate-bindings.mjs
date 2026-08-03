@@ -16,6 +16,7 @@ const structSources = [
   ["NetworkInterface", "src-tauri/src/network/commands.rs"],
   ["Process", "src-tauri/src/proc/commands.rs"],
   ["ProcessAffinity", "src-tauri/src/proc/commands.rs"],
+  ["Connection", "src-tauri/src/connections/commands.rs"],
   ["SystemService", "src-tauri/src/services/commands.rs"],
   ["ServiceDetails", "src-tauri/src/services/commands.rs"],
   ["SmartAttribute", "src-tauri/src/smart/commands.rs"],
