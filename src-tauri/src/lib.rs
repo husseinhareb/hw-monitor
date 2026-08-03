@@ -1,5 +1,6 @@
 pub mod battery;
 pub mod config;
+pub mod connections;
 pub mod cpu;
 pub mod cpu_utils;
 pub mod disk;

@@ -57,7 +57,7 @@ fn list_proc_pid() -> Vec<String> {
     }
 }
 
-fn build_uid_map() -> HashMap<u32, String> {
+pub fn build_uid_map() -> HashMap<u32, String> {
     let mut map = HashMap::new();
     if let Ok(passwd_content) = fs::read_to_string("/etc/passwd") {
         for line in passwd_content.lines() {

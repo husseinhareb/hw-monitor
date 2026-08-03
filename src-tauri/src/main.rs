@@ -1,5 +1,6 @@
 mod battery;
 mod config;
+mod connections;
 mod cpu;
 mod cpu_utils;
 mod disk;
@@ -175,6 +176,7 @@ fn main() {
             services::enable_service,
             services::disable_service,
             smart::get_smart_data,
+            connections::get_connections,
             restart_app,
         ])
         //.plugin(devtools)
