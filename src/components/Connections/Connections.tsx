@@ -222,9 +222,9 @@ const Connections: React.FC = () => {
                     ? "*"
                     : connection.remote_port;
             case "pid":
-                return connection.pid ?? "—";
+                return connection.pid ?? "-";
             case "process_name":
-                return connection.process_name ?? "—";
+                return connection.process_name ?? "-";
             case "user":
                 return connection.user ?? String(connection.uid);
             default:

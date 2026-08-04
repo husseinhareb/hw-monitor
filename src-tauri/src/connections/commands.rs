@@ -397,7 +397,7 @@ mod tests {
 
     #[test]
     fn decodes_ipv4_mapped_ipv6_addresses() {
-        // ::ffff:127.0.0.1 — the form used by a dual-stack listener.
+        // ::ffff:127.0.0.1, the form used by a dual-stack listener.
         assert_eq!(
             parse_hex_address("0000000000000000FFFF00000100007F", true),
             Some(IpAddr::V6(Ipv4Addr::new(127, 0, 0, 1).to_ipv6_mapped()))
@@ -554,7 +554,7 @@ mod tests {
         );
 
         // A socket owned by an unreadable process still lists, just without
-        // attribution — the unprivileged case.
+        // attribution, the unprivileged case.
         assert_eq!(connections[1].pid, None);
         assert_eq!(connections[1].process_name, None);
         assert_eq!(connections[1].user, Some("root".to_string()));

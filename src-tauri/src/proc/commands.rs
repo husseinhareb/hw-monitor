@@ -230,7 +230,7 @@ pub struct ProcSnapshot {
     pub time: Instant,
 }
 
-/// Pre-parsed data from /proc/[pid]/stat — collected once per tick for each process.
+/// Pre-parsed data from /proc/[pid]/stat, collected once per tick for each process.
 struct ProcStatData {
     state: String,
     utime: u64,
@@ -260,7 +260,7 @@ fn calculate_cpu_percentage(
         cur_cpu.insert(pid, (data.utime, data.stime));
     }
 
-    // Collect I/O (still requires its own file read — /proc/[pid]/io)
+    // Collect I/O (still requires its own file read: /proc/[pid]/io)
     let mut cur_io: HashMap<i32, (u64, u64)> = HashMap::with_capacity(pids.len());
     for pid_str in pids {
         if let Ok(pid) = pid_str.parse::<i32>() {
@@ -597,7 +597,7 @@ pub fn set_process_priority(process: Process, niceness: i32) -> Result<(), Strin
     }
     let pid = validate_identity(&process)?;
 
-    // SAFETY: `setpriority` takes only scalars — no pointers or buffers — so
+    // SAFETY: `setpriority` takes only scalars, no pointers or buffers, so
     // there is nothing for the kernel to read out of bounds. `pid` is bounds
     // checked by `validate_identity` and `niceness` by the guard above.
     let result = unsafe { libc::setpriority(libc::PRIO_PROCESS, pid as libc::id_t, niceness) };
