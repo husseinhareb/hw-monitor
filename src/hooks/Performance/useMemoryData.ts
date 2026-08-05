@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useSetMaxMemory, usePaused, notify } from "../../services/store";
-import useDataConverter from "../../helpers/useDataConverter";
+import { convertData } from "../../helpers/useDataConverter";
 import usePerformanceConfig from "../Performance/usePerformanceConfig";
 import useSerialPolling from "../useSerialPolling";
 import type { MemoryHardwareInfo, MemoryUsage } from "../../bindings";
@@ -34,7 +34,6 @@ const fetchMemoryHardwareInfo = async () => {
 const useMemoryData = () => {
     const [memoryUsage, setMemoryUsage] = useState<MemoryUsage | null>(null);
     const setMaxMemory = useSetMaxMemory();
-    const convertData = useDataConverter();
     const performanceConfig = usePerformanceConfig();
     const paused = usePaused();
     useSerialPolling({
@@ -51,7 +50,7 @@ const useMemoryData = () => {
             console.error("Error fetching memory data:", error);
             notify('error.fetch_failed');
         },
-        deps: [convertData, setMaxMemory],
+        deps: [setMaxMemory],
     });
     return memoryUsage;
 };

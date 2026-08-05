@@ -72,6 +72,12 @@ export default function useSerialPolling<T>({
   }, [clearTimer]);
 
   useEffect(() => {
+    // Advance the generation counter and reset in-flight state before
+    // starting a new polling cycle.  The double-increment across cleanup
+    // and setup is harmless — generation counters only need to be unique
+    // per cycle, not consecutive.  Rapid enabled/disabling toggles may
+    // skip several generations, but the strict requestId check in
+    // runOnce ensures stale responses are always discarded.
     requestIdRef.current += 1;
     inFlightRef.current = false;
     clearTimer();
