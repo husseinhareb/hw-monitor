@@ -40,12 +40,28 @@ type GpuCacheEntry = Option<(Instant, Vec<DetectedGpu>)>;
 
 fn with_nvml<T>(operation: impl FnOnce(&Nvml) -> Option<T>) -> Option<T> {
     let handle = NVML_HANDLE.get_or_init(|| Mutex::new(None));
-    let mut guard = handle.lock().ok()?;
 
-    if guard.is_none() {
-        *guard = Nvml::init().ok();
+    // Fast path: NVML already initialised — lock, call, return.
+    {
+        let guard = handle.lock().ok()?;
+        if let Some(nvml) = guard.as_ref() {
+            return operation(nvml);
+        }
     }
 
+    // Slow path: initialise NVML outside the lock so that other callers are
+    // not blocked behind the potentially slow Nvml::init() call.
+    let new_nvml = Nvml::init().ok()?;
+    {
+        let mut guard = handle.lock().ok()?;
+        // Another thread may have beaten us to it; only store if still empty.
+        if guard.is_none() {
+            *guard = Some(new_nvml);
+        }
+    }
+
+    // Now the handle is guaranteed to contain a value.
+    let guard = handle.lock().ok()?;
     let nvml = guard.as_ref()?;
     operation(nvml)
 }
@@ -168,8 +184,19 @@ fn read_hwmon_info(
         for entry in entries.flatten() {
             let hwmon_path = entry.path();
 
-            if let Ok(fan_input) = read_to_string(hwmon_path.join("fan1_input")) {
-                fan_speed = Some(format!("{} RPM", fan_input.trim()));
+            // Collect all fan inputs (fan1, fan2, …) and average them.
+            // A GPU board may expose more than one fan controller.
+            let mut fan_rpms: Vec<u64> = Vec::new();
+            for fan_idx in 1..=4 {
+                if let Ok(raw) = read_to_string(hwmon_path.join(format!("fan{fan_idx}_input"))) {
+                    if let Ok(rpm) = raw.trim().parse::<u64>() {
+                        fan_rpms.push(rpm);
+                    }
+                }
+            }
+            if !fan_rpms.is_empty() {
+                let avg = fan_rpms.iter().sum::<u64>() / fan_rpms.len() as u64;
+                fan_speed = Some(format!("{avg} RPM"));
             }
 
             if let Ok(temp_input) = read_to_string(hwmon_path.join("temp1_input")) {
