@@ -121,11 +121,11 @@ fn parse_proc_status_content(
 
     let mem_kb = vm_rss_kb.unwrap_or(0);
     let mem_str = if mem_kb > 1_024 * 1_024 {
-        format!("{:.2} Gb", mem_kb as f64 / 1_024.0 / 1_024.0)
+        format!("{:.2} GB", mem_kb as f64 / 1_024.0 / 1_024.0)
     } else if mem_kb > 1_024 {
-        format!("{:.2} Mb", mem_kb as f64 / 1_024.0)
+        format!("{:.2} MB", mem_kb as f64 / 1_024.0)
     } else {
-        format!("{:.2} Kb", mem_kb)
+        format!("{:.2} KB", mem_kb)
     };
 
     Some((name?, ppid?, user?, mem_str))
@@ -183,11 +183,11 @@ fn get_process_start_time(pid: &str) -> Option<u64> {
 
 pub fn format_bytes(bytes: f64) -> String {
     if bytes > 1_024.0 * 1_024.0 * 1_024.0 {
-        format!("{:.2} Gb", bytes / 1_024.0 / 1_024.0 / 1_024.0)
+        format!("{:.2} GB", bytes / 1_024.0 / 1_024.0 / 1_024.0)
     } else if bytes > 1_024.0 * 1_024.0 {
-        format!("{:.2} Mb", bytes / 1_024.0 / 1_024.0)
+        format!("{:.2} MB", bytes / 1_024.0 / 1_024.0)
     } else if bytes > 1_024.0 {
-        format!("{:.2} Kb", bytes / 1_024.0)
+        format!("{:.2} KB", bytes / 1_024.0)
     } else {
         format!("{:.2} B", bytes)
     }
@@ -195,11 +195,11 @@ pub fn format_bytes(bytes: f64) -> String {
 
 pub fn format_bytes_per_sec(bytes: f64) -> String {
     if bytes >= 1_024.0 * 1_024.0 * 1_024.0 {
-        format!("{:.2} Gb/s", bytes / 1_024.0 / 1_024.0 / 1_024.0)
+        format!("{:.2} GB/s", bytes / 1_024.0 / 1_024.0 / 1_024.0)
     } else if bytes >= 1_024.0 * 1_024.0 {
-        format!("{:.2} Mb/s", bytes / 1_024.0 / 1_024.0)
+        format!("{:.2} MB/s", bytes / 1_024.0 / 1_024.0)
     } else if bytes >= 1_024.0 {
-        format!("{:.2} Kb/s", bytes / 1_024.0)
+        format!("{:.2} KB/s", bytes / 1_024.0)
     } else {
         format!("{:.2} B/s", bytes)
     }
@@ -852,6 +852,6 @@ VmRSS:\t2048 kB
         assert_eq!(parsed.0, "worker process");
         assert_eq!(parsed.1, "1");
         assert_eq!(parsed.2, "alice");
-        assert_eq!(parsed.3, "2.00 Mb");
+        assert_eq!(parsed.3, "2.00 MB");
     }
 }
