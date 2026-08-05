@@ -14,25 +14,25 @@ fn get_cpu_usage_percentage(state: &TotalCpuState) -> Option<u64> {
 }
 
 fn get_memory_usage_percentage() -> Option<u64> {
-    let mut total_memory = 0;
-    let mut used_memory = 0;
+    let mut total_kb: u64 = 0;
+    let mut available_kb: u64 = 0;
 
     if let Ok(meminfo) = fs::read_to_string("/proc/meminfo") {
         for line in meminfo.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
             if parts.len() >= 2 && parts[0] == "MemTotal:" {
-                if let Ok(mem_total) = parts[1].parse::<u64>() {
-                    total_memory = mem_total;
+                if let Ok(val) = parts[1].parse::<u64>() {
+                    total_kb = val;
                 }
             }
             if parts.len() >= 2 && parts[0] == "MemAvailable:" {
-                if let Ok(memory_used) = parts[1].parse::<u64>() {
-                    used_memory = memory_used;
+                if let Ok(val) = parts[1].parse::<u64>() {
+                    available_kb = val;
                 }
             }
         }
-        let used_memory = total_memory.checked_sub(used_memory)?;
-        return used_memory.checked_mul(100)?.checked_div(total_memory);
+        let used_kb = total_kb.checked_sub(available_kb)?;
+        return used_kb.checked_mul(100)?.checked_div(total_kb);
     }
     None
 }

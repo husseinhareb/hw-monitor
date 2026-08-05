@@ -229,7 +229,24 @@ fn parse_wireless_number(value: &str) -> Option<f64> {
     value.trim_end_matches('.').parse::<f64>().ok()
 }
 
-fn parse_wifi_signal_line(line: &str, interface: &str) -> Option<(Option<u8>, Option<i32>)> {
+/// The maximum link-quality value reported by the driver. `/proc/net/wireless`
+/// gives a raw quality number relative to this ceiling (70 in the legacy
+/// Wireless Extensions API, but modern drivers may define a different value).
+/// Read the per-interface ceiling from sysfs when available.
+fn wireless_quality_max(interface: &str) -> f64 {
+    read_trimmed(format!(
+        "{}/wireless/quality_max",
+        sysfs_interface_path(interface)
+    ))
+    .and_then(|s| s.parse::<f64>().ok())
+    .unwrap_or(70.0)
+}
+
+fn parse_wifi_signal_line(
+    line: &str,
+    interface: &str,
+    quality_max: f64,
+) -> Option<(Option<u8>, Option<i32>)> {
     let (name, stats) = line.split_once(':')?;
     if name.trim() != interface {
         return None;
@@ -241,7 +258,7 @@ fn parse_wifi_signal_line(line: &str, interface: &str) -> Option<(Option<u8>, Op
     }
 
     let quality = parse_wireless_number(fields[1])
-        .map(|value| ((value / 70.0) * 100.0).clamp(0.0, 100.0).round() as u8);
+        .map(|value| ((value / quality_max) * 100.0).clamp(0.0, 100.0).round() as u8);
     let dbm = parse_wireless_number(fields[2])
         .filter(|value| *value <= 0.0)
         .map(|value| value.round() as i32);
@@ -255,9 +272,11 @@ fn read_wifi_signal(interface: &str) -> (Option<u8>, Option<i32>) {
         Err(_) => return (None, None),
     };
 
+    let quality_max = wireless_quality_max(interface);
+
     content
         .lines()
-        .find_map(|line| parse_wifi_signal_line(line, interface))
+        .find_map(|line| parse_wifi_signal_line(line, interface, quality_max))
         .unwrap_or((None, None))
 }
 
@@ -405,9 +424,9 @@ mod tests {
     #[test]
     fn parses_wifi_signal_from_proc_net_wireless_line() {
         let line = "wlan0: 0000   49.  -61.  -256        0      0      0      0      0        0";
-        let (quality, dbm) = parse_wifi_signal_line(line, "wlan0").unwrap();
+        let (quality, dbm) = parse_wifi_signal_line(line, "wlan0", 70.0).unwrap();
         assert_eq!(quality, Some(70));
         assert_eq!(dbm, Some(-61));
-        assert!(parse_wifi_signal_line(line, "wlan1").is_none());
+        assert!(parse_wifi_signal_line(line, "wlan1", 70.0).is_none());
     }
 }
