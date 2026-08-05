@@ -84,12 +84,33 @@ fn get_static_cpu_info() -> Option<&'static StaticCpuInfo> {
 }
 
 /// Read L1/L2/L3 cache sizes from sysfs.
+///
+/// Iterates the cache topology of every online CPU. Per-core caches (L1 data,
+/// L2) are multiplied by the number of logical CPUs that have a private
+/// instance of that cache. Shared caches (L3 on most x86 processors) are
+/// counted once by deduplicating identical `shared_cpu_map` bitmasks.
 fn read_cache_sizes() -> (Option<String>, Option<String>, Option<String>) {
-    let mut l1: Option<u64> = None;
-    let mut l2: Option<u64> = None;
-    let mut l3: Option<u64> = None;
-    let base = std::path::Path::new("/sys/devices/system/cpu/cpu0/cache");
-    if let Ok(entries) = fs::read_dir(base) {
+    use std::collections::HashSet;
+
+    let mut l1_kb: u64 = 0;
+    let mut l2_kb: u64 = 0;
+    let mut l3_kb: u64 = 0;
+
+    // Deduplicate shared caches by the set of CPUs that share them.
+    let mut seen_l2 = HashSet::new();
+    let mut seen_l3 = HashSet::new();
+
+    // Walk every online CPU, not just cpu0, so that per-core totals are correct.
+    for cpu_entry in fs::read_dir("/sys/devices/system/cpu/").into_iter().flatten().flatten() {
+        let cpu_name = cpu_entry.file_name();
+        let cpu_name = cpu_name.to_string_lossy();
+        if !cpu_name.starts_with("cpu") || !cpu_name[3..].chars().all(|c| c.is_ascii_digit()) {
+            continue;
+        }
+
+        let cache_dir = cpu_entry.path().join("cache");
+        let Ok(entries) = fs::read_dir(&cache_dir) else { continue };
+
         for entry in entries.flatten() {
             let p = entry.path();
             let level = fs::read_to_string(p.join("level"))
@@ -103,20 +124,38 @@ fn read_cache_sizes() -> (Option<String>, Option<String>, Option<String>) {
             let cache_type = fs::read_to_string(p.join("type"))
                 .map(|s| s.trim().to_lowercase())
                 .unwrap_or_default();
+
+            // Read the CPU-sharing map to tell per-core from shared caches.
+            let shared_map = fs::read_to_string(p.join("shared_cpu_map"))
+                .ok()
+                .map(|s| s.trim().to_string())
+                .unwrap_or_default();
+
             match (level, size_kb) {
                 (Some(1), Some(kb)) if cache_type != "instruction" => {
-                    l1 = Some(l1.unwrap_or(0) + kb);
+                    // L1 data cache is always per-core — never deduplicated.
+                    // L1 instruction cache ("instruction" type) is excluded
+                    // intentionally: the UI labels this as "L1" but only the
+                    // data cache is meaningful for most monitoring use cases,
+                    // and summing L1i + L1d would mislead users into thinking
+                    // the total L1 is larger than it practically is.
+                    l1_kb += kb;
                 }
                 (Some(2), Some(kb)) => {
-                    l2 = Some(l2.unwrap_or(0) + kb);
+                    if seen_l2.insert(shared_map) {
+                        l2_kb += kb;
+                    }
                 }
                 (Some(3), Some(kb)) => {
-                    l3 = Some(l3.unwrap_or(0) + kb);
+                    if seen_l3.insert(shared_map) {
+                        l3_kb += kb;
+                    }
                 }
                 _ => {}
             }
         }
     }
+
     let fmt = |kb: u64| -> String {
         if kb >= 1024 {
             format!("{:.2} MiB", kb as f64 / 1024.0)
@@ -124,7 +163,11 @@ fn read_cache_sizes() -> (Option<String>, Option<String>, Option<String>) {
             format!("{} KiB", kb)
         }
     };
-    (l1.map(&fmt), l2.map(&fmt), l3.map(&fmt))
+    (
+        if l1_kb > 0 { Some(fmt(l1_kb)) } else { None },
+        if l2_kb > 0 { Some(fmt(l2_kb)) } else { None },
+        if l3_kb > 0 { Some(fmt(l3_kb)) } else { None },
+    )
 }
 
 /// Count live threads by summing task entries across /proc/*/task/.
@@ -208,16 +251,14 @@ pub fn parse_static_fields(
             }
         } else if line.starts_with("flags") {
             if virtualization.is_none() {
+                let flags: Vec<&str> = line.split_whitespace().skip(1).collect();
+                let has_virt = flags.contains(&"vmx") || flags.contains(&"svm");
                 virtualization = Some(
-                    if line.contains(" vmx ") || line.contains(" svm ") {
-                        "Enabled"
-                    } else {
-                        "Disabled"
-                    }
-                    .to_string(),
+                    if has_virt { "Enabled" } else { "Disabled" }.to_string(),
                 );
             }
-            if line.contains(" hypervisor ") {
+            let flags: Vec<&str> = line.split_whitespace().skip(1).collect();
+            if flags.contains(&"hypervisor") {
                 is_vm = true;
             }
         } else if line.starts_with("physical id") {
