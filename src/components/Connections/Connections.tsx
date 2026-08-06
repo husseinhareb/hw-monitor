@@ -11,6 +11,7 @@ import {
     ConnectionSortKey,
     compareConnections,
     connectionKey,
+    countryCodeToFlag,
     formatEndpoint,
     isWildcardEndpoint,
     matchesConnectionQuery,
@@ -186,7 +187,7 @@ const formatQueue = (bytes: number) => {
 const Connections: React.FC = () => {
     const { connections, loading, error } = useConnectionsData();
     const processConfig = useProcessConfig();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const [sortBy, setSortBy] = useState<ConnectionSortKey>("local_port");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -237,6 +238,21 @@ const Connections: React.FC = () => {
         }
         return processConfig.config.processes_services_inactive_color;
     };
+
+    // Memoised country-name resolver using the browser's built-in Intl API.
+    // Falls back to the country code itself when the region is unknown.
+    const countryDisplayName = useMemo(() => {
+        const lang = i18n.language.slice(0, 2);
+        const names = new Intl.DisplayNames([lang], { type: "region" });
+        return (code: string) => {
+            try {
+                const name = names.of(code);
+                return name ?? code;
+            } catch {
+                return code;
+            }
+        };
+    }, [i18n.language]);
 
     const visibleConnections = useMemo(() => {
         const query = deferredSearchQuery.trim().toLowerCase();
@@ -302,10 +318,32 @@ const Connections: React.FC = () => {
                         {connection.state}
                     </span>
                 );
-            case "remote_address":
-                return isWildcardEndpoint(connection.remote_address, connection.remote_port)
-                    ? "*"
-                    : connection.remote_address;
+            case "remote_address": {
+                if (isWildcardEndpoint(connection.remote_address, connection.remote_port)) {
+                    return "*";
+                }
+                const flag =
+                    connection.remote_country_code
+                        ? countryCodeToFlag(connection.remote_country_code)
+                        : null;
+                const label =
+                    connection.remote_country_code
+                        ? countryDisplayName(connection.remote_country_code)
+                        : undefined;
+                return (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        {flag && (
+                            <span
+                                title={label}
+                                style={{ fontSize: 14, lineHeight: 1, cursor: "default" }}
+                            >
+                                {flag}
+                            </span>
+                        )}
+                        {connection.remote_address}
+                    </span>
+                );
+            }
             case "remote_port":
                 return isWildcardEndpoint(connection.remote_address, connection.remote_port)
                     ? "*"

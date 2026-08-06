@@ -23,6 +23,7 @@ const connection = (overrides: Partial<Connection> = {}): Connection => ({
   user: "alice",
   pid: 368,
   process_name: "node",
+  remote_country_code: null,
   ...overrides,
 });
 

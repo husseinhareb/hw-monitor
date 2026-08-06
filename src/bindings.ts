@@ -209,6 +209,7 @@ export interface Connection {
   user: string | null;
   pid: number | null;
   process_name: string | null;
+  remote_country_code: string | null;
 }
 
 export interface SystemService {

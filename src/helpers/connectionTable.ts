@@ -1,5 +1,16 @@
 import type { Connection } from "../bindings";
 
+/**
+ * Converts an ISO 3166-1 alpha-2 country code to a flag emoji.
+ * Each letter is offset into the Regional Indicator Symbol range
+ * (U+1F1E6 – U+1F1FF), so "US" → 🇺🇸, "DE" → 🇩🇪, etc.
+ */
+export function countryCodeToFlag(code: string): string {
+  return String.fromCodePoint(
+    ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+  );
+}
+
 export type ConnectionSortKey = keyof Connection;
 
 /**

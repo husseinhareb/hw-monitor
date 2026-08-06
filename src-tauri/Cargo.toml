@@ -27,3 +27,4 @@ serde = { version = "1", features = ["derive"] }
 libc = "0.2"
 base64 = "0.22"
 nvml-wrapper = "0.10.0"
+maxminddb = "0.30"

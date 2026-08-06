@@ -4,6 +4,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::path::Path;
+use std::sync::Mutex;
+use std::sync::OnceLock;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct Connection {
@@ -20,6 +22,121 @@ pub struct Connection {
     pub user: Option<String>,
     pub pid: Option<u32>,
     pub process_name: Option<String>,
+    /// ISO 3166-1 alpha-2 country code resolved from the remote IP address via
+    /// a local MaxMind GeoLite2 database.  `None` when the database is absent,
+    /// the address is private / reserved, or the lookup produces no match.
+    pub remote_country_code: Option<String>,
+}
+
+// ── GeoIP reader (lazy, reload-safe) ─────────────────────────────────
+
+static GEOIP_READER: OnceLock<Mutex<Option<maxminddb::Reader<Vec<u8>>>>> = OnceLock::new();
+
+/// Returns a shared reference to the GeoIP reader, initialising it on first
+/// call.  The reader is opened once and then reused across polls.
+fn geoip_reader() -> &'static Mutex<Option<maxminddb::Reader<Vec<u8>>>> {
+    GEOIP_READER.get_or_init(|| {
+        let reader = init_geoip_reader();
+        Mutex::new(reader)
+    })
+}
+
+fn init_geoip_reader() -> Option<maxminddb::Reader<Vec<u8>>> {
+    // Common locations for the GeoLite2 Country database.
+    let candidates: &[&str] = &[
+        "/usr/share/GeoIP/GeoLite2-Country.mmdb",
+        "/var/lib/GeoIP/GeoLite2-Country.mmdb",
+        "./GeoLite2-Country.mmdb",
+    ];
+
+    // Honour an explicit override through the environment.
+    if let Ok(path) = std::env::var("GEOIP_DB_PATH") {
+        return maxminddb::Reader::open_readfile(path).ok();
+    }
+
+    for path in candidates {
+        if let Ok(reader) = maxminddb::Reader::open_readfile(path) {
+            return Some(reader);
+        }
+    }
+
+    None
+}
+
+/// Returns `true` when an IP address belongs to a private, loopback,
+/// link-local, multicast, or otherwise reserved range whose geographic
+/// location is meaningless.
+fn is_private_or_reserved(ip: &IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(v4) => {
+            let octets = v4.octets();
+            // 0.0.0.0/8, 127.0.0.0/8, 10.0.0.0/8
+            if octets[0] == 0 || octets[0] == 127 || octets[0] == 10 {
+                return true;
+            }
+            // 172.16.0.0/12
+            if octets[0] == 172 && octets[1] >= 16 && octets[1] <= 31 {
+                return true;
+            }
+            // 192.168.0.0/16
+            if octets[0] == 192 && octets[1] == 168 {
+                return true;
+            }
+            // 169.254.0.0/16 (link-local)
+            if octets[0] == 169 && octets[1] == 254 {
+                return true;
+            }
+            // 224.0.0.0/4 (multicast), 240.0.0.0/4 (reserved)
+            if octets[0] >= 224 {
+                return true;
+            }
+            false
+        }
+        IpAddr::V6(v6) => {
+            // :: (unspecified), ::1 (loopback)
+            if v6.is_unspecified() || v6.is_loopback() {
+                return true;
+            }
+            let segments = v6.segments();
+            // fe80::/10 (link-local)
+            if segments[0] & 0xFFC0 == 0xFE80 {
+                return true;
+            }
+            // fc00::/7 (unique-local)
+            if segments[0] & 0xFE00 == 0xFC00 {
+                return true;
+            }
+            // ff00::/8 (multicast)
+            if segments[0] & 0xFF00 == 0xFF00 {
+                return true;
+            }
+            false
+        }
+    }
+}
+
+/// Looks up the ISO 3166-1 alpha-2 country code for an IP address string.
+/// Returns `None` for private / reserved addresses, unparseable strings,
+/// or when the GeoIP database is not available.
+fn lookup_country_code(ip_str: &str) -> Option<String> {
+    let ip: IpAddr = ip_str.parse().ok()?;
+    if is_private_or_reserved(&ip) {
+        return None;
+    }
+
+    let guard = geoip_reader().lock().ok()?;
+    let reader = guard.as_ref()?;
+
+    // Look up the IP and extract the country ISO code.  We decode just the
+    // path we need so the lookup stays cheap and we don't allocate the full
+    // Country record.
+    use maxminddb::PathElement;
+    let result: maxminddb::LookupResult<_> = reader.lookup(ip).ok()?;
+    let iso_code: Option<&str> = result
+        .decode_path(&[PathElement::Key("country"), PathElement::Key("iso_code")])
+        .ok()
+        .flatten();
+    iso_code.map(|s| s.to_string())
 }
 
 struct NetTable {
@@ -294,6 +411,7 @@ fn collect_table(
             user: uid_map.get(&row.uid).cloned(),
             pid: owner.map(|owner| owner.pid),
             process_name: owner.and_then(|owner| owner.name.clone()),
+            remote_country_code: lookup_country_code(&row.remote.0.to_string()),
         });
     }
 }
@@ -550,6 +668,7 @@ mod tests {
                 user: Some("alice".to_string()),
                 pid: Some(368),
                 process_name: Some("MainThread".to_string()),
+                remote_country_code: None,
             }
         );
 
