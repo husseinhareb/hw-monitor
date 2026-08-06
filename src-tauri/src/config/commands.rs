@@ -221,6 +221,13 @@ define_config! {
     connections_head_background_color: String = "#252526".into(),
     connections_head_color: String = "#ffffff".into(),
     connections_border_color: String = "#333333".into(),
+    system_info_update_time: u32 = 5000,
+    system_info_background_color: String = "#2b2b2b".into(),
+    system_info_boxes_background_color: String = "#3a3a3a".into(),
+    system_info_title_color: String = "#ffffff".into(),
+    system_info_label_color: String = "#6d6d6d".into(),
+    system_info_value_color: String = "#ffffff".into(),
+    system_info_border_color: String = "#444444".into(),
     language: String = "en".into(),
     show_virtual_interfaces: bool = false,
 }
@@ -284,6 +291,10 @@ impl ConfigData {
         }
         if self.disks_update_time < MIN_UPDATE_INTERVAL_MS {
             self.disks_update_time = MIN_UPDATE_INTERVAL_MS;
+            changed = true;
+        }
+        if self.system_info_update_time < MIN_UPDATE_INTERVAL_MS {
+            self.system_info_update_time = MIN_UPDATE_INTERVAL_MS;
             changed = true;
         }
 
@@ -496,6 +507,19 @@ set_config_command!(
         connections_head_background_color: String,
         connections_head_color: String,
         connections_border_color: String,
+    }
+);
+
+set_config_command!(
+    set_system_info_configs,
+    SystemInfoConfig {
+        system_info_update_time: u32,
+        system_info_background_color: String,
+        system_info_boxes_background_color: String,
+        system_info_title_color: String,
+        system_info_label_color: String,
+        system_info_value_color: String,
+        system_info_border_color: String,
     }
 );
 

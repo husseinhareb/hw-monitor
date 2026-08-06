@@ -11,6 +11,7 @@ import HeatbarConfig from "./HeatbarConfig";
 import ConfigPanelConfigSection from "./ConfigPanelConfig";
 import ServicesConfig from "./ServicesConfig";
 import ConnectionsConfig from "./ConnectionsConfig";
+import SystemInfoConfig from "./SystemInfoConfig";
 import { themes } from "./themes";
 import {
   ConfigPage,
@@ -39,6 +40,7 @@ type SectionKey =
   | "navbar"
   | "services"
   | "connections"
+  | "systeminfo"
   | "configpanel";
 
 const sections: { key: SectionKey; labelKey: string }[] = [
@@ -50,6 +52,7 @@ const sections: { key: SectionKey; labelKey: string }[] = [
   { key: "navbar",      labelKey: "navbar_config.title" },
   { key: "services",    labelKey: "services_config.title" },
   { key: "connections", labelKey: "connections_config.title" },
+  { key: "systeminfo", labelKey: "system_info_config.title" },
   { key: "configpanel", labelKey: "config_panel_config.title" },
 ];
 
@@ -150,6 +153,7 @@ const Config: React.FC = () => {
       case "navbar":      return <NavbarConfig theme={theme} />;
       case "services":    return <ServicesConfig theme={theme} />;
       case "connections": return <ConnectionsConfig theme={theme} />;
+      case "systeminfo": return <SystemInfoConfig theme={theme} />;
       case "configpanel": return <ConfigPanelConfigSection theme={theme} />;
     }
   };

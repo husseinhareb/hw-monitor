@@ -4,7 +4,7 @@ import { GiProcessor } from "react-icons/gi";
 import { MdSpeed } from "react-icons/md";
 import { FaFloppyDisk, FaNetworkWired, FaTemperatureHalf } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
-import { LuSettings2 } from "react-icons/lu";
+import { LuSettings2, LuInfo } from "react-icons/lu";
 import { VscServerProcess } from "react-icons/vsc";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
 import Spinner from "../Misc/Spinner";
@@ -12,7 +12,7 @@ import { useSetProcessSearch, useProcessSearch } from "../../services/store";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 import { useTranslation } from "react-i18next";
 
-type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Services" | "Connections" | "Config";
+type ComponentName = "Proc" | "Performance" | "Sensors" | "Disks" | "Services" | "Connections" | "SystemInfo" | "Config";
 
 type ZeroPropsComponent = React.LazyExoticComponent<React.ComponentType<Record<string, never>>>;
 
@@ -23,6 +23,7 @@ const componentMap: Record<ComponentName, ZeroPropsComponent> = {
     Disks: lazy(() => import("../Disks/Disks")),
     Services: lazy(() => import("../Services/Services")),
     Connections: lazy(() => import("../Connections/Connections")),
+    SystemInfo: lazy(() => import("../SystemInfo/SystemInfo")),
     Config: lazy(() => import("../Config/Config")),
 };
 
@@ -91,6 +92,9 @@ const Navbar: React.FC = () => {
                         break;
                     case '6':
                         setActiveComponent("Connections");
+                        break;
+                    case '7':
+                        setActiveComponent("SystemInfo");
                         break;
                     default:
                         break;
@@ -181,6 +185,15 @@ const Navbar: React.FC = () => {
                             onClick={() => handleButtonClick("Connections")} active={activeComponent === "Connections"}
                         >
                             <FaNetworkWired /> {t('navbar.connections')}
+                        </StyledButton>
+                    </li>
+                    <li>
+                        <StyledButton
+                            navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
+                            navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
+                            onClick={() => handleButtonClick("SystemInfo")} active={activeComponent === "SystemInfo"}
+                        >
+                            <LuInfo /> {t('navbar.system_info')}
                         </StyledButton>
                     </li>
                 </StyledUl>

@@ -12,6 +12,7 @@ mod proc_icon;
 mod sensors;
 mod services;
 mod smart;
+mod system_info;
 mod total_usages;
 
 use std::sync::{
@@ -167,6 +168,7 @@ fn main() {
             config::set_config_panel_configs,
             config::set_services_configs,
             config::set_connections_configs,
+            config::set_system_info_configs,
             config::set_language_config,
             gpu::get_gpu_informations,
             proc_icon::get_process_icon,
@@ -179,6 +181,7 @@ fn main() {
             services::disable_service,
             smart::get_smart_data,
             connections::get_connections,
+            system_info::get_system_info,
             restart_app,
         ])
         //.plugin(devtools)

@@ -100,6 +100,13 @@ export interface ConfigData {
   connections_head_background_color: string;
   connections_head_color: string;
   connections_border_color: string;
+  system_info_update_time: number;
+  system_info_background_color: string;
+  system_info_boxes_background_color: string;
+  system_info_title_color: string;
+  system_info_label_color: string;
+  system_info_value_color: string;
+  system_info_border_color: string;
   language: string;
   show_virtual_interfaces: boolean;
 }
@@ -409,6 +416,30 @@ export interface TotalUsage {
   memory: number | null;
   cpu: number | null;
   processes: number | null;
+}
+
+export interface SystemInfo {
+  os_name: string | null;
+  os_version: string | null;
+  os_codename: string | null;
+  os_arch: string | null;
+  desktop_env: string | null;
+  session_type: string | null;
+  kernel_version: string | null;
+  hostname: string | null;
+  chassis_type: string | null;
+  board_vendor: string | null;
+  board_name: string | null;
+  product_name: string | null;
+  product_version: string | null;
+  bios_vendor: string | null;
+  bios_version: string | null;
+  uptime: string | null;
+  boot_time_epoch: number | null;
+  current_user: string | null;
+  default_shell: string | null;
+  package_counts: string | null;
+  locale: string | null;
 }
 
 export type SmartData = ({ type: "Ata" } & AtaSmartData) | ({ type: "Nvme" } & NvmeSmartData);

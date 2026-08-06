@@ -29,6 +29,7 @@ const structSources = [
   ["SensorData", "src-tauri/src/sensors/commands.rs"],
   ["HwMonData", "src-tauri/src/sensors/commands.rs"],
   ["TotalUsage", "src-tauri/src/total_usages/commands.rs"],
+  ["SystemInfo", "src-tauri/src/system_info/commands.rs"],
 ];
 
 const aliases = [

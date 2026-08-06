@@ -103,6 +103,13 @@ export const defaultConfig: ConfigData = {
   connections_head_background_color: "#252526",
   connections_head_color: "#ffffff",
   connections_border_color: "#333333",
+  system_info_update_time: 5000,
+  system_info_background_color: "#2b2b2b",
+  system_info_boxes_background_color: "#3a3a3a",
+  system_info_title_color: "#ffffff",
+  system_info_label_color: "#6d6d6d",
+  system_info_value_color: "#ffffff",
+  system_info_border_color: "#444444",
   language: "en",
   show_virtual_interfaces: false,
 };
