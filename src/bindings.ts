@@ -82,6 +82,24 @@ export interface ConfigData {
   config_button_background_color: string;
   config_button_foreground_color: string;
   config_text_color: string;
+  services_update_time: number;
+  services_background_color: string;
+  services_body_background_color: string;
+  services_body_color: string;
+  services_head_background_color: string;
+  services_head_color: string;
+  services_border_color: string;
+  services_active_color: string;
+  services_inactive_color: string;
+  services_failed_color: string;
+  services_transitioning_color: string;
+  connections_update_time: number;
+  connections_background_color: string;
+  connections_body_background_color: string;
+  connections_body_color: string;
+  connections_head_background_color: string;
+  connections_head_color: string;
+  connections_border_color: string;
   language: string;
   show_virtual_interfaces: boolean;
 }

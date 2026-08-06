@@ -166,7 +166,14 @@ const canRunAction = (service: SystemService, action: ServiceAction): boolean =>
     }
 };
 
-const activeColor = (state: string, cfg: typeof servicesConfig.config): string => {
+interface ServiceStatusColors {
+    services_active_color: string;
+    services_inactive_color: string;
+    services_failed_color: string;
+    services_transitioning_color: string;
+}
+
+const activeColor = (state: string, cfg: ServiceStatusColors): string => {
     switch (state) {
         case "active": return cfg.services_active_color;
         case "inactive": return cfg.services_inactive_color;

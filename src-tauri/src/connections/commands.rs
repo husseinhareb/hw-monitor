@@ -782,6 +782,38 @@ mod tests {
     }
 
     #[test]
+    fn geoip_lookup_resolves_a_public_ip() {
+        // Google DNS — should always resolve to "US".
+        let ip: std::net::IpAddr = "8.8.8.8".parse().unwrap();
+        assert!(!super::is_private_or_reserved(&ip));
+        let country = super::geoip_reader().lookup_country(ip);
+        assert_eq!(country.as_deref(), Some("US"));
+    }
+
+    #[test]
+    fn geoip_filters_private_addresses() {
+        assert!(super::is_private_or_reserved(
+            &"127.0.0.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        assert!(super::is_private_or_reserved(
+            &"192.168.1.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        assert!(super::is_private_or_reserved(
+            &"10.0.0.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        assert!(super::is_private_or_reserved(
+            &"172.16.0.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+    }
+
+    #[test]
+    fn lookup_country_code_returns_none_for_private_ips() {
+        assert_eq!(super::lookup_country_code("127.0.0.1"), None);
+        assert_eq!(super::lookup_country_code("192.168.1.1"), None);
+        assert_eq!(super::lookup_country_code("::1"), None);
+    }
+
+    #[test]
     fn lists_live_connections_in_the_documented_order() {
         let connections = list_connections().expect("/proc/net tables should be readable");
 
