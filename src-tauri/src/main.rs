@@ -165,6 +165,8 @@ fn main() {
             config::set_disks_configs,
             config::set_navbar_configs,
             config::set_config_panel_configs,
+            config::set_services_configs,
+            config::set_connections_configs,
             config::set_language_config,
             gpu::get_gpu_informations,
             proc_icon::get_process_icon,

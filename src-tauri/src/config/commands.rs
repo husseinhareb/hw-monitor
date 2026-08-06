@@ -203,6 +203,24 @@ define_config! {
     config_button_background_color: String = "#f3eae8".into(),
     config_button_foreground_color: String = "#212830".into(),
     config_text_color: String = "#ffffff".into(),
+    services_update_time: u32 = 2000,
+    services_background_color: String = "#2b2b2b".into(),
+    services_body_background_color: String = "#2d2d2d".into(),
+    services_body_color: String = "#ffffff".into(),
+    services_head_background_color: String = "#252526".into(),
+    services_head_color: String = "#ffffff".into(),
+    services_border_color: String = "#333333".into(),
+    services_active_color: String = "#4ec94e".into(),
+    services_inactive_color: String = "#888888".into(),
+    services_failed_color: String = "#ee5555".into(),
+    services_transitioning_color: String = "#e5c245".into(),
+    connections_update_time: u32 = 3000,
+    connections_background_color: String = "#2b2b2b".into(),
+    connections_body_background_color: String = "#2d2d2d".into(),
+    connections_body_color: String = "#ffffff".into(),
+    connections_head_background_color: String = "#252526".into(),
+    connections_head_color: String = "#ffffff".into(),
+    connections_border_color: String = "#333333".into(),
     language: String = "en".into(),
     show_virtual_interfaces: bool = false,
 }
@@ -448,6 +466,36 @@ set_config_command!(
         disks_smart_ok_color: String,
         disks_smart_fail_color: String,
         disks_smart_warning_color: String,
+    }
+);
+
+set_config_command!(
+    set_services_configs,
+    ServicesConfig {
+        services_update_time: u32,
+        services_background_color: String,
+        services_body_background_color: String,
+        services_body_color: String,
+        services_head_background_color: String,
+        services_head_color: String,
+        services_border_color: String,
+        services_active_color: String,
+        services_inactive_color: String,
+        services_failed_color: String,
+        services_transitioning_color: String,
+    }
+);
+
+set_config_command!(
+    set_connections_configs,
+    ConnectionsConfig {
+        connections_update_time: u32,
+        connections_background_color: String,
+        connections_body_background_color: String,
+        connections_body_color: String,
+        connections_head_background_color: String,
+        connections_head_color: String,
+        connections_border_color: String,
     }
 );
 

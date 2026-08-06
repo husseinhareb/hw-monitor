@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import useConnectionsData, { Connection } from "../../hooks/Connections/useConnectionsData";
+import useConnectionsConfig from "../../hooks/Connections/useConnectionsConfig";
 import useProcessConfig from "../../hooks/Proc/useProcessConfig";
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar } from "../../styles/proc-style";
 import { safeLighten } from "../../utils/safeLighten";
@@ -186,6 +187,7 @@ const formatQueue = (bytes: number) => {
 
 const Connections: React.FC = () => {
     const { connections, loading, error } = useConnectionsData();
+    const connectionsConfig = useConnectionsConfig();
     const processConfig = useProcessConfig();
     const { t, i18n } = useTranslation();
 
@@ -360,11 +362,11 @@ const Connections: React.FC = () => {
     };
 
     const colCount = columns.length;
-    const bodyBackground = processConfig.config.processes_body_background_color;
-    const bodyColor = processConfig.config.processes_body_color;
-    const headBackground = processConfig.config.processes_head_background_color;
-    const headColor = processConfig.config.processes_head_color;
-    const borderColor = processConfig.config.processes_border_color;
+    const bodyBackground = connectionsConfig.config.connections_body_background_color;
+    const bodyColor = connectionsConfig.config.connections_body_color;
+    const headBackground = connectionsConfig.config.connections_head_background_color;
+    const headColor = connectionsConfig.config.connections_head_color;
+    const borderColor = connectionsConfig.config.connections_border_color;
 
     return (
         <TableContainer style={{

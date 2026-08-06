@@ -1,7 +1,7 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import useServicesData, { SystemService } from "../../hooks/Services/useServicesData";
-import useProcessConfig from "../../hooks/Proc/useProcessConfig";
+import useServicesConfig from "../../hooks/Services/useServicesConfig";
 import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from "../../styles/proc-style";
 import { safeLighten } from '../../utils/safeLighten';
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
@@ -166,20 +166,20 @@ const canRunAction = (service: SystemService, action: ServiceAction): boolean =>
     }
 };
 
-const activeColor = (state: string): string => {
+const activeColor = (state: string, cfg: typeof servicesConfig.config): string => {
     switch (state) {
-        case "active": return "#4ec94e";
-        case "inactive": return "#888888";
-        case "failed": return "#e55";
+        case "active": return cfg.services_active_color;
+        case "inactive": return cfg.services_inactive_color;
+        case "failed": return cfg.services_failed_color;
         case "activating":
-        case "deactivating": return "#e5c245";
-        default: return "#888888";
+        case "deactivating": return cfg.services_transitioning_color;
+        default: return cfg.services_inactive_color;
     }
 };
 
 const Services: React.FC = () => {
     const { services, loading, error, refetch } = useServicesData();
-    const processConfig = useProcessConfig();
+    const servicesConfig = useServicesConfig();
     const { t } = useTranslation();
 
     const [sortBy, setSortBy] = useState<keyof SystemService>("name");
@@ -293,9 +293,9 @@ const Services: React.FC = () => {
 
     return (
         <TableContainer style={{
-            backgroundColor: processConfig.config.processes_body_background_color,
+            backgroundColor: servicesConfig.config.services_body_background_color,
             minHeight: "100vh",
-            color: processConfig.config.processes_body_color,
+            color: servicesConfig.config.services_body_color,
             position: "relative",
             paddingBottom: hasSelection ? "calc(38vh + 50px)" : undefined,
         }}>
@@ -309,7 +309,7 @@ const Services: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         padding: "4px 8px",
-                        backgroundColor: processConfig.config.processes_head_background_color,
+                        backgroundColor: servicesConfig.config.services_head_background_color,
                         gap: "8px",
                     }}>
                         <input
@@ -318,9 +318,9 @@ const Services: React.FC = () => {
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             style={{
-                                background: processConfig.config.processes_body_background_color,
-                                color: processConfig.config.processes_body_color,
-                                border: `1px solid ${processConfig.config.processes_border_color}`,
+                                background: servicesConfig.config.services_body_background_color,
+                                color: servicesConfig.config.services_body_color,
+                                border: `1px solid ${servicesConfig.config.services_border_color}`,
                                 padding: "3px 8px",
                                 fontSize: "12px",
                                 outline: "none",
@@ -332,23 +332,23 @@ const Services: React.FC = () => {
                         </span>
                     </div>
                     <Table
-                        bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                        bodyColor={processConfig.config.processes_body_color}
-                        headBackgroundColor={processConfig.config.processes_head_background_color}
-                        headColor={processConfig.config.processes_head_color}
+                        bodyBackgroundColor={servicesConfig.config.services_body_background_color}
+                        bodyColor={servicesConfig.config.services_body_color}
+                        headBackgroundColor={servicesConfig.config.services_head_background_color}
+                        headColor={servicesConfig.config.services_head_color}
                     >
                         <Thead
-                            headBackgroundColor={processConfig.config.processes_head_background_color}
-                            headColor={processConfig.config.processes_head_color}
+                            headBackgroundColor={servicesConfig.config.services_head_background_color}
+                            headColor={servicesConfig.config.services_head_color}
                         >
                             <Tr>
                                 {columns.map(col => (
                                     <Th
                                         key={col.key}
                                         onClick={() => sortColumn(col.key)}
-                                        headBackgroundColor={processConfig.config.processes_head_background_color}
-                                        headColor={processConfig.config.processes_head_color}
-                                        borderColor={processConfig.config.processes_border_color}
+                                        headBackgroundColor={servicesConfig.config.services_head_background_color}
+                                        headColor={servicesConfig.config.services_head_color}
+                                        borderColor={servicesConfig.config.services_border_color}
                                         columnCount={colCount}
                                     >
                                         <div className="header-label">
@@ -360,31 +360,31 @@ const Services: React.FC = () => {
                             </Tr>
                         </Thead>
                         <Tbody
-                            bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                            bodyColor={processConfig.config.processes_body_color}
+                            bodyBackgroundColor={servicesConfig.config.services_body_background_color}
+                            bodyColor={servicesConfig.config.services_body_color}
                         >
                             {filteredServices.map(svc => (
                                 <Tr
                                     key={svc.name}
                                     onClick={() => setSelectedName(prev => prev === svc.name ? null : svc.name)}
-                                    bodyBackgroundColor={processConfig.config.processes_body_background_color}
+                                    bodyBackgroundColor={servicesConfig.config.services_body_background_color}
                                     style={{
                                         backgroundColor: selectedName === svc.name
-                                            ? safeLighten(0.15, processConfig.config.processes_body_background_color)
+                                            ? safeLighten(0.15, servicesConfig.config.services_body_background_color)
                                             : "transparent",
                                     }}
                                 >
                                     {columns.map(col => (
                                         <Td
                                             key={`${svc.name}-${col.key}`}
-                                            bodyBackgroundColor={processConfig.config.processes_body_background_color}
-                                            bodyColor={processConfig.config.processes_body_color}
-                                            borderColor={processConfig.config.processes_border_color}
+                                            bodyBackgroundColor={servicesConfig.config.services_body_background_color}
+                                            bodyColor={servicesConfig.config.services_body_color}
+                                            borderColor={servicesConfig.config.services_border_color}
                                             columnCount={colCount}
                                         >
                                             {col.key === "active_state" ? (
                                                 <span style={{ display: "inline-flex", alignItems: "center" }}>
-                                                    <StatusDot color={activeColor(svc.active_state)} />
+                                                    <StatusDot color={activeColor(svc.active_state, servicesConfig.config)} />
                                                     {svc.active_state}
                                                 </span>
                                             ) : (
@@ -400,22 +400,22 @@ const Services: React.FC = () => {
             )}
             {selectedService && (
                 <DetailsPanel
-                    bg={processConfig.config.processes_body_background_color}
-                    fg={processConfig.config.processes_body_color}
-                    border={processConfig.config.processes_border_color}
+                    bg={servicesConfig.config.services_body_background_color}
+                    fg={servicesConfig.config.services_body_color}
+                    border={servicesConfig.config.services_border_color}
                 >
                     <DetailsHeader
-                        bg={processConfig.config.processes_head_background_color}
-                        border={processConfig.config.processes_border_color}
+                        bg={servicesConfig.config.services_head_background_color}
+                        border={servicesConfig.config.services_border_color}
                     >
                         <DetailsTitle>{t("services.details_title")}: {selectedService.name}</DetailsTitle>
                         <span style={{ fontSize: "12px", opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {selectedService.description}
                         </span>
                         <DetailsButton
-                            bg={processConfig.config.processes_body_background_color}
-                            fg={processConfig.config.processes_body_color}
-                            border={processConfig.config.processes_border_color}
+                            bg={servicesConfig.config.services_body_background_color}
+                            fg={servicesConfig.config.services_body_color}
+                            border={servicesConfig.config.services_border_color}
                             onClick={() => fetchServiceDetails(selectedService.name)}
                             disabled={serviceDetails.loading}
                             style={{ marginLeft: "auto" }}
@@ -423,24 +423,24 @@ const Services: React.FC = () => {
                             {serviceDetails.loading ? "..." : t("services.refresh_details")}
                         </DetailsButton>
                     </DetailsHeader>
-                    <DetailsSummary border={processConfig.config.processes_border_color}>
-                        <SummaryItem border={processConfig.config.processes_border_color}>
+                    <DetailsSummary border={servicesConfig.config.services_border_color}>
+                        <SummaryItem border={servicesConfig.config.services_border_color}>
                             <SummaryLabel>{t("services.col_load")}</SummaryLabel>
                             <SummaryValue>{selectedService.load_state}</SummaryValue>
                         </SummaryItem>
-                        <SummaryItem border={processConfig.config.processes_border_color}>
+                        <SummaryItem border={servicesConfig.config.services_border_color}>
                             <SummaryLabel>{t("services.col_active")}</SummaryLabel>
                             <SummaryValue>{selectedService.active_state}</SummaryValue>
                         </SummaryItem>
-                        <SummaryItem border={processConfig.config.processes_border_color}>
+                        <SummaryItem border={servicesConfig.config.services_border_color}>
                             <SummaryLabel>{t("services.col_sub")}</SummaryLabel>
                             <SummaryValue>{selectedService.sub_state}</SummaryValue>
                         </SummaryItem>
-                        <SummaryItem border={processConfig.config.processes_border_color}>
+                        <SummaryItem border={servicesConfig.config.services_border_color}>
                             <SummaryLabel>{t("services.col_enabled")}</SummaryLabel>
                             <SummaryValue>{selectedService.unit_file_state}</SummaryValue>
                         </SummaryItem>
-                        <SummaryItem border={processConfig.config.processes_border_color}>
+                        <SummaryItem border={servicesConfig.config.services_border_color}>
                             <SummaryLabel>{t("services.unit_file")}</SummaryLabel>
                             <SummaryValue title={serviceDetails.data?.unit_file_path ?? undefined}>
                                 {serviceDetails.data?.unit_file_path ?? t("services.no_unit_file")}
@@ -448,8 +448,8 @@ const Services: React.FC = () => {
                         </SummaryItem>
                     </DetailsSummary>
                     <DetailsContent>
-                        <DetailsSection border={processConfig.config.processes_border_color}>
-                            <DetailsSectionTitle border={processConfig.config.processes_border_color}>
+                        <DetailsSection border={servicesConfig.config.services_border_color}>
+                            <DetailsSectionTitle border={servicesConfig.config.services_border_color}>
                                 {t("services.status")}
                             </DetailsSectionTitle>
                             <DetailsPre>
@@ -460,8 +460,8 @@ const Services: React.FC = () => {
                                         : serviceDetails.data?.status || t("services.no_details")}
                             </DetailsPre>
                         </DetailsSection>
-                        <DetailsSection border={processConfig.config.processes_border_color}>
-                            <DetailsSectionTitle border={processConfig.config.processes_border_color}>
+                        <DetailsSection border={servicesConfig.config.services_border_color}>
+                            <DetailsSectionTitle border={servicesConfig.config.services_border_color}>
                                 {t("services.logs")}
                             </DetailsSectionTitle>
                             <DetailsPre>
@@ -476,7 +476,7 @@ const Services: React.FC = () => {
                 </DetailsPanel>
             )}
             {hasSelection && (
-                <BottomBar bottomBarBackgroundColor={processConfig.config.processes_head_background_color}>
+                <BottomBar bottomBarBackgroundColor={servicesConfig.config.services_head_background_color}>
                     <span style={{ fontSize: "12px", marginRight: "auto", paddingLeft: "8px" }}>
                         {selectedName}
                     </span>
@@ -484,32 +484,32 @@ const Services: React.FC = () => {
                         <span style={{ color: "#e55", fontSize: "11px" }}>{actionError}</span>
                     )}
                     <KillButton
-                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
-                        killButtonColor={processConfig.config.processes_body_color}
+                        killButtonBackgroundColor={servicesConfig.config.services_body_background_color}
+                        killButtonColor={servicesConfig.config.services_body_color}
                         onClick={() => handleAction("start")}
                         disabled={actionPending !== null || !actionEnabled("start")}
                     >{actionPending === "start" ? "…" : t("services.start")}</KillButton>
                     <KillButton
-                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
-                        killButtonColor={processConfig.config.processes_body_color}
+                        killButtonBackgroundColor={servicesConfig.config.services_body_background_color}
+                        killButtonColor={servicesConfig.config.services_body_color}
                         onClick={() => handleAction("stop")}
                         disabled={actionPending !== null || !actionEnabled("stop")}
                     >{actionPending === "stop" ? "…" : t("services.stop")}</KillButton>
                     <KillButton
-                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
-                        killButtonColor={processConfig.config.processes_body_color}
+                        killButtonBackgroundColor={servicesConfig.config.services_body_background_color}
+                        killButtonColor={servicesConfig.config.services_body_color}
                         onClick={() => handleAction("restart")}
                         disabled={actionPending !== null || !actionEnabled("restart")}
                     >{actionPending === "restart" ? "…" : t("services.restart")}</KillButton>
                     <KillButton
-                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
-                        killButtonColor={processConfig.config.processes_body_color}
+                        killButtonBackgroundColor={servicesConfig.config.services_body_background_color}
+                        killButtonColor={servicesConfig.config.services_body_color}
                         onClick={() => handleAction("enable")}
                         disabled={actionPending !== null || !actionEnabled("enable")}
                     >{actionPending === "enable" ? "…" : t("services.enable_startup")}</KillButton>
                     <KillButton
-                        killButtonBackgroundColor={processConfig.config.processes_body_background_color}
-                        killButtonColor={processConfig.config.processes_body_color}
+                        killButtonBackgroundColor={servicesConfig.config.services_body_background_color}
+                        killButtonColor={servicesConfig.config.services_body_color}
                         onClick={() => handleAction("disable")}
                         disabled={actionPending !== null || !actionEnabled("disable")}
                     >{actionPending === "disable" ? "…" : t("services.disable_startup")}</KillButton>
