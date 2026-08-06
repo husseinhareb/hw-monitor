@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::path::Path;
-use std::sync::Mutex;
 use std::sync::OnceLock;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -22,45 +21,81 @@ pub struct Connection {
     pub user: Option<String>,
     pub pid: Option<u32>,
     pub process_name: Option<String>,
-    /// ISO 3166-1 alpha-2 country code resolved from the remote IP address via
-    /// a local MaxMind GeoLite2 database.  `None` when the database is absent,
-    /// the address is private / reserved, or the lookup produces no match.
+    /// ISO 3166-1 alpha-2 country code resolved from the remote IP address.
+    /// `None` when the address is private / reserved or the lookup produces
+    /// no match.
     pub remote_country_code: Option<String>,
 }
 
-// ── GeoIP reader (lazy, reload-safe) ─────────────────────────────────
+// ── GeoIP reader (Sniffnet-style: embed the database at compile time) ──
 
-static GEOIP_READER: OnceLock<Mutex<Option<maxminddb::Reader<Vec<u8>>>>> = OnceLock::new();
+/// The GeoLite2 Country database is compiled into the binary so no external
+/// file or download is needed at runtime.  Users who want a fresher copy can
+/// place an updated `.mmdb` at one of the paths checked below; it takes
+/// precedence over the embedded bytes.
+const COUNTRY_MMDB: &[u8] = include_bytes!("../../resources/DB/GeoLite2-Country.mmdb");
 
-/// Returns a shared reference to the GeoIP reader, initialising it on first
-/// call.  The reader is opened once and then reused across polls.
-fn geoip_reader() -> &'static Mutex<Option<maxminddb::Reader<Vec<u8>>>> {
-    GEOIP_READER.get_or_init(|| {
-        let reader = init_geoip_reader();
-        Mutex::new(reader)
-    })
+/// Wraps either the embedded reader (`&[u8]`) or a reader backed by an
+/// external file (`Vec<u8>`), exposing a uniform lookup interface.
+enum MmdbReader {
+    /// Reader over the compile-time embedded bytes.
+    Embedded(maxminddb::Reader<&'static [u8]>),
+    /// Reader over a user-provided file (takes precedence).
+    External(maxminddb::Reader<Vec<u8>>),
 }
 
-fn init_geoip_reader() -> Option<maxminddb::Reader<Vec<u8>>> {
-    // Common locations for the GeoLite2 Country database.
-    let candidates: &[&str] = &[
-        "/usr/share/GeoIP/GeoLite2-Country.mmdb",
-        "/var/lib/GeoIP/GeoLite2-Country.mmdb",
-        "./GeoLite2-Country.mmdb",
-    ];
-
-    // Honour an explicit override through the environment.
-    if let Ok(path) = std::env::var("GEOIP_DB_PATH") {
-        return maxminddb::Reader::open_readfile(path).ok();
-    }
-
-    for path in candidates {
+impl MmdbReader {
+    /// Tries `path` first; falls back to the embedded bytes.
+    fn new(path: &str) -> Self {
         if let Ok(reader) = maxminddb::Reader::open_readfile(path) {
-            return Some(reader);
+            return MmdbReader::External(reader);
         }
+        MmdbReader::Embedded(
+            maxminddb::Reader::from_source(COUNTRY_MMDB)
+                .expect("embedded GeoLite2-Country.mmdb is valid"),
+        )
     }
 
-    None
+    fn lookup_country(&self, ip: IpAddr) -> Option<String> {
+        use maxminddb::PathElement;
+        let path = [PathElement::Key("country"), PathElement::Key("iso_code")];
+        let iso: Option<&str> = match self {
+            MmdbReader::Embedded(r) => {
+                r.lookup(ip).ok()
+                    .and_then(|lr| lr.decode_path(&path).ok().flatten())
+            }
+            MmdbReader::External(r) => {
+                r.lookup(ip).ok()
+                    .and_then(|lr| lr.decode_path(&path).ok().flatten())
+            }
+        };
+        iso.map(|s| s.to_string())
+    }
+}
+
+/// Lazily initialised on first use.  Checks common system paths for an
+/// up-to-date database; uses the embedded bytes as a permanent fallback.
+fn geoip_reader() -> &'static MmdbReader {
+    static READER: OnceLock<MmdbReader> = OnceLock::new();
+    READER.get_or_init(|| {
+        // Honour an explicit override first.
+        if let Ok(path) = std::env::var("GEOIP_DB_PATH") {
+            return MmdbReader::new(&path);
+        }
+        for path in [
+            "/usr/share/GeoIP/GeoLite2-Country.mmdb",
+            "/var/lib/GeoIP/GeoLite2-Country.mmdb",
+        ] {
+            if Path::new(path).exists() {
+                return MmdbReader::new(path);
+            }
+        }
+        // No external file found — use the embedded bytes.
+        MmdbReader::Embedded(
+            maxminddb::Reader::from_source(COUNTRY_MMDB)
+                .expect("embedded GeoLite2-Country.mmdb is valid"),
+        )
+    })
 }
 
 /// Returns `true` when an IP address belongs to a private, loopback,
@@ -93,7 +128,6 @@ fn is_private_or_reserved(ip: &IpAddr) -> bool {
             false
         }
         IpAddr::V6(v6) => {
-            // :: (unspecified), ::1 (loopback)
             if v6.is_unspecified() || v6.is_loopback() {
                 return true;
             }
@@ -116,27 +150,12 @@ fn is_private_or_reserved(ip: &IpAddr) -> bool {
 }
 
 /// Looks up the ISO 3166-1 alpha-2 country code for an IP address string.
-/// Returns `None` for private / reserved addresses, unparseable strings,
-/// or when the GeoIP database is not available.
 fn lookup_country_code(ip_str: &str) -> Option<String> {
     let ip: IpAddr = ip_str.parse().ok()?;
     if is_private_or_reserved(&ip) {
         return None;
     }
-
-    let guard = geoip_reader().lock().ok()?;
-    let reader = guard.as_ref()?;
-
-    // Look up the IP and extract the country ISO code.  We decode just the
-    // path we need so the lookup stays cheap and we don't allocate the full
-    // Country record.
-    use maxminddb::PathElement;
-    let result: maxminddb::LookupResult<_> = reader.lookup(ip).ok()?;
-    let iso_code: Option<&str> = result
-        .decode_path(&[PathElement::Key("country"), PathElement::Key("iso_code")])
-        .ok()
-        .flatten();
-    iso_code.map(|s| s.to_string())
+    geoip_reader().lookup_country(ip)
 }
 
 struct NetTable {
