@@ -1,4 +1,4 @@
-import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
+import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
@@ -46,13 +46,70 @@ const ToolbarInput = styled.input<{ background: string; color: string; border: s
     width: 220px;
 `;
 
-const ToolbarSelect = styled.select<{ background: string; color: string; border: string }>`
-    background: ${p => p.background};
+// ── Dropdown (matches the Config page theme/language dropdown style) ──
+
+const DropdownWrapper = styled.div`
+    position: relative;
+    display: inline-block;
+`;
+
+const DropdownTrigger = styled.button<{ bg: string; color: string; border: string }>`
+    background-color: ${p => p.bg};
     color: ${p => p.color};
     border: 1px solid ${p => p.border};
-    padding: 3px 6px;
+    border-radius: 0;
+    padding: 3px 24px 3px 8px;
     font-size: 12px;
+    cursor: pointer;
     outline: none;
+    height: 26px;
+    text-align: left;
+    min-width: 100px;
+    position: relative;
+    white-space: nowrap;
+
+    &::after {
+        content: '';
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid ${p => p.color}99;
+    }
+
+    &:focus {
+        border-color: ${p => p.color}55;
+    }
+`;
+
+const DropdownMenu = styled.ul<{ bg: string; border: string; color: string }>`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: ${p => p.bg};
+    border: 1px solid ${p => p.border};
+    border-top: none;
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+`;
+
+const DropdownItem = styled.li<{ bg: string; color: string; selected: boolean }>`
+    padding: 5px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    color: ${p => p.color};
+    background-color: ${p => p.selected ? `${p.color}15` : p.bg};
+
+    &:hover {
+        background-color: ${p => p.color}22;
+    }
 `;
 
 const ToolbarCount = styled.span`
@@ -138,6 +195,38 @@ const Connections: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const deferredSearchQuery = useDeferredValue(searchQuery);
     const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
+    // Custom dropdown state
+    const [protocolOpen, setProtocolOpen] = useState(false);
+    const [stateOpen, setStateOpen] = useState(false);
+    const protocolRef = useRef<HTMLDivElement>(null);
+    const stateRef = useRef<HTMLDivElement>(null);
+
+    // Click-outside to close dropdowns
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (protocolRef.current && !protocolRef.current.contains(e.target as Node)) {
+                setProtocolOpen(false);
+            }
+            if (stateRef.current && !stateRef.current.contains(e.target as Node)) {
+                setStateOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    const protocolOptions: { value: ProtocolFilter; labelKey: string }[] = [
+        { value: "all", labelKey: "connections.protocol_all" },
+        { value: "tcp", labelKey: "connections.protocol_tcp" },
+        { value: "udp", labelKey: "connections.protocol_udp" },
+    ];
+
+    const stateOptions: { value: StateFilter; labelKey: string }[] = [
+        { value: "all", labelKey: "connections.state_all" },
+        { value: "listening", labelKey: "connections.state_listening" },
+        { value: "established", labelKey: "connections.state_established" },
+    ];
 
     const stateColor = (state: string): string => {
         if (state === "ESTABLISHED" || state === "LISTEN") {
@@ -263,30 +352,58 @@ const Connections: React.FC = () => {
                             color={bodyColor}
                             border={borderColor}
                         />
-                        <ToolbarSelect
-                            aria-label={t("connections.filter_protocol")}
-                            value={protocolFilter}
-                            onChange={event => setProtocolFilter(event.target.value as ProtocolFilter)}
-                            background={bodyBackground}
-                            color={bodyColor}
-                            border={borderColor}
-                        >
-                            <option value="all">{t("connections.protocol_all")}</option>
-                            <option value="tcp">{t("connections.protocol_tcp")}</option>
-                            <option value="udp">{t("connections.protocol_udp")}</option>
-                        </ToolbarSelect>
-                        <ToolbarSelect
-                            aria-label={t("connections.filter_state")}
-                            value={stateFilter}
-                            onChange={event => setStateFilter(event.target.value as StateFilter)}
-                            background={bodyBackground}
-                            color={bodyColor}
-                            border={borderColor}
-                        >
-                            <option value="all">{t("connections.state_all")}</option>
-                            <option value="listening">{t("connections.state_listening")}</option>
-                            <option value="established">{t("connections.state_established")}</option>
-                        </ToolbarSelect>
+                        <DropdownWrapper ref={protocolRef}>
+                            <DropdownTrigger
+                                bg={bodyBackground}
+                                color={bodyColor}
+                                border={borderColor}
+                                onClick={() => setProtocolOpen(o => !o)}
+                                type="button"
+                            >
+                                {t(protocolOptions.find(o => o.value === protocolFilter)!.labelKey)}
+                            </DropdownTrigger>
+                            {protocolOpen && (
+                                <DropdownMenu bg={bodyBackground} border={borderColor} color={bodyColor}>
+                                    {protocolOptions.map(opt => (
+                                        <DropdownItem
+                                            key={opt.value}
+                                            bg={bodyBackground}
+                                            color={bodyColor}
+                                            selected={protocolFilter === opt.value}
+                                            onClick={() => { setProtocolFilter(opt.value); setProtocolOpen(false); }}
+                                        >
+                                            {t(opt.labelKey)}
+                                        </DropdownItem>
+                                    ))}
+                                </DropdownMenu>
+                            )}
+                        </DropdownWrapper>
+                        <DropdownWrapper ref={stateRef}>
+                            <DropdownTrigger
+                                bg={bodyBackground}
+                                color={bodyColor}
+                                border={borderColor}
+                                onClick={() => setStateOpen(o => !o)}
+                                type="button"
+                            >
+                                {t(stateOptions.find(o => o.value === stateFilter)!.labelKey)}
+                            </DropdownTrigger>
+                            {stateOpen && (
+                                <DropdownMenu bg={bodyBackground} border={borderColor} color={bodyColor}>
+                                    {stateOptions.map(opt => (
+                                        <DropdownItem
+                                            key={opt.value}
+                                            bg={bodyBackground}
+                                            color={bodyColor}
+                                            selected={stateFilter === opt.value}
+                                            onClick={() => { setStateFilter(opt.value); setStateOpen(false); }}
+                                        >
+                                            {t(opt.labelKey)}
+                                        </DropdownItem>
+                                    ))}
+                                </DropdownMenu>
+                            )}
+                        </DropdownWrapper>
                         <ToolbarCount>
                             {visibleConnections.length} {t("connections.total")}
                         </ToolbarCount>
