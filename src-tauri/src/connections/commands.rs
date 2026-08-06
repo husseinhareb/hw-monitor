@@ -128,6 +128,12 @@ fn is_private_or_reserved(ip: &IpAddr) -> bool {
             false
         }
         IpAddr::V6(v6) => {
+            // IPv4-mapped addresses (::ffff:0:0/96) embed an IPv4 address;
+            // delegate to the IPv4 check so that private ranges like
+            // ::ffff:10.1.61.147 and ::ffff:127.0.0.1 are caught.
+            if let Some(v4) = v6.to_ipv4_mapped() {
+                return is_private_or_reserved(&IpAddr::V4(v4));
+            }
             if v6.is_unspecified() || v6.is_loopback() {
                 return true;
             }
@@ -792,6 +798,7 @@ mod tests {
 
     #[test]
     fn geoip_filters_private_addresses() {
+        // IPv4 private ranges.
         assert!(super::is_private_or_reserved(
             &"127.0.0.1".parse::<std::net::IpAddr>().unwrap()
         ));
@@ -803,6 +810,23 @@ mod tests {
         ));
         assert!(super::is_private_or_reserved(
             &"172.16.0.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        // IPv4-mapped IPv6 variants of the same private ranges.
+        assert!(super::is_private_or_reserved(
+            &"::ffff:127.0.0.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        assert!(super::is_private_or_reserved(
+            &"::ffff:10.1.61.147".parse::<std::net::IpAddr>().unwrap()
+        ));
+        assert!(super::is_private_or_reserved(
+            &"::ffff:172.16.0.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        assert!(super::is_private_or_reserved(
+            &"::ffff:192.168.1.1".parse::<std::net::IpAddr>().unwrap()
+        ));
+        // A genuine public IPv4 mapped to IPv6 should NOT be filtered.
+        assert!(!super::is_private_or_reserved(
+            &"::ffff:8.8.8.8".parse::<std::net::IpAddr>().unwrap()
         ));
     }
 
