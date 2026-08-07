@@ -12,11 +12,11 @@ import {
     ConnectionSortKey,
     compareConnections,
     connectionKey,
-    countryCodeToFlag,
     formatEndpoint,
     isWildcardEndpoint,
     matchesConnectionQuery,
 } from "../../helpers/connectionTable";
+import * as CountryFlags from "country-flag-icons/react/3x2";
 import Spinner from "../Misc/Spinner";
 
 const StatusDot = styled.span<{ color: string }>`
@@ -324,22 +324,20 @@ const Connections: React.FC = () => {
                 if (isWildcardEndpoint(connection.remote_address, connection.remote_port)) {
                     return "*";
                 }
-                const flag =
-                    connection.remote_country_code
-                        ? countryCodeToFlag(connection.remote_country_code)
-                        : null;
-                const label =
-                    connection.remote_country_code
-                        ? countryDisplayName(connection.remote_country_code)
-                        : undefined;
+                const countryCode = connection.remote_country_code?.toUpperCase();
+                const FlagComponent = countryCode
+                    ? (CountryFlags as Record<string, React.FC<React.SVGProps<SVGSVGElement>>>)[countryCode]
+                    : null;
+                const label = countryCode
+                    ? countryDisplayName(countryCode)
+                    : undefined;
                 return (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        {flag && (
-                            <span
-                                title={label}
-                                style={{ fontSize: 14, lineHeight: 1, cursor: "default" }}
-                            >
-                                {flag}
+                        {FlagComponent && (
+                            <span title={label} style={{ display: "inline-flex", alignItems: "center" }}>
+                                <FlagComponent
+                                    style={{ width: 18, height: 12, flexShrink: 0, verticalAlign: "middle" }}
+                                />
                             </span>
                         )}
                         {connection.remote_address}
