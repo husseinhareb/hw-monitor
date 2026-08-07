@@ -24,7 +24,10 @@ HOME_URL="https://www.ubuntu.com/"
         Some("Ubuntu 22.04.3 LTS")
     );
     assert_eq!(info.get("VERSION_ID").map(String::as_str), Some("22.04"));
-    assert_eq!(info.get("VERSION_CODENAME").map(String::as_str), Some("jammy"));
+    assert_eq!(
+        info.get("VERSION_CODENAME").map(String::as_str),
+        Some("jammy")
+    );
 }
 
 #[test]

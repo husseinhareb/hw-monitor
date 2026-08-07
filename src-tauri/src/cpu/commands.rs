@@ -101,7 +101,11 @@ fn read_cache_sizes() -> (Option<String>, Option<String>, Option<String>) {
     let mut seen_l3 = HashSet::new();
 
     // Walk every online CPU, not just cpu0, so that per-core totals are correct.
-    for cpu_entry in fs::read_dir("/sys/devices/system/cpu/").into_iter().flatten().flatten() {
+    for cpu_entry in fs::read_dir("/sys/devices/system/cpu/")
+        .into_iter()
+        .flatten()
+        .flatten()
+    {
         let cpu_name = cpu_entry.file_name();
         let cpu_name = cpu_name.to_string_lossy();
         if !cpu_name.starts_with("cpu") || !cpu_name[3..].chars().all(|c| c.is_ascii_digit()) {
@@ -109,7 +113,9 @@ fn read_cache_sizes() -> (Option<String>, Option<String>, Option<String>) {
         }
 
         let cache_dir = cpu_entry.path().join("cache");
-        let Ok(entries) = fs::read_dir(&cache_dir) else { continue };
+        let Ok(entries) = fs::read_dir(&cache_dir) else {
+            continue;
+        };
 
         for entry in entries.flatten() {
             let p = entry.path();
@@ -141,11 +147,13 @@ fn read_cache_sizes() -> (Option<String>, Option<String>, Option<String>) {
                     // the total L1 is larger than it practically is.
                     l1_kb += kb;
                 }
+                #[allow(clippy::collapsible_match)]
                 (Some(2), Some(kb)) => {
                     if seen_l2.insert(shared_map) {
                         l2_kb += kb;
                     }
                 }
+                #[allow(clippy::collapsible_match)]
                 (Some(3), Some(kb)) => {
                     if seen_l3.insert(shared_map) {
                         l3_kb += kb;
@@ -253,9 +261,7 @@ pub fn parse_static_fields(
             if virtualization.is_none() {
                 let flags: Vec<&str> = line.split_whitespace().skip(1).collect();
                 let has_virt = flags.contains(&"vmx") || flags.contains(&"svm");
-                virtualization = Some(
-                    if has_virt { "Enabled" } else { "Disabled" }.to_string(),
-                );
+                virtualization = Some(if has_virt { "Enabled" } else { "Disabled" }.to_string());
             }
             let flags: Vec<&str> = line.split_whitespace().skip(1).collect();
             if flags.contains(&"hypervisor") {

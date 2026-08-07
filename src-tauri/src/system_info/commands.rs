@@ -78,7 +78,10 @@ pub fn parse_os_release(content: &str) -> HashMap<String, String> {
 fn read_os_info() -> Option<(Option<String>, Option<String>, Option<String>)> {
     let content = fs::read_to_string("/etc/os-release").ok()?;
     let info = parse_os_release(&content);
-    let name = info.get("PRETTY_NAME").cloned().or_else(|| info.get("NAME").cloned());
+    let name = info
+        .get("PRETTY_NAME")
+        .cloned()
+        .or_else(|| info.get("NAME").cloned());
     let version = info.get("VERSION").cloned();
     let codename = info
         .get("VERSION_CODENAME")
@@ -91,7 +94,11 @@ fn read_os_info() -> Option<(Option<String>, Option<String>, Option<String>)> {
 
 fn read_kernel_version() -> Option<String> {
     if let Ok(content) = fs::read_to_string("/proc/version") {
-        let version = content.split_whitespace().take(3).collect::<Vec<_>>().join(" ");
+        let version = content
+            .split_whitespace()
+            .take(3)
+            .collect::<Vec<_>>()
+            .join(" ");
         if !version.is_empty() {
             return Some(version);
         }
@@ -262,8 +269,7 @@ fn count_packages() -> Option<String> {
 // ── Main gatherer ───────────────────────────────────────────────────
 
 fn gather_system_info() -> Option<SystemInfo> {
-    let (os_name, os_version, os_codename) =
-        read_os_info().unwrap_or((None, None, None));
+    let (os_name, os_version, os_codename) = read_os_info().unwrap_or((None, None, None));
 
     Some(SystemInfo {
         os_name,

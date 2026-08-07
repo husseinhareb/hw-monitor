@@ -60,14 +60,14 @@ impl MmdbReader {
         use maxminddb::PathElement;
         let path = [PathElement::Key("country"), PathElement::Key("iso_code")];
         let iso: Option<&str> = match self {
-            MmdbReader::Embedded(r) => {
-                r.lookup(ip).ok()
-                    .and_then(|lr| lr.decode_path(&path).ok().flatten())
-            }
-            MmdbReader::External(r) => {
-                r.lookup(ip).ok()
-                    .and_then(|lr| lr.decode_path(&path).ok().flatten())
-            }
+            MmdbReader::Embedded(r) => r
+                .lookup(ip)
+                .ok()
+                .and_then(|lr| lr.decode_path(&path).ok().flatten()),
+            MmdbReader::External(r) => r
+                .lookup(ip)
+                .ok()
+                .and_then(|lr| lr.decode_path(&path).ok().flatten()),
         };
         iso.map(|s| s.to_string())
     }
