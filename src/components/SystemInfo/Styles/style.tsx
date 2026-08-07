@@ -11,10 +11,10 @@ interface ThemeProps {
 
 export const Container = styled.div<{ $bg: string }>`
     background-color: ${(p) => p.$bg};
-    color: ${(p) => p.$bg};
-    min-height: 100vh;
-    padding: 20px;
+    height: 100%;
+    padding: 20px 20px 28px 20px;
     overflow-y: auto;
+    box-sizing: border-box;
 `;
 
 export const TopBar = styled.div`
