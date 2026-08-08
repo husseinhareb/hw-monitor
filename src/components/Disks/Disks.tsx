@@ -84,7 +84,7 @@ const Disks: React.FC = () => {
 
   const showValue = (value: unknown) => {
     if (value === undefined || value === null || value === "") {
-      return "N/A";
+      return t('disks.na');
     }
 
     return String(value);
@@ -92,7 +92,7 @@ const Disks: React.FC = () => {
 
   const showBoolean = (value?: boolean | null) => {
     if (value === undefined || value === null) {
-      return "N/A";
+      return t('disks.na');
     }
 
     return value ? t('yes') : t('no');
@@ -100,7 +100,7 @@ const Disks: React.FC = () => {
 
   const showList = (value?: string[]) => {
     if (!value || value.length === 0) {
-      return "N/A";
+      return t('disks.na');
     }
 
     return value.join(", ");
@@ -108,7 +108,7 @@ const Disks: React.FC = () => {
 
   const showBytes = (value?: number | null) => {
     if (value === undefined || value === null) {
-      return "N/A";
+      return t('disks.na');
     }
 
     const data = convertData(value);
@@ -117,7 +117,7 @@ const Disks: React.FC = () => {
 
   const showNumber = (value?: number | null, unit = "") => {
     if (value === undefined || value === null) {
-      return "N/A";
+      return t('disks.na');
     }
 
     return `${value}${unit ? ` ${unit}` : ""}`;
@@ -125,7 +125,7 @@ const Disks: React.FC = () => {
 
   const showMajorMinor = (major?: number, minor?: number) => {
     if (major === undefined || minor === undefined) {
-      return "N/A";
+      return t('disks.na');
     }
 
     return `${major}:${minor}`;
@@ -135,8 +135,8 @@ const Disks: React.FC = () => {
     if (smart.loading) {
       return (
         <DetailSection $borderColor={modalBorderColor}>
-          {renderSectionTitle("SMART Health")}
-          <SmartLoading>Reading SMART data…</SmartLoading>
+          {renderSectionTitle(t('disks.smart.title'))}
+          <SmartLoading>{t('disks.smart.loading')}</SmartLoading>
         </DetailSection>
       );
     }
@@ -144,7 +144,7 @@ const Disks: React.FC = () => {
     if (smart.error) {
       return (
         <DetailSection $borderColor={modalBorderColor}>
-          {renderSectionTitle("SMART Health")}
+          {renderSectionTitle(t('disks.smart.title'))}
           <SmartError>{smart.error}</SmartError>
         </DetailSection>
       );
@@ -168,45 +168,45 @@ const Disks: React.FC = () => {
 
   const renderNvmeSmart = (d: NvmeSmartData) => {
     const warnings: string[] = [];
-    if (d.critical_warning & 0x01) warnings.push("Available spare below threshold");
-    if (d.critical_warning & 0x02) warnings.push("Temperature above threshold");
-    if (d.critical_warning & 0x04) warnings.push("NVM subsystem reliability degraded");
-    if (d.critical_warning & 0x08) warnings.push("Media in read-only mode");
-    if (d.critical_warning & 0x10) warnings.push("Volatile memory backup failed");
+    if (d.critical_warning & 0x01) warnings.push(t('disks.smart.nvme.spare_below'));
+    if (d.critical_warning & 0x02) warnings.push(t('disks.smart.nvme.temp_above'));
+    if (d.critical_warning & 0x04) warnings.push(t('disks.smart.nvme.reliability_degraded'));
+    if (d.critical_warning & 0x08) warnings.push(t('disks.smart.nvme.read_only'));
+    if (d.critical_warning & 0x10) warnings.push(t('disks.smart.nvme.volatile_backup_failed'));
 
     return (
       <DetailSection $borderColor={modalBorderColor}>
-        {renderSectionTitle("SMART Health")}
+        {renderSectionTitle(t('disks.smart.title'))}
         {d.limited ? (
           <SmartLimitedBanner>
-            <span>Limited data: full SMART is not available to this user.</span>
+            <span>{t('disks.smart.limited')}</span>
           </SmartLimitedBanner>
         ) : (
           <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
             <SmartHealthDot $pass={d.overall_health} />
-            {d.overall_health ? "PASSED" : "FAILED"}
+            {d.overall_health ? t('disks.smart.passed') : t('disks.smart.failed')}
           </SmartHealthBanner>
         )}
-        {warnings.map((w, i) => renderDetailRow("Warning", w, i))}
-        {renderDetailRow("Temperature", d.temperature_celsius !== null ? `${d.temperature_celsius} °C` : "N/A")}
-        {!d.limited && renderDetailRow("Available Spare", `${d.available_spare_percent}% (threshold: ${d.available_spare_threshold}%)`)}
-        {!d.limited && renderDetailRow("Percentage Used", `${d.percentage_used}%`)}
-        {!d.limited && renderDetailRow("Power-On Hours", d.power_on_hours !== null ? `${d.power_on_hours.toLocaleString()} h` : "N/A")}
-        {!d.limited && renderDetailRow("Power Cycles", d.power_cycles !== null ? d.power_cycles.toLocaleString() : "N/A")}
-        {!d.limited && renderDetailRow("Unsafe Shutdowns", d.unsafe_shutdowns !== null ? d.unsafe_shutdowns.toLocaleString() : "N/A")}
-        {!d.limited && renderDetailRow("Media Errors", d.media_errors !== null ? d.media_errors.toLocaleString() : "N/A")}
-        {!d.limited && renderDetailRow("Data Read", d.data_units_read_gb !== null ? formatGb(d.data_units_read_gb) : "N/A")}
-        {!d.limited && renderDetailRow("Data Written", d.data_units_written_gb !== null ? formatGb(d.data_units_written_gb) : "N/A")}
+        {warnings.map((w, i) => renderDetailRow(t('disks.smart.warning'), w, i))}
+        {renderDetailRow(t('disks.smart.temperature'), d.temperature_celsius !== null ? `${d.temperature_celsius} °C` : t('disks.na'))}
+        {!d.limited && renderDetailRow(t('disks.smart.available_spare'), `${d.available_spare_percent}% (${t('disks.smart.threshold_label')} ${d.available_spare_threshold}%)`)}
+        {!d.limited && renderDetailRow(t('disks.smart.percentage_used'), `${d.percentage_used}%`)}
+        {!d.limited && renderDetailRow(t('disks.smart.power_on_hours'), d.power_on_hours !== null ? `${d.power_on_hours.toLocaleString()} h` : t('disks.na'))}
+        {!d.limited && renderDetailRow(t('disks.smart.power_cycles'), d.power_cycles !== null ? d.power_cycles.toLocaleString() : t('disks.na'))}
+        {!d.limited && renderDetailRow(t('disks.smart.unsafe_shutdowns'), d.unsafe_shutdowns !== null ? d.unsafe_shutdowns.toLocaleString() : t('disks.na'))}
+        {!d.limited && renderDetailRow(t('disks.smart.media_errors'), d.media_errors !== null ? d.media_errors.toLocaleString() : t('disks.na'))}
+        {!d.limited && renderDetailRow(t('disks.smart.data_read'), d.data_units_read_gb !== null ? formatGb(d.data_units_read_gb) : t('disks.na'))}
+        {!d.limited && renderDetailRow(t('disks.smart.data_written'), d.data_units_written_gb !== null ? formatGb(d.data_units_written_gb) : t('disks.na'))}
       </DetailSection>
     );
   };
 
   const renderAtaSmart = (d: AtaSmartData) => (
     <DetailSection $borderColor={modalBorderColor}>
-      {renderSectionTitle("SMART Health")}
+      {renderSectionTitle(t('disks.smart.title'))}
       <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
         <SmartHealthDot $pass={d.overall_health} />
-        {d.overall_health ? "PASSED" : "FAILED"}
+        {d.overall_health ? t('disks.smart.passed') : t('disks.smart.failed')}
         {d.temperature_celsius !== null && (
           <span style={{ marginLeft: "auto", fontWeight: 400, opacity: 0.8 }}>
             {d.temperature_celsius} °C
@@ -219,12 +219,12 @@ const Disks: React.FC = () => {
         )}
         {d.reallocated_sectors !== null && d.reallocated_sectors > 0 && (
           <span style={{ color: "#f0c04a" }}>
-            {d.reallocated_sectors} reallocated
+            {d.reallocated_sectors} {t('disks.smart.reallocated')}
           </span>
         )}
         {d.pending_sectors !== null && d.pending_sectors > 0 && (
           <span style={{ color: "#d64545" }}>
-            {d.pending_sectors} pending
+            {d.pending_sectors} {t('disks.smart.pending')}
           </span>
         )}
       </SmartHealthBanner>
@@ -235,12 +235,12 @@ const Disks: React.FC = () => {
       >
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Attribute</th>
-            <th style={{ textAlign: "right" }}>Val</th>
-            <th style={{ textAlign: "right" }}>Wst</th>
-            <th style={{ textAlign: "right" }}>Thr</th>
-            <th style={{ textAlign: "right" }}>Raw</th>
+            <th>{t('disks.smart.id')}</th>
+            <th>{t('disks.smart.attribute')}</th>
+            <th style={{ textAlign: "right" }}>{t('disks.smart.val')}</th>
+            <th style={{ textAlign: "right" }}>{t('disks.smart.wst')}</th>
+            <th style={{ textAlign: "right" }}>{t('disks.smart.thr')}</th>
+            <th style={{ textAlign: "right" }}>{t('disks.smart.raw')}</th>
             <th></th>
           </tr>
         </thead>
@@ -258,7 +258,7 @@ const Disks: React.FC = () => {
               <td style={{ textAlign: "right", opacity: 0.7 }}>{attr.raw_string}</td>
               <td>
                 <SmartBadge $pass={!attr.failed}>
-                  {attr.failed ? "FAIL" : "OK"}
+                  {attr.failed ? t('disks.smart.fail') : t('disks.smart.ok')}
                 </SmartBadge>
               </td>
             </tr>
@@ -428,68 +428,68 @@ const Disks: React.FC = () => {
             <ModalBody>
               <DetailSection $borderColor={modalBorderColor}>
                 {renderSectionTitle(t('disks.section_info'))}
-                {renderDetailRow("Device", selectedDisk.dev_path || `/dev/${selectedDisk.name}`)}
-                {renderDetailRow("Major:Minor", showMajorMinor(selectedDisk.major, selectedDisk.minor))}
-                {renderDetailRow("Transport", showValue(selectedDisk.transport))}
-                {renderDetailRow("State", showValue(selectedDisk.device_state))}
-                {renderDetailRow(t('disks.vendor'), selectedDisk.vendor || 'N/A')}
-                {renderDetailRow(t('disks.model'), selectedDisk.model || 'N/A')}
-                {renderDetailRow(t('disks.serial'), selectedDisk.serial || 'N/A')}
+                {renderDetailRow(t('disks.device'), selectedDisk.dev_path || `/dev/${selectedDisk.name}`)}
+                {renderDetailRow(t('disks.major_minor'), showMajorMinor(selectedDisk.major, selectedDisk.minor))}
+                {renderDetailRow(t('disks.transport'), showValue(selectedDisk.transport))}
+                {renderDetailRow(t('disks.state'), showValue(selectedDisk.device_state))}
+                {renderDetailRow(t('disks.vendor'), selectedDisk.vendor || t('disks.na'))}
+                {renderDetailRow(t('disks.model'), selectedDisk.model || t('disks.na'))}
+                {renderDetailRow(t('disks.serial'), selectedDisk.serial || t('disks.na'))}
                 {renderDetailRow(t('disks.size'), (() => { const d = convertData(selectedDisk.size); return `${d.value} ${d.unit}`; })())}
                 {renderDetailRow(t('disks.type'), selectedDisk.rotational ? t('disks.type_hdd') : t('disks.type_ssd'))}
                 {renderDetailRow(t('disks.physical_block_size'), `${selectedDisk.physical_block_size} B`)}
                 {renderDetailRow(t('disks.logical_block_size'), `${selectedDisk.logical_block_size} B`)}
-                {renderDetailRow("Sysfs path", showValue(selectedDisk.sysfs_path))}
+                {renderDetailRow(t('disks.sysfs_path'), showValue(selectedDisk.sysfs_path))}
               </DetailSection>
 
               {renderSmartSection()}
 
               <DetailSection $borderColor={modalBorderColor}>
                 {renderSectionTitle(t('disks.section_advanced'))}
-                {renderDetailRow(t('disks.firmware'), selectedDisk.firmware_rev || 'N/A')}
-                {renderDetailRow(t('disks.wwid'), selectedDisk.wwid || 'N/A')}
+                {renderDetailRow(t('disks.firmware'), selectedDisk.firmware_rev || t('disks.na'))}
+                {renderDetailRow(t('disks.wwid'), selectedDisk.wwid || t('disks.na'))}
                 {renderDetailRow(t('disks.removable'), selectedDisk.removable ? t('yes') : t('no'))}
                 {renderDetailRow(t('disks.read_only'), selectedDisk.read_only ? t('yes') : t('no'))}
                 {renderDetailRow(t('disks.trim'), selectedDisk.trim_supported ? t('yes') : t('no'))}
-                {renderDetailRow("Active scheduler", showValue(selectedDisk.active_scheduler))}
-                {renderDetailRow("Available schedulers", showList(selectedDisk.available_schedulers))}
-                {renderDetailRow(t('disks.scheduler'), selectedDisk.scheduler || 'N/A')}
-                {renderDetailRow("Write cache", showValue(selectedDisk.write_cache))}
-                {renderDetailRow("Queue depth", showNumber(selectedDisk.queue_depth))}
-                {renderDetailRow("Read ahead", showNumber(selectedDisk.read_ahead_kb, "KB"))}
-                {renderDetailRow("Max sectors", showNumber(selectedDisk.max_sectors_kb, "KB"))}
-                {renderDetailRow("Max hardware sectors", showNumber(selectedDisk.max_hw_sectors_kb, "KB"))}
-                {renderDetailRow("Minimum I/O size", showNumber(selectedDisk.minimum_io_size, "B"))}
-                {renderDetailRow("Optimal I/O size", showNumber(selectedDisk.optimal_io_size, "B"))}
-                {renderDetailRow("FUA", showBoolean(selectedDisk.fua))}
-                {renderDetailRow("DAX", showBoolean(selectedDisk.dax))}
-                {renderDetailRow("Zoned", showValue(selectedDisk.zoned))}
-                {renderDetailRow("Zone count", showNumber(selectedDisk.nr_zones))}
+                {renderDetailRow(t('disks.active_scheduler'), showValue(selectedDisk.active_scheduler))}
+                {renderDetailRow(t('disks.available_schedulers'), showList(selectedDisk.available_schedulers))}
+                {renderDetailRow(t('disks.scheduler'), selectedDisk.scheduler || t('disks.na'))}
+                {renderDetailRow(t('disks.write_cache'), showValue(selectedDisk.write_cache))}
+                {renderDetailRow(t('disks.queue_depth'), showNumber(selectedDisk.queue_depth))}
+                {renderDetailRow(t('disks.read_ahead'), showNumber(selectedDisk.read_ahead_kb, "KB"))}
+                {renderDetailRow(t('disks.max_sectors'), showNumber(selectedDisk.max_sectors_kb, "KB"))}
+                {renderDetailRow(t('disks.max_hardware_sectors'), showNumber(selectedDisk.max_hw_sectors_kb, "KB"))}
+                {renderDetailRow(t('disks.minimum_io_size'), showNumber(selectedDisk.minimum_io_size, "B"))}
+                {renderDetailRow(t('disks.optimal_io_size'), showNumber(selectedDisk.optimal_io_size, "B"))}
+                {renderDetailRow(t('disks.fua'), showBoolean(selectedDisk.fua))}
+                {renderDetailRow(t('disks.dax'), showBoolean(selectedDisk.dax))}
+                {renderDetailRow(t('disks.zoned'), showValue(selectedDisk.zoned))}
+                {renderDetailRow(t('disks.zone_count'), showNumber(selectedDisk.nr_zones))}
               </DetailSection>
 
               <DetailSection $borderColor={modalBorderColor}>
-                {renderSectionTitle("Discard")}
-                {renderDetailRow("Discard granularity", showNumber(selectedDisk.discard_granularity, "B"))}
-                {renderDetailRow("Max discard", showBytes(selectedDisk.discard_max_bytes))}
-                {renderDetailRow("Discard zeroes data", showBoolean(selectedDisk.discard_zeroes_data))}
-                {renderDetailRow("Total discarded", showBytes(selectedDisk.total_discarded))}
-                {renderDetailRow("Discard operations", showNumber(selectedDisk.total_discards))}
+                {renderSectionTitle(t('disks.section_discard'))}
+                {renderDetailRow(t('disks.discard_granularity'), showNumber(selectedDisk.discard_granularity, "B"))}
+                {renderDetailRow(t('disks.max_discard'), showBytes(selectedDisk.discard_max_bytes))}
+                {renderDetailRow(t('disks.discard_zeroes_data'), showBoolean(selectedDisk.discard_zeroes_data))}
+                {renderDetailRow(t('disks.total_discarded'), showBytes(selectedDisk.total_discarded))}
+                {renderDetailRow(t('disks.discard_operations'), showNumber(selectedDisk.total_discards))}
               </DetailSection>
 
               <DetailSection $borderColor={modalBorderColor}>
-                {renderSectionTitle("Controller")}
-                {renderDetailRow("NUMA node", showNumber(selectedDisk.numa_node))}
-                {renderDetailRow("Queue count", showNumber(selectedDisk.queue_count))}
-                {renderDetailRow("Controller ID", showValue(selectedDisk.controller_id))}
-                {renderDetailRow("Controller address", showValue(selectedDisk.controller_address))}
-                {renderDetailRow("Subsystem NQN", showValue(selectedDisk.subsystem_nqn))}
-                {renderDetailRow("Holders", showList(selectedDisk.holders))}
-                {renderDetailRow("Slaves", showList(selectedDisk.slaves))}
+                {renderSectionTitle(t('disks.section_controller'))}
+                {renderDetailRow(t('disks.numa_node'), showNumber(selectedDisk.numa_node))}
+                {renderDetailRow(t('disks.queue_count'), showNumber(selectedDisk.queue_count))}
+                {renderDetailRow(t('disks.controller_id'), showValue(selectedDisk.controller_id))}
+                {renderDetailRow(t('disks.controller_address'), showValue(selectedDisk.controller_address))}
+                {renderDetailRow(t('disks.subsystem_nqn'), showValue(selectedDisk.subsystem_nqn))}
+                {renderDetailRow(t('disks.holders'), showList(selectedDisk.holders))}
+                {renderDetailRow(t('disks.slaves'), showList(selectedDisk.slaves))}
               </DetailSection>
 
               {selectedDisk.mounts.length > 0 && (
                 <DetailSection $borderColor={modalBorderColor}>
-                  {renderSectionTitle("Filesystems")}
+                  {renderSectionTitle(t('disks.section_filesystems'))}
                   {selectedDisk.mounts.map((mount, index) => (
                     <PartitionCard key={`${mount.mount_point}:${index}`} $borderColor={modalBorderColor}>
                       <PartitionCardHeader $color={modalSectionColor} $borderColor={modalBorderColor}>
@@ -497,7 +497,7 @@ const Disks: React.FC = () => {
                         <span>{mount.file_system}</span>
                       </PartitionCardHeader>
                       {mount.total_space != null && renderDetailRow(
-                        "Used",
+                        t('disks.used'),
                         `${showBytes(mount.used_space)} / ${showBytes(mount.total_space)}`,
                       )}
                     </PartitionCard>
@@ -509,44 +509,44 @@ const Disks: React.FC = () => {
                 {renderSectionTitle(t('disks.section_performance'))}
                 {renderDetailRow(t('disks.read_speed'), `${selectedDisk.read_speed} KB/s`)}
                 {renderDetailRow(t('disks.write_speed'), `${selectedDisk.write_speed} KB/s`)}
-                {renderDetailRow("Read IOPS", `${selectedDisk.read_iops} ops/s`)}
-                {renderDetailRow("Write IOPS", `${selectedDisk.write_iops} ops/s`)}
-                {renderDetailRow("I/O busy", `${selectedDisk.io_busy_percent}%`)}
-                {renderDetailRow("I/O in progress", showNumber(selectedDisk.io_in_progress))}
+                {renderDetailRow(t('disks.read_iops'), `${selectedDisk.read_iops} ops/s`)}
+                {renderDetailRow(t('disks.write_iops'), `${selectedDisk.write_iops} ops/s`)}
+                {renderDetailRow(t('disks.io_busy'), `${selectedDisk.io_busy_percent}%`)}
+                {renderDetailRow(t('disks.io_in_progress'), showNumber(selectedDisk.io_in_progress))}
                 {renderDetailRow(t('disks.total_read'), (() => { const d = convertData(selectedDisk.total_read); return `${d.value} ${d.unit}`; })())}
                 {renderDetailRow(t('disks.total_write'), (() => { const d = convertData(selectedDisk.total_write); return `${d.value} ${d.unit}`; })())}
-                {renderDetailRow("Read operations", showNumber(selectedDisk.total_reads))}
-                {renderDetailRow("Write operations", showNumber(selectedDisk.total_writes))}
-                {renderDetailRow("Flush operations", showNumber(selectedDisk.total_flushes))}
-                {renderDetailRow("I/O time", showNumber(selectedDisk.io_time_ms, "ms"))}
-                {renderDetailRow("Weighted I/O time", showNumber(selectedDisk.weighted_io_time_ms, "ms"))}
+                {renderDetailRow(t('disks.read_operations'), showNumber(selectedDisk.total_reads))}
+                {renderDetailRow(t('disks.write_operations'), showNumber(selectedDisk.total_writes))}
+                {renderDetailRow(t('disks.flush_operations'), showNumber(selectedDisk.total_flushes))}
+                {renderDetailRow(t('disks.io_time'), showNumber(selectedDisk.io_time_ms, "ms"))}
+                {renderDetailRow(t('disks.weighted_io_time'), showNumber(selectedDisk.weighted_io_time_ms, "ms"))}
               </DetailSection>
 
               <DetailSection $borderColor={modalBorderColor}>
-                {renderSectionTitle("Partitions")}
+                {renderSectionTitle(t('disks.section_partitions'))}
                 {selectedDisk.partitions.length === 0
-                  ? renderDetailRow("Partitions", "N/A")
+                  ? renderDetailRow(t('disks.partitions'), t('disks.na'))
                   : selectedDisk.partitions.map((partition: PartitionData) => (
                     <PartitionCard key={partition.name} $borderColor={modalBorderColor}>
                       <PartitionCardHeader $color={modalSectionColor} $borderColor={modalBorderColor}>
                         <span>{partition.name}</span>
                         <span>{showBytes(partition.size)}</span>
                       </PartitionCardHeader>
-                      {renderDetailRow("Device", partition.dev_path || `/dev/${partition.name}`)}
-                      {renderDetailRow("Major:Minor", showMajorMinor(partition.major, partition.minor))}
+                      {renderDetailRow(t('disks.device'), partition.dev_path || `/dev/${partition.name}`)}
+                      {renderDetailRow(t('disks.major_minor'), showMajorMinor(partition.major, partition.minor))}
                       {partition.mounts.map((mount, index) => (
                         <React.Fragment key={`${mount.mount_point}:${index}`}>
-                          {renderDetailRow(`Mount ${index + 1}`, mount.mount_point)}
-                          {renderDetailRow("Filesystem", mount.file_system)}
+                          {renderDetailRow(`${t('disks.mount')} ${index + 1}`, mount.mount_point)}
+                          {renderDetailRow(t('disks.filesystem'), mount.file_system)}
                           {mount.total_space != null && renderDetailRow(
-                            "Used",
+                            t('disks.used'),
                             `${showBytes(mount.used_space)} / ${showBytes(mount.total_space)}`,
                           )}
                         </React.Fragment>
                       ))}
-                      {partition.partuuid && renderDetailRow("Part UUID", partition.partuuid)}
-                      {partition.read_only != null && renderDetailRow("Read only", showBoolean(partition.read_only))}
-                      {!!partition.holders?.length && renderDetailRow("Holders", showList(partition.holders))}
+                      {partition.partuuid && renderDetailRow(t('disks.part_uuid'), partition.partuuid)}
+                      {partition.read_only != null && renderDetailRow(t('disks.read_only'), showBoolean(partition.read_only))}
+                      {!!partition.holders?.length && renderDetailRow(t('disks.holders'), showList(partition.holders))}
                     </PartitionCard>
                   ))}
               </DetailSection>
