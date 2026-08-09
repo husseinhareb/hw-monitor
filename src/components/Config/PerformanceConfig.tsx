@@ -1,110 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import usePerformanceConfig from "../../hooks/Performance/usePerformanceConfig";
 import { useTranslation } from "react-i18next";
 import {
   SectionCard,
   SubSectionTitle,
-  SettingRow,
-  SettingLabel,
-  SettingControl,
-  StyledNumberInput,
-  UnitLabel,
-  ColorInputWrapper,
-  StyledColorInput,
-  ColorHex,
   InlineCheckboxRow,
   InlineCheckboxLabel,
   StyledCheckbox,
   type ConfigTheme,
 } from "./Styles/style";
+import { ConfigColorRow, useConfigNumberDraft, ConfigUpdateTimeRow } from "./ConfigPrimitives";
 
 interface Props { theme: ConfigTheme }
 
 const PerformanceConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig } = usePerformanceConfig();
-  const [updateTimeDraft, setUpdateTimeDraft] = useState("");
   const { t } = useTranslation();
-
-  useEffect(() => {
-    setUpdateTimeDraft(String(config.performance_update_time));
-  }, [config.performance_update_time]);
 
   const handleConfigChange = (key: keyof typeof config, value: string | number | boolean) => {
     if (config) updateConfig(key, value);
   };
 
+  const updateTime = useConfigNumberDraft(config.performance_update_time);
   const commitUpdateTime = () => {
-    const value = Number(updateTimeDraft);
-    if (Number.isFinite(value) && value >= 1000 && value !== config.performance_update_time) {
+    const value = updateTime.commit();
+    if (value != null && value >= 1000 && value !== config.performance_update_time) {
       void handleConfigChange("performance_update_time", value);
-      return;
     }
-
-    setUpdateTimeDraft(String(config.performance_update_time));
   };
-
-  const colorRow = (labelKey: string, field: keyof typeof config) => (
-    <SettingRow inputBorder={theme.inputBorder}>
-      <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
-      <SettingControl>
-        <ColorInputWrapper>
-          <StyledColorInput
-            type="color"
-            value={config[field] as string}
-            onChange={e => handleConfigChange(field, e.target.value)}
-          />
-          <ColorHex textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>
-            {config[field] as string}
-          </ColorHex>
-        </ColorInputWrapper>
-      </SettingControl>
-    </SettingRow>
-  );
 
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
-      <SettingRow inputBorder={theme.inputBorder}>
-        <SettingLabel textColor={theme.textColor}>{t("performance_config.update_time")}</SettingLabel>
-        <SettingControl>
-          <StyledNumberInput
-            type="number"
-            value={updateTimeDraft}
-            min={1000}
-            step={100}
-            onChange={(e) => setUpdateTimeDraft(e.target.value)}
-            onBlur={commitUpdateTime}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                commitUpdateTime();
-              }
-            }}
-            inputBg={theme.inputBg}
-            inputBorder={theme.inputBorder}
-            textColor={theme.textColor}
-          />
-          <UnitLabel textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>ms</UnitLabel>
-        </SettingControl>
-      </SettingRow>
+      <ConfigUpdateTimeRow
+        labelKey="performance_config.update_time"
+        draft={updateTime.draft}
+        setDraft={updateTime.setDraft}
+        commit={commitUpdateTime}
+        theme={theme}
+      />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("performance_config.sidebar")}
       </SubSectionTitle>
 
-      {colorRow("performance_config.sidebar_background_color", "performance_sidebar_background_color")}
-      {colorRow("performance_config.sidebar_color",            "performance_sidebar_color")}
-      {colorRow("performance_config.sidebar_selected_color",   "performance_sidebar_selected_color")}
+      <ConfigColorRow labelKey="performance_config.sidebar_background_color" value={config.performance_sidebar_background_color} onChange={v => handleConfigChange("performance_sidebar_background_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="performance_config.sidebar_color"            value={config.performance_sidebar_color}            onChange={v => handleConfigChange("performance_sidebar_color", v)}            theme={theme} />
+      <ConfigColorRow labelKey="performance_config.sidebar_selected_color"   value={config.performance_sidebar_selected_color}   onChange={v => handleConfigChange("performance_sidebar_selected_color", v)}   theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("performance_config.content")}
       </SubSectionTitle>
 
-      {colorRow("performance_config.background_color", "performance_background_color")}
-      {colorRow("performance_config.title_color",      "performance_title_color")}
-      {colorRow("performance_config.label_color",      "performance_label_color")}
-      {colorRow("performance_config.value_color",      "performance_value_color")}
-      {colorRow("performance_config.graph_color",      "performance_graph_color")}
-      {colorRow("performance_config.sec_graph_color",  "performance_sec_graph_color")}
-      {colorRow("performance_config.scrollbar_color",  "performance_scrollbar_color")}
+      <ConfigColorRow labelKey="performance_config.background_color" value={config.performance_background_color} onChange={v => handleConfigChange("performance_background_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="performance_config.title_color"      value={config.performance_title_color}      onChange={v => handleConfigChange("performance_title_color", v)}      theme={theme} />
+      <ConfigColorRow labelKey="performance_config.label_color"      value={config.performance_label_color}      onChange={v => handleConfigChange("performance_label_color", v)}      theme={theme} />
+      <ConfigColorRow labelKey="performance_config.value_color"      value={config.performance_value_color}      onChange={v => handleConfigChange("performance_value_color", v)}      theme={theme} />
+      <ConfigColorRow labelKey="performance_config.graph_color"      value={config.performance_graph_color}      onChange={v => handleConfigChange("performance_graph_color", v)}      theme={theme} />
+      <ConfigColorRow labelKey="performance_config.sec_graph_color"  value={config.performance_sec_graph_color}  onChange={v => handleConfigChange("performance_sec_graph_color", v)}  theme={theme} />
+      <ConfigColorRow labelKey="performance_config.scrollbar_color"  value={config.performance_scrollbar_color}  onChange={v => handleConfigChange("performance_scrollbar_color", v)}  theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("performance_config.network")}

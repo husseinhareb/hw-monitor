@@ -4,19 +4,12 @@ import { useTranslation } from "react-i18next";
 import {
   SectionCard,
   SubSectionTitle,
-  SettingRow,
-  SettingLabel,
-  SettingControl,
-  StyledNumberInput,
-  UnitLabel,
-  ColorInputWrapper,
-  StyledColorInput,
-  ColorHex,
   CheckboxGrid,
   CheckboxItem,
   StyledCheckbox,
   type ConfigTheme,
 } from "./Styles/style";
+import { ConfigColorRow, useConfigNumberDraft, ConfigUpdateTimeRow } from "./ConfigPrimitives";
 
 // Translation keys for the table values
 const tableValues = [
@@ -54,7 +47,6 @@ interface Props { theme: ConfigTheme }
 const ProcessesConfig: React.FC<Props> = ({ theme }) => {
   const { config, updateConfig, updateTableValues } = useProcessConfig();
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
-  const [updateTimeDraft, setUpdateTimeDraft] = useState("");
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -62,10 +54,6 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
       setSelectedValues(config.processes_table_values);
     }
   }, [config]);
-
-  useEffect(() => {
-    setUpdateTimeDraft(String(config.processes_update_time));
-  }, [config.processes_update_time]);
 
   const handleTableValueChange = (translationKey: string) => {
     const original = translationMap[translationKey];
@@ -82,70 +70,35 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
     if (config) updateConfig(key, value);
   };
 
+  const updateTime = useConfigNumberDraft(config.processes_update_time);
   const commitUpdateTime = () => {
-    const value = Number(updateTimeDraft);
-    if (Number.isFinite(value) && value >= 1000 && value !== config.processes_update_time) {
+    const value = updateTime.commit();
+    if (value != null && value >= 1000 && value !== config.processes_update_time) {
       void handleConfigChange("processes_update_time", value);
-      return;
     }
-
-    setUpdateTimeDraft(String(config.processes_update_time));
   };
-
-  const colorRow = (labelKey: string, field: keyof typeof config) => (
-    <SettingRow inputBorder={theme.inputBorder}>
-      <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
-      <SettingControl>
-        <ColorInputWrapper>
-          <StyledColorInput
-            type="color"
-            value={config[field] as string}
-            onChange={e => handleConfigChange(field, e.target.value)}
-          />
-          <ColorHex textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>
-            {config[field] as string}
-          </ColorHex>
-        </ColorInputWrapper>
-      </SettingControl>
-    </SettingRow>
-  );
 
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
-      <SettingRow inputBorder={theme.inputBorder}>
-        <SettingLabel textColor={theme.textColor}>{t("processes_config.update_time")}</SettingLabel>
-        <SettingControl>
-          <StyledNumberInput
-            type="number"
-            value={updateTimeDraft}
-            min={1000}
-            step={100}
-            onChange={(e) => setUpdateTimeDraft(e.target.value)}
-            onBlur={commitUpdateTime}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                commitUpdateTime();
-              }
-            }}
-            inputBg={theme.inputBg}
-            inputBorder={theme.inputBorder}
-            textColor={theme.textColor}
-          />
-          <UnitLabel textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>ms</UnitLabel>
-        </SettingControl>
-      </SettingRow>
+      <ConfigUpdateTimeRow
+        labelKey="processes_config.update_time"
+        draft={updateTime.draft}
+        setDraft={updateTime.setDraft}
+        commit={commitUpdateTime}
+        theme={theme}
+      />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("processes_config.body_background_color").replace(" Color", "")} / Colors
       </SubSectionTitle>
 
-      {colorRow("processes_config.body_background_color",    "processes_body_background_color")}
-      {colorRow("processes_config.body_color",               "processes_body_color")}
-      {colorRow("processes_config.head_background_color",    "processes_head_background_color")}
-      {colorRow("processes_config.head_color",               "processes_head_color")}
-      {colorRow("processes_config.border_color",             "processes_border_color")}
-      {colorRow("processes_config.tree_toggle_color",        "processes_tree_toggle_color")}
-      {colorRow("processes_config.monitor_border_color",     "processes_monitor_border_color")}
+      <ConfigColorRow labelKey="processes_config.body_background_color" value={config.processes_body_background_color} onChange={v => handleConfigChange("processes_body_background_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="processes_config.body_color"            value={config.processes_body_color}            onChange={v => handleConfigChange("processes_body_color", v)}            theme={theme} />
+      <ConfigColorRow labelKey="processes_config.head_background_color" value={config.processes_head_background_color} onChange={v => handleConfigChange("processes_head_background_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="processes_config.head_color"            value={config.processes_head_color}            onChange={v => handleConfigChange("processes_head_color", v)}            theme={theme} />
+      <ConfigColorRow labelKey="processes_config.border_color"          value={config.processes_border_color}          onChange={v => handleConfigChange("processes_border_color", v)}          theme={theme} />
+      <ConfigColorRow labelKey="processes_config.tree_toggle_color"     value={config.processes_tree_toggle_color}     onChange={v => handleConfigChange("processes_tree_toggle_color", v)}     theme={theme} />
+      <ConfigColorRow labelKey="processes_config.monitor_border_color"  value={config.processes_monitor_border_color}  onChange={v => handleConfigChange("processes_monitor_border_color", v)}  theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("processes_config.table_values")}

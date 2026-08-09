@@ -4,14 +4,9 @@ import { useTranslation } from "react-i18next";
 import {
   SectionCard,
   SubSectionTitle,
-  SettingRow,
-  SettingLabel,
-  SettingControl,
-  ColorInputWrapper,
-  StyledColorInput,
-  ColorHex,
   type ConfigTheme,
 } from "./Styles/style";
+import { ConfigColorRow } from "./ConfigPrimitives";
 
 interface Props { theme: ConfigTheme }
 
@@ -23,46 +18,28 @@ const HeatbarConfig: React.FC<Props> = ({ theme }) => {
     if (config) updateConfig(key, value);
   };
 
-  const colorRow = (labelKey: string, field: keyof typeof config) => (
-    <SettingRow inputBorder={theme.inputBorder}>
-      <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
-      <SettingControl>
-        <ColorInputWrapper>
-          <StyledColorInput
-            type="color"
-            value={config[field] as string}
-            onChange={e => handleConfigChange(field, e.target.value)}
-          />
-          <ColorHex textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>
-            {config[field] as string}
-          </ColorHex>
-        </ColorInputWrapper>
-      </SettingControl>
-    </SettingRow>
-  );
-
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("heatbar_config.title")}
       </SubSectionTitle>
 
-      {colorRow("heatbar_config.color_one",   "heatbar_color_one")}
-      {colorRow("heatbar_config.color_two",   "heatbar_color_two")}
-      {colorRow("heatbar_config.color_three", "heatbar_color_three")}
-      {colorRow("heatbar_config.color_four",  "heatbar_color_four")}
-      {colorRow("heatbar_config.color_five",  "heatbar_color_five")}
-      {colorRow("heatbar_config.color_six",   "heatbar_color_six")}
-      {colorRow("heatbar_config.color_seven", "heatbar_color_seven")}
-      {colorRow("heatbar_config.color_eight", "heatbar_color_eight")}
-      {colorRow("heatbar_config.color_nine",  "heatbar_color_nine")}
-      {colorRow("heatbar_config.color_ten",   "heatbar_color_ten")}
+      <ConfigColorRow labelKey="heatbar_config.color_one"   value={config.heatbar_color_one}   onChange={v => handleConfigChange("heatbar_color_one", v)}   theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_two"   value={config.heatbar_color_two}   onChange={v => handleConfigChange("heatbar_color_two", v)}   theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_three" value={config.heatbar_color_three} onChange={v => handleConfigChange("heatbar_color_three", v)} theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_four"  value={config.heatbar_color_four}  onChange={v => handleConfigChange("heatbar_color_four", v)}  theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_five"  value={config.heatbar_color_five}  onChange={v => handleConfigChange("heatbar_color_five", v)}  theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_six"   value={config.heatbar_color_six}   onChange={v => handleConfigChange("heatbar_color_six", v)}   theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_seven" value={config.heatbar_color_seven} onChange={v => handleConfigChange("heatbar_color_seven", v)} theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_eight" value={config.heatbar_color_eight} onChange={v => handleConfigChange("heatbar_color_eight", v)} theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_nine"  value={config.heatbar_color_nine}  onChange={v => handleConfigChange("heatbar_color_nine", v)}  theme={theme} />
+      <ConfigColorRow labelKey="heatbar_config.color_ten"   value={config.heatbar_color_ten}   onChange={v => handleConfigChange("heatbar_color_ten", v)}   theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("sensors.title")}
       </SubSectionTitle>
 
-      {colorRow("heatbar_config.background_color", "heatbar_background_color")}
+      <ConfigColorRow labelKey="heatbar_config.background_color" value={config.heatbar_background_color} onChange={v => handleConfigChange("heatbar_background_color", v)} theme={theme} />
     </SectionCard>
   );
 };

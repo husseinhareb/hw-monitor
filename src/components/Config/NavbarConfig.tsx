@@ -4,14 +4,9 @@ import { useTranslation } from "react-i18next";
 import {
   SectionCard,
   SubSectionTitle,
-  SettingRow,
-  SettingLabel,
-  SettingControl,
-  ColorInputWrapper,
-  StyledColorInput,
-  ColorHex,
   type ConfigTheme,
 } from "./Styles/style";
+import { ConfigColorRow } from "./ConfigPrimitives";
 
 interface Props { theme: ConfigTheme }
 
@@ -23,40 +18,22 @@ const NavbarConfig: React.FC<Props> = ({ theme }) => {
     if (config) updateConfig(key, value);
   };
 
-  const colorRow = (labelKey: string, field: keyof typeof config) => (
-    <SettingRow inputBorder={theme.inputBorder}>
-      <SettingLabel textColor={theme.textColor}>{t(labelKey)}</SettingLabel>
-      <SettingControl>
-        <ColorInputWrapper>
-          <StyledColorInput
-            type="color"
-            value={config[field] as string}
-            onChange={e => handleConfigChange(field, e.target.value)}
-          />
-          <ColorHex textColor={theme.textColor} inputBorder={theme.inputBorder} inputBg={theme.inputBg}>
-            {config[field] as string}
-          </ColorHex>
-        </ColorInputWrapper>
-      </SettingControl>
-    </SettingRow>
-  );
-
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("navbar_config.title")}
       </SubSectionTitle>
 
-      {colorRow("navbar_config.background_color",          "navbar_background_color")}
-      {colorRow("navbar_config.buttons_background_color",  "navbar_buttons_background_color")}
-      {colorRow("navbar_config.buttons_foreground_color",  "navbar_buttons_foreground_color")}
+      <ConfigColorRow labelKey="navbar_config.background_color"          value={config.navbar_background_color}          onChange={v => handleConfigChange("navbar_background_color", v)}          theme={theme} />
+      <ConfigColorRow labelKey="navbar_config.buttons_background_color"  value={config.navbar_buttons_background_color}  onChange={v => handleConfigChange("navbar_buttons_background_color", v)}  theme={theme} />
+      <ConfigColorRow labelKey="navbar_config.buttons_foreground_color"  value={config.navbar_buttons_foreground_color}  onChange={v => handleConfigChange("navbar_buttons_foreground_color", v)}  theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("navbar.search.placeholder").replace("...", "")}
       </SubSectionTitle>
 
-      {colorRow("navbar_config.search_background_color", "navbar_search_background_color")}
-      {colorRow("navbar_config.search_foreground_color", "navbar_search_foreground_color")}
+      <ConfigColorRow labelKey="navbar_config.search_background_color" value={config.navbar_search_background_color} onChange={v => handleConfigChange("navbar_search_background_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="navbar_config.search_foreground_color" value={config.navbar_search_foreground_color} onChange={v => handleConfigChange("navbar_search_foreground_color", v)} theme={theme} />
     </SectionCard>
   );
 };
