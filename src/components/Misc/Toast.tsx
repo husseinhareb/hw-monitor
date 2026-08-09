@@ -8,7 +8,7 @@ const slideIn = keyframes`
   to   { transform: translateX(0);    opacity: 1; }
 `;
 
-const ToastWrapper = styled.div`
+const ToastWrapper = styled.div.attrs({ role: 'alert', 'aria-live': 'polite' })`
   position: fixed;
   top: 1rem;
   right: 1rem;

@@ -56,6 +56,16 @@ const Disks: React.FC = () => {
     }
   }, [selectedDisk?.dev_path]);
 
+  // Close modal on Escape key
+  useEffect(() => {
+    if (!selectedDisk) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedDisk(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedDisk]);
+
   const usagePercentage = (used: number, total: number) => {
     return Math.min(Math.max((used / total) * 100, 0), 100);
   };
@@ -305,9 +315,18 @@ const Disks: React.FC = () => {
             <DiskTitle
               $nameForegroundColor={disksConfig.config.disks_name_foreground_color}
             >{disk.name} {disk.model && `- ${disk.model}`}</DiskTitle>
-            <DetailsIcon 
+            <DetailsIcon
               $color={disksConfig.config.disks_name_foreground_color}
+              role="button"
+              tabIndex={0}
+              aria-label={t('disks.details_title')}
               onClick={() => setSelectedDisk(disk)}
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedDisk(disk);
+                }
+              }}
             >
               <FaCircleInfo />
             </DetailsIcon>
@@ -404,8 +423,13 @@ const Disks: React.FC = () => {
         </DiskCard>
       ))}
       {selectedDisk && (
-        <ModalOverlay onClick={() => setSelectedDisk(null)}>
-          <ModalContent 
+        <ModalOverlay
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('disks.details_title')}
+          onClick={() => setSelectedDisk(null)}
+        >
+          <ModalContent
             $backgroundColor={disksConfig.config.disks_boxes_background_color}
             $textColor={disksConfig.config.disks_name_foreground_color}
             $borderColor={modalBorderColor}

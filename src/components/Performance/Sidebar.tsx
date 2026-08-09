@@ -180,10 +180,19 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
         <List>
           {/* CPU */}
           <ListItem
+            role="option"
+            tabIndex={0}
+            aria-selected={selectedItem === 'CPU'}
             performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
             performanceSidebarSelectedColor={perf.config.performance_sidebar_selected_color}
             isSelected={selectedItem === 'CPU'}
             onClick={() => handleItemClick('CPU')}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleItemClick('CPU');
+              }
+            }}
           >
             {t('sidebar.cpu')}
             <Graph
@@ -281,6 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
       {/* Collapse / expand toggle */}
       <SidebarToggleButton
+        aria-expanded={!collapsed}
         performanceSidebarBackgroundColor={perf.config.performance_sidebar_background_color}
         performanceSidebarColor={perf.config.performance_sidebar_color}
         onClick={() => setCollapsed(c => !c)}

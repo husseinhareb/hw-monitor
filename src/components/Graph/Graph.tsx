@@ -18,6 +18,7 @@ interface GraphProps {
   width?: string;
   updateInterval?: number;
   hideScales?: boolean;
+  title?: string;
 }
 
 const MAX_POINTS = 20;
@@ -31,6 +32,7 @@ const Graph: React.FC<GraphProps> = ({
   width = '80vw',
   updateInterval,
   hideScales = false,
+  title,
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
@@ -163,7 +165,7 @@ const Graph: React.FC<GraphProps> = ({
 
   return (
     <div style={{ position: 'relative', height, width }}>
-      <canvas ref={chartRef} />
+      <canvas ref={chartRef} role="img" aria-label={title} />
     </div>
   );
 };

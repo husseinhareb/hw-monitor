@@ -95,7 +95,7 @@ const NameCell = styled.div<{ color: string; depth: number; borderColor: string 
     min-width: 0;
 `;
 
-const ToggleButton = styled.span<{ toggleColor: string; bodyColor: string }>`
+const ToggleButton = styled.button<{ toggleColor: string; bodyColor: string }>`
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -106,6 +106,10 @@ const ToggleButton = styled.span<{ toggleColor: string; bodyColor: string }>`
     user-select: none;
     flex-shrink: 0;
     color: ${props => props.toggleColor};
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
     &:hover {
         color: ${props => props.bodyColor};
     }
@@ -247,7 +251,7 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                                 return (
                                     <NameCell key={`${proc.pid}-${col.key}`} color={processConfig.config.processes_body_color} depth={node.depth} borderColor={processConfig.config.processes_border_color}>
                                         {hasChildren ? (
-                                            <ToggleButton toggleColor={processConfig.config.processes_tree_toggle_color} bodyColor={processConfig.config.processes_body_color} onClick={(e) => toggleExpand(proc.pid, e)}>
+                                            <ToggleButton toggleColor={processConfig.config.processes_tree_toggle_color} bodyColor={processConfig.config.processes_body_color} onClick={(e) => toggleExpand(proc.pid, e)} aria-expanded={isExpanded} aria-label={isExpanded ? t('proc.collapse_all') + ' ' + proc.name : t('proc.expand_all') + ' ' + proc.name}>
                                                 {isExpanded ? '▼' : '▶'}
                                             </ToggleButton>
                                         ) : (

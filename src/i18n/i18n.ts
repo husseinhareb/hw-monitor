@@ -50,6 +50,16 @@ export const i18nReady: Promise<void> = (async () => {
         escapeValue: false,
       },
     });
+
+  // Keep document lang/dir in sync with selected language
+  i18n.on('languageChanged', (lng: string) => {
+    document.documentElement.lang = lng;
+    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+  });
+
+  // Set initial lang/dir
+  document.documentElement.lang = language;
+  document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
 })();
 
 export default i18n;

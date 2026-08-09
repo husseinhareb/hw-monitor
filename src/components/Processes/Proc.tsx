@@ -364,6 +364,13 @@ const Proc: React.FC = () => {
                                 <Th
                                     key={column}
                                     onClick={() => sortProcesses(column)}
+                                    onKeyDown={(e: React.KeyboardEvent) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            sortProcesses(column);
+                                        }
+                                    }}
+                                    tabIndex={0}
                                     headBackgroundColor={processConfig.config.processes_head_background_color}
                                     headColor={processConfig.config.processes_head_color}
                                     borderColor={processConfig.config.processes_border_color}

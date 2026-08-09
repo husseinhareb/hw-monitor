@@ -154,6 +154,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, p
                     bgColor={processConfig.config.processes_body_background_color}
                     color={processConfig.config.processes_body_color}
                     onClick={onClose}
+                    aria-label={`Close ${t('proc.monitor_title')}`}
                 >
                     ✕
                 </CloseButton>
