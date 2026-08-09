@@ -412,6 +412,7 @@
     "error.affinity_apply_failed": "Не удалось изменить привязку к ЦП",
     "error.render": "Произошла неожиданная ошибка",
     "error.reload": "Перезагрузить",
+    "error.retry": "Повторить",
     "loading.generic": "Загрузка...",
     "loading.battery": "Загрузка данных аккумулятора...",
     "empty.disks": "Диски не обнаружены",

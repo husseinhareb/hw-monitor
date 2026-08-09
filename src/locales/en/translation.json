@@ -409,6 +409,7 @@
     "error.affinity_apply_failed": "Failed to set CPU affinity",
     "error.render": "An unexpected error occurred",
     "error.reload": "Reload",
+    "error.retry": "Retry",
     "loading.generic": "Loading...",
     "loading.battery": "Loading battery data...",
     "empty.disks": "No disks detected",

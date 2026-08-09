@@ -8,6 +8,7 @@ import { LuSettings2, LuInfo } from "react-icons/lu";
 import { VscServerProcess } from "react-icons/vsc";
 import { StyledButton, StyledNav, StyledUl, StyledSearchButton, SearchInput, ContentContainer, ConfigButtonContainer } from "../../styles/navbar-style";
 import Spinner from "../Misc/Spinner";
+import PageErrorBoundary from "../Misc/PageErrorBoundary";
 import { useSetProcessSearch, useProcessSearch } from "../../services/store";
 import useNavbarConfig from "../../hooks/Navbar/useNavbarConfig";
 import { useTranslation } from "react-i18next";
@@ -128,6 +129,7 @@ const Navbar: React.FC = () => {
                         navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
                         navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
                         onClick={() => handleButtonClick("Config")} active={activeComponent === "Config"}
+                        aria-label={t('navbar.config')}
                     >
                         <LuSettings2 />
                     </StyledButton>
@@ -202,11 +204,12 @@ const Navbar: React.FC = () => {
                         {showSearchInput && <SearchInput
                         navbarSearchBackgroundColor={navbarConfig.config.navbar_search_background_color}
                         navbarSearchForegroundColor={navbarConfig.config.navbar_search_foreground_color}
-                        type="text" placeholder={t('navbar.search.placeholder')} value={processSearch} onChange={handleSearchInputChange} ref={searchInputRef} />}
+                        type="text" aria-label={t('navbar.search.placeholder')} placeholder={t('navbar.search.placeholder')} value={processSearch} onChange={handleSearchInputChange} ref={searchInputRef} />}
                         <StyledSearchButton
                         navbarButtonsBackgroundColor={navbarConfig.config.navbar_buttons_background_color}
                         navbarButtonsForegroundColor={navbarConfig.config.navbar_buttons_foreground_color}
-                        onClick={handleSearchButtonClick}>
+                        onClick={handleSearchButtonClick}
+                        aria-label={t('navbar.search.placeholder')}>
                             <FaSearch />
                         </StyledSearchButton>
                     </>
@@ -214,13 +217,15 @@ const Navbar: React.FC = () => {
             </StyledNav>
             <ContentContainer>
                 <Suspense fallback={<Spinner />}>
-                    {activeComponent === "Proc" ? (
-                        <ProcContainer>
-                            <DynamicComponent />
-                        </ProcContainer>
-                    ) : (
-                        DynamicComponent && <DynamicComponent />
-                    )}
+                    <PageErrorBoundary>
+                        {activeComponent === "Proc" ? (
+                            <ProcContainer>
+                                <DynamicComponent />
+                            </ProcContainer>
+                        ) : (
+                            DynamicComponent && <DynamicComponent />
+                        )}
+                    </PageErrorBoundary>
                 </Suspense>
             </ContentContainer>
         </MainContainer>

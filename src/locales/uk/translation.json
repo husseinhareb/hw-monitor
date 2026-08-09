@@ -412,6 +412,7 @@
     "error.affinity_apply_failed": "Не вдалося змінити прив'язку до ЦП",
     "error.render": "Виникла неочікувана помилка",
     "error.reload": "Перезавантажити",
+    "error.retry": "Повторити",
     "loading.generic": "Завантаження...",
     "loading.battery": "Завантаження даних акумулятора...",
     "empty.disks": "Диски не виявлено",

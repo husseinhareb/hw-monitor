@@ -413,6 +413,7 @@
     "error.affinity_apply_failed": "فشل في تعيين ارتباط المعالج",
     "error.render": "حدث خطأ غير متوقع",
     "error.reload": "إعادة التحميل",
+    "error.retry": "إعادة المحاولة",
     "loading.generic": "جاري التحميل...",
     "loading.battery": "جاري تحميل بيانات البطارية...",
     "empty.disks": "لم يتم اكتشاف أقراص",

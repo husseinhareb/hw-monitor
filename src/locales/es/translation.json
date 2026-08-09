@@ -412,6 +412,7 @@
     "error.affinity_apply_failed": "Error al establecer la afinidad de CPU",
     "error.render": "Ha ocurrido un error inesperado",
     "error.reload": "Recargar",
+    "error.retry": "Reintentar",
     "loading.generic": "Cargando...",
     "loading.battery": "Cargando datos de batería...",
     "empty.disks": "No se detectaron discos",

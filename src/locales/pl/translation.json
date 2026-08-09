@@ -412,6 +412,7 @@
     "error.affinity_apply_failed": "Nie udało się ustawić powinowactwa CPU",
     "error.render": "Wystąpił nieoczekiwany błąd",
     "error.reload": "Przeładuj",
+    "error.retry": "Ponów",
     "loading.generic": "Ładowanie...",
     "loading.battery": "Ładowanie danych baterii...",
     "empty.disks": "Nie wykryto dysków",

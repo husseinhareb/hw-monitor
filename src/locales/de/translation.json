@@ -412,6 +412,7 @@
     "error.affinity_apply_failed": "CPU-Affinität konnte nicht gesetzt werden",
     "error.render": "Ein unerwarteter Fehler ist aufgetreten",
     "error.reload": "Neu laden",
+    "error.retry": "Wiederholen",
     "loading.generic": "Laden...",
     "loading.battery": "Batteriedaten werden geladen...",
     "empty.disks": "Keine Laufwerke erkannt",

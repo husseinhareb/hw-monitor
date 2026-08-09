@@ -412,6 +412,7 @@
     "error.affinity_apply_failed": "Échec de la modification de l'affinité CPU",
     "error.render": "Une erreur inattendue s'est produite",
     "error.reload": "Recharger",
+    "error.retry": "Réessayer",
     "loading.generic": "Chargement...",
     "loading.battery": "Chargement des données de batterie...",
     "empty.disks": "Aucun disque détecté",
