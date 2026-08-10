@@ -9,8 +9,7 @@ fn total_usage_struct_roundtrip() {
 
     // Serialize back and compare — verifies Serialize + Deserialize impls
     let output = serde_json::to_string(&parsed).expect("serialize");
-    let roundtripped: serde_json::Value =
-        serde_json::from_str(&output).expect("parse output");
+    let roundtripped: serde_json::Value = serde_json::from_str(&output).expect("parse output");
 
     assert_eq!(roundtripped["memory"], 4500);
     assert_eq!(roundtripped["cpu"], 2300);
@@ -20,8 +19,7 @@ fn total_usage_struct_roundtrip() {
 #[test]
 fn total_usage_with_nulls() {
     let json = r#"{"memory":null,"cpu":null,"processes":null}"#;
-    let parsed: total_usages::TotalUsage =
-        serde_json::from_str(json).expect("deserialize");
+    let parsed: total_usages::TotalUsage = serde_json::from_str(json).expect("deserialize");
 
     let output = serde_json::to_string(&parsed).expect("serialize");
     let v: serde_json::Value = serde_json::from_str(&output).expect("parse");
@@ -35,8 +33,7 @@ fn total_usage_with_nulls() {
 fn total_usage_partial_fields() {
     // Backend may return partial data when some sources are unavailable
     let json = r#"{"memory":67,"cpu":null,"processes":280}"#;
-    let parsed: total_usages::TotalUsage =
-        serde_json::from_str(json).expect("deserialize");
+    let parsed: total_usages::TotalUsage = serde_json::from_str(json).expect("deserialize");
 
     let output = serde_json::to_string(&parsed).expect("serialize");
     let v: serde_json::Value = serde_json::from_str(&output).expect("parse");
