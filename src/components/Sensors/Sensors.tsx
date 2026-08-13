@@ -27,7 +27,7 @@ import {
   ContentDiv,
 } from '../../styles/sensors-style';
 import useSensorsData from '../../hooks/Sensors/useSensorsData';
-import Battery from '../Sensors/Battery';
+import Battery, { hasBatterySection } from '../Sensors/Battery';
 import HeatBar from '../Sensors/HeatBar';
 import SensorGraphModal from '../Sensors/SensorGraphModal';
 import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
@@ -286,15 +286,17 @@ const Sensors: React.FC = () => {
         </SensorControls>
       </SensorToolbar>
       <SensorGrid>
-        <SensorList
-          sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
-        >
-          <Battery
-            batteries={batteryState.batteries}
-            loading={batteryState.loading}
-            error={batteryState.error}
-          />
-        </SensorList>
+        {hasBatterySection(batteryState.batteries, batteryState.error) && (
+          <SensorList
+            sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+          >
+            <Battery
+              batteries={batteryState.batteries}
+              loading={batteryState.loading}
+              error={batteryState.error}
+            />
+          </SensorList>
+        )}
         {sortedSensors.map((hwmon) => (
           <SensorList
             key={hwmon.index}

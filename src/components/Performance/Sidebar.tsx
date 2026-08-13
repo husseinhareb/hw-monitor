@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { List, ListItem, SidebarContainer, SidebarToggleButton, Title } from '../../styles/sidebar-style';
 import {
@@ -25,7 +25,7 @@ import useCpuData from '../../hooks/Performance/useCpuData';
 import useMemoryData from '../../hooks/Performance/useMemoryData';
 import { useMemoryHardwareInfo } from '../../hooks/Performance/useMemoryData';
 import useGpuData from '../../hooks/Performance/useGpuData';
-import { convertData } from '../../helpers/useDataConverter';
+import { convertData, formatDataRate } from '../../helpers/useDataConverter';
 import { calculateUsedMemoryBytes } from '../../helpers/memoryUsage';
 import { useTranslation } from 'react-i18next';
 
@@ -52,6 +52,16 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
 
   // translation
   const { t } = useTranslation();
+
+  // Mini-graph axis formatters: network series are bytes/s, disk series KB/s
+  const formatNetworkRate = useCallback(
+    (bytesPerSec: number) => formatDataRate(bytesPerSec, t('network.bytes_per_sec')),
+    [t],
+  );
+  const formatDiskRate = useCallback(
+    (kbPerSec: number) => formatDataRate(Math.round(kbPerSec * 1000), t('network.bytes_per_sec')),
+    [t],
+  );
 
   // disk histories and names
   const diskHistories = useDiskData(updateInterval);
@@ -262,6 +272,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                   secondGraphValue={speeds?.upload || []}
                   height="120px"
                   width="100%"
+                  formatValue={formatNetworkRate}
                 />
               </ListItem>
             );
@@ -282,6 +293,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                 secondGraphValue={diskHistories[name].writeHistory}
                 height="120px"
                 width="100%"
+                formatValue={formatDiskRate}
               />
             </ListItem>
           ))}

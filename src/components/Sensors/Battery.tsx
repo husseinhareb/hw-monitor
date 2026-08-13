@@ -12,19 +12,32 @@ interface BatteryProps {
     error: string | null;
 }
 
+/**
+ * Whether the battery section is worth rendering at all. Machines without a
+ * battery (desktops) report an empty list, and showing an empty card or a
+ * "no battery detected" message there is just noise. Callers use this to skip
+ * the surrounding container as well.
+ */
+export const hasBatterySection = (batteries: BatteryData[], error: string | null): boolean => (
+    batteries.length > 0 || error !== null
+);
+
 const Battery: React.FC<BatteryProps> = ({ batteries, loading, error }) => {
     const sensorsConfig = useSensorsConfig();
     const { t } = useTranslation();
 
     const hasNumber = (value: number | null | undefined) => value !== null && value !== undefined;
 
+    // Nothing to show while the first poll is in flight, or on battery-less machines
+    if (loading || !hasBatterySection(batteries, error)) {
+        return null;
+    }
+
     return (
         <>
-            {loading ? (
-                <p>{t('loading.battery')}</p>
-            ) : error ? (
+            {error ? (
                 <p>{t('error.battery_failed')}</p>
-            ) : batteries.length > 0 ? (
+            ) : (
                 batteries.map((battery, index) => (
                     <SensorGroup key={battery.model ?? `battery-${index}`}>
                         <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>{t('sensors.battery')} {index + 1}</SensorName>
@@ -52,8 +65,6 @@ const Battery: React.FC<BatteryProps> = ({ batteries, loading, error }) => {
                         </BatteryContainer>
                     </SensorGroup>
                 ))
-            ) : (
-                <p>{t('empty.battery')}</p>
             )}
         </>
     );

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import Graph from '../Graph/Graph';
 import { useNetworkFullData } from '../../services/store';
-import { convertData } from '../../helpers/useDataConverter';
+import { convertData, formatDataRate } from '../../helpers/useDataConverter';
 import {
     MemoryContainer,
     FixedValueItem,
@@ -85,13 +85,15 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) =
     const convertedTotalDownload = useMemo(() => convertData(totalDownload), [totalDownload]);
     const convertedTotalUpload = useMemo(() => convertData(totalUpload), [totalUpload]);
 
-    const formatSpeed = useCallback((arr: number[]) => {
-        if (arr.length === 0) {
-            return `0${t('network.bytes_per_sec')}`;
-        }
-        const { value, unit } = convertData(arr[arr.length - 1]);
-        return `${value} ${unit}${t('network.bytes_per_sec')}`;
-    }, [t]);
+    // Series are bytes/s, so the graph axis needs the same conversion as the readouts
+    const formatRate = useCallback(
+        (bytesPerSec: number) => formatDataRate(bytesPerSec, t('network.bytes_per_sec')),
+        [t],
+    );
+
+    const formatSpeed = useCallback((arr: number[]) => (
+        formatRate(arr.length === 0 ? 0 : arr[arr.length - 1])
+    ), [formatRate]);
 
     const formatAddressList = (addresses: string[]) => (
         addresses.length > 0 ? addresses.join(', ') : t('network.not_available')
@@ -149,6 +151,7 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) =
                         firstGraphValue={download}
                         secondGraphValue={upload}
                         width="100%"
+                        formatValue={formatRate}
                     />
                 </div>
 

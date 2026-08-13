@@ -19,6 +19,12 @@ interface GraphProps {
   updateInterval?: number;
   hideScales?: boolean;
   title?: string;
+  /**
+   * Formats raw series values for the y-axis ticks and tooltips. Series such as
+   * network and disk throughput are raw byte/KB counts, which would otherwise
+   * render as unreadable seven-digit tick labels.
+   */
+  formatValue?: (value: number) => string;
 }
 
 const MAX_POINTS = 20;
@@ -33,11 +39,17 @@ const Graph: React.FC<GraphProps> = ({
   updateInterval,
   hideScales = false,
   title,
+  formatValue,
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
   const tick = useTick();
   const performanceConfig = usePerformanceConfig();
+
+  // Read through a ref so a caller passing an inline formatter does not force
+  // the chart options to be rebuilt on every render.
+  const formatValueRef = useRef(formatValue);
+  formatValueRef.current = formatValue;
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -97,7 +109,15 @@ const Graph: React.FC<GraphProps> = ({
       y: {
         beginAtZero: true,
         max: maxValue,
-        ticks: { display: !hideScales },
+        ticks: {
+          display: !hideScales,
+          callback: (value) => {
+            const format = formatValueRef.current;
+            if (!format) return value;
+            const numeric = typeof value === 'number' ? value : Number(value);
+            return Number.isFinite(numeric) ? format(numeric) : value;
+          },
+        },
         grid: {
           display: true,
           color: hideScales
@@ -120,7 +140,16 @@ const Graph: React.FC<GraphProps> = ({
     chart.options.plugins = {
       ...chart.options.plugins,
       legend: { display: false },
-      tooltip: { enabled: !hideScales, backgroundColor: '#000000b3' },
+      tooltip: {
+        enabled: !hideScales,
+        backgroundColor: '#000000b3',
+        callbacks: {
+          label: (item) => {
+            const format = formatValueRef.current;
+            return format ? format(item.parsed.y) : String(item.parsed.y);
+          },
+        },
+      },
     };
     chart.data.datasets[0].borderColor = performanceConfig.config.performance_graph_color;
     chart.data.datasets[0].backgroundColor = performanceConfig.config.performance_graph_color + '33';

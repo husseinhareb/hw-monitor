@@ -1,8 +1,8 @@
 // src/components/Sidebar/Disk.tsx
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import Graph from '../Graph/Graph';
-import useDataConverter from '../../helpers/useDataConverter';
+import useDataConverter, { formatDataRate } from '../../helpers/useDataConverter';
 import {
   MemoryContainer,
   NameContainer,
@@ -50,12 +50,11 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
   const totalWrite  = hist.total_write;
 
   // Convert a speed in KB/s into human-readable unit per second
-  const formatSpeed = (kbPerSec: number) => {
+  const formatSpeed = useCallback((kbPerSec: number) => {
     // kbPerSec * 1000 = bytes per second (decimal KB, consistent with useDataConverter)
     const bytesPerSec = Math.round(kbPerSec * 1000);
-    const { value, unit } = convertData(bytesPerSec);
-    return `${value} ${unit}${t('network.bytes_per_sec')}`;
-  };
+    return formatDataRate(bytesPerSec, t('network.bytes_per_sec'));
+  }, [t]);
 
   return (
     <MemoryContainer
@@ -75,6 +74,7 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
           firstGraphValue={readValues}
           secondGraphValue={writeValues}
           width="100%"
+          formatValue={formatSpeed}
         />
       </div>
 
@@ -118,7 +118,7 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
               {readValues.length > 0
                 ? formatSpeed(readValues[readValues.length - 1])
-                : `0 KB${t('network.bytes_per_sec')}`}
+                : formatSpeed(0)}
             </RightValue>
           </FixedValueItem>
           <FixedValueItem>
@@ -128,7 +128,7 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
               {writeValues.length > 0
                 ? formatSpeed(writeValues[writeValues.length - 1])
-                : `0 KB${t('network.bytes_per_sec')}`}
+                : formatSpeed(0)}
             </RightValue>
           </FixedValueItem>
         </FixedValues>

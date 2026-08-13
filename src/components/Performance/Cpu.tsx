@@ -16,6 +16,7 @@ import {
     NameContainer
 } from "./Styles/style";
 import useTotalUsagesData from "../../hooks/Proc/useTotalUsagesData";
+import { formatFrequencyKHz } from "../../helpers/formatFrequency";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
@@ -193,7 +194,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
                     <SpeedUsageContainer>
                         <SpeedUsageItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.speed')}</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.current_speed != null ? `${cpuData.current_speed}GHz` : 'N/A'}</LeftValue>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.current_speed != null ? `${cpuData.current_speed} GHz` : 'N/A'}</LeftValue>
                         </SpeedUsageItem>
                         <SpeedUsageItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.usage')}</LeftLabel>
@@ -234,13 +235,13 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.base_speed')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                            {cpuData.base_speed != null ? (parseFloat(cpuData.base_speed) / 1000000).toFixed(1) + ' GHz' : 'N/A'}
+                            {formatFrequencyKHz(cpuData.base_speed) ?? 'N/A'}
                         </RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.max_speed')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>
-                            {cpuData.max_speed != null ? (parseFloat(cpuData.max_speed) / 1000000).toFixed(1) + ' GHz' : 'N/A'}
+                            {formatFrequencyKHz(cpuData.max_speed) ?? 'N/A'}
                         </RightValue>
                     </FixedValueItem>
 

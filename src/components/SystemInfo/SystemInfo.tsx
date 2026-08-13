@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import useSystemInfoData from "../../hooks/SystemInfo/useSystemInfoData";
 import useSystemInfoConfig from "../../hooks/SystemInfo/useSystemInfoConfig";
 import { convertData } from "../../helpers/useDataConverter";
+import { formatFrequencyKHz } from "../../helpers/formatFrequency";
+import { parsePackageCounts } from "../../helpers/packageCounts";
 import Spinner from "../Misc/Spinner";
 import {
     Container,
@@ -125,8 +127,8 @@ const SystemInfo: React.FC = () => {
         { label: t("system_info.cpu_cores"), value: cpu?.cores },
         { label: t("system_info.cpu_threads"), value: cpu?.threads },
         { label: t("system_info.cpu_virtualization"), value: cpu?.virtualization },
-        { label: t("system_info.cpu_base_speed"), value: cpu?.base_speed },
-        { label: t("system_info.cpu_max_speed"), value: cpu?.max_speed },
+        { label: t("system_info.cpu_base_speed"), value: formatFrequencyKHz(cpu?.base_speed) },
+        { label: t("system_info.cpu_max_speed"), value: formatFrequencyKHz(cpu?.max_speed) },
         { label: t("system_info.cpu_cache_l1"), value: cpu?.cache_l1 },
         { label: t("system_info.cpu_cache_l2"), value: cpu?.cache_l2 },
         { label: t("system_info.cpu_cache_l3"), value: cpu?.cache_l3 },
@@ -170,9 +172,14 @@ const SystemInfo: React.FC = () => {
         { label: t("system_info.default_shell"), value: info?.default_shell },
     ];
 
-    const pkgRows: Row[] = [
-        { label: t("system_info.package_counts"), value: info?.package_counts },
-    ];
+    // One row per package manager; fall back to the raw payload if it is not JSON
+    const packageCounts = parsePackageCounts(info?.package_counts);
+    const pkgRows: Row[] = packageCounts.length > 0
+        ? packageCounts.map(({ manager, count }) => ({
+              label: manager,
+              value: count.toLocaleString(i18n.language),
+          }))
+        : [{ label: t("system_info.package_counts"), value: info?.package_counts }];
 
     const localeRows: Row[] = [
         { label: t("system_info.locale"), value: info?.locale },
