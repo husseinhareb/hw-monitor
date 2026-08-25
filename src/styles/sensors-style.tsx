@@ -74,7 +74,7 @@ export const ShowHiddenToggle = styled.label`
   }
 `;
 
-export const ToolbarButton = styled.button`
+export const ToolbarButton = styled.button<{ $color?: string }>`
   height: 30px;
   padding: 0 10px;
   display: inline-flex;
@@ -84,7 +84,7 @@ export const ToolbarButton = styled.button`
   font-weight: 600;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(0, 0, 0, 0.2);
-  color: inherit;
+  color: ${p => p.$color || 'inherit'};
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   outline: none;
@@ -115,11 +115,12 @@ export const SensorGrid = styled.div`
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
-export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string }>`
+export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; sensorsBoxesForegroundColor?: string }>`
   display: inline-block;
   width: 100%;
   box-sizing: border-box;
   background-color: ${p => p.sensorsBoxesBackgroundColor};
+  color: ${p => p.sensorsBoxesForegroundColor || 'inherit'};
   border: 1px solid rgba(255, 255, 255, 0.07);
   padding: 14px 16px 12px;
   break-inside: avoid;
@@ -170,24 +171,26 @@ export const SensorName = styled.h3<{ sensorsBoxesTitleForegroundColor: string }
   white-space: nowrap;
 `;
 
-export const SensorBadgeCount = styled.span`
+export const SensorBadgeCount = styled.span<{ $color?: string }>`
   font-size: 11px;
   font-weight: 600;
   padding: 1px 7px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
-  opacity: 0.75;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: ${p => p.$color || 'inherit'};
+  opacity: 0.85;
   white-space: nowrap;
   flex-shrink: 0;
 `;
 
-export const SensorHeaderActions = styled.div`
+export const SensorHeaderActions = styled.div<{ $color?: string }>`
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  color: inherit;
-  opacity: 0.7;
+  color: ${p => p.$color || 'inherit'};
+  opacity: 0.8;
 `;
 
 export const SensorCategoryHeader = styled.div<{ sensorsBoxesTitleForegroundColor: string }>`

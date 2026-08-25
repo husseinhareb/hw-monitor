@@ -420,6 +420,7 @@ const Sensors: React.FC = () => {
             <ToolbarButton
               type="button"
               onClick={handleToggleAll}
+              $color={sensorsConfig.config.sensors_foreground_color}
               title={areAllCollapsed ? t('sensors.expand_all') : t('sensors.collapse_all')}
             >
               {areAllCollapsed ? <FaExpandAlt /> : <FaCompressAlt />}
@@ -432,6 +433,7 @@ const Sensors: React.FC = () => {
         {hasBatterySection(batteryState.batteries, batteryState.error) && (
           <SensorList
             sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+            sensorsBoxesForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
           >
             <Battery
               batteries={batteryState.batteries}
@@ -450,6 +452,7 @@ const Sensors: React.FC = () => {
             <SensorList
               key={hwmon.index}
               sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+              sensorsBoxesForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
             >
               <SensorGroup>
                 <SensorCardHeader
@@ -460,7 +463,7 @@ const Sensors: React.FC = () => {
                     <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>
                       {hwmon.name}
                     </SensorName>
-                    <SensorBadgeCount>
+                    <SensorBadgeCount $color={sensorsConfig.config.sensors_boxes_title_foreground_color}>
                       {t('sensors.sensors_count', { count: hwmon.sensors.length })}
                     </SensorBadgeCount>
                     {isCollapsed && chipAlertStatus !== 'normal' && (
@@ -469,7 +472,7 @@ const Sensors: React.FC = () => {
                       </SensorStatusBadge>
                     )}
                   </SensorCardTitleGroup>
-                  <SensorHeaderActions>
+                  <SensorHeaderActions $color={sensorsConfig.config.sensors_boxes_title_foreground_color}>
                     {isCollapsed ? <FaChevronRight /> : <FaChevronDown />}
                   </SensorHeaderActions>
                 </SensorCardHeader>
