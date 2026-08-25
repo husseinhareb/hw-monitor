@@ -74,19 +74,37 @@ export const ShowHiddenToggle = styled.label`
   }
 `;
 
-/* ── Scrollable grid ────────────────────────────────────────────────────── */
+export const ToolbarButton = styled.button`
+  height: 30px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  outline: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+`;
+
+/* ── Multi-column / Masonry layout ──────────────────────────────────────── */
 
 export const SensorGrid = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding: 16px 20px 20px;
-
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 14px;
-  align-items: start;
-  align-content: start;
+  column-width: 360px;
+  column-gap: 14px;
 
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
@@ -98,11 +116,15 @@ export const SensorGrid = styled.div`
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
 export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string }>`
-  display: flex;
-  flex-direction: column;
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
   background-color: ${p => p.sensorsBoxesBackgroundColor};
   border: 1px solid rgba(255, 255, 255, 0.07);
   padding: 14px 16px 12px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 14px;
 `;
 
 export const SensorGroup = styled.div`
@@ -111,15 +133,82 @@ export const SensorGroup = styled.div`
   width: 100%;
 `;
 
+export const SensorCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`;
+
+export const SensorCardTitleGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+`;
+
 export const SensorName = styled.h3<{ sensorsBoxesTitleForegroundColor: string }>`
   color: ${p => p.sensorsBoxesTitleForegroundColor};
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin: 0 0 10px 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const SensorBadgeCount = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 0.75;
+  white-space: nowrap;
+  flex-shrink: 0;
+`;
+
+export const SensorHeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.7;
+`;
+
+export const SensorCategoryHeader = styled.div<{ sensorsBoxesTitleForegroundColor: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: ${p => p.sensorsBoxesTitleForegroundColor};
+  opacity: 0.65;
+  margin-top: 10px;
+  margin-bottom: 2px;
+  padding-bottom: 3px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+
+  &:first-child {
+    margin-top: 0;
+  }
 `;
 
 export const ContentDiv = styled.div`
