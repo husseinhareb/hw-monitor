@@ -1,0 +1,6 @@
+[advisories]
+ignore = [
+    # Transitive dependency pinned by Tauri 2.x GTK3 bindings on Linux (tracked upstream: tauri#15035).
+    # VariantStrIter is not used anywhere in hw-monitor or Tauri's windowing core.
+    "RUSTSEC-2024-0429",
+]
