@@ -566,5 +566,19 @@
     "config.theme": "Tema",
     "config.theme_default": "Predeterminado",
     "config.theme_catppuccin": "Catppuccin",
-    "config.theme_gruvbox": "Gruvbox"
+    "config.theme_gruvbox": "Gruvbox",
+    "services.tab_services": "Servicios",
+    "services.tab_startup": "Aplicaciones de Inicio",
+    "startup.col_name": "Nombre",
+    "startup.col_command": "Comando",
+    "startup.col_scope": "Ámbito",
+    "startup.col_status": "Estado",
+    "startup.scope_user": "Usuario",
+    "startup.scope_system": "Sistema",
+    "startup.enabled": "Habilitado",
+    "startup.disabled": "Deshabilitado",
+    "startup.enable": "Habilitar",
+    "startup.disable": "Deshabilitar",
+    "startup.none": "No se encontraron aplicaciones de inicio.",
+    "error.startup_toggle_failed": "No se pudo cambiar la aplicación de inicio"
 }

@@ -447,6 +447,16 @@ export interface SystemInfo {
   locale: string | null;
 }
 
+export interface StartupApp {
+  id: string;
+  name: string;
+  comment: string | null;
+  command: string | null;
+  executable: string | null;
+  enabled: boolean;
+  scope: string;
+}
+
 export type SmartData = ({ type: "Ata" } & AtaSmartData) | ({ type: "Nvme" } & NvmeSmartData);
 
 export type CpuData = CpuInformations;

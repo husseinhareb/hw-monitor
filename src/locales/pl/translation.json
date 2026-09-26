@@ -568,5 +568,19 @@
     "config.theme": "Motyw",
     "config.theme_default": "Domyślny",
     "config.theme_catppuccin": "Catppuccin",
-    "config.theme_gruvbox": "Gruvbox"
+    "config.theme_gruvbox": "Gruvbox",
+    "services.tab_services": "Usługi",
+    "services.tab_startup": "Aplikacje Autostartu",
+    "startup.col_name": "Nazwa",
+    "startup.col_command": "Polecenie",
+    "startup.col_scope": "Zakres",
+    "startup.col_status": "Status",
+    "startup.scope_user": "Użytkownik",
+    "startup.scope_system": "System",
+    "startup.enabled": "Włączone",
+    "startup.disabled": "Wyłączone",
+    "startup.enable": "Włącz",
+    "startup.disable": "Wyłącz",
+    "startup.none": "Nie znaleziono aplikacji autostartu.",
+    "error.startup_toggle_failed": "Nie udało się zmienić aplikacji autostartu"
 }

@@ -12,6 +12,7 @@ mod proc_icon;
 mod sensors;
 mod services;
 mod smart;
+mod startup;
 mod system_info;
 mod total_usages;
 
@@ -180,6 +181,8 @@ fn main() {
             services::enable_service,
             services::disable_service,
             smart::get_smart_data,
+            startup::get_startup_apps,
+            startup::set_startup_app_enabled,
             connections::get_connections,
             system_info::get_system_info,
             restart_app,

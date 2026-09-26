@@ -30,6 +30,7 @@ const structSources = [
   ["HwMonData", "src-tauri/src/sensors/commands.rs"],
   ["TotalUsage", "src-tauri/src/total_usages/commands.rs"],
   ["SystemInfo", "src-tauri/src/system_info/commands.rs"],
+  ["StartupApp", "src-tauri/src/startup/commands.rs"],
 ];
 
 const aliases = [
