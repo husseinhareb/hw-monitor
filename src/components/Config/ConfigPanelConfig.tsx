@@ -27,6 +27,9 @@ const ConfigPanelConfigSection: React.FC<Props> = ({ theme }) => {
       <ConfigColorRow labelKey="config_panel_config.background_color"           value={config.config_background_color}           onChange={v => handleConfigChange("config_background_color", v)}           theme={theme} />
       <ConfigColorRow labelKey="config_panel_config.container_background_color" value={config.config_container_background_color} onChange={v => handleConfigChange("config_container_background_color", v)} theme={theme} />
       <ConfigColorRow labelKey="config_panel_config.text_color"                 value={config.config_text_color}                 onChange={v => handleConfigChange("config_text_color", v)}                 theme={theme} />
+      <ConfigColorRow labelKey="config_panel_config.toast_error_color" value={config.config_toast_error_color} onChange={v => handleConfigChange("config_toast_error_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="config_panel_config.toast_warning_color" value={config.config_toast_warning_color} onChange={v => handleConfigChange("config_toast_warning_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="config_panel_config.toast_info_color" value={config.config_toast_info_color} onChange={v => handleConfigChange("config_toast_info_color", v)} theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         Inputs &amp; Controls

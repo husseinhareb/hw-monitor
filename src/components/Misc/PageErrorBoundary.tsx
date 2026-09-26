@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useConfigStore, type ConfigData } from '../../services/configStore';
 
 interface BoundaryState {
   hasError: boolean;
@@ -9,6 +10,7 @@ interface BoundaryState {
 interface BoundaryBaseProps {
   children: React.ReactNode;
   t: (key: string) => string;
+  config: ConfigData;
 }
 
 class PageErrorBoundaryBase extends React.Component<BoundaryBaseProps, BoundaryState> {
@@ -30,7 +32,7 @@ class PageErrorBoundaryBase extends React.Component<BoundaryBaseProps, BoundaryS
   };
 
   render() {
-    const { t } = this.props;
+    const { t, config } = this.props;
 
     if (this.state.hasError) {
       return (
@@ -41,20 +43,20 @@ class PageErrorBoundaryBase extends React.Component<BoundaryBaseProps, BoundaryS
             alignItems: 'center',
             justifyContent: 'center',
             flex: 1,
-            background: '#2d2d2d',
-            color: '#fff',
+            background: config.config_background_color,
+            color: config.config_text_color,
             gap: '0.75rem',
             padding: '2rem',
           }}
         >
-          <p style={{ color: '#d64545', fontSize: '1rem', margin: 0 }}>
+          <p style={{ color: config.config_toast_error_color, fontSize: '1rem', margin: 0 }}>
             {t('error.render')}
           </p>
           {this.state.error && (
             <pre
               style={{
-                background: '#3a3a3a',
-                color: '#999',
+                background: config.config_input_background_color,
+                color: config.config_text_color,
                 padding: '0.5rem 0.75rem',
                 borderRadius: '4px',
                 maxWidth: '480px',
@@ -70,8 +72,8 @@ class PageErrorBoundaryBase extends React.Component<BoundaryBaseProps, BoundaryS
           <button
             onClick={this.handleRetry}
             style={{
-              background: '#c0392b',
-              color: '#fff',
+              background: config.config_toast_error_color,
+              color: config.config_background_color,
               border: 'none',
               borderRadius: '4px',
               padding: '0.4rem 1.5rem',
@@ -91,7 +93,8 @@ class PageErrorBoundaryBase extends React.Component<BoundaryBaseProps, BoundaryS
 
 const PageErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
-  return <PageErrorBoundaryBase t={t}>{children}</PageErrorBoundaryBase>;
+  const config = useConfigStore((state) => state.config);
+  return <PageErrorBoundaryBase t={t} config={config}>{children}</PageErrorBoundaryBase>;
 };
 
 export default PageErrorBoundary;

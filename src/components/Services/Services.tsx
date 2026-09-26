@@ -488,7 +488,7 @@ const Services: React.FC = () => {
                         {selectedName}
                     </span>
                     {actionError && (
-                        <span style={{ color: "#e55", fontSize: "11px" }}>{actionError}</span>
+                        <span style={{ color: servicesConfig.config.services_failed_color, fontSize: "11px" }}>{actionError}</span>
                     )}
                     <KillButton
                         killButtonBackgroundColor={servicesConfig.config.services_body_background_color}

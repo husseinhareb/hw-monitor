@@ -23,7 +23,7 @@
 .spinner {
     width: 48px;
     height: 48px;
-    border: 5px solid #ccc;
+    border: 5px solid currentColor;
     border-bottom-color: transparent;
     border-radius: 50%;
     display: inline-block;

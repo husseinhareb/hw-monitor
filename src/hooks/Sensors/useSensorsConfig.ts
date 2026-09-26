@@ -15,6 +15,10 @@ const sensorsConfigKeys = [
     "sensors_label_overrides",
     "sensors_warning_thresholds",
     "sensors_critical_thresholds",
+    "sensors_graph_color",
+    "sensors_status_ok_color",
+    "sensors_status_warning_color",
+    "sensors_status_critical_color",
 ] as const;
 
 type SensorsConfig = Pick<ConfigData, (typeof sensorsConfigKeys)[number]>;

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNotifications, useDismissNotification } from '../../services/store';
 import { useTranslation } from 'react-i18next';
+import { useConfigStore } from '../../services/configStore';
 
 const slideIn = keyframes`
   from { transform: translateX(110%); opacity: 0; }
@@ -20,16 +21,10 @@ const ToastWrapper = styled.div.attrs({ role: 'alert', 'aria-live': 'polite' })`
   pointer-events: none;
 `;
 
-const typeStyles: Record<string, { bg: string; border: string }> = {
-  error:   { bg: '#3a1212', border: '#c0392b' },
-  warning: { bg: '#3a2e12', border: '#e67e22' },
-  info:    { bg: '#12243a', border: '#3498db' },
-};
-
-const ToastItem = styled.div<{ $type: string }>`
-  background: ${({ $type }) => (typeStyles[$type] ?? typeStyles.error).bg};
-  border-left: 4px solid ${({ $type }) => (typeStyles[$type] ?? typeStyles.error).border};
-  color: #fff;
+const ToastItem = styled.div<{ $accent: string; $bg: string; $color: string }>`
+  background: color-mix(in srgb, ${({ $accent }) => $accent} 15%, ${({ $bg }) => $bg});
+  border-left: 4px solid ${({ $accent }) => $accent};
+  color: ${({ $color }) => $color};
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
@@ -43,13 +38,14 @@ const ToastItem = styled.div<{ $type: string }>`
 const CloseBtn = styled.button`
   background: none;
   border: none;
-  color: #aaa;
+  color: inherit;
+  opacity: 0.65;
   cursor: pointer;
   font-size: 1rem;
   line-height: 1;
   padding: 0;
   flex-shrink: 0;
-  &:hover { color: #fff; }
+  &:hover { opacity: 1; }
 `;
 
 const AUTO_DISMISS_MS = 5000;
@@ -63,6 +59,12 @@ interface EntryProps {
 
 const ToastEntry: React.FC<EntryProps> = ({ id, messageKey, type, dismiss }) => {
   const { t } = useTranslation();
+  const config = useConfigStore((state) => state.config);
+  const accent = type === 'warning'
+    ? config.config_toast_warning_color
+    : type === 'info'
+      ? config.config_toast_info_color
+      : config.config_toast_error_color;
 
   useEffect(() => {
     const timer = setTimeout(() => dismiss(id), AUTO_DISMISS_MS);
@@ -70,7 +72,7 @@ const ToastEntry: React.FC<EntryProps> = ({ id, messageKey, type, dismiss }) => 
   }, [id, dismiss]);
 
   return (
-    <ToastItem $type={type}>
+    <ToastItem $accent={accent} $bg={config.config_container_background_color} $color={config.config_text_color}>
       <span>{t(messageKey, { defaultValue: messageKey })}</span>
       <CloseBtn onClick={() => dismiss(id)} aria-label="dismiss">✕</CloseBtn>
     </ToastItem>

@@ -12,6 +12,9 @@ const disksConfigKeys = [
     "disks_partition_name_foreground_color",
     "disks_partition_type_foreground_color",
     "disks_partition_usage_foreground_color",
+    "disks_smart_ok_color",
+    "disks_smart_warning_color",
+    "disks_smart_fail_color",
 ] as const;
 
 type DisksConfig = Pick<ConfigData, (typeof disksConfigKeys)[number]>;

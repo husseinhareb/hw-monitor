@@ -9,6 +9,9 @@ const configPanelKeys = [
     "config_button_background_color",
     "config_button_foreground_color",
     "config_text_color",
+    "config_toast_error_color",
+    "config_toast_warning_color",
+    "config_toast_info_color",
 ] as const;
 
 type ConfigPanelConfig = Pick<ConfigData, (typeof configPanelKeys)[number]>;

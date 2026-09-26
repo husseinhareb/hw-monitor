@@ -183,6 +183,9 @@
     "disks_config.partition_name_foreground_color": "Kolor Tekstu Nazwy Partycji",
     "disks_config.partition_type_foreground_color": "Kolor Tekstu Typu Partycji",
     "disks_config.partition_usage_foreground_color": "Kolor Tekstu Użycia Partycji",
+    "disks_config.smart_ok_color": "Kolor SMART OK",
+    "disks_config.smart_warning_color": "Kolor Ostrzeżenia SMART",
+    "disks_config.smart_fail_color": "Kolor Błędu SMART",
     
     "heatbar_config.title": "Konfiguracja Paska Ciepła",
     "heatbar_config.color_one": "Pierwszy Kolor",
@@ -211,6 +214,10 @@
     "sensors_config.boxes_background_color": "Kolor Tła Pudełek",
     "sensors_config.boxes_foreground_color": "Kolor Tekstu Pudełek",
     "sensors_config.boxes_title_foreground_color": "Kolor Tekstu Tytułów Pudełek",
+    "sensors_config.graph_color": "Kolor Wykresu",
+    "sensors_config.status_ok_color": "Kolor Statusu OK",
+    "sensors_config.status_warning_color": "Kolor Statusu Ostrzeżenia",
+    "sensors_config.status_critical_color": "Kolor Statusu Krytycznego",
     "sensors_config.battery_background_color": "Kolor Tła Baterii",
     "sensors_config.battery_frame_color": "Kolor Ramki Baterii",
     "sensors_config.battery_case_color": "Kolor Obudowy Baterii",
@@ -415,6 +422,9 @@
     "config_panel_config.button_background_color": "Kolor Tła Przycisków",
     "config_panel_config.button_foreground_color": "Kolor Tekstu Przycisków",
     "config_panel_config.text_color": "Kolor Tekstu",
+    "config_panel_config.toast_error_color": "Kolor Powiadomienia o Błędzie",
+    "config_panel_config.toast_warning_color": "Kolor Powiadomienia Ostrzegawczego",
+    "config_panel_config.toast_info_color": "Kolor Powiadomienia Informacyjnego",
 
     "minutes": "min",
 

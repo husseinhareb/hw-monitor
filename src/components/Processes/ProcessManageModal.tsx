@@ -27,6 +27,8 @@ interface Props {
     process: Process;
     backgroundColor: string;
     color: string;
+    dangerColor: string;
+    accentColor: string;
     onClose: () => void;
     onKilled: () => void;
 }
@@ -34,7 +36,7 @@ interface Props {
 const NICE_MIN = -20;
 const NICE_MAX = 19;
 
-const ProcessManageModal: React.FC<Props> = ({ process, backgroundColor, color, onClose, onKilled }) => {
+const ProcessManageModal: React.FC<Props> = ({ process, backgroundColor, color, dangerColor, accentColor, onClose, onKilled }) => {
     const { t } = useTranslation();
     const [niceness, setNiceness] = useState<number>(process.nice ?? 0);
     const [priorityPending, setPriorityPending] = useState(false);
@@ -138,7 +140,7 @@ const ProcessManageModal: React.FC<Props> = ({ process, backgroundColor, color, 
 
     return (
         <ManageModalOverlay onClick={onClose}>
-            <ManageModalContent $backgroundColor={backgroundColor} $color={color} onClick={(e) => e.stopPropagation()}>
+            <ManageModalContent $backgroundColor={backgroundColor} $color={color} $dangerColor={dangerColor} $accentColor={accentColor} onClick={(e) => e.stopPropagation()}>
                 <ManageModalHeader>
                     <ManageModalTitle title={`${process.name ?? ''} (PID: ${process.pid})`}>
                         {t('proc.manage_title')}: {process.name} (PID: {process.pid})

@@ -183,6 +183,9 @@
     "disks_config.partition_name_foreground_color": "Колір тексту імені розділу",
     "disks_config.partition_type_foreground_color": "Колір тексту типу розділу",
     "disks_config.partition_usage_foreground_color": "Колір тексту використання розділу",
+    "disks_config.smart_ok_color": "Колір SMART: норма",
+    "disks_config.smart_warning_color": "Колір SMART: попередження",
+    "disks_config.smart_fail_color": "Колір SMART: збій",
 
     "heatbar_config.title": "Конфігурація теплової шкали",
     "heatbar_config.color_one": "Перший колір",
@@ -211,6 +214,10 @@
     "sensors_config.boxes_background_color": "Колір фону блоків",
     "sensors_config.boxes_foreground_color": "Колір тексту блоків",
     "sensors_config.boxes_title_foreground_color": "Колір тексту заголовків блоків",
+    "sensors_config.graph_color": "Колір графіка",
+    "sensors_config.status_ok_color": "Колір нормального стану",
+    "sensors_config.status_warning_color": "Колір попередження",
+    "sensors_config.status_critical_color": "Колір критичного стану",
     "sensors_config.battery_background_color": "Колір фону батареї",
     "sensors_config.battery_frame_color": "Колір рамки батареї",
     "sensors_config.battery_case_color": "Колір корпусу батареї",
@@ -415,6 +422,9 @@
     "config_panel_config.button_background_color": "Колір фону кнопок",
     "config_panel_config.button_foreground_color": "Колір тексту кнопок",
     "config_panel_config.text_color": "Колір тексту",
+    "config_panel_config.toast_error_color": "Колір сповіщення про помилку",
+    "config_panel_config.toast_warning_color": "Колір сповіщення-попередження",
+    "config_panel_config.toast_info_color": "Колір інформаційного сповіщення",
 
     "minutes": "хв",
 

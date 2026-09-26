@@ -185,6 +185,9 @@
     "disks_config.partition_name_foreground_color": "لون نص اسم القسم",
     "disks_config.partition_type_foreground_color": "لون نص نوع القسم",
     "disks_config.partition_usage_foreground_color": "لون نص استخدام القسم",
+    "disks_config.smart_ok_color": "لون SMART السليم",
+    "disks_config.smart_warning_color": "لون تحذير SMART",
+    "disks_config.smart_fail_color": "لون فشل SMART",
 
     "heatbar_config.title": "إعدادات شريط الحرارة",
     "heatbar_config.color_one": "اللون الأول",
@@ -213,6 +216,10 @@
     "sensors_config.boxes_background_color": "لون خلفية الصناديق",
     "sensors_config.boxes_foreground_color": "لون نص الصناديق",
     "sensors_config.boxes_title_foreground_color": "لون نص عنوان الصناديق",
+    "sensors_config.graph_color": "لون الرسم البياني",
+    "sensors_config.status_ok_color": "لون الحالة الطبيعية",
+    "sensors_config.status_warning_color": "لون حالة التحذير",
+    "sensors_config.status_critical_color": "لون الحالة الحرجة",
     "sensors_config.battery_background_color": "لون خلفية البطارية",
     "sensors_config.battery_frame_color": "لون إطار البطارية",
     "sensors_config.battery_case_color": "لون غلاف البطارية",
@@ -418,6 +425,9 @@
     "config_panel_config.button_background_color": "لون خلفية الأزرار",
     "config_panel_config.button_foreground_color": "لون نص الأزرار",
     "config_panel_config.text_color": "لون النص",
+    "config_panel_config.toast_error_color": "لون إشعار الخطأ",
+    "config_panel_config.toast_warning_color": "لون إشعار التحذير",
+    "config_panel_config.toast_info_color": "لون إشعار المعلومات",
 
     "minutes": "دقيقة",
 

@@ -45,6 +45,10 @@ const SensorsConfig: React.FC<Props> = ({ theme }) => {
       <ConfigColorRow labelKey="sensors_config.boxes_background_color"       value={config.sensors_boxes_background_color}       onChange={v => handleConfigChange("sensors_boxes_background_color", v)}       theme={theme} />
       <ConfigColorRow labelKey="sensors_config.boxes_foreground_color"       value={config.sensors_boxes_foreground_color}       onChange={v => handleConfigChange("sensors_boxes_foreground_color", v)}       theme={theme} />
       <ConfigColorRow labelKey="sensors_config.boxes_title_foreground_color" value={config.sensors_boxes_title_foreground_color} onChange={v => handleConfigChange("sensors_boxes_title_foreground_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="sensors_config.graph_color" value={config.sensors_graph_color} onChange={v => handleConfigChange("sensors_graph_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="sensors_config.status_ok_color" value={config.sensors_status_ok_color} onChange={v => handleConfigChange("sensors_status_ok_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="sensors_config.status_warning_color" value={config.sensors_status_warning_color} onChange={v => handleConfigChange("sensors_status_warning_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="sensors_config.status_critical_color" value={config.sensors_status_critical_color} onChange={v => handleConfigChange("sensors_status_critical_color", v)} theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
         {t("sensors.battery")}

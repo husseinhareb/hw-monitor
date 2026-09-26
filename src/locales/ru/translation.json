@@ -183,6 +183,9 @@
     "disks_config.partition_name_foreground_color": "Цвет текста имени раздела",
     "disks_config.partition_type_foreground_color": "Цвет текста типа раздела",
     "disks_config.partition_usage_foreground_color": "Цвет текста использования раздела",
+    "disks_config.smart_ok_color": "Цвет SMART: норма",
+    "disks_config.smart_warning_color": "Цвет SMART: предупреждение",
+    "disks_config.smart_fail_color": "Цвет SMART: сбой",
 
     "heatbar_config.title": "Настройки термометра",
     "heatbar_config.color_one": "Первый цвет",
@@ -211,6 +214,10 @@
     "sensors_config.boxes_background_color": "Цвет фона блоков",
     "sensors_config.boxes_foreground_color": "Цвет текста блоков",
     "sensors_config.boxes_title_foreground_color": "Цвет текста заголовка блоков",
+    "sensors_config.graph_color": "Цвет графика",
+    "sensors_config.status_ok_color": "Цвет нормального состояния",
+    "sensors_config.status_warning_color": "Цвет предупреждения",
+    "sensors_config.status_critical_color": "Цвет критического состояния",
     "sensors_config.battery_background_color": "Цвет фона аккумулятора",
     "sensors_config.battery_frame_color": "Цвет рамки аккумулятора",
     "sensors_config.battery_case_color": "Цвет корпуса аккумулятора",
@@ -415,6 +422,9 @@
     "config_panel_config.button_background_color": "Цвет фона кнопок",
     "config_panel_config.button_foreground_color": "Цвет текста кнопок",
     "config_panel_config.text_color": "Цвет текста",
+    "config_panel_config.toast_error_color": "Цвет уведомления об ошибке",
+    "config_panel_config.toast_warning_color": "Цвет уведомления-предупреждения",
+    "config_panel_config.toast_info_color": "Цвет информационного уведомления",
 
     "minutes": "мин",
 

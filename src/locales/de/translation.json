@@ -181,6 +181,9 @@
     "disks_config.partition_name_foreground_color": "Namen-Vordergrundfarbe der Partition",
     "disks_config.partition_type_foreground_color": "Typ-Vordergrundfarbe der Partition",
     "disks_config.partition_usage_foreground_color": "Nutzungs-Vordergrundfarbe der Partition",
+    "disks_config.smart_ok_color": "SMART-OK-Farbe",
+    "disks_config.smart_warning_color": "SMART-Warnfarbe",
+    "disks_config.smart_fail_color": "SMART-Fehlerfarbe",
 
     "heatbar_config.title": "Heizstab-Konfiguration",
     "heatbar_config.color_one": "Erste Farbe",
@@ -209,6 +212,10 @@
     "sensors_config.boxes_background_color": "Boxen-Hintergrundfarbe",
     "sensors_config.boxes_foreground_color": "Boxen-Vordergrundfarbe",
     "sensors_config.boxes_title_foreground_color": "Boxen-Titel-Vordergrundfarbe",
+    "sensors_config.graph_color": "Diagrammfarbe",
+    "sensors_config.status_ok_color": "Farbe Status OK",
+    "sensors_config.status_warning_color": "Farbe Status Warnung",
+    "sensors_config.status_critical_color": "Farbe Status Kritisch",
     "sensors_config.battery_background_color": "Batterie-Hintergrundfarbe",
     "sensors_config.battery_frame_color": "Batterie-Rahmenfarbe",
     "sensors_config.battery_case_color": "Batterie-Gehäusefarbe",
@@ -413,6 +420,9 @@
     "config_panel_config.button_background_color": "Schaltflächen-Hintergrundfarbe",
     "config_panel_config.button_foreground_color": "Schaltflächen-Textfarbe",
     "config_panel_config.text_color": "Textfarbe",
+    "config_panel_config.toast_error_color": "Farbe Fehlermeldung",
+    "config_panel_config.toast_warning_color": "Farbe Warnmeldung",
+    "config_panel_config.toast_info_color": "Farbe Infomeldung",
 
     "minutes": "Min",
 

@@ -461,6 +461,8 @@ const Proc: React.FC = () => {
                     process={managedProcess}
                     backgroundColor={processConfig.config.processes_body_background_color}
                     color={processConfig.config.processes_body_color}
+                    dangerColor={processConfig.config.processes_services_failed_color}
+                    accentColor={processConfig.config.processes_services_active_color}
                     onClose={() => setManageOpen(false)}
                     onKilled={handleProcessKilledFromModal}
                 />

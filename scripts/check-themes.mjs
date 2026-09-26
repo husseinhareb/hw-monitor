@@ -28,6 +28,14 @@ const FG_BG_PAIRS = [
   ["config_button_foreground_color", "config_button_background_color"],
 ];
 
+const MIN_BORDER_CONTRAST = 1.25;
+
+const BORDER_BG_PAIRS = [
+  ["processes_border_color", "processes_body_background_color"],
+  ["services_border_color", "services_body_background_color"],
+  ["connections_border_color", "connections_body_background_color"],
+];
+
 function isColorKey(key) {
   return key.endsWith("_color") || key.startsWith("heatbar_color_");
 }
@@ -176,6 +184,18 @@ function validateTheme(theme, requiredKeys) {
     if (ratio < MIN_CONTRAST) {
       errors.push(
         `${fgKey} on ${bgKey}: contrast ${ratio.toFixed(2)}:1 below ${MIN_CONTRAST}:1 (${fg} / ${bg})`,
+      );
+    }
+  }
+
+  for (const [borderKey, bgKey] of BORDER_BG_PAIRS) {
+    const border = values[borderKey];
+    const bg = values[bgKey];
+    if (!border || !bg || !HEX_RE.test(border) || !HEX_RE.test(bg)) continue;
+    const ratio = contrastRatio(border, bg);
+    if (ratio < MIN_BORDER_CONTRAST) {
+      errors.push(
+        `${borderKey} on ${bgKey}: contrast ${ratio.toFixed(2)}:1 below ${MIN_BORDER_CONTRAST}:1, borders invisible (${border} / ${bg})`,
       );
     }
   }

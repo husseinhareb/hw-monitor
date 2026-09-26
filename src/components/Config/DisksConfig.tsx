@@ -54,6 +54,9 @@ const DisksConfig: React.FC<Props> = ({ theme }) => {
       <ConfigColorRow labelKey="disks_config.partition_name_foreground_color"  value={config.disks_partition_name_foreground_color}  onChange={v => handleConfigChange("disks_partition_name_foreground_color", v)}  theme={theme} />
       <ConfigColorRow labelKey="disks_config.partition_type_foreground_color"  value={config.disks_partition_type_foreground_color}  onChange={v => handleConfigChange("disks_partition_type_foreground_color", v)}  theme={theme} />
       <ConfigColorRow labelKey="disks_config.partition_usage_foreground_color" value={config.disks_partition_usage_foreground_color} onChange={v => handleConfigChange("disks_partition_usage_foreground_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="disks_config.smart_ok_color" value={config.disks_smart_ok_color} onChange={v => handleConfigChange("disks_smart_ok_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="disks_config.smart_warning_color" value={config.disks_smart_warning_color} onChange={v => handleConfigChange("disks_smart_warning_color", v)} theme={theme} />
+      <ConfigColorRow labelKey="disks_config.smart_fail_color" value={config.disks_smart_fail_color} onChange={v => handleConfigChange("disks_smart_fail_color", v)} theme={theme} />
     </SectionCard>
   );
 };

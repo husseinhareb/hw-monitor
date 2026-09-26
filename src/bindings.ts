@@ -82,6 +82,9 @@ export interface ConfigData {
   config_button_background_color: string;
   config_button_foreground_color: string;
   config_text_color: string;
+  config_toast_error_color: string;
+  config_toast_warning_color: string;
+  config_toast_info_color: string;
   services_update_time: number;
   services_background_color: string;
   services_body_background_color: string;

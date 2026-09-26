@@ -137,10 +137,13 @@ export const ManageModalOverlay = styled.div`
     z-index: 2000;
 `;
 
-export const ManageModalContent = styled.div<{ $backgroundColor: string; $color: string }>`
+export const ManageModalContent = styled.div<{ $backgroundColor: string; $color: string; $dangerColor: string; $accentColor: string }>`
+    --manage-bg: ${(props) => props.$backgroundColor};
+    --manage-danger: ${(props) => props.$dangerColor};
+    --manage-accent: ${(props) => props.$accentColor};
     background: ${(props) => props.$backgroundColor};
     color: ${(props) => props.$color};
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
     width: min(520px, calc(100vw - 40px));
     max-height: min(640px, calc(100vh - 80px));
     display: flex;
@@ -153,7 +156,7 @@ export const ManageModalHeader = styled.div`
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent);
     flex-shrink: 0;
 `;
 
@@ -171,7 +174,7 @@ export const ManageModalTitle = styled.span`
 
 export const ManageModalClose = styled.button`
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
     color: inherit;
     cursor: pointer;
     font-size: 16px;
@@ -184,7 +187,7 @@ export const ManageModalClose = styled.button`
     justify-content: center;
     outline: none;
     flex-shrink: 0;
-    &:hover { background: rgba(255, 255, 255, 0.08); }
+    &:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
 `;
 
 export const ManageModalBody = styled.div`
@@ -232,20 +235,20 @@ export const ManageRangeInput = styled.input`
 export const ManageNumberInput = styled.input`
     width: 64px;
     background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.13);
+    border: 1px solid color-mix(in srgb, currentColor 13%, transparent);
     color: inherit;
     padding: 4px 6px;
     font-size: 12px;
     outline: none;
     &:focus {
-        border-color: rgba(255, 255, 255, 0.3);
+        border-color: color-mix(in srgb, currentColor 30%, transparent);
     }
 `;
 
 export const ManageActionButton = styled.button<{ $danger?: boolean }>`
-    background-color: ${(props) => (props.$danger ? 'rgba(220, 60, 60, 0.85)' : 'rgba(255, 255, 255, 0.1)')};
-    color: ${(props) => (props.$danger ? '#fff' : 'inherit')};
-    border: 1px solid ${(props) => (props.$danger ? 'rgba(220, 60, 60, 0.9)' : 'rgba(255, 255, 255, 0.14)')};
+    background-color: ${(props) => (props.$danger ? 'var(--manage-danger)' : 'color-mix(in srgb, currentColor 10%, transparent)')};
+    color: ${(props) => (props.$danger ? 'var(--manage-bg)' : 'inherit')};
+    border: 1px solid ${(props) => (props.$danger ? 'var(--manage-danger)' : 'color-mix(in srgb, currentColor 14%, transparent)')};
     padding: 5px 12px;
     font-size: 12px;
     cursor: pointer;
@@ -265,15 +268,15 @@ export const AffinityGrid = styled.div`
 `;
 
 export const AffinityCpuButton = styled.button<{ $selected: boolean }>`
-    background-color: ${(props) => (props.$selected ? 'rgba(9, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.06)')};
-    border: 1px solid ${(props) => (props.$selected ? 'rgba(9, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.12)')};
+    background-color: ${(props) => (props.$selected ? 'color-mix(in srgb, var(--manage-accent) 18%, transparent)' : 'color-mix(in srgb, currentColor 6%, transparent)')};
+    border: 1px solid ${(props) => (props.$selected ? 'color-mix(in srgb, var(--manage-accent) 60%, transparent)' : 'color-mix(in srgb, currentColor 12%, transparent)')};
     color: inherit;
     padding: 6px 0;
     font-size: 11px;
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     &:hover {
-        border-color: rgba(9, 255, 255, 0.5);
+        border-color: color-mix(in srgb, var(--manage-accent) 50%, transparent);
     }
     &:disabled {
         opacity: 0.4;
@@ -283,5 +286,5 @@ export const AffinityCpuButton = styled.button<{ $selected: boolean }>`
 
 export const ManageErrorText = styled.div`
     font-size: 11px;
-    color: #ff8080;
+    color: var(--manage-danger);
 `;

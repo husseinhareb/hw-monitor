@@ -137,10 +137,10 @@ export const ModalBody = styled.div`
   align-items: start;
   gap: 10px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: color-mix(in srgb, currentColor 15%, transparent) transparent;
   &::-webkit-scrollbar { width: 6px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 15%, transparent); }
 `;
 
 export const DetailSection = styled.div<{ $borderColor: string }>`
@@ -280,7 +280,7 @@ export const PartitionCardHeader = styled.div<{ $color: string; $borderColor: st
   font-weight: 700;
 `;
 
-export const SmartHealthBanner = styled.div<{ $pass: boolean; $borderColor: string }>`
+export const SmartHealthBanner = styled.div<{ $color: string; $borderColor: string }>`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -289,20 +289,19 @@ export const SmartHealthBanner = styled.div<{ $pass: boolean; $borderColor: stri
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  background: ${(props) =>
-    props.$pass ? "rgba(123, 216, 143, 0.12)" : "rgba(214, 69, 69, 0.12)"};
-  color: ${(props) => (props.$pass ? "#7bd88f" : "#d64545")};
+  background: color-mix(in srgb, ${(props) => props.$color} 12%, transparent);
+  color: ${(props) => props.$color};
 `;
 
-export const SmartHealthDot = styled.span<{ $pass: boolean }>`
+export const SmartHealthDot = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$pass ? "#7bd88f" : "#d64545")};
+  background: currentColor;
   flex-shrink: 0;
 `;
 
-export const SmartTable = styled.table<{ $borderColor: string; $labelColor: string; $valueColor: string }>`
+export const SmartTable = styled.table<{ $borderColor: string; $labelColor: string; $valueColor: string; $warningColor: string; $failColor: string }>`
   width: 100%;
   border-collapse: collapse;
   font-size: 11px;
@@ -330,25 +329,25 @@ export const SmartTable = styled.table<{ $borderColor: string; $labelColor: stri
   }
 
   tr.prefail td:first-child {
-    border-left: 2px solid rgba(240, 192, 74, 0.6);
+    border-left: 2px solid ${(props) => props.$warningColor};
     padding-left: 4px;
   }
 
   tr.failed td:first-child {
-    border-left: 2px solid #d64545;
+    border-left: 2px solid ${(props) => props.$failColor};
     padding-left: 4px;
   }
 `;
 
-export const SmartBadge = styled.span<{ $pass: boolean }>`
+export const SmartBadge = styled.span<{ $color: string }>`
   display: inline-flex;
   align-items: center;
   padding: 1px 5px;
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  background: ${(props) => (props.$pass ? "rgba(123, 216, 143, 0.18)" : "rgba(214, 69, 69, 0.22)")};
-  color: ${(props) => (props.$pass ? "#7bd88f" : "#d64545")};
+  background: color-mix(in srgb, ${(props) => props.$color} 20%, transparent);
+  color: ${(props) => props.$color};
 `;
 
 export const SmartError = styled.div`
@@ -368,42 +367,7 @@ export const SmartLimitedBanner = styled.div`
   opacity: 0.75;
 `;
 
-export const SmartPasswordInput = styled.input`
-  background: transparent;
-  border: 1px solid rgba(128, 128, 128, 0.3);
-  color: inherit;
-  font-size: 12px;
-  padding: 3px 8px;
-  flex: 1;
-  min-width: 0;
-  outline: none;
 
-  &:focus {
-    border-color: rgba(123, 216, 143, 0.5);
-  }
-`;
-
-export const SmartFixButton = styled.button`
-  background: transparent;
-  border: 1px solid rgba(123, 216, 143, 0.45);
-  color: rgba(123, 216, 143, 0.9);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 10px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  flex-shrink: 0;
-
-  &:hover {
-    background: rgba(123, 216, 143, 0.1);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-`;
 
 export const SmartLoading = styled.div`
   padding: 10px;

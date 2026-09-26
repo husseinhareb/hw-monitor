@@ -74,6 +74,9 @@ const Disks: React.FC = () => {
   const modalSectionColor = disksConfig.config.disks_name_foreground_color;
   const modalLabelColor = disksConfig.config.disks_partition_type_foreground_color;
   const modalValueColor = disksConfig.config.disks_partition_usage_foreground_color;
+  const smartOkColor = disksConfig.config.disks_smart_ok_color;
+  const smartWarningColor = disksConfig.config.disks_smart_warning_color;
+  const smartFailColor = disksConfig.config.disks_smart_fail_color;
 
   const renderDetailRow = (label: React.ReactNode, value: React.ReactNode, key?: React.Key) => (
     <DetailRow key={key} $borderColor={modalBorderColor}>
@@ -192,8 +195,8 @@ const Disks: React.FC = () => {
             <span>{t('disks.smart.limited')}</span>
           </SmartLimitedBanner>
         ) : (
-          <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
-            <SmartHealthDot $pass={d.overall_health} />
+          <SmartHealthBanner $color={d.overall_health ? smartOkColor : smartFailColor} $borderColor={modalBorderColor}>
+            <SmartHealthDot />
             {d.overall_health ? t('disks.smart.passed') : t('disks.smart.failed')}
           </SmartHealthBanner>
         )}
@@ -214,8 +217,8 @@ const Disks: React.FC = () => {
   const renderAtaSmart = (d: AtaSmartData) => (
     <DetailSection $borderColor={modalBorderColor}>
       {renderSectionTitle(t('disks.smart.title'))}
-      <SmartHealthBanner $pass={d.overall_health} $borderColor={modalBorderColor}>
-        <SmartHealthDot $pass={d.overall_health} />
+      <SmartHealthBanner $color={d.overall_health ? smartOkColor : smartFailColor} $borderColor={modalBorderColor}>
+        <SmartHealthDot />
         {d.overall_health ? t('disks.smart.passed') : t('disks.smart.failed')}
         {d.temperature_celsius !== null && (
           <span style={{ marginLeft: "auto", fontWeight: 400, opacity: 0.8 }}>
@@ -228,12 +231,12 @@ const Disks: React.FC = () => {
           </span>
         )}
         {d.reallocated_sectors !== null && d.reallocated_sectors > 0 && (
-          <span style={{ color: "#f0c04a" }}>
+          <span style={{ color: smartWarningColor }}>
             {d.reallocated_sectors} {t('disks.smart.reallocated')}
           </span>
         )}
         {d.pending_sectors !== null && d.pending_sectors > 0 && (
-          <span style={{ color: "#d64545" }}>
+          <span style={{ color: smartFailColor }}>
             {d.pending_sectors} {t('disks.smart.pending')}
           </span>
         )}
@@ -242,6 +245,8 @@ const Disks: React.FC = () => {
         $borderColor={modalBorderColor}
         $labelColor={modalLabelColor}
         $valueColor={modalValueColor}
+        $warningColor={smartWarningColor}
+        $failColor={smartFailColor}
       >
         <thead>
           <tr>
@@ -267,7 +272,7 @@ const Disks: React.FC = () => {
               <td style={{ textAlign: "right" }}>{attr.threshold}</td>
               <td style={{ textAlign: "right", opacity: 0.7 }}>{attr.raw_string}</td>
               <td>
-                <SmartBadge $pass={!attr.failed}>
+                <SmartBadge $color={attr.failed ? smartFailColor : smartOkColor}>
                   {attr.failed ? t('disks.smart.fail') : t('disks.smart.ok')}
                 </SmartBadge>
               </td>
