@@ -2,11 +2,10 @@ import React, { memo, useDeferredValue, useEffect, useMemo, useState } from 'rea
 import { invoke } from "@tauri-apps/api/core";
 import useProcessData, { Process } from '../../hooks/Proc/useProcessData';
 import useTotalUsagesData from '../../hooks/Proc/useTotalUsagesData';
-import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton } from '../../styles/proc-style';
+import { TableContainer, Table, Tbody, Thead, Td, Th, Tr, BottomBar, KillButton, ViewToggleBtn } from '../../styles/proc-style';
 import { useProcessSearch, notify } from '../../services/store';
 import useProcessConfig from '../../hooks/Proc/useProcessConfig';
 import { safeLighten } from '../../utils/safeLighten';
-import styled from 'styled-components';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import Spinner from '../Misc/Spinner';
 import ProcessIcon from './ProcessIcon';
@@ -23,6 +22,8 @@ const tableValues = [
     'state',
     'memory',
     'cpu_usage',
+    'gpu_usage',
+    'gpu_memory',
     'read_disk_usage',
     'write_disk_usage',
     'read_disk_speed',
@@ -44,12 +45,13 @@ interface ProcessRowProps {
     totalReadDiskUsage: number;
     totalWriteDiskUsage: number;
     totalMemoryUsage: number;
+    totalGpuMemoryUsage: number;
     onRowClick: (pid: number) => void;
 }
 
 const ProcessRow = memo<ProcessRowProps>(({
     process, columns, isSelected, selectedBg, bodyBg, bodyColor, borderColor,
-    getCellStyle, totalReadDiskUsage, totalWriteDiskUsage, totalMemoryUsage, onRowClick,
+    getCellStyle, totalReadDiskUsage, totalWriteDiskUsage, totalMemoryUsage, totalGpuMemoryUsage, onRowClick,
 }) => (
     <Tr
         onClick={() => onRowClick(process.pid)}
@@ -65,10 +67,12 @@ const ProcessRow = memo<ProcessRowProps>(({
                         ? column.includes('read')
                             ? totalReadDiskUsage
                             : totalWriteDiskUsage
-                        : column === 'cpu_usage'
+                        : column === 'cpu_usage' || column === 'gpu_usage'
                             ? null
-                            : totalMemoryUsage,
-                    column === 'cpu_usage',
+                            : column === 'gpu_memory'
+                                ? totalGpuMemoryUsage
+                                : totalMemoryUsage,
+                    column === 'cpu_usage' || column === 'gpu_usage',
                     isSelected,
                 )}
                 bodyBackgroundColor={bodyBg}
@@ -82,6 +86,7 @@ const ProcessRow = memo<ProcessRowProps>(({
                         {process[column] || ''}
                     </span>
                 ) : column === 'cpu_usage' ? `${process[column] || ''} %`
+                    : column === 'gpu_usage' ? (process[column] ? `${process[column]} %` : '')
                     : column === 'nice' ? (process[column] ?? '')
                         : process[column] || ''}
             </Td>
@@ -134,13 +139,14 @@ const Proc: React.FC = () => {
     const calculateTotalUsage = (processes: Process[], key: string): number => {
         return processes.reduce((total, process) => {
             const value = process[key];
-            return total + convertDataValue(typeof value === 'string' ? value : String(value));
+            return total + (typeof value === 'string' ? convertDataValue(value) : 0);
         }, 0);
     };
 
     const totalMemoryUsage = useMemo(() => calculateTotalUsage(processes, 'memory'), [processes]);
     const totalReadDiskUsage = useMemo(() => calculateTotalUsage(processes, 'read_disk_usage'), [processes]);
     const totalWriteDiskUsage = useMemo(() => calculateTotalUsage(processes, 'write_disk_usage'), [processes]);
+    const totalGpuMemoryUsage = useMemo(() => calculateTotalUsage(processes, 'gpu_memory'), [processes]);
     const totalCpuUsage = useMemo(() => (
         processes.reduce((total, process) => {
             const cpuUsage = typeof process.cpu_usage === 'string' ? parseFloat(process.cpu_usage) : 0;
@@ -156,13 +162,13 @@ const Proc: React.FC = () => {
             let valueA: number | string;
             let valueB: number | string;
 
-            if (['memory', 'read_disk_usage', 'write_disk_usage', 'read_disk_speed', 'write_disk_speed'].includes(column)) {
+            if (['memory', 'gpu_memory', 'read_disk_usage', 'write_disk_usage', 'read_disk_speed', 'write_disk_speed'].includes(column)) {
                 valueA = convertDataValue(a[column] as string || '0');
                 valueB = convertDataValue(b[column] as string || '0');
             } else if (['pid', 'ppid', 'nice'].includes(column)) {
                 valueA = parseInt(String(a[column] || '0'), 10);
                 valueB = parseInt(String(b[column] || '0'), 10);
-            } else if (column === 'cpu_usage') {
+            } else if (column === 'cpu_usage' || column === 'gpu_usage') {
                 valueA = parseFloat(String(a[column] || '0'));
                 valueB = parseFloat(String(b[column] || '0'));
             } else {
@@ -260,6 +266,8 @@ const Proc: React.FC = () => {
         state: { percentage: null, label: t('proc.table_value_state') },
         memory: { percentage: totalUsages.memory !== null ? `${totalUsages.memory}%` : null, label: t('proc.table_value_memory') },
         cpu_usage: { percentage: `${Math.round(totalCpuUsage)}%`, label: t('proc.table_value_cpu_usage') },
+        gpu_usage: { percentage: null, label: t('proc.table_value_gpu_usage') },
+        gpu_memory: { percentage: null, label: t('proc.table_value_gpu_memory') },
         read_disk_usage: { percentage: null, label:  t('proc.table_value_read_disk_usage') },
         write_disk_usage: { percentage: null, label:  t('proc.table_value_write_disk_usage') },
         read_disk_speed: { percentage: null, label:  t('proc.table_value_read_disk_speed') },
@@ -406,6 +414,7 @@ const Proc: React.FC = () => {
                                 totalReadDiskUsage={totalReadDiskUsage}
                                 totalWriteDiskUsage={totalWriteDiskUsage}
                                 totalMemoryUsage={totalMemoryUsage}
+                                        totalGpuMemoryUsage={totalGpuMemoryUsage}
                                 onRowClick={handleRowClick}
                             />
                         ))}
@@ -470,17 +479,5 @@ const Proc: React.FC = () => {
         </TableContainer>
     );
 };
-
-const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: string; borderColor: string }>`
-    background-color: ${props => props.active ? safeLighten(0.15, props.bgColor) : props.bgColor};
-    color: ${props => props.color};
-    border: ${props => props.active ? `1px solid ${props.borderColor}` : '1px solid transparent'};
-    padding: 3px 12px;
-    font-size: 11px;
-    cursor: pointer;
-    &:hover {
-        opacity: 0.8;
-    }
-`;
 
 export default Proc;

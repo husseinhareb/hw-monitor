@@ -288,3 +288,15 @@ export const ManageErrorText = styled.div`
     font-size: 11px;
     color: var(--manage-danger);
 `;
+
+export const ViewToggleBtn = styled.button<{ active: boolean; bgColor: string; color: string; borderColor: string }>`
+    background-color: ${props => props.active ? safeLighten(0.15, props.bgColor) : props.bgColor};
+    color: ${props => props.color};
+    border: ${props => props.active ? `1px solid ${props.borderColor}` : '1px solid transparent'};
+    padding: 3px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    &:hover {
+        opacity: 0.8;
+    }
+`;

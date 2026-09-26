@@ -6,6 +6,8 @@ use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
 use std::sync::Mutex;
 use std::time::Instant;
 
+use super::drm::{gpu_memory_bytes, gpu_usage_percent, read_drm_clients, DrmClients};
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Process {
     pid: u32,
@@ -21,6 +23,8 @@ pub struct Process {
     read_disk_speed: Option<String>,
     write_disk_speed: Option<String>,
     nice: Option<i32>,
+    gpu_usage: Option<String>,
+    gpu_memory: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -227,6 +231,7 @@ pub struct ProcSnapshot {
     pub total_cpu_time: u64,
     pub process_cpu_times: HashMap<i32, (u64, u64)>,
     pub process_io: HashMap<i32, (u64, u64)>,
+    pub process_gpu: HashMap<i32, DrmClients>,
     pub time: Instant,
 }
 
@@ -242,15 +247,16 @@ struct ProcStatData {
 type CpuUsageMap = HashMap<i32, f64>;
 type DiskSpeedMap = HashMap<i32, DiskSpeedEntry>;
 type ProcessIoMap = HashMap<i32, (u64, u64)>;
+type GpuUsageMap = HashMap<i32, (Option<f64>, u64)>;
 
 fn calculate_cpu_percentage(
     prev: &Mutex<Option<ProcSnapshot>>,
     pids: &[String],
     stat_cache: &HashMap<i32, ProcStatData>,
-) -> (CpuUsageMap, DiskSpeedMap, ProcessIoMap) {
+) -> (CpuUsageMap, DiskSpeedMap, ProcessIoMap, GpuUsageMap) {
     let total_cpu_time_now = match get_total_cpu_time() {
         Ok(t) => t,
-        Err(_) => return (HashMap::new(), HashMap::new(), HashMap::new()),
+        Err(_) => return (HashMap::new(), HashMap::new(), HashMap::new(), HashMap::new()),
     };
     let now = Instant::now();
 
@@ -270,10 +276,26 @@ fn calculate_cpu_percentage(
         }
     }
 
+    // GPU clients (only fds pointing at /dev/dri are read)
+    let mut cur_gpu: HashMap<i32, DrmClients> = HashMap::new();
+    for pid_str in pids {
+        if let Ok(pid) = pid_str.parse::<i32>() {
+            let clients = read_drm_clients(pid);
+            if !clients.is_empty() {
+                cur_gpu.insert(pid, clients);
+            }
+        }
+    }
+
     let mut guard = prev.lock().unwrap_or_else(|e| e.into_inner());
 
     let mut cpu_results = HashMap::new();
     let mut disk_results = HashMap::new();
+    // Memory is known from the first sample; usage needs a previous one.
+    let mut gpu_results: GpuUsageMap = cur_gpu
+        .iter()
+        .map(|(&pid, clients)| (pid, (None, gpu_memory_bytes(clients))))
+        .collect();
 
     if let Some(ref snap) = *guard {
         let total_cpu_diff = total_cpu_time_now.saturating_sub(snap.total_cpu_time) as f64;
@@ -287,6 +309,14 @@ fn calculate_cpu_percentage(
                     let usage = 100.0 * cpu_time_diff / total_cpu_diff;
                     cpu_results.insert(pid, usage);
                 }
+            }
+        }
+
+        for (&pid, clients) in &cur_gpu {
+            if let (Some(prev_clients), Some(entry)) =
+                (snap.process_gpu.get(&pid), gpu_results.get_mut(&pid))
+            {
+                entry.0 = Some(gpu_usage_percent(prev_clients, clients, elapsed * 1e9));
             }
         }
 
@@ -311,10 +341,11 @@ fn calculate_cpu_percentage(
         total_cpu_time: total_cpu_time_now,
         process_cpu_times: cur_cpu,
         process_io: cur_io.clone(),
+        process_gpu: cur_gpu,
         time: now,
     });
 
-    (cpu_results, disk_results, cur_io)
+    (cpu_results, disk_results, cur_io, gpu_results)
 }
 
 struct DiskSpeedEntry {
@@ -362,7 +393,7 @@ pub async fn get_processes(
     }
 
     // Phase 2: Compute CPU% and disk speed deltas (reuses stat_cache, reads /proc/[pid]/io).
-    let (cpu_results, disk_speed_results, cur_io) =
+    let (cpu_results, disk_speed_results, cur_io, gpu_results) =
         calculate_cpu_percentage(&prev_proc, &pids, &stat_cache);
 
     // Phase 3: Read /proc/[pid]/status ONCE per process → name, ppid, user, memory (VmRSS).
@@ -412,6 +443,14 @@ pub async fn get_processes(
                 (None, None)
             };
 
+        let (gpu_usage, gpu_memory) = match gpu_results.get(&pid_i32) {
+            Some(&(usage, memory)) => (
+                usage.map(|u| format!("{:.2}", u)),
+                Some(format_bytes(memory as f64)),
+            ),
+            None => (None, None),
+        };
+
         processes.push(Process {
             pid: pid_u32,
             start_time: stat_data.start_time,
@@ -426,6 +465,8 @@ pub async fn get_processes(
             read_disk_speed,
             write_disk_speed,
             nice: Some(stat_data.nice),
+            gpu_usage,
+            gpu_memory,
         });
     }
 

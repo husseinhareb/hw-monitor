@@ -131,7 +131,7 @@ define_config! {
     processes_body_color: String = "#ffffff".into(),
     processes_head_background_color: String = "#252526".into(),
     processes_head_color: String = "#ffffff".into(),
-    processes_table_values: Vec<String> = vec!["user".into(), "pid".into(), "ppid".into(), "name".into(), "state".into(), "cpu_usage".into(), "memory".into()],
+    processes_table_values: Vec<String> = vec!["user".into(), "pid".into(), "ppid".into(), "name".into(), "state".into(), "cpu_usage".into(), "gpu_usage".into(), "memory".into()],
     processes_border_color: String = "#444444".into(),
     processes_tree_toggle_color: String = "#888888".into(),
     processes_monitor_border_color: String = "#555555".into(),
@@ -674,7 +674,7 @@ fn config_file() -> Result<PathBuf, io::Error> {
     Ok(config_dir.join("hw-monitor").join("hw-monitor.conf"))
 }
 
-fn get_config_dir() -> Option<PathBuf> {
+pub fn get_config_dir() -> Option<PathBuf> {
     if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
         if !xdg.is_empty() {
             return Some(PathBuf::from(xdg));

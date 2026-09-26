@@ -41,6 +41,7 @@ fn config_default_table_values() {
             "name",
             "state",
             "cpu_usage",
+            "gpu_usage",
             "memory"
         ]
     );
@@ -187,7 +188,7 @@ fn write_to_produces_key_value_lines() {
     assert!(content.contains("heatbar_color_one=#00FF00"));
 
     // Vec should be comma-separated
-    assert!(content.contains("processes_table_values=user,pid,ppid,name,state,cpu_usage,memory"));
+    assert!(content.contains("processes_table_values=user,pid,ppid,name,state,cpu_usage,gpu_usage,memory"));
 
     std::fs::remove_dir_all(&dir).ok();
 }

@@ -13,7 +13,7 @@ export const defaultConfig: ConfigData = {
   processes_body_color: "#ffffff",
   processes_head_background_color: "#252526",
   processes_head_color: "#ffffff",
-  processes_table_values: ["user", "pid", "ppid", "name", "state", "cpu_usage", "memory"],
+  processes_table_values: ["user", "pid", "ppid", "name", "state", "cpu_usage", "gpu_usage", "memory"],
   processes_border_color: "#444444",
   processes_tree_toggle_color: "#888888",
   processes_monitor_border_color: "#555555",

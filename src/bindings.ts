@@ -216,6 +216,8 @@ export interface Process {
   read_disk_speed: string | null;
   write_disk_speed: string | null;
   nice: number | null;
+  gpu_usage: string | null;
+  gpu_memory: string | null;
 }
 
 export interface ProcessAffinity {

@@ -207,6 +207,8 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
         { key: 'state',           label: t('proc.table_value_state'),           fr: 1   },
         { key: 'memory',          label: t('proc.table_value_memory'),          fr: 1.5 },
         { key: 'cpu_usage',       label: t('proc.table_value_cpu_usage'),       fr: 1   },
+        { key: 'gpu_usage',       label: t('proc.table_value_gpu_usage'),       fr: 1   },
+        { key: 'gpu_memory',      label: t('proc.table_value_gpu_memory'),      fr: 1.5 },
         { key: 'read_disk_usage', label: t('proc.table_value_read_disk_usage'), fr: 2   },
         { key: 'write_disk_usage',label: t('proc.table_value_write_disk_usage'),fr: 2   },
         { key: 'read_disk_speed', label: t('proc.table_value_read_disk_speed'), fr: 2   },
@@ -264,7 +266,9 @@ const ProcessTree: React.FC<ProcessTreeProps> = ({ processes, processConfig, onS
                             }
                             const value = col.key === 'cpu_usage'
                                 ? `${proc[col.key] || '0'} %`
-                                : String(proc[col.key] || '');
+                                : col.key === 'gpu_usage'
+                                    ? (proc[col.key] ? `${proc[col.key]} %` : '')
+                                    : String(proc[col.key] || '');
                             return (
                                 <TreeCell key={`${proc.pid}-${col.key}`} color={processConfig.config.processes_body_color} borderColor={processConfig.config.processes_border_color}>
                                     {value}
