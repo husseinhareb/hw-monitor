@@ -166,22 +166,22 @@ const Graph: React.FC<GraphProps> = ({
       return;
     }
 
-    const firstSeries = firstGraphValue.slice(-MAX_POINTS);
-    const secondSeries = secondGraphValue.slice(-MAX_POINTS);
-    const pointCount = Math.max(firstSeries.length, secondSeries.length, 1);
     const intervalSec =
       (updateInterval ?? performanceConfig.config.performance_update_time) / 1000;
 
-    // All graphs share the global tick so their rightmost label is always identical.
-    // The tick counts CPU samples, so a series that got a sample before the first
-    // CPU one can briefly hold more points than ticks; never label below 0s.
-    const lastTick = Math.max(tick, pointCount - 1);
-    chart.data.labels = Array.from(
-      { length: pointCount },
-      (_, index) => `${((lastTick - pointCount + index + 1) * intervalSec).toFixed(0)}s`,
-    );
-    chart.data.datasets[0].data = firstSeries;
-    chart.data.datasets[1].data = secondSeries;
+    // Every graph gets the same MAX_POINTS slots ending at the shared tick, with a
+    // short (still filling) series right-aligned. Labelling only the points a series
+    // has made Chart.js skip to different ticks per graph. Slots before 0s stay blank.
+    const fit = (series: number[]) => {
+      const last = series.slice(-MAX_POINTS);
+      return [...Array<null>(MAX_POINTS - last.length).fill(null), ...last];
+    };
+    chart.data.labels = Array.from({ length: MAX_POINTS }, (_, index) => {
+      const at = tick - MAX_POINTS + 1 + index;
+      return at < 0 ? '' : `${(at * intervalSec).toFixed(0)}s`;
+    });
+    chart.data.datasets[0].data = fit(firstGraphValue);
+    chart.data.datasets[1].data = fit(secondGraphValue);
     chart.update('none');
   }, [
     tick,
