@@ -14,6 +14,7 @@ import {
   Container,
   Title,
   SensorGrid,
+  SensorScroller,
   SensorList,
   SensorName,
   SensorGroup,
@@ -376,6 +377,13 @@ const Sensors: React.FC = () => {
     }
   };
 
+  const cfg = sensorsConfig.config;
+  const statusColor = (status: SensorStatus) => {
+    if (status === 'critical') return cfg.sensors_status_critical_color;
+    if (status === 'warning') return cfg.sensors_status_warning_color;
+    return cfg.sensors_status_ok_color;
+  };
+
   const getChipAlertStatus = (sensorsList: Sensor[]): SensorStatus => {
     let hasWarning = false;
     for (const sensor of sensorsList) {
@@ -396,6 +404,7 @@ const Sensors: React.FC = () => {
   return (
     <Container
       sensorsBackgroundColors={sensorsConfig.config.sensors_background_color}
+      sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}
     >
       <SensorToolbar sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>
         <Title sensorsForegroundColor={sensorsConfig.config.sensors_foreground_color}>
@@ -408,7 +417,7 @@ const Sensors: React.FC = () => {
             placeholder={t('sensors.filter_placeholder')}
             onChange={(event) => setSensorFilter(event.target.value)}
           />
-          <ShowHiddenToggle>
+          <ShowHiddenToggle $accentColor={cfg.sensors_status_ok_color}>
             <input
               type="checkbox"
               checked={showHidden}
@@ -429,210 +438,212 @@ const Sensors: React.FC = () => {
           )}
         </SensorControls>
       </SensorToolbar>
-      <SensorGrid>
-        {hasBatterySection(batteryState.batteries, batteryState.error) && (
-          <SensorList
-            sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
-            sensorsBoxesForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
-          >
-            <Battery
-              batteries={batteryState.batteries}
-              loading={batteryState.loading}
-              error={batteryState.error}
-            />
-          </SensorList>
-        )}
-        {sortedSensors.map((hwmon) => {
-          const isCollapsed = collapsedChips.has(hwmon.name) && !normalizedSensorFilter;
-          const chipAlertStatus = getChipAlertStatus(hwmon.sensors);
-          const categorizedGroups = groupSensorsByCategory(hwmon.sensors);
-          const hasMultipleCategories = categorizedGroups.length > 1;
-
-          return (
+      <SensorScroller>
+        <SensorGrid>
+          {hasBatterySection(batteryState.batteries, batteryState.error) && (
             <SensorList
-              key={hwmon.index}
               sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
               sensorsBoxesForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
             >
-              <SensorGroup>
-                <SensorCardHeader
-                  onClick={() => toggleChipCollapsed(hwmon.name)}
-                  title={isCollapsed ? t('sensors.expand') : t('sensors.collapse')}
-                >
-                  <SensorCardTitleGroup>
-                    <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>
-                      {hwmon.name}
-                    </SensorName>
-                    <SensorBadgeCount $color={sensorsConfig.config.sensors_boxes_title_foreground_color}>
-                      {t('sensors.sensors_count', { count: hwmon.sensors.length })}
-                    </SensorBadgeCount>
-                    {isCollapsed && chipAlertStatus !== 'normal' && (
-                      <SensorStatusBadge $status={chipAlertStatus}>
-                        {t(`sensors.status_${chipAlertStatus}`)}
-                      </SensorStatusBadge>
-                    )}
-                  </SensorCardTitleGroup>
-                  <SensorHeaderActions $color={sensorsConfig.config.sensors_boxes_title_foreground_color}>
-                    {isCollapsed ? <FaChevronRight /> : <FaChevronDown />}
-                  </SensorHeaderActions>
-                </SensorCardHeader>
-
-                {!isCollapsed && (
-                  <ContentDiv>
-                    {categorizedGroups.map((group) => (
-                      <React.Fragment key={group.category.key}>
-                        {hasMultipleCategories && (
-                          <SensorCategoryHeader
-                            sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}
-                          >
-                            <span>{t(group.category.labelKey)}</span>
-                            <span style={{ fontSize: '9px', opacity: 0.7 }}>{group.sensors.length}</span>
-                          </SensorCategoryHeader>
-                        )}
-                        {group.sensors.map((sensor) => {
-                          const isHidden = hiddenSet.has(sensor.id);
-                          const critical = resolveThreshold(
-                            criticalOverrides,
-                            sensor.id,
-                            sensor.critical,
-                            sensor.sensor_type === 'temperature' ? 100 : undefined,
-                          );
-                          const warning = resolveThreshold(warningOverrides, sensor.id, sensor.warning);
-                          const status = getSensorStatus(sensor, warning, critical);
-                          const isEditing = editingSensorId === sensor.id;
-                          const typeLabel = t(`sensors.type_${sensor.sensor_type}`, {
-                            defaultValue: sensor.sensor_type,
-                          });
-
-                          return (
-                            <SensorItem
-                              sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
-                              $isHidden={isHidden}
-                              key={sensor.id}
-                            >
-                              <SensorRow>
-                                <SensorLabelBlock>
-                                  <SensorLabel title={displayName(sensor)}>{displayName(sensor)}</SensorLabel>
-                                  <SensorMetaLine>
-                                    {status !== 'normal' && (
-                                      <SensorStatusBadge $status={status}>
-                                        {t(`sensors.status_${status}`)}
-                                      </SensorStatusBadge>
-                                    )}
-                                    <SensorMeta>{typeLabel}</SensorMeta>
-                                  </SensorMetaLine>
-                                </SensorLabelBlock>
-                                <SensorValue>{formatSensorValue(sensor)}</SensorValue>
-                                <SensorActions>
-                                  <SensorIconButton
-                                    type="button"
-                                    title={t('sensors.graph')}
-                                    aria-label={t('sensors.graph')}
-                                    $active={graphSensorId === sensor.id}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setGraphSensorId(graphSensorId === sensor.id ? null : sensor.id);
-                                    }}
-                                  >
-                                    <FaChartLine />
-                                  </SensorIconButton>
-                                  <SensorIconButton
-                                    type="button"
-                                    title={t('sensors.edit')}
-                                    aria-label={t('sensors.edit')}
-                                    $active={isEditing}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditingSensorId(isEditing ? null : sensor.id);
-                                    }}
-                                  >
-                                    <FaCog />
-                                  </SensorIconButton>
-                                  <SensorIconButton
-                                    type="button"
-                                    title={isHidden ? t('sensors.show') : t('sensors.hide')}
-                                    aria-label={isHidden ? t('sensors.show') : t('sensors.hide')}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSensorHidden(sensor.id, !isHidden);
-                                    }}
-                                  >
-                                    {isHidden ? <FaEye /> : <FaEyeSlash />}
-                                  </SensorIconButton>
-                                </SensorActions>
-                              </SensorRow>
-
-                              {critical !== undefined && critical > 0 && sensor.sensor_type !== 'intrusion' && (
-                                <HeatBar value={sensor.value} critical={critical} />
-                              )}
-
-                              {isEditing && (
-                                <SensorEditor onClick={(e) => e.stopPropagation()}>
-                                  <SensorEditorField>
-                                    {t('sensors.custom_label')}
-                                    <SensorEditorInput
-                                      type="text"
-                                      value={labelOverrides[sensor.id] ?? ''}
-                                      placeholder={sensor.name}
-                                      onChange={(event) => setLabelOverride(sensor.id, event.target.value)}
-                                    />
-                                  </SensorEditorField>
-                                  <SensorEditorField>
-                                    {t('sensors.warning_threshold')}
-                                    <SensorEditorInput
-                                      type="number"
-                                      step={thresholdStep(sensor)}
-                                      value={warningOverrides[sensor.id] ?? ''}
-                                      placeholder={formatThresholdPlaceholder(sensor.warning ?? undefined)}
-                                      onChange={(event) => setThresholdOverride(
-                                        'sensors_warning_thresholds',
-                                        warningOverrides,
-                                        sensor.id,
-                                        event.target.value,
-                                      )}
-                                    />
-                                  </SensorEditorField>
-                                  <SensorEditorField>
-                                    {t('sensors.critical_threshold')}
-                                    <SensorEditorInput
-                                      type="number"
-                                      step={thresholdStep(sensor)}
-                                      value={criticalOverrides[sensor.id] ?? ''}
-                                      placeholder={
-                                        sensor.sensor_type === 'intrusion'
-                                          ? (criticalOverrides[sensor.id] !== undefined ? String(criticalOverrides[sensor.id]) : t('sensors.intrusion_disable_hint'))
-                                          : formatThresholdPlaceholder(sensor.critical ?? undefined)
-                                      }
-                                      onChange={(event) => setThresholdOverride(
-                                        'sensors_critical_thresholds',
-                                        criticalOverrides,
-                                        sensor.id,
-                                        event.target.value,
-                                      )}
-                                    />
-                                  </SensorEditorField>
-                                  <SensorIconButton
-                                    type="button"
-                                    title={t('sensors.reset')}
-                                    aria-label={t('sensors.reset')}
-                                    onClick={() => resetSensorPreferences(sensor.id)}
-                                  >
-                                    <FaUndo />
-                                  </SensorIconButton>
-                                </SensorEditor>
-                              )}
-                            </SensorItem>
-                          );
-                        })}
-                      </React.Fragment>
-                    ))}
-                  </ContentDiv>
-                )}
-              </SensorGroup>
+              <Battery
+                batteries={batteryState.batteries}
+                loading={batteryState.loading}
+                error={batteryState.error}
+              />
             </SensorList>
-          );
-        })}
-      </SensorGrid>
+          )}
+          {sortedSensors.map((hwmon) => {
+            const isCollapsed = collapsedChips.has(hwmon.name) && !normalizedSensorFilter;
+            const chipAlertStatus = getChipAlertStatus(hwmon.sensors);
+            const categorizedGroups = groupSensorsByCategory(hwmon.sensors);
+            const hasMultipleCategories = categorizedGroups.length > 1;
+
+            return (
+              <SensorList
+                key={hwmon.index}
+                sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
+                sensorsBoxesForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
+              >
+                <SensorGroup>
+                  <SensorCardHeader
+                    onClick={() => toggleChipCollapsed(hwmon.name)}
+                    title={isCollapsed ? t('sensors.expand') : t('sensors.collapse')}
+                  >
+                    <SensorCardTitleGroup>
+                      <SensorName sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}>
+                        {hwmon.name}
+                      </SensorName>
+                      <SensorBadgeCount $color={sensorsConfig.config.sensors_boxes_title_foreground_color}>
+                        {t('sensors.sensors_count', { count: hwmon.sensors.length })}
+                      </SensorBadgeCount>
+                      {isCollapsed && chipAlertStatus !== 'normal' && (
+                        <SensorStatusBadge $color={statusColor(chipAlertStatus)} $textColor={cfg.sensors_boxes_background_color}>
+                          {t(`sensors.status_${chipAlertStatus}`)}
+                        </SensorStatusBadge>
+                      )}
+                    </SensorCardTitleGroup>
+                    <SensorHeaderActions $color={sensorsConfig.config.sensors_boxes_title_foreground_color}>
+                      {isCollapsed ? <FaChevronRight /> : <FaChevronDown />}
+                    </SensorHeaderActions>
+                  </SensorCardHeader>
+
+                  {!isCollapsed && (
+                    <ContentDiv>
+                      {categorizedGroups.map((group) => (
+                        <React.Fragment key={group.category.key}>
+                          {hasMultipleCategories && (
+                            <SensorCategoryHeader
+                              sensorsBoxesTitleForegroundColor={sensorsConfig.config.sensors_boxes_title_foreground_color}
+                            >
+                              <span>{t(group.category.labelKey)}</span>
+                              <span style={{ fontSize: '9px', opacity: 0.7 }}>{group.sensors.length}</span>
+                            </SensorCategoryHeader>
+                          )}
+                          {group.sensors.map((sensor) => {
+                            const isHidden = hiddenSet.has(sensor.id);
+                            const critical = resolveThreshold(
+                              criticalOverrides,
+                              sensor.id,
+                              sensor.critical,
+                              sensor.sensor_type === 'temperature' ? 100 : undefined,
+                            );
+                            const warning = resolveThreshold(warningOverrides, sensor.id, sensor.warning);
+                            const status = getSensorStatus(sensor, warning, critical);
+                            const isEditing = editingSensorId === sensor.id;
+                            const typeLabel = t(`sensors.type_${sensor.sensor_type}`, {
+                              defaultValue: sensor.sensor_type,
+                            });
+
+                            return (
+                              <SensorItem
+                                sensorsGroupForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
+                                $isHidden={isHidden}
+                                key={sensor.id}
+                              >
+                                <SensorRow>
+                                  <SensorLabelBlock>
+                                    <SensorLabel title={displayName(sensor)}>{displayName(sensor)}</SensorLabel>
+                                    <SensorMetaLine>
+                                      {status !== 'normal' && (
+                                        <SensorStatusBadge $color={statusColor(status)} $textColor={cfg.sensors_boxes_background_color}>
+                                          {t(`sensors.status_${status}`)}
+                                        </SensorStatusBadge>
+                                      )}
+                                      <SensorMeta>{typeLabel}</SensorMeta>
+                                    </SensorMetaLine>
+                                  </SensorLabelBlock>
+                                  <SensorValue>{formatSensorValue(sensor)}</SensorValue>
+                                  <SensorActions>
+                                    <SensorIconButton
+                                      type="button"
+                                      title={t('sensors.graph')}
+                                      aria-label={t('sensors.graph')}
+                                      $active={graphSensorId === sensor.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setGraphSensorId(graphSensorId === sensor.id ? null : sensor.id);
+                                      }}
+                                    >
+                                      <FaChartLine />
+                                    </SensorIconButton>
+                                    <SensorIconButton
+                                      type="button"
+                                      title={t('sensors.edit')}
+                                      aria-label={t('sensors.edit')}
+                                      $active={isEditing}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingSensorId(isEditing ? null : sensor.id);
+                                      }}
+                                    >
+                                      <FaCog />
+                                    </SensorIconButton>
+                                    <SensorIconButton
+                                      type="button"
+                                      title={isHidden ? t('sensors.show') : t('sensors.hide')}
+                                      aria-label={isHidden ? t('sensors.show') : t('sensors.hide')}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSensorHidden(sensor.id, !isHidden);
+                                      }}
+                                    >
+                                      {isHidden ? <FaEye /> : <FaEyeSlash />}
+                                    </SensorIconButton>
+                                  </SensorActions>
+                                </SensorRow>
+
+                                {critical !== undefined && critical > 0 && sensor.sensor_type !== 'intrusion' && (
+                                  <HeatBar value={sensor.value} critical={critical} />
+                                )}
+
+                                {isEditing && (
+                                  <SensorEditor onClick={(e) => e.stopPropagation()}>
+                                    <SensorEditorField>
+                                      {t('sensors.custom_label')}
+                                      <SensorEditorInput
+                                        type="text"
+                                        value={labelOverrides[sensor.id] ?? ''}
+                                        placeholder={sensor.name}
+                                        onChange={(event) => setLabelOverride(sensor.id, event.target.value)}
+                                      />
+                                    </SensorEditorField>
+                                    <SensorEditorField>
+                                      {t('sensors.warning_threshold')}
+                                      <SensorEditorInput
+                                        type="number"
+                                        step={thresholdStep(sensor)}
+                                        value={warningOverrides[sensor.id] ?? ''}
+                                        placeholder={formatThresholdPlaceholder(sensor.warning ?? undefined)}
+                                        onChange={(event) => setThresholdOverride(
+                                          'sensors_warning_thresholds',
+                                          warningOverrides,
+                                          sensor.id,
+                                          event.target.value,
+                                        )}
+                                      />
+                                    </SensorEditorField>
+                                    <SensorEditorField>
+                                      {t('sensors.critical_threshold')}
+                                      <SensorEditorInput
+                                        type="number"
+                                        step={thresholdStep(sensor)}
+                                        value={criticalOverrides[sensor.id] ?? ''}
+                                        placeholder={
+                                          sensor.sensor_type === 'intrusion'
+                                            ? (criticalOverrides[sensor.id] !== undefined ? String(criticalOverrides[sensor.id]) : t('sensors.intrusion_disable_hint'))
+                                            : formatThresholdPlaceholder(sensor.critical ?? undefined)
+                                        }
+                                        onChange={(event) => setThresholdOverride(
+                                          'sensors_critical_thresholds',
+                                          criticalOverrides,
+                                          sensor.id,
+                                          event.target.value,
+                                        )}
+                                      />
+                                    </SensorEditorField>
+                                    <SensorIconButton
+                                      type="button"
+                                      title={t('sensors.reset')}
+                                      aria-label={t('sensors.reset')}
+                                      onClick={() => resetSensorPreferences(sensor.id)}
+                                    >
+                                      <FaUndo />
+                                    </SensorIconButton>
+                                  </SensorEditor>
+                                )}
+                              </SensorItem>
+                            );
+                          })}
+                        </React.Fragment>
+                      ))}
+                    </ContentDiv>
+                  )}
+                </SensorGroup>
+              </SensorList>
+            );
+          })}
+        </SensorGrid>
+      </SensorScroller>
 
       {graphSensorId && (() => {
         const allSensors = sortedSensors.flatMap(h => h.sensors);
@@ -649,6 +660,7 @@ const Sensors: React.FC = () => {
             backgroundColor={sensorsConfig.config.sensors_boxes_background_color}
             foregroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
             titleColor={sensorsConfig.config.sensors_boxes_title_foreground_color}
+            graphColor={sensorsConfig.config.sensors_graph_color}
             onClose={() => setGraphSensorId(null)}
           />
         );

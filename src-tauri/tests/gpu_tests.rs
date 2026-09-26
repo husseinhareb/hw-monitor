@@ -97,3 +97,14 @@ fn lookup_pci_name_nonexistent_vendor() {
     let result = gpu::lookup_pci_name("ffff", "ffff");
     assert!(result.is_none());
 }
+
+// ── lookup_amdgpu_name ─────────────────────────────────────────────────
+
+#[test]
+fn lookup_amdgpu_name_matches_device_and_revision() {
+    let ids = "# List of AMDGPU IDs\n1.0.0\n73DF,\tC1,\tAMD Radeon RX 6700 XT\n73DF,\tC5,\tAMD Radeon RX 6700 XT\n73DF,\tDF,\tAMD Radeon RX 6700\n";
+    assert_eq!(gpu::lookup_amdgpu_name(ids, "73df", "c5").as_deref(), Some("AMD Radeon RX 6700 XT"));
+    assert_eq!(gpu::lookup_amdgpu_name(ids, "73df", "df").as_deref(), Some("AMD Radeon RX 6700"));
+    assert_eq!(gpu::lookup_amdgpu_name(ids, "73df", "00"), None);
+    assert_eq!(gpu::lookup_amdgpu_name(ids, "1234", "c5"), None);
+}

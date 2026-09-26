@@ -107,7 +107,7 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
           </FixedValueItem>
         </RealTimeValues>
 
-        <FixedValues>
+        <FixedValues performanceLabelColor={performanceConfig.config.performance_label_color}>
           <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>
             {t('disk.speed')}
           </MemoryTypes>

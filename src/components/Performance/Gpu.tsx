@@ -82,7 +82,7 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, performanceConfig, gpuUsage }) => {
                         <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.driver_version')}</LeftLabel>
                         <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.driver_version}</LeftValue>
                     </RealTimeValues>
-                    <FixedValues>
+                    <FixedValues performanceLabelColor={performanceConfig.config.performance_label_color}>
                         <FixedValueItem>
                             <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.memory_used')}</RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{gpuData.memory_used}</RightValue>

@@ -59,9 +59,15 @@ fn get_static_cpu_info() -> Option<&'static StaticCpuInfo> {
             let cpu_info = fs::read_to_string("/proc/cpuinfo").ok()?;
             let (name, cores, threads, virtualization, virtual_machine, num_sockets) =
                 parse_static_fields(&cpu_info)?;
+            // intel_pstate exposes base_frequency (kHz). AMD (amd-pstate, acpi-cpufreq)
+            // does not, but ACPI CPPC reports the nominal (base) clock in MHz.
+            // cpuinfo_min_freq is the idle floor, not the base clock, so never use it.
             let base_speed = read_sysfs_freq("/sys/devices/system/cpu/cpu0/cpufreq/base_frequency")
                 .or_else(|| {
-                    read_sysfs_freq("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")
+                    read_sysfs_freq("/sys/devices/system/cpu/cpu0/acpi_cppc/nominal_freq")
+                        .and_then(|mhz| mhz.parse::<u64>().ok())
+                        .filter(|&mhz| mhz > 0)
+                        .map(|mhz| (mhz * 1000).to_string())
                 });
             let max_speed =
                 read_sysfs_freq("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");

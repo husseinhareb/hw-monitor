@@ -72,8 +72,6 @@ const Graph: React.FC<GraphProps> = ({
             fill: true,
             tension: 0.4,
             pointRadius: 0,
-            borderColor: "#09ffff",
-            backgroundColor: "#09ffff33",
           },
           {
             label: '',
@@ -81,8 +79,6 @@ const Graph: React.FC<GraphProps> = ({
             fill: true,
             tension: 0.4,
             pointRadius: 0,
-            borderColor: "#ff6384",
-            backgroundColor: "#ff638433",
           },
         ],
       },
@@ -176,10 +172,13 @@ const Graph: React.FC<GraphProps> = ({
     const intervalSec =
       (updateInterval ?? performanceConfig.config.performance_update_time) / 1000;
 
-    // All graphs share the global tick so their rightmost label is always identical
+    // All graphs share the global tick so their rightmost label is always identical.
+    // The tick counts CPU samples, so a series that got a sample before the first
+    // CPU one can briefly hold more points than ticks; never label below 0s.
+    const lastTick = Math.max(tick, pointCount - 1);
     chart.data.labels = Array.from(
       { length: pointCount },
-      (_, index) => `${((tick - pointCount + index + 1) * intervalSec).toFixed(0)}s`,
+      (_, index) => `${((lastTick - pointCount + index + 1) * intervalSec).toFixed(0)}s`,
     );
     chart.data.datasets[0].data = firstSeries;
     chart.data.datasets[1].data = secondSeries;

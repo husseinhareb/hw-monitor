@@ -219,7 +219,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
                     <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.uptime')}</LeftLabel>
                     <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.uptime ?? 'N/A'}</LeftValue>
                 </RealTimeValues>
-                <FixedValues>
+                <FixedValues performanceLabelColor={performanceConfig.config.performance_label_color}>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.socket')}</RightLabel>
                         <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.socket ?? 'N/A'}</RightValue>

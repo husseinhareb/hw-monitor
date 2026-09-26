@@ -84,10 +84,10 @@ flex-wrap: wrap;
 flex-shrink: 0;
 `;
 
-export const FixedValues = styled.div`
+export const FixedValues = styled.div<{ performanceLabelColor: string }>`
 flex: 1;
 text-align: left;
-border-left: 2px solid white;
+border-left: 2px solid ${(props) => props.performanceLabelColor};
 min-width: 0;
 `;
 
@@ -151,25 +151,50 @@ color: ${(props) => props.performanceLabelColor};
 font-size: 13px;
 `;
 
-export const CompositionBar = styled.div<{ performanceValueColor: string; }>`
+export const CompositionBar = styled.div<{ performanceLabelColor: string; }>`
 display: flex;
 width: 100%;
-height: 34px;
-border: 1px solid ${(props) => props.performanceValueColor};
+height: 22px;
+border: 1px solid ${(props) => props.performanceLabelColor};
 box-sizing: border-box;
 overflow: hidden;
 `;
 
-export const CompositionSegment = styled.div<{ widthPercent: number; fillColor: string; }>`
+export const CompositionSegment = styled.div<{ widthPercent: number; fillColor: string; separatorColor: string; }>`
 width: ${(props) => props.widthPercent}%;
 height: 100%;
 background-color: ${(props) => props.fillColor};
-border-right: 1px solid ${(props) => props.fillColor === 'transparent' ? 'transparent' : 'rgba(0,0,0,0.25)'};
+border-right: 1px solid ${(props) => props.separatorColor};
 transition: width 0.3s ease;
 min-width: 0;
 &:last-child {
   border-right: none;
 }
+`;
+
+export const CompositionLegend = styled.div`
+display: flex;
+flex-wrap: wrap;
+gap: 4px 24px;
+font-size: 13px;
+`;
+
+export const CompositionLegendItem = styled.span<{ performanceLabelColor: string; performanceValueColor: string; }>`
+display: inline-flex;
+align-items: center;
+gap: 6px;
+color: ${(props) => props.performanceLabelColor};
+b {
+  font-weight: 400;
+  color: ${(props) => props.performanceValueColor};
+}
+`;
+
+export const CompositionSwatch = styled.span<{ fillColor: string; borderColor: string; }>`
+width: 10px;
+height: 10px;
+background-color: ${(props) => props.fillColor};
+border: 1px solid ${(props) => props.borderColor};
 `;
 
 export const NetworkInfoGrid = styled.div`

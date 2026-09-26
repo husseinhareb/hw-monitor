@@ -245,6 +245,19 @@ fn get_device_name(device_path: &Path, fallback_name: &str) -> String {
     ) {
         let vendor = vendor.trim().trim_start_matches("0x");
         let device_id = device_id.trim().trim_start_matches("0x");
+        // pci.ids only names the chip family (e.g. "Navi 22 [RX 6700/6700 XT/...]").
+        // libdrm's amdgpu.ids tells the exact model apart by PCI revision.
+        if vendor == "1002" {
+            let amd_name = read_to_string(device_path.join("revision"))
+                .ok()
+                .zip(read_to_string("/usr/share/libdrm/amdgpu.ids").ok())
+                .and_then(|(revision, ids)| {
+                    lookup_amdgpu_name(&ids, device_id, revision.trim().trim_start_matches("0x"))
+                });
+            if let Some(name) = amd_name {
+                return name;
+            }
+        }
         if let Some(name) = lookup_pci_name(vendor, device_id) {
             return name;
         }
@@ -340,6 +353,19 @@ fn get_nvidia_gpu_info(device_index: u32) -> Option<GpuInformations> {
             performance_state: performance_state.map(|p| format!("{:?}", p)),
         })
     })
+}
+
+/// Look up an AMD GPU's marketing name in libdrm's amdgpu.ids
+/// (`device_id,\trevision_id,\tproduct_name` lines, hex, case-insensitive).
+pub fn lookup_amdgpu_name(ids: &str, device_id: &str, revision: &str) -> Option<String> {
+    ids.lines()
+        .filter(|line| !line.starts_with('#'))
+        .find_map(|line| {
+            let mut fields = line.splitn(3, ',').map(str::trim);
+            let (dev, rev, name) = (fields.next()?, fields.next()?, fields.next()?);
+            (dev.eq_ignore_ascii_case(device_id) && rev.eq_ignore_ascii_case(revision) && !name.is_empty())
+                .then(|| name.to_string())
+        })
 }
 
 pub fn lookup_pci_name(vendor_id: &str, device_id: &str) -> Option<String> {

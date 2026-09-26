@@ -2,11 +2,10 @@ import React, { useMemo } from "react";
 import Graph from "../Graph/Graph";
 import { MemoryUsage, MemoryHardwareInfo } from "../../hooks/Performance/useMemoryData";
 import useDataConverter from "../../helpers/useDataConverter";
-import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer, CompositionSection, CompositionTitle, CompositionBar, CompositionSegment } from "./Styles/style";
+import { MemoryContainer, FixedValueItem, FixedValues, LeftValue, RightValue, NameValue, RightLabel, NameLabel, MemoryTypes, RealTimeValues, NameContainer, CompositionSection, CompositionTitle, CompositionBar, CompositionSegment, CompositionLegend, CompositionLegendItem, CompositionSwatch } from "./Styles/style";
 import { FaMemory } from "react-icons/fa";
 import { IoMdSwap } from "react-icons/io";
 import { useTranslation } from "react-i18next";
-import { safeLighten } from "../../utils/safeLighten";
 
 interface MemoryProps {
     performanceConfig: {
@@ -75,9 +74,10 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
         const inUse = Math.max(0, total - available);
         const cached = Math.max(0, available - free);
 
+        const graphColor = performanceConfig.config.performance_graph_color;
         const segments = [
-            { key: 'in_use', label: t('performance.in_use'), bytes: inUse, color: performanceConfig.config.performance_graph_color },
-            { key: 'cached', label: t('performance.cached'), bytes: cached, color: safeLighten(0.18, performanceConfig.config.performance_graph_color) },
+            { key: 'in_use', label: t('performance.in_use'), bytes: inUse, color: graphColor },
+            { key: 'cached', label: t('performance.cached'), bytes: cached, color: `color-mix(in srgb, ${graphColor} 35%, transparent)` },
             { key: 'free', label: t('performance.free'), bytes: free, color: 'transparent' },
         ];
 
@@ -113,16 +113,29 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
                             <CompositionTitle performanceLabelColor={performanceConfig.config.performance_label_color}>
                                 {t('performance.memory_composition')}
                             </CompositionTitle>
-                            <CompositionBar performanceValueColor={performanceConfig.config.performance_value_color}>
+                            <CompositionBar performanceLabelColor={performanceConfig.config.performance_label_color}>
                                 {composition.map((segment) => (
                                     <CompositionSegment
                                         key={segment.key}
                                         widthPercent={segment.widthPercent}
                                         fillColor={segment.color}
+                                        separatorColor={performanceConfig.config.performance_background_color}
                                         title={`${segment.label}: ${segment.display}`}
                                     />
                                 ))}
                             </CompositionBar>
+                            <CompositionLegend>
+                                {composition.map((segment) => (
+                                    <CompositionLegendItem
+                                        key={segment.key}
+                                        performanceLabelColor={performanceConfig.config.performance_label_color}
+                                        performanceValueColor={performanceConfig.config.performance_value_color}
+                                    >
+                                        <CompositionSwatch fillColor={segment.color} borderColor={performanceConfig.config.performance_label_color} />
+                                        {segment.label} <b>{segment.display}</b>
+                                    </CompositionLegendItem>
+                                ))}
+                            </CompositionLegend>
                         </CompositionSection>
                     )}
                     <div style={{ display: 'flex', marginTop: '16px', padding: '0 10px', flexWrap: 'wrap', flexShrink: 0 }}>
@@ -149,7 +162,7 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
                                 <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}> {memoryData.active.value} {memoryData.active.unit}</LeftValue>
                             </FixedValueItem>
                         </RealTimeValues>
-                        <FixedValues>
+                        <FixedValues performanceLabelColor={performanceConfig.config.performance_label_color}>
                             <MemoryTypes performanceValueColor={performanceConfig.config.performance_value_color}>{t('performance.swap')} <IoMdSwap style={{ marginLeft: '0.5em' }}/></MemoryTypes>
                             <FixedValueItem>
                                 <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.total')} </RightLabel>
@@ -161,7 +174,7 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
                             </FixedValueItem>
                         </FixedValues>
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 32px', padding: '10px 20px 6px', flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '8px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 32px', padding: '10px 20px 6px', flexShrink: 0, borderTop: '1px solid color-mix(in srgb, currentColor 10%, transparent)', marginTop: '8px' }}>
                         <FixedValueItem>
                             <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.mem_speed')} </RightLabel>
                             <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{hardwareInfo?.speed ?? 'N/A'}</RightValue>

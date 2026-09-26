@@ -25,6 +25,7 @@ interface Props {
   backgroundColor: string;
   foregroundColor: string;
   titleColor: string;
+  graphColor: string;
   onClose: () => void;
 }
 
@@ -37,6 +38,7 @@ const SensorGraphModal: React.FC<Props> = ({
   backgroundColor,
   foregroundColor,
   titleColor,
+  graphColor,
   onClose,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,8 +76,8 @@ const SensorGraphModal: React.FC<Props> = ({
           tension: 0.4,
           pointRadius: 0,
           borderWidth: 2,
-          borderColor: '#09ffff',
-          backgroundColor: '#09ffff1a',
+          borderColor: graphColor,
+          backgroundColor: graphColor + '1A',
         }],
       },
       options: {
@@ -95,19 +97,19 @@ const SensorGraphModal: React.FC<Props> = ({
         scales: {
           y: {
             ticks: {
-              color: 'rgba(255,255,255,0.45)',
+              color: foregroundColor + '73',
               callback: (val) => `${val}${unit}`,
             },
-            grid: { color: 'rgba(255,255,255,0.06)' },
+            grid: { color: foregroundColor + '0F' },
             border: { display: false },
           },
           x: {
             ticks: {
-              color: 'rgba(255,255,255,0.45)',
+              color: foregroundColor + '73',
               maxTicksLimit: 8,
               maxRotation: 0,
             },
-            grid: { color: 'rgba(255,255,255,0.06)' },
+            grid: { color: foregroundColor + '0F' },
             border: { display: false },
           },
         },
@@ -118,7 +120,7 @@ const SensorGraphModal: React.FC<Props> = ({
       chartRef.current?.destroy();
       chartRef.current = undefined;
     };
-  }, [unit]);
+  }, [unit, graphColor, foregroundColor]);
 
   // Update chart whenever history grows
   useEffect(() => {

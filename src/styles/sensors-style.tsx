@@ -2,12 +2,13 @@ import styled from 'styled-components';
 
 /* ── Page shell ─────────────────────────────────────────────────────────── */
 
-export const Container = styled.div<{ sensorsBackgroundColors: string }>`
+export const Container = styled.div<{ sensorsBackgroundColors: string; sensorsForegroundColor: string }>`
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   background-color: ${p => p.sensorsBackgroundColors};
+  color: ${p => p.sensorsForegroundColor};
   overflow: hidden;
 `;
 
@@ -22,7 +23,7 @@ export const SensorToolbar = styled.div<{ sensorsForegroundColor: string }>`
   flex-wrap: wrap;
   color: ${p => p.sensorsForegroundColor};
   padding: 14px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 6%, transparent);
 `;
 
 export const Title = styled.h1<{ sensorsForegroundColor: string }>`
@@ -43,21 +44,21 @@ export const SensorControls = styled.div`
 export const SensorFilterInput = styled.input`
   height: 30px;
   min-width: 180px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
   background: rgba(0, 0, 0, 0.28);
   color: inherit;
   padding: 0 10px;
   font-size: 13px;
   outline: none;
   &:focus {
-    border-color: rgba(255, 255, 255, 0.42);
+    border-color: color-mix(in srgb, currentColor 42%, transparent);
   }
   &::placeholder {
     opacity: 0.45;
   }
 `;
 
-export const ShowHiddenToggle = styled.label`
+export const ShowHiddenToggle = styled.label<{ $accentColor: string }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -70,7 +71,7 @@ export const ShowHiddenToggle = styled.label`
     width: 14px;
     height: 14px;
     cursor: pointer;
-    accent-color: #7bd88f;
+    accent-color: ${p => p.$accentColor};
   }
 `;
 
@@ -82,7 +83,7 @@ export const ToolbarButton = styled.button<{ $color?: string }>`
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
   background: rgba(0, 0, 0, 0.2);
   color: ${p => p.$color || 'inherit'};
   cursor: pointer;
@@ -91,26 +92,32 @@ export const ToolbarButton = styled.button<{ $color?: string }>`
   white-space: nowrap;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: color-mix(in srgb, currentColor 8%, transparent);
+    border-color: color-mix(in srgb, currentColor 30%, transparent);
   }
 `;
 
 /* ── Multi-column / Masonry layout ──────────────────────────────────────── */
 
-export const SensorGrid = styled.div`
+// The scroller and the multi-column box must be separate elements: a
+// height-constrained multicol box overflows into extra columns sideways
+// instead of growing, so nothing past the viewport could be scrolled to.
+export const SensorScroller = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 15%, transparent) transparent;
+  &::-webkit-scrollbar { width: 7px; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 15%, transparent); }
+  &::-webkit-scrollbar-track { background: transparent; }
+`;
+
+export const SensorGrid = styled.div`
   padding: 16px 20px 20px;
   column-width: 360px;
   column-gap: 14px;
-
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-  &::-webkit-scrollbar { width: 7px; }
-  &::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
-  &::-webkit-scrollbar-track { background: transparent; }
 `;
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
@@ -121,7 +128,7 @@ export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; sens
   box-sizing: border-box;
   background-color: ${p => p.sensorsBoxesBackgroundColor};
   color: ${p => p.sensorsBoxesForegroundColor || 'inherit'};
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid color-mix(in srgb, currentColor 7%, transparent);
   padding: 14px 16px 12px;
   break-inside: avoid;
   page-break-inside: avoid;
@@ -143,7 +150,7 @@ export const SensorCardHeader = styled.div`
   user-select: none;
   margin: 0 0 10px 0;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent);
   transition: opacity 0.15s ease;
 
   &:hover {
@@ -176,8 +183,8 @@ export const SensorBadgeCount = styled.span<{ $color?: string }>`
   font-weight: 600;
   padding: 1px 7px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 8%, transparent);
   color: ${p => p.$color || 'inherit'};
   opacity: 0.85;
   white-space: nowrap;
@@ -207,7 +214,7 @@ export const SensorCategoryHeader = styled.div<{ sensorsBoxesTitleForegroundColo
   margin-top: 10px;
   margin-bottom: 2px;
   padding-bottom: 3px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  border-bottom: 1px dashed color-mix(in srgb, currentColor 8%, transparent);
 
   &:first-child {
     margin-top: 0;
@@ -229,7 +236,7 @@ export const SensorItem = styled.div<{ sensorsGroupForegroundColor: string; $isH
   gap: 5px;
   color: ${p => p.sensorsGroupForegroundColor};
   opacity: ${p => p.$isHidden ? 0.4 : 1};
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 5%, transparent);
   &:last-child {
     border-bottom: 0;
     padding-bottom: 0;
@@ -292,8 +299,8 @@ export const SensorIconButton = styled.button<{ $active?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: ${p => p.$active ? 'rgba(255,255,255,0.13)' : 'transparent'};
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: ${p => p.$active ? 'color-mix(in srgb, currentColor 13%, transparent)' : 'transparent'};
   color: inherit;
   cursor: pointer;
   padding: 0;
@@ -301,11 +308,11 @@ export const SensorIconButton = styled.button<{ $active?: boolean }>`
   transition: background 0.12s;
   outline: none;
   &:hover {
-    background: rgba(255, 255, 255, 0.09);
+    background: color-mix(in srgb, currentColor 9%, transparent);
   }
 `;
 
-export const SensorStatusBadge = styled.span<{ $status: 'normal' | 'warning' | 'critical' }>`
+export const SensorStatusBadge = styled.span<{ $color: string; $textColor: string }>`
   display: inline-flex;
   align-items: center;
   padding: 1px 5px;
@@ -315,12 +322,8 @@ export const SensorStatusBadge = styled.span<{ $status: 'normal' | 'warning' | '
   letter-spacing: 0.04em;
   white-space: nowrap;
   flex-shrink: 0;
-  color: ${p => p.$status === 'critical' ? '#fff' : '#111'};
-  background: ${p => {
-    if (p.$status === 'critical') return '#d64545';
-    if (p.$status === 'warning') return '#f0c04a';
-    return '#7bd88f';
-  }};
+  color: ${p => p.$textColor};
+  background: ${p => p.$color};
 `;
 
 /* ── Sensor graph modal ─────────────────────────────────────────────────── */
@@ -338,7 +341,7 @@ export const GraphModalOverlay = styled.div`
 export const GraphModalContent = styled.div<{ $backgroundColor: string; $color: string }>`
   background: ${p => p.$backgroundColor};
   color: ${p => p.$color};
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
   width: min(860px, calc(100vw - 40px));
   height: min(500px, calc(100vh - 80px));
   display: flex;
@@ -351,7 +354,7 @@ export const GraphModalHeader = styled.div`
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent);
   flex-shrink: 0;
 `;
 
@@ -379,7 +382,7 @@ export const GraphModalValue = styled.span`
 
 export const GraphModalClose = styled.button`
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
   color: inherit;
   cursor: pointer;
   font-size: 16px;
@@ -392,7 +395,7 @@ export const GraphModalClose = styled.button`
   justify-content: center;
   outline: none;
   flex-shrink: 0;
-  &:hover { background: rgba(255, 255, 255, 0.08); }
+  &:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
 `;
 
 export const GraphModalBody = styled.div`
@@ -411,7 +414,7 @@ export const SensorEditor = styled.div`
   align-items: flex-end;
   padding: 10px;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid color-mix(in srgb, currentColor 7%, transparent);
   margin-top: 2px;
 `;
 
@@ -429,13 +432,13 @@ export const SensorEditorInput = styled.input`
   width: 100%;
   min-width: 0;
   height: 27px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  border: 1px solid color-mix(in srgb, currentColor 13%, transparent);
   background: rgba(0, 0, 0, 0.25);
   color: inherit;
   padding: 0 8px;
   font-size: 12px;
   outline: none;
   &:focus {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: color-mix(in srgb, currentColor 30%, transparent);
   }
 `;
