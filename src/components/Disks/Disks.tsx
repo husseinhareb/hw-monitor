@@ -359,6 +359,7 @@ const Disks: React.FC = () => {
                   >{disk.name}</PartitionName>
                   <FileSystem
                     $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                    title={mount.mount_point}
                   >{mount.mount_point}</FileSystem>
                   <FileSystem
                     $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
@@ -395,6 +396,7 @@ const Disks: React.FC = () => {
                   >{partition.name}</PartitionName>
                   <FileSystem
                     $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                    title={partition.mounts.map((mount) => mount.mount_point).join(", ")}
                   >{partition.mounts.map((mount) => mount.mount_point).join(", ")}</FileSystem>
                   <FileSystem
                     $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}

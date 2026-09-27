@@ -1,8 +1,10 @@
 import { styled, keyframes } from "styled-components";
 
+// Cards per row follow the available width; 560px keeps a partition row (name, mount, fs, usage) on one line
 export const Container = styled.div<{ $bodyBackgroundColor: string }>`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(560px, 100%), 1fr));
+  align-content: start;
   width: 100%;
   height: 100%;
   padding: 20px;
@@ -14,18 +16,8 @@ export const DiskCard = styled.div<{ $boxesBackgroundColor: string }>`
   background-color: ${(props) => props.$boxesBackgroundColor};
   padding: 20px;
   margin: 10px;
-  flex-grow: 1;
-  flex-basis: calc(33% - 20px);
-  max-height: calc(100vh - 40px);
   box-sizing: border-box;
-
-  @media (max-height: 600px) {
-    flex-basis: calc(50% - 20px);
-  }
-
-  @media (min-height: 600px) {
-    flex-basis: calc(100% - 20px);
-  }
+  min-width: 0;
 `;
 
 export const DiskHeader = styled.div`
@@ -134,7 +126,6 @@ export const ModalBody = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   align-content: start;
-  align-items: start;
   gap: 10px;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, currentColor 15%, transparent) transparent;
@@ -224,8 +215,9 @@ export const PartitionContainer = styled.div<{ $partitionBackgroundColor: string
 export const PartitionItem = styled.li`
   font-size: 0.95em;
   display: grid;
-  /* Fixed columns so mount point, filesystem and size line up across rows */
-  grid-template-columns: minmax(110px, 1fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  /* Same columns in every row so they line up; filesystem and size get fixed widths that fit
+     "fuseblk" and "338.14 GB / 511.31 GB", so a narrow card squeezes the mount path instead */
+  grid-template-columns: minmax(6.5em, 1fr) minmax(0, 2fr) 5.5em 11.5em;
   gap: 12px;
   padding: 10px;
   position: relative;
@@ -255,6 +247,9 @@ export const PartitionBar = styled.div<{ $partitionUsageBackgroundColor: string 
 export const PartitionName = styled.span<{ $partitionNameForegroundColor: string }>`
   font-weight: bold;
   color:  ${(props) => props.$partitionNameForegroundColor};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 
@@ -268,6 +263,7 @@ export const FileSystem = styled.span<{ $partitionTypeForegroundColor: string }>
 export const Space = styled.span<{ $partitionUsageForegroundColor: string }>`
   color:  ${(props) => props.$partitionUsageForegroundColor};
   text-align: right;
+  white-space: nowrap;
 `;
 
 export const PartitionCard = styled.div<{ $borderColor: string }>`
