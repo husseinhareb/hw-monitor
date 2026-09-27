@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import useServicesConfig from "../../hooks/Services/useServicesConfig";
 import {
     SectionCard,
@@ -10,6 +11,7 @@ import { ConfigColorRow, useConfigNumberDraft, ConfigUpdateTimeRow } from "./Con
 interface Props { theme: ConfigTheme }
 
 const ServicesConfig: React.FC<Props> = ({ theme }) => {
+    const { t } = useTranslation();
     const { config, updateConfig } = useServicesConfig();
 
     const handleConfigChange = (key: keyof typeof config, value: string | number) => {
@@ -35,7 +37,7 @@ const ServicesConfig: React.FC<Props> = ({ theme }) => {
             />
 
             <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-                Colors
+                {t("config.colors")}
             </SubSectionTitle>
 
             <ConfigColorRow labelKey="services_config.background_color"       value={config.services_background_color}       onChange={v => handleConfigChange("services_background_color", v)}       theme={theme} />
@@ -46,7 +48,7 @@ const ServicesConfig: React.FC<Props> = ({ theme }) => {
             <ConfigColorRow labelKey="services_config.border_color"           value={config.services_border_color}           onChange={v => handleConfigChange("services_border_color", v)}           theme={theme} />
 
             <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-                Status Colors
+                {t("config.status_colors")}
             </SubSectionTitle>
 
             <ConfigColorRow labelKey="services_config.active_color"         value={config.services_active_color}         onChange={v => handleConfigChange("services_active_color", v)}         theme={theme} />

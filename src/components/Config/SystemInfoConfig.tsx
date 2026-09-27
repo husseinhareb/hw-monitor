@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import useSystemInfoConfig from "../../hooks/SystemInfo/useSystemInfoConfig";
 import {
     SectionCard,
@@ -10,6 +11,7 @@ import { ConfigColorRow, useConfigNumberDraft, ConfigUpdateTimeRow } from "./Con
 interface Props { theme: ConfigTheme }
 
 const SystemInfoConfig: React.FC<Props> = ({ theme }) => {
+    const { t } = useTranslation();
     const { config, updateConfig } = useSystemInfoConfig();
 
     const handleConfigChange = (key: keyof typeof config, value: string | number) => {
@@ -35,7 +37,7 @@ const SystemInfoConfig: React.FC<Props> = ({ theme }) => {
             />
 
             <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-                Colors
+                {t("config.colors")}
             </SubSectionTitle>
 
             <ConfigColorRow labelKey="system_info_config.background_color"       value={config.system_info_background_color}       onChange={v => handleConfigChange("system_info_background_color", v)}       theme={theme} />

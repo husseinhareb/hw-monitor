@@ -37,7 +37,7 @@ const DisksConfig: React.FC<Props> = ({ theme }) => {
       />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-        {t("disks_config.title")}
+        {t("config.colors")}
       </SubSectionTitle>
 
       <ConfigColorRow labelKey="disks_config.background_color"       value={config.disks_background_color}       onChange={v => handleConfigChange("disks_background_color", v)}       theme={theme} />

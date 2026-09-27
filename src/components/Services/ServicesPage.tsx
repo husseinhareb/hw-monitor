@@ -23,13 +23,13 @@ const ServicesPage: React.FC = () => {
     );
 
     return (
-        <>
-            <div style={{ display: "flex", gap: "8px", padding: "4px 8px", backgroundColor: config.services_head_background_color }}>
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", backgroundColor: config.services_background_color }}>
+            <div style={{ display: "flex", gap: "8px", padding: "6px 8px", flexShrink: 0, backgroundColor: config.services_head_background_color, borderBottom: `1px solid ${config.services_border_color}` }}>
                 {tab("services")}
                 {tab("startup")}
             </div>
             {view === "services" ? <Services /> : <StartupApps />}
-        </>
+        </div>
     );
 };
 

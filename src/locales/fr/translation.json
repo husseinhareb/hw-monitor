@@ -336,6 +336,7 @@
     "performance.free": "Libre",
     "performance.available": "Disponible",
     "performance.cached": "En Cache",
+    "performance.reclaimable": "Récupérable",
     "performance.active": "Actif",
     "performance.memory_composition": "Composition de la mémoire",
     "performance.in_use": "Utilisée",
@@ -431,6 +432,7 @@
     "minutes": "min",
 
     "config.load_default": "Charger la config par défaut",
+    "config.load_default_confirm": "Cliquez à nouveau pour réinitialiser",
 
     "error.fetch_failed": "Échec du chargement des données",
     "error.battery_failed": "Échec du chargement des données de batterie",
@@ -493,6 +495,7 @@
     "connections.state_all": "Tous les états",
     "connections.state_listening": "À l'écoute",
     "connections.state_established": "Établie",
+    "connections.state_other": "Autres",
     "connections.none": "Aucune connexion réseau",
     "connections.no_matches": "Aucune connexion ne correspond aux filtres actuels",
     "connections.unattributed_hint": "Les sockets appartenant à d'autres utilisateurs n'affichent aucun processus ; des privilèges élevés sont nécessaires pour les résoudre.",
@@ -564,6 +567,10 @@
     "system_info.no_data": "Aucune information système disponible",
 
     "config.theme": "Thème",
+    "config.colors": "Couleurs",
+    "config.status_colors": "Couleurs d'état",
+    "config.inputs_controls": "Champs et contrôles",
+    "config.theme_custom": "Thème personnalisé",
     "config.theme_default": "Par défaut",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -573,6 +580,7 @@
     "startup.col_command": "Commande",
     "startup.col_scope": "Portée",
     "startup.col_status": "Statut",
+    "startup.col_action": "Action",
     "startup.scope_user": "Utilisateur",
     "startup.scope_system": "Système",
     "startup.enabled": "Activé",

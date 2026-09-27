@@ -23,6 +23,8 @@ tauri-build = { version = "2", features = [] }
 
 [dev-dependencies]
 serde_json = "1"
+# mock_app() lets examples/dump_fixtures.rs call stateful commands outside a window
+tauri = { version = "2", features = ["tray-icon", "test"] }
 tauri-build = { version = "2", features = [] }
 
 [dependencies]

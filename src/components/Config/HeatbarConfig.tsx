@@ -21,7 +21,7 @@ const HeatbarConfig: React.FC<Props> = ({ theme }) => {
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-        {t("heatbar_config.title")}
+        {t("config.colors")}
       </SubSectionTitle>
 
       <ConfigColorRow labelKey="heatbar_config.color_one"   value={config.heatbar_color_one}   onChange={v => handleConfigChange("heatbar_color_one", v)}   theme={theme} />

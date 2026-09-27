@@ -166,8 +166,9 @@ export const SectionTitle = styled.h4<{
 
 export const DetailRow = styled.div<{ $borderColor: string }>`
   display: grid;
-  grid-template-columns: minmax(100px, 0.85fr) minmax(0, 1fr);
-  gap: 8px;
+  /* Labels are short; give values the room so models and paths wrap less */
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 16px;
   padding: 5px 10px;
   border-bottom: 1px solid ${(props) => props.$borderColor};
   min-width: 0;
@@ -222,8 +223,10 @@ export const PartitionContainer = styled.div<{ $partitionBackgroundColor: string
 
 export const PartitionItem = styled.li`
   font-size: 0.95em;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  /* Fixed columns so mount point, filesystem and size line up across rows */
+  grid-template-columns: minmax(110px, 1fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 12px;
   padding: 10px;
   position: relative;
   z-index: 1;
@@ -257,10 +260,14 @@ export const PartitionName = styled.span<{ $partitionNameForegroundColor: string
 
 export const FileSystem = styled.span<{ $partitionTypeForegroundColor: string }>`
   color:  ${(props) => props.$partitionTypeForegroundColor};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const Space = styled.span<{ $partitionUsageForegroundColor: string }>`
   color:  ${(props) => props.$partitionUsageForegroundColor};
+  text-align: right;
 `;
 
 export const PartitionCard = styled.div<{ $borderColor: string }>`

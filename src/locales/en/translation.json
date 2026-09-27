@@ -170,7 +170,7 @@
     "battery.state_of_health": "State of Health",
     "battery.loading": "Loading battery data...",
 
-    "disks_config.title": "Disks Config",
+    "disks_config.title": "Disks",
     "disks_config.update_time": "Update Time",
     "disks_config.background_color": "Background Color",
     "disks_config.boxes_background_color": "Boxes Background Color",
@@ -185,7 +185,7 @@
     "disks_config.smart_warning_color": "SMART Warning Color",
     "disks_config.smart_fail_color": "SMART Fail Color",
 
-    "heatbar_config.title": "Heatbar Config",
+    "heatbar_config.title": "Heat Bars",
     "heatbar_config.color_one": "First Color",
     "heatbar_config.color_two": "Second Color",
     "heatbar_config.color_three": "Third Color",
@@ -194,18 +194,18 @@
     "heatbar_config.color_six": "Sixth Color",
     "heatbar_config.color_seven": "Seventh Color",
     "heatbar_config.color_eight": "Eighth Color",
-    "heatbar_config.color_nine": "Nineth Color",
+    "heatbar_config.color_nine": "Ninth Color",
     "heatbar_config.color_ten": "Tenth Color",
     "heatbar_config.background_color": "Background Color",
 
-    "navbar_config.title": "Navbar Config",
+    "navbar_config.title": "Navbar",
     "navbar_config.background_color": "Background Color",
     "navbar_config.buttons_background_color": "Buttons Background Color",
     "navbar_config.buttons_foreground_color": "Buttons Foreground Color",
     "navbar_config.search_background_color": "Search Background Color",
     "navbar_config.search_foreground_color": "Search Foreground Color",
 
-    "sensors_config.title": "Sensors Configuration",
+    "sensors_config.title": "Sensors",
     "sensors_config.update_time": "Update Time",
     "sensors_config.background_color": "Background Color",
     "sensors_config.foreground_color": "Foreground Color",
@@ -220,7 +220,7 @@
     "sensors_config.battery_frame_color": "Battery Frame Color",
     "sensors_config.battery_case_color": "Battery Case Color",
     
-    "performance_config.title": "Performance Configuration",
+    "performance_config.title": "Performance",
     "performance_config.update_time": "Update Time",
     "performance_config.sidebar": "Sidebar",
     "performance_config.content": "Content",
@@ -237,7 +237,7 @@
     "performance_config.show_virtual_interfaces": "Show virtual interfaces (docker0, veth, br-, lo…)",
     "performance_config.scrollbar_color": "Scrollbar Color",
     
-    "processes_config.title": "Processes Configuration",
+    "processes_config.title": "Processes",
     "processes_config.update_time": "Update Time",
     "processes_config.body_background_color": "Body Background Color",
     "processes_config.body_color": "Body Color",
@@ -337,6 +337,7 @@
     "performance.free": "Free",
     "performance.available": "Available",
     "performance.cached": "Cached",
+    "performance.reclaimable": "Reclaimable",
     "performance.active": "Active",
     "performance.memory_composition": "Memory composition",
     "performance.in_use": "In use",
@@ -382,7 +383,7 @@
     "network.type_unknown": "Unknown",
 
     "sidebar.performance": "Performance",
-    "sidebar.cpu": "Cpu",
+    "sidebar.cpu": "CPU",
     "sidebar.memory": "Memory",
     "sidebar.gpu": "GPU",
     "sidebar.wifi": "Wifi",
@@ -395,7 +396,7 @@
     "disk.write": "Write",
     "disk.speed": "Speed",
 
-    "services_config.title": "Services Configuration",
+    "services_config.title": "Services",
     "services_config.update_time": "Update Time",
     "services_config.background_color": "Background Color",
     "services_config.body_background_color": "Body Background Color",
@@ -408,7 +409,7 @@
     "services_config.failed_color": "Failed Color",
     "services_config.transitioning_color": "Transitioning Color",
 
-    "connections_config.title": "Connections Configuration",
+    "connections_config.title": "Connections",
     "connections_config.update_time": "Update Time",
     "connections_config.background_color": "Background Color",
     "connections_config.body_background_color": "Body Background Color",
@@ -417,7 +418,7 @@
     "connections_config.head_color": "Head Color",
     "connections_config.border_color": "Border Color",
 
-    "config_panel_config.title": "Config Panel Configuration",
+    "config_panel_config.title": "Config Panel",
     "config_panel_config.background_color": "Background Color",
     "config_panel_config.container_background_color": "Container Background Color",
     "config_panel_config.input_background_color": "Input Background Color",
@@ -449,6 +450,7 @@
     "minutes": "min",
 
     "config.load_default": "Load Default Config",
+    "config.load_default_confirm": "Click again to reset",
 
     "services.col_name": "Name",
     "services.col_description": "Description",
@@ -494,6 +496,7 @@
     "connections.state_all": "All states",
     "connections.state_listening": "Listening",
     "connections.state_established": "Established",
+    "connections.state_other": "Other",
     "connections.none": "No network connections",
     "connections.no_matches": "No connections match the current filters",
     "connections.unattributed_hint": "Sockets owned by other users show no process; elevated privileges are needed to resolve them.",
@@ -506,7 +509,7 @@
     "connections.unknown": "Unknown",
     "error.connections_failed": "Failed to load network connections",
 
-    "system_info_config.title": "System Info Configuration",
+    "system_info_config.title": "System Info",
     "system_info_config.update_time": "Update Time",
     "system_info_config.background_color": "Background Color",
     "system_info_config.boxes_background_color": "Boxes Background Color",
@@ -576,6 +579,10 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "Theme",
+    "config.colors": "Colors",
+    "config.status_colors": "Status Colors",
+    "config.inputs_controls": "Inputs & Controls",
+    "config.theme_custom": "Custom theme",
     "config.theme_default": "Default",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -585,6 +592,7 @@
     "startup.col_command": "Command",
     "startup.col_scope": "Scope",
     "startup.col_status": "Status",
+    "startup.col_action": "Action",
     "startup.scope_user": "User",
     "startup.scope_system": "System",
     "startup.enabled": "Enabled",

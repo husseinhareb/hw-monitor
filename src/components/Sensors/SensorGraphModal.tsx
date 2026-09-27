@@ -20,6 +20,8 @@ interface Props {
   sensorName: string;
   unit: string;
   currentValue: number;
+  /** Current reading formatted the same way as the sensor list */
+  displayValue: string;
   pollTick: number;
   updateInterval: number;
   backgroundColor: string;
@@ -33,6 +35,7 @@ const SensorGraphModal: React.FC<Props> = ({
   sensorName,
   unit,
   currentValue,
+  displayValue,
   pollTick,
   updateInterval,
   backgroundColor,
@@ -136,8 +139,6 @@ const SensorGraphModal: React.FC<Props> = ({
     chart.data.datasets[0].data = history.map(pt => pt.value);
     chart.update('none');
   }, [history, updateInterval]);
-
-  const displayValue = `${currentValue}${unit ? ` ${unit}` : ''}`;
 
   return (
     <GraphModalOverlay onClick={onClose}>

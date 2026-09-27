@@ -337,6 +337,7 @@
     "performance.free": "Libre",
     "performance.available": "Disponible",
     "performance.cached": "En Caché",
+    "performance.reclaimable": "Recuperable",
     "performance.active": "Activo",
     "performance.memory_composition": "Composición de la memoria",
     "performance.in_use": "En uso",
@@ -431,6 +432,7 @@
     "minutes": "min",
 
     "config.load_default": "Cargar configuración predeterminada",
+    "config.load_default_confirm": "Haz clic de nuevo para restablecer",
 
     "error.fetch_failed": "Error al cargar los datos",
     "error.battery_failed": "Error al cargar los datos de la batería",
@@ -493,6 +495,7 @@
     "connections.state_all": "Todos los estados",
     "connections.state_listening": "Escuchando",
     "connections.state_established": "Establecida",
+    "connections.state_other": "Otros",
     "connections.none": "Sin conexiones de red",
     "connections.no_matches": "Ninguna conexión coincide con los filtros actuales",
     "connections.unattributed_hint": "Los sockets de otros usuarios no muestran proceso; se necesitan privilegios elevados para resolverlos.",
@@ -564,6 +567,10 @@
     "system_info.no_data": "No hay información del sistema disponible",
 
     "config.theme": "Tema",
+    "config.colors": "Colores",
+    "config.status_colors": "Colores de estado",
+    "config.inputs_controls": "Entradas y controles",
+    "config.theme_custom": "Tema personalizado",
     "config.theme_default": "Predeterminado",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -573,6 +580,7 @@
     "startup.col_command": "Comando",
     "startup.col_scope": "Ámbito",
     "startup.col_status": "Estado",
+    "startup.col_action": "Acción",
     "startup.scope_user": "Usuario",
     "startup.scope_system": "Sistema",
     "startup.enabled": "Habilitado",

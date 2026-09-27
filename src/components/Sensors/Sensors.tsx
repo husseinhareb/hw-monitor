@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FaCog,
   FaEye,
@@ -14,6 +14,7 @@ import {
   Container,
   Title,
   SensorGrid,
+  SensorColumn,
   SensorScroller,
   SensorList,
   SensorName,
@@ -46,6 +47,7 @@ import {
 import useSensorsData from '../../hooks/Sensors/useSensorsData';
 import Battery, { hasBatterySection } from '../Sensors/Battery';
 import HeatBar from '../Sensors/HeatBar';
+import { distributeColumns } from '../../helpers/distributeColumns';
 import SensorGraphModal from '../Sensors/SensorGraphModal';
 import useSensorsConfig from '../../hooks/Sensors/useSensorsConfig';
 import useBatteryData from '../../hooks/Sensors/useBatteryData';
@@ -183,7 +185,22 @@ const thresholdStep = (sensor: Sensor) => {
   return '0.1';
 };
 
+const SENSOR_COLUMN_WIDTH = 360;
+const SENSOR_COLUMN_GAP = 14;
+
 const Sensors: React.FC = () => {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [columnCount, setColumnCount] = useState(1);
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      setColumnCount(Math.max(1, Math.floor((width + SENSOR_COLUMN_GAP) / (SENSOR_COLUMN_WIDTH + SENSOR_COLUMN_GAP))));
+    });
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, []);
   const sensors = useSensorsData();
   const batteryState = useBatteryData();
   const { t } = useTranslation();
@@ -303,9 +320,12 @@ const Sensors: React.FC = () => {
     }
 
     const precision = sensor.sensor_type === 'humidity' ? 1 : 2;
+    // Temperatures keep one fixed decimal so a column of readings lines up
     const value = sensor.sensor_type === 'fan' || sensor.sensor_type === 'pwm'
       ? String(Math.round(sensor.value))
-      : compactNumber(sensor.value, precision);
+      : sensor.sensor_type === 'temperature'
+        ? sensor.value.toFixed(1)
+        : compactNumber(sensor.value, precision);
 
     if (!sensor.unit) return value;
 
@@ -439,9 +459,11 @@ const Sensors: React.FC = () => {
         </SensorControls>
       </SensorToolbar>
       <SensorScroller>
-        <SensorGrid>
-          {hasBatterySection(batteryState.batteries, batteryState.error) && (
+        <SensorGrid ref={gridRef}>
+          {distributeColumns([
+          ...(hasBatterySection(batteryState.batteries, batteryState.error) ? [{ weight: 200, item: (
             <SensorList
+              key="battery"
               sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
               sensorsBoxesForegroundColor={sensorsConfig.config.sensors_boxes_foreground_color}
             >
@@ -451,14 +473,20 @@ const Sensors: React.FC = () => {
                 error={batteryState.error}
               />
             </SensorList>
-          )}
-          {sortedSensors.map((hwmon) => {
+          ) }] : []),
+          ...sortedSensors.map((hwmon) => {
             const isCollapsed = collapsedChips.has(hwmon.name) && !normalizedSensorFilter;
             const chipAlertStatus = getChipAlertStatus(hwmon.sensors);
             const categorizedGroups = groupSensorsByCategory(hwmon.sensors);
             const hasMultipleCategories = categorizedGroups.length > 1;
+            // Rough rendered height in px, only used to balance the columns
+            const weight = isCollapsed
+              ? 65
+              : 55
+                + (hasMultipleCategories ? 25 * categorizedGroups.length : 0)
+                + hwmon.sensors.reduce((sum, sensor) => sum + (sensor.sensor_type === 'temperature' ? 60 : 45), 0);
 
-            return (
+            return { weight, item: (
               <SensorList
                 key={hwmon.index}
                 sensorsBoxesBackgroundColor={sensorsConfig.config.sensors_boxes_background_color}
@@ -539,6 +567,8 @@ const Sensors: React.FC = () => {
                                       title={t('sensors.graph')}
                                       aria-label={t('sensors.graph')}
                                       $active={graphSensorId === sensor.id}
+                                      // A detected/clear flag has nothing to plot; keep the slot so actions stay aligned
+                                      style={sensor.sensor_type === 'intrusion' ? { visibility: 'hidden' } : undefined}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setGraphSensorId(graphSensorId === sensor.id ? null : sensor.id);
@@ -640,8 +670,11 @@ const Sensors: React.FC = () => {
                   )}
                 </SensorGroup>
               </SensorList>
-            );
-          })}
+            ) };
+          }),
+          ], columnCount).map((column, index) => (
+            <SensorColumn key={index}>{column}</SensorColumn>
+          ))}
         </SensorGrid>
       </SensorScroller>
 
@@ -655,6 +688,7 @@ const Sensors: React.FC = () => {
             sensorName={labelOverrides[sensor.id]?.trim() || sensor.name}
             unit={sensor.unit ?? ''}
             currentValue={sensor.value}
+            displayValue={formatSensorValue(sensor)}
             pollTick={pollCount}
             updateInterval={sensorsConfig.config.sensors_update_time}
             backgroundColor={sensorsConfig.config.sensors_boxes_background_color}

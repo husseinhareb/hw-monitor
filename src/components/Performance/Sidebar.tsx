@@ -273,6 +273,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
                   height="120px"
                   width="100%"
                   formatValue={formatNetworkRate}
+                  suggestedMax={1000}
                 />
               </ListItem>
             );

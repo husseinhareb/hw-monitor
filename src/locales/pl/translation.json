@@ -339,6 +339,7 @@
     "performance.free": "Wolne",
     "performance.available": "Dostępne",
     "performance.cached": "Buforowane",
+    "performance.reclaimable": "Do odzyskania",
     "performance.active": "Aktywne",
     "performance.memory_composition": "Skład pamięci",
     "performance.in_use": "W użyciu",
@@ -433,6 +434,7 @@
     "minutes": "min",
 
     "config.load_default": "Załaduj domyślną konfigurację",
+    "config.load_default_confirm": "Kliknij ponownie, aby zresetować",
 
     "error.fetch_failed": "Nie udało się załadować danych",
     "error.battery_failed": "Nie udało się załadować danych baterii",
@@ -495,6 +497,7 @@
     "connections.state_all": "Wszystkie stany",
     "connections.state_listening": "Nasłuchiwanie",
     "connections.state_established": "Nawiązane",
+    "connections.state_other": "Inne",
     "connections.none": "Brak połączeń sieciowych",
     "connections.no_matches": "Żadne połączenie nie pasuje do bieżących filtrów",
     "connections.unattributed_hint": "Gniazda innych użytkowników nie pokazują procesu; do ich rozpoznania wymagane są podwyższone uprawnienia.",
@@ -566,6 +569,10 @@
     "system_info.no_data": "Brak informacji o systemie",
 
     "config.theme": "Motyw",
+    "config.colors": "Kolory",
+    "config.status_colors": "Kolory statusu",
+    "config.inputs_controls": "Pola i kontrolki",
+    "config.theme_custom": "Własny motyw",
     "config.theme_default": "Domyślny",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -575,6 +582,7 @@
     "startup.col_command": "Polecenie",
     "startup.col_scope": "Zakres",
     "startup.col_status": "Status",
+    "startup.col_action": "Akcja",
     "startup.scope_user": "Użytkownik",
     "startup.scope_system": "System",
     "startup.enabled": "Włączone",

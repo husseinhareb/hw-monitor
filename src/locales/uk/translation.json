@@ -339,6 +339,7 @@
     "performance.free": "Вільно",
     "performance.available": "Доступно",
     "performance.cached": "Кешовано",
+    "performance.reclaimable": "Звільнювана",
     "performance.active": "Активна",
     "performance.memory_composition": "Склад пам'яті",
     "performance.in_use": "Використовується",
@@ -433,6 +434,7 @@
     "minutes": "хв",
 
     "config.load_default": "Завантажити типову конфігурацію",
+    "config.load_default_confirm": "Натисніть ще раз для скидання",
 
     "error.fetch_failed": "Не вдалося завантажити дані",
     "error.battery_failed": "Не вдалося завантажити дані акумулятора",
@@ -495,6 +497,7 @@
     "connections.state_all": "Усі стани",
     "connections.state_listening": "Прослуховування",
     "connections.state_established": "Встановлено",
+    "connections.state_other": "Інші",
     "connections.none": "Немає мережевих з'єднань",
     "connections.no_matches": "Немає з'єднань, що відповідають поточним фільтрам",
     "connections.unattributed_hint": "Сокети інших користувачів не показують процес; для їх визначення потрібні підвищені права.",
@@ -566,6 +569,10 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "Тема",
+    "config.colors": "Кольори",
+    "config.status_colors": "Кольори статусів",
+    "config.inputs_controls": "Поля та елементи керування",
+    "config.theme_custom": "Власна тема",
     "config.theme_default": "За замовчуванням",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -575,6 +582,7 @@
     "startup.col_command": "Команда",
     "startup.col_scope": "Область",
     "startup.col_status": "Статус",
+    "startup.col_action": "Дія",
     "startup.scope_user": "Користувач",
     "startup.scope_system": "Система",
     "startup.enabled": "Увімкнено",

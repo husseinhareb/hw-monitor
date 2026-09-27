@@ -25,3 +25,6 @@ dist-ssr
 
 # AUR build artifacts
 aur/
+
+# Local UI screenshots (npm run screenshots), contain real machine data
+screenshots/

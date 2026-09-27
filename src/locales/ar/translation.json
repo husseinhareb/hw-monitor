@@ -341,6 +341,7 @@
     "performance.free": "الحرة",
     "performance.available": "المتاحة",
     "performance.cached": "المخزنة مؤقتا",
+    "performance.reclaimable": "قابلة للاسترداد",
     "performance.active": "النشطة",
     "performance.memory_composition": "تكوين الذاكرة",
     "performance.in_use": "قيد الاستخدام",
@@ -436,6 +437,7 @@
     "minutes": "دقيقة",
 
     "config.load_default": "تحميل الإعدادات الافتراضية",
+    "config.load_default_confirm": "انقر مرة أخرى لإعادة التعيين",
 
     "error.fetch_failed": "فشل في تحميل البيانات",
     "error.battery_failed": "فشل في تحميل بيانات البطارية",
@@ -498,6 +500,7 @@
     "connections.state_all": "كل الحالات",
     "connections.state_listening": "استماع",
     "connections.state_established": "مُنشأ",
+    "connections.state_other": "أخرى",
     "connections.none": "لا توجد اتصالات شبكية",
     "connections.no_matches": "لا توجد اتصالات مطابقة للمرشحات الحالية",
     "connections.unattributed_hint": "المقابس المملوكة لمستخدمين آخرين لا تُظهر العملية؛ يلزم امتيازات مرتفعة لتحديدها.",
@@ -569,6 +572,10 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "السمة",
+    "config.colors": "الألوان",
+    "config.status_colors": "ألوان الحالة",
+    "config.inputs_controls": "الحقول وعناصر التحكم",
+    "config.theme_custom": "سمة مخصصة",
     "config.theme_default": "الافتراضي",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -578,6 +585,7 @@
     "startup.col_command": "الأمر",
     "startup.col_scope": "النطاق",
     "startup.col_status": "الحالة",
+    "startup.col_action": "الإجراء",
     "startup.scope_user": "المستخدم",
     "startup.scope_system": "النظام",
     "startup.enabled": "مفعّل",

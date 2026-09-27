@@ -77,7 +77,7 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
         const graphColor = performanceConfig.config.performance_graph_color;
         const segments = [
             { key: 'in_use', label: t('performance.in_use'), bytes: inUse, color: graphColor },
-            { key: 'cached', label: t('performance.cached'), bytes: cached, color: `color-mix(in srgb, ${graphColor} 35%, transparent)` },
+            { key: 'cached', label: t('performance.reclaimable'), bytes: cached, color: `color-mix(in srgb, ${graphColor} 35%, transparent)` },
             { key: 'free', label: t('performance.free'), bytes: free, color: 'transparent' },
         ];
 
@@ -99,7 +99,7 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
                 <>
                     <NameContainer>
                         <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.memory')}</NameLabel>
-                        <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{Math.floor(memoryData.total.value)} {memoryData.total.unit}</NameValue>
+                        <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{memoryData.total.value} {memoryData.total.unit}</NameValue>
                     </NameContainer>
                     <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
                         <Graph

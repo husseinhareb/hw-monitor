@@ -11,6 +11,9 @@ export const StyledNav = styled.nav<{ navbarBackgroundColor: string }>`
     top: 0; 
     left: 0;  
     z-index: 1000;  
+    /* Keep the centered tabs clear of the absolutely positioned config and search buttons */
+    padding: 0 3.5em;
+    box-sizing: border-box;
 `;
 
 
@@ -36,6 +39,15 @@ export const StyledButton = styled.button<{ active: boolean; navbarButtonsForegr
   }
   svg {
     margin-right: 8px;
+  }
+
+  /* Narrow windows: icons only; the label text stays in the DOM for screen readers */
+  @media (max-width: 900px) {
+    font-size: 0;
+    svg {
+      font-size: 14px;
+      margin-right: 0;
+    }
   }
 `;
 

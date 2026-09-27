@@ -93,7 +93,7 @@ const ProcessesConfig: React.FC<Props> = ({ theme }) => {
       />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-        {t("processes_config.body_background_color").replace(" Color", "")} / Colors
+        {t("config.colors")}
       </SubSectionTitle>
 
       <ConfigColorRow labelKey="processes_config.body_background_color" value={config.processes_body_background_color} onChange={v => handleConfigChange("processes_body_background_color", v)} theme={theme} />

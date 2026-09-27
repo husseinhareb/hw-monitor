@@ -75,6 +75,8 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
           secondGraphValue={writeValues}
           width="100%"
           formatValue={formatSpeed}
+          seriesLabels={[t('disk.read'), t('disk.write')]}
+          suggestedMax={1}
         />
       </div>
 

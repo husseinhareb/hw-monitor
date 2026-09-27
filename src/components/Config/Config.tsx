@@ -12,7 +12,7 @@ import ConfigPanelConfigSection from "./ConfigPanelConfig";
 import ServicesConfig from "./ServicesConfig";
 import ConnectionsConfig from "./ConnectionsConfig";
 import SystemInfoConfig from "./SystemInfoConfig";
-import { themes } from "./themes";
+import { activeThemeIndex, themes } from "./themes";
 import {
   ConfigPage,
   ConfigSidebar,
@@ -109,7 +109,20 @@ const Config: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Resetting wipes every setting, so the first click only arms the button
+  const [confirmReset, setConfirmReset] = useState(false);
+  useEffect(() => {
+    if (!confirmReset) return;
+    const timer = setTimeout(() => setConfirmReset(false), 3000);
+    return () => clearTimeout(timer);
+  }, [confirmReset]);
+
   const load_default_config = async () => {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      return;
+    }
+    setConfirmReset(false);
     try {
       await resetToDefault();
       await i18n.changeLanguage(useConfigStore.getState().config.language);
@@ -140,6 +153,8 @@ const Config: React.FC = () => {
       console.error("Error updating language config:", error);
     }
   }, [config.language, i18n, persistPartial]);
+
+  const currentTheme = activeThemeIndex(config);
 
   const activeLabel = t(sections.find(s => s.key === activeSection)!.labelKey);
 
@@ -219,9 +234,12 @@ const Config: React.FC = () => {
               inputBorder={theme.inputBorder}
               textColor={theme.textColor}
               onClick={() => setThemeOpen(o => !o)}
+              aria-label={t("config.theme")}
               type="button"
             >
-              {t("config.theme")}
+              {currentTheme === -1
+                ? t("config.theme_custom")
+                : t(themes[currentTheme].labelKey)}
             </DropdownTrigger>
             {themeOpen && (
               <DropdownMenu
@@ -234,7 +252,7 @@ const Config: React.FC = () => {
                     key={preset.label}
                     inputBg={theme.inputBg}
                     textColor={theme.textColor}
-                    isSelected={false}
+                    isSelected={idx === currentTheme}
                     onClick={() => applyTheme(idx)}
                   >
                     {t(preset.labelKey)}
@@ -248,7 +266,7 @@ const Config: React.FC = () => {
             buttonFg={theme.buttonFg}
             onClick={load_default_config}
           >
-            {t("config.load_default")}
+            {t(confirmReset ? "config.load_default_confirm" : "config.load_default")}
           </ActionButton>
         </TopBar>
 

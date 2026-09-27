@@ -1,13 +1,8 @@
 import styled from 'styled-components';
 import { safeLighten } from '../utils/safeLighten';
 
-const baseFontSize = 15; // Base font size in pixels
-
-// Calculate font size dynamically based on column count
-const calculateFontSize = (columnCount: number): number => {
-    const base = baseFontSize;
-    return base - Math.min(columnCount * 0.5, 4);
-};
+// Shared by every table (processes, services, startup apps, connections) and matched by the process tree
+const tableFontSize = 13;
 
 export const TableContainer = styled.div`
     width: 100%;
@@ -33,7 +28,7 @@ export const Thead = styled.thead<{ headBackgroundColor: string; headColor: stri
     z-index: 1; 
 `;
 
-export const Th = styled.th<{ headBackgroundColor: string; headColor: string; columnCount: number; borderColor: string; }>`
+export const Th = styled.th<{ headBackgroundColor: string; headColor: string; borderColor: string; }>`
     padding: 8px;
     border: 1px solid ${(props) => props.borderColor};
     cursor: pointer;
@@ -41,7 +36,7 @@ export const Th = styled.th<{ headBackgroundColor: string; headColor: string; co
     white-space: nowrap;
     overflow: hidden;
     max-width: 140px;
-    font-size: ${(props) => calculateFontSize(props.columnCount)}px;
+    font-size: ${tableFontSize}px;
     text-overflow: ellipsis;
     position: relative;
     align-items: center;
@@ -83,9 +78,9 @@ export const Tr = styled.tr<{ bodyBackgroundColor?: string }>`
     }
 `;
 
-export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; columnCount: number; borderColor: string; }>`
-    padding: 8px;
-    font-size: ${(props) => calculateFontSize(props.columnCount)}px;
+export const Td = styled.td<{ bodyBackgroundColor: string; bodyColor: string; borderColor: string; }>`
+    padding: 6px 8px;
+    font-size: ${tableFontSize}px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -163,8 +158,6 @@ export const ManageModalHeader = styled.div`
 export const ManageModalTitle = styled.span`
     font-size: 13px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -263,7 +256,8 @@ export const ManageActionButton = styled.button<{ $danger?: boolean }>`
 
 export const AffinityGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+    /* 8 per row: CPU counts are almost always multiples of 4 or 8, so rows stay even */
+    grid-template-columns: repeat(8, minmax(0, 1fr));
     gap: 6px;
 `;
 

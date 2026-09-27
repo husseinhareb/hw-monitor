@@ -56,11 +56,13 @@ text-align: right;
 `;
 
 // Common RealTimeValues
+// Both stat panels keep a 340px basis so a narrow window stacks them instead of squeezing both
 export const RealTimeValues = styled.div`
 display: flex;
 flex-direction: column;
-flex: 1;
+flex: 1 1 340px;
 min-width: 0;
+container-type: inline-size;
 `;
 
 // CPU Specific Styles
@@ -85,16 +87,30 @@ flex-shrink: 0;
 `;
 
 export const FixedValues = styled.div<{ performanceLabelColor: string }>`
-flex: 1;
+flex: 1 1 340px;
 text-align: left;
 border-left: 2px solid ${(props) => props.performanceLabelColor};
 min-width: 0;
 `;
 
 export const SpeedUsageContainer = styled.div`
-display: flex;
-justify-content: space-between;
-flex-wrap: wrap;
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 0 16px;
+padding: 0 20px;
+
+/* Grid gap and padding already space the cells; values never wrap mid-unit ("2.75 / GHz") */
+& p {
+    margin-left: 0;
+    margin-right: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@container (max-width: 400px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 `;
 
 export const SpeedUsageItem = styled.div`
@@ -202,6 +218,7 @@ display: grid;
 grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 gap: 8px 18px;
 width: 100%;
+margin-top: 12px;
 padding: 0 10px;
 box-sizing: border-box;
 flex-shrink: 0;

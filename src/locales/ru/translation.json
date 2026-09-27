@@ -339,6 +339,7 @@
     "performance.free": "Свободно",
     "performance.available": "Доступно",
     "performance.cached": "Кэшировано",
+    "performance.reclaimable": "Освобождаемая",
     "performance.active": "Активно",
     "performance.memory_composition": "Состав памяти",
     "performance.in_use": "Используется",
@@ -433,6 +434,7 @@
     "minutes": "мин",
 
     "config.load_default": "Загрузить конфигурацию по умолчанию",
+    "config.load_default_confirm": "Нажмите ещё раз для сброса",
 
     "error.fetch_failed": "Не удалось загрузить данные",
     "error.battery_failed": "Не удалось загрузить данные аккумулятора",
@@ -495,6 +497,7 @@
     "connections.state_all": "Все состояния",
     "connections.state_listening": "Прослушивание",
     "connections.state_established": "Установлено",
+    "connections.state_other": "Другие",
     "connections.none": "Нет сетевых соединений",
     "connections.no_matches": "Нет соединений, соответствующих текущим фильтрам",
     "connections.unattributed_hint": "Сокеты других пользователей не показывают процесс; для их определения нужны повышенные права.",
@@ -566,6 +569,10 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "Тема",
+    "config.colors": "Цвета",
+    "config.status_colors": "Цвета статусов",
+    "config.inputs_controls": "Поля и элементы управления",
+    "config.theme_custom": "Своя тема",
     "config.theme_default": "По умолчанию",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -575,6 +582,7 @@
     "startup.col_command": "Команда",
     "startup.col_scope": "Область",
     "startup.col_status": "Статус",
+    "startup.col_action": "Действие",
     "startup.scope_user": "Пользователь",
     "startup.scope_system": "Система",
     "startup.enabled": "Включено",

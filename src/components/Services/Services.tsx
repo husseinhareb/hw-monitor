@@ -152,6 +152,8 @@ const isMasked = (service: SystemService) =>
     service.load_state === "masked" || service.unit_file_state.startsWith("masked");
 
 const canRunAction = (service: SystemService, action: ServiceAction): boolean => {
+    // systemd has no unit file to act on
+    if (service.load_state === "not-found") return false;
     switch (action) {
         case "start":
             return !isMasked(service) && service.active_state !== "active" && service.active_state !== "activating";
@@ -294,14 +296,15 @@ const Services: React.FC = () => {
     };
 
     const hasSelection = selectedName !== null;
-    const colCount = columns.length;
     const actionEnabled = (action: ServiceAction) =>
         selectedService ? canRunAction(selectedService, action) : false;
 
     return (
         <TableContainer style={{
             backgroundColor: servicesConfig.config.services_body_background_color,
-            minHeight: "100vh",
+            flex: 1,
+            minHeight: 0,
+            height: "auto",
             color: servicesConfig.config.services_body_color,
             position: "relative",
             paddingBottom: hasSelection ? "calc(38vh + 50px)" : undefined,
@@ -356,7 +359,6 @@ const Services: React.FC = () => {
                                         headBackgroundColor={servicesConfig.config.services_head_background_color}
                                         headColor={servicesConfig.config.services_head_color}
                                         borderColor={servicesConfig.config.services_border_color}
-                                        columnCount={colCount}
                                     >
                                         <div className="header-label">
                                             <span className="label">{t(col.labelKey)}</span>
@@ -387,7 +389,6 @@ const Services: React.FC = () => {
                                             bodyBackgroundColor={servicesConfig.config.services_body_background_color}
                                             bodyColor={servicesConfig.config.services_body_color}
                                             borderColor={servicesConfig.config.services_border_color}
-                                            columnCount={colCount}
                                         >
                                             {col.key === "active_state" ? (
                                                 <span style={{ display: "inline-flex", alignItems: "center" }}>

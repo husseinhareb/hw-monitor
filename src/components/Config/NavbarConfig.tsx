@@ -21,7 +21,7 @@ const NavbarConfig: React.FC<Props> = ({ theme }) => {
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-        {t("navbar_config.title")}
+        {t("config.colors")}
       </SubSectionTitle>
 
       <ConfigColorRow labelKey="navbar_config.background_color"          value={config.navbar_background_color}          onChange={v => handleConfigChange("navbar_background_color", v)}          theme={theme} />

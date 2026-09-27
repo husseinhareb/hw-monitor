@@ -26,6 +26,13 @@ const Muted = styled.div`
 `;
 
 const COLUMNS = ["name", "command", "scope", "status", "action"] as const;
+const COLUMN_WIDTHS: Record<(typeof COLUMNS)[number], string> = {
+    name: "30%",
+    command: "40%",
+    scope: "10%",
+    status: "10%",
+    action: "10%",
+};
 
 const StartupApps: React.FC = () => {
     const { t } = useTranslation();
@@ -59,7 +66,7 @@ const StartupApps: React.FC = () => {
     if (apps === null) return <Spinner />;
 
     return (
-        <TableContainer style={{ backgroundColor: config.services_body_background_color, color: config.services_body_color }}>
+        <TableContainer style={{ flex: 1, minHeight: 0, height: "auto", backgroundColor: config.services_body_background_color, color: config.services_body_color }}>
             {apps.length === 0 ? (
                 <p style={{ padding: "12px" }}>{t("startup.none")}</p>
             ) : (
@@ -68,7 +75,11 @@ const StartupApps: React.FC = () => {
                     bodyColor={config.services_body_color}
                     headBackgroundColor={config.services_head_background_color}
                     headColor={config.services_head_color}
+                    style={{ tableLayout: "fixed" }}
                 >
+                    <colgroup>
+                        {COLUMNS.map(column => <col key={column} style={{ width: COLUMN_WIDTHS[column] }} />)}
+                    </colgroup>
                     <Thead headBackgroundColor={config.services_head_background_color} headColor={config.services_head_color}>
                         <Tr>
                             {COLUMNS.map(column => (
@@ -77,33 +88,32 @@ const StartupApps: React.FC = () => {
                                     headBackgroundColor={config.services_head_background_color}
                                     headColor={config.services_head_color}
                                     borderColor={config.services_border_color}
-                                    columnCount={COLUMNS.length}
-                                    style={{ cursor: "default" }}
+                                    style={{ cursor: "default", maxWidth: "none", textAlign: column === "action" ? "right" : "left" }}
                                 >
-                                    {column === "action" ? "" : t(`startup.col_${column}`)}
+                                    {t(`startup.col_${column}`)}
                                 </Th>
                             ))}
                         </Tr>
                     </Thead>
                     <Tbody bodyBackgroundColor={config.services_body_background_color} bodyColor={config.services_body_color}>
                         {apps.map(app => {
-                            const cell = { bodyBackgroundColor: config.services_body_background_color, bodyColor: config.services_body_color, borderColor: config.services_border_color, columnCount: COLUMNS.length };
+                            const cell = { bodyBackgroundColor: config.services_body_background_color, bodyColor: config.services_body_color, borderColor: config.services_border_color };
                             return (
                                 <Tr key={app.id} bodyBackgroundColor={config.services_body_background_color}>
-                                    <Td {...cell} style={{ maxWidth: "260px" }}>
+                                    <Td {...cell} style={{ maxWidth: "none" }}>
                                         <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                                             <ProcessIcon name={app.executable ?? app.name} fallbackColor={config.services_body_color} />
                                             {app.name}
                                         </span>
                                         {app.comment && <Muted title={app.comment}>{app.comment}</Muted>}
                                     </Td>
-                                    <Td {...cell} title={app.command ?? ""} style={{ maxWidth: "320px", opacity: 0.8 }}>{app.command}</Td>
-                                    <Td {...cell}>{t(`startup.scope_${app.scope}`)}</Td>
-                                    <Td {...cell}>
+                                    <Td {...cell} title={app.command ?? ""} style={{ maxWidth: "none", fontFamily: "monospace", opacity: 0.75 }}>{app.command}</Td>
+                                    <Td {...cell} style={{ maxWidth: "none" }}>{t(`startup.scope_${app.scope}`)}</Td>
+                                    <Td {...cell} style={{ maxWidth: "none" }}>
                                         <StatusDot color={app.enabled ? config.services_active_color : config.services_inactive_color} />
                                         {app.enabled ? t("startup.enabled") : t("startup.disabled")}
                                     </Td>
-                                    <Td {...cell}>
+                                    <Td {...cell} style={{ maxWidth: "none", textAlign: "right" }}>
                                         <KillButton
                                             killButtonBackgroundColor={config.services_head_background_color}
                                             killButtonColor={config.services_body_color}

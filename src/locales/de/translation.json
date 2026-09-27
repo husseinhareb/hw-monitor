@@ -185,7 +185,7 @@
     "disks_config.smart_warning_color": "SMART-Warnfarbe",
     "disks_config.smart_fail_color": "SMART-Fehlerfarbe",
 
-    "heatbar_config.title": "Heizstab-Konfiguration",
+    "heatbar_config.title": "Temperaturbalken-Konfiguration",
     "heatbar_config.color_one": "Erste Farbe",
     "heatbar_config.color_two": "Zweite Farbe",
     "heatbar_config.color_three": "Dritte Farbe",
@@ -337,6 +337,7 @@
     "performance.free": "Frei",
     "performance.available": "Verfügbar",
     "performance.cached": "Zwischengespeichert",
+    "performance.reclaimable": "Freigebbar",
     "performance.active": "Aktiv",
     "performance.memory_composition": "Speicherzusammensetzung",
     "performance.in_use": "Verwendet",
@@ -431,6 +432,7 @@
     "minutes": "Min",
 
     "config.load_default": "Standardkonfiguration laden",
+    "config.load_default_confirm": "Zum Zurücksetzen erneut klicken",
 
     "error.fetch_failed": "Daten konnten nicht geladen werden",
     "error.battery_failed": "Batteriedaten konnten nicht geladen werden",
@@ -493,6 +495,7 @@
     "connections.state_all": "Alle Zustände",
     "connections.state_listening": "Lauschend",
     "connections.state_established": "Hergestellt",
+    "connections.state_other": "Andere",
     "connections.none": "Keine Netzwerkverbindungen",
     "connections.no_matches": "Keine Verbindungen entsprechen den aktuellen Filtern",
     "connections.unattributed_hint": "Sockets anderer Benutzer zeigen keinen Prozess; zur Auflösung sind erhöhte Rechte nötig.",
@@ -564,6 +567,10 @@
     "system_info.no_data": "Keine Systeminformationen verfügbar",
 
     "config.theme": "Farbschema",
+    "config.colors": "Farben",
+    "config.status_colors": "Statusfarben",
+    "config.inputs_controls": "Eingaben & Steuerelemente",
+    "config.theme_custom": "Eigenes Theme",
     "config.theme_default": "Standard",
     "config.theme_catppuccin": "Catppuccin",
     "config.theme_gruvbox": "Gruvbox",
@@ -573,6 +580,7 @@
     "startup.col_command": "Befehl",
     "startup.col_scope": "Bereich",
     "startup.col_status": "Status",
+    "startup.col_action": "Aktion",
     "startup.scope_user": "Benutzer",
     "startup.scope_system": "System",
     "startup.enabled": "Aktiviert",

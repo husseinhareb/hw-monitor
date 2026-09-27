@@ -152,6 +152,8 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) =
                         secondGraphValue={upload}
                         width="100%"
                         formatValue={formatRate}
+                        seriesLabels={[t('network.download'), t('network.upload')]}
+                        suggestedMax={1000}
                     />
                 </div>
 

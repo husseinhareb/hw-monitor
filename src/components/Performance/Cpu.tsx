@@ -200,24 +200,23 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.usage')}</LeftLabel>
                             <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.usage != null ? `${cpuData.usage}%` : 'N/A'}</LeftValue>
                         </SpeedUsageItem>
-                    </SpeedUsageContainer>
-                    <SpeedUsageContainer>
                         <SpeedUsageItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.temperature')}</LeftLabel>
                             <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.temperature ?? 'N/A'}</LeftValue>
                         </SpeedUsageItem>
                         <SpeedUsageItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.processes')}</LeftLabel>
-                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color} style={{ 'textAlign': 'right' }}>{totalUsages.processes}</LeftValue>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{totalUsages.processes}</LeftValue>
                         </SpeedUsageItem>
                         <SpeedUsageItem>
                             <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.live_threads')}</LeftLabel>
                             <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.live_threads ?? 'N/A'}</LeftValue>
                         </SpeedUsageItem>
+                        <SpeedUsageItem>
+                            <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.uptime')}</LeftLabel>
+                            <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.uptime ?? 'N/A'}</LeftValue>
+                        </SpeedUsageItem>
                     </SpeedUsageContainer>
-
-                    <LeftLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.uptime')}</LeftLabel>
-                    <LeftValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.uptime ?? 'N/A'}</LeftValue>
                 </RealTimeValues>
                 <FixedValues performanceLabelColor={performanceConfig.config.performance_label_color}>
                     <FixedValueItem>

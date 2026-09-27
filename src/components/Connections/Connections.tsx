@@ -151,7 +151,7 @@ const DetailBar = styled(BottomBar)`
 `;
 
 type ProtocolFilter = "all" | "tcp" | "udp";
-type StateFilter = "all" | "listening" | "established";
+type StateFilter = "all" | "listening" | "established" | "other";
 
 const columns: { key: ConnectionSortKey; labelKey: string }[] = [
     { key: "protocol", labelKey: "connections.col_protocol" },
@@ -229,6 +229,7 @@ const Connections: React.FC = () => {
         { value: "all", labelKey: "connections.state_all" },
         { value: "listening", labelKey: "connections.state_listening" },
         { value: "established", labelKey: "connections.state_established" },
+        { value: "other", labelKey: "connections.state_other" },
     ];
 
     const stateColor = (state: string): string => {
@@ -267,6 +268,12 @@ const Connections: React.FC = () => {
                 return false;
             }
             if (stateFilter === "established" && connection.state !== "ESTABLISHED") {
+                return false;
+            }
+            if (
+                stateFilter === "other"
+                && (listeningStates.has(connection.state) || connection.state === "ESTABLISHED")
+            ) {
                 return false;
             }
             return matchesConnectionQuery(connection, query);
@@ -353,13 +360,14 @@ const Connections: React.FC = () => {
             case "process_name":
                 return connection.process_name ?? "-";
             case "user":
+                // Orphaned sockets (TIME_WAIT) have inode 0 and no real owner
+                if (connection.inode === 0) return "-";
                 return connection.user ?? String(connection.uid);
             default:
                 return connection[key];
         }
     };
 
-    const colCount = columns.length;
     const bodyBackground = connectionsConfig.config.connections_body_background_color;
     const bodyColor = connectionsConfig.config.connections_body_color;
     const headBackground = connectionsConfig.config.connections_head_background_color;
@@ -469,7 +477,6 @@ const Connections: React.FC = () => {
                                             headBackgroundColor={headBackground}
                                             headColor={headColor}
                                             borderColor={borderColor}
-                                            columnCount={colCount}
                                         >
                                             <div className="header-label">
                                                 <span className="label">{t(column.labelKey)}</span>
@@ -499,7 +506,6 @@ const Connections: React.FC = () => {
                                                     bodyBackgroundColor={bodyBackground}
                                                     bodyColor={bodyColor}
                                                     borderColor={borderColor}
-                                                    columnCount={colCount}
                                                 >
                                                     {renderCell(connection, column.key)}
                                                 </Td>
@@ -530,7 +536,7 @@ const Connections: React.FC = () => {
                     </DetailField>
                     <DetailField>
                         <b>{t("connections.uid")}</b>
-                        {selectedConnection.uid}
+                        {selectedConnection.inode === 0 ? "-" : selectedConnection.uid}
                     </DetailField>
                     <DetailField>
                         <b>{t("connections.rx_queue")}</b>

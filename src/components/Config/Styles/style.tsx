@@ -287,7 +287,7 @@ export const StyledNumberInput = styled.input<{
   border: 1px solid ${p => p.inputBorder};
   padding: 3px 8px;
   font-size: 12px;
-  width: 72px;
+  width: 84px;
   text-align: right;
   font-family: monospace;
   outline: none;
@@ -300,6 +300,8 @@ export const StyledNumberInput = styled.input<{
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
     opacity: 0.35;
+    /* Keep right-aligned digits clear of the spinner */
+    margin-left: 6px;
   }
 `;
 
@@ -339,7 +341,8 @@ export const StyledColorInput = styled.input`
   }
 
   &::-webkit-color-swatch {
-    border: none;
+    /* Neutral outline so a swatch matching the panel color stays visible */
+    border: 1px solid rgba(128, 128, 128, 0.6);
   }
 `;
 

@@ -116,22 +116,26 @@ export const SensorScroller = styled.div`
 
 export const SensorGrid = styled.div`
   padding: 16px 20px 20px;
-  column-width: 360px;
-  column-gap: 14px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+`;
+
+export const SensorColumn = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
 export const SensorList = styled.div<{ sensorsBoxesBackgroundColor: string; sensorsBoxesForegroundColor?: string }>`
-  display: inline-block;
+  display: block;
   width: 100%;
   box-sizing: border-box;
   background-color: ${p => p.sensorsBoxesBackgroundColor};
   color: ${p => p.sensorsBoxesForegroundColor || 'inherit'};
   border: 1px solid color-mix(in srgb, currentColor 7%, transparent);
   padding: 14px 16px 12px;
-  break-inside: avoid;
-  page-break-inside: avoid;
   margin-bottom: 14px;
 `;
 
@@ -362,8 +366,6 @@ export const GraphModalTitle = styled.span<{ $color: string }>`
   color: ${p => p.$color};
   font-size: 13px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
   flex: 1;
   min-width: 0;
   overflow: hidden;

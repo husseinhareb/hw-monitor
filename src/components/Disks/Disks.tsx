@@ -363,13 +363,13 @@ const Disks: React.FC = () => {
                   <FileSystem
                     $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
                   >{mount.file_system}</FileSystem>
-                  {mount.used_space != null && mount.total_space != null && (
-                    <Space
-                      $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
-                    >
-                      {showBytes(mount.used_space)} / {showBytes(mount.total_space)}
-                    </Space>
-                  )}
+                  <Space
+                    $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                  >
+                    {mount.used_space != null && mount.total_space != null
+                      ? `${showBytes(mount.used_space)} / ${showBytes(mount.total_space)}`
+                      : ""}
+                  </Space>
                 </PartitionItem>
               </PartitionContainer>
             ))}
@@ -393,34 +393,21 @@ const Disks: React.FC = () => {
                   <PartitionName
                     $partitionNameForegroundColor={disksConfig.config.disks_partition_name_foreground_color}
                   >{partition.name}</PartitionName>
-                  {partition.mounts.length === 0 && (
-                    <Space
-                      $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
-                    >
-                      {(() => { const d = convertData(partition.size); return `${d.value} ${d.unit}`; })()}
-                    </Space>
-                  )}
-                  {partition.mounts.length > 0 && (
-                    <FileSystem
-                      $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
-                    >{partition.mounts.map((mount) => mount.mount_point).join(", ")}</FileSystem>
-                  )}
-                  {partition.mounts.length > 0 && (
-                    <FileSystem
-                      $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
-                    >{[...new Set(partition.mounts.map((mount) => mount.file_system))].join(", ")}</FileSystem>
-                  )}
-                  {partition.mount_point && partition.used_space != null && partition.total_space != null && (
-                    <Space
-                      $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
-                    >
-                      {(() => {
-                        const used = convertData(partition.used_space);
-                        const total = convertData(partition.total_space);
-                        return `${used.value} ${used.unit} / ${total.value} ${total.unit}`;
-                      })()}
-                    </Space>
-                  )}
+                  <FileSystem
+                    $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                  >{partition.mounts.map((mount) => mount.mount_point).join(", ")}</FileSystem>
+                  <FileSystem
+                    $partitionTypeForegroundColor={disksConfig.config.disks_partition_type_foreground_color}
+                  >{partition.mounts.length > 0
+                    ? [...new Set(partition.mounts.map((mount) => mount.file_system))].join(", ")
+                    : partition.file_system ?? ""}</FileSystem>
+                  <Space
+                    $partitionUsageForegroundColor={disksConfig.config.disks_partition_usage_foreground_color}
+                  >
+                    {partition.mount_point && partition.used_space != null && partition.total_space != null
+                      ? `${showBytes(partition.used_space)} / ${showBytes(partition.total_space)}`
+                      : showBytes(partition.size)}
+                  </Space>
                 </PartitionItem>
               </PartitionContainer>
             ))}

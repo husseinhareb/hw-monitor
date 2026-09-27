@@ -21,7 +21,7 @@ const ConfigPanelConfigSection: React.FC<Props> = ({ theme }) => {
   return (
     <SectionCard containerBg={theme.containerBg} inputBorder={theme.inputBorder}>
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-        {t("config_panel_config.title")}
+        {t("config.colors")}
       </SubSectionTitle>
 
       <ConfigColorRow labelKey="config_panel_config.background_color"           value={config.config_background_color}           onChange={v => handleConfigChange("config_background_color", v)}           theme={theme} />
@@ -32,7 +32,7 @@ const ConfigPanelConfigSection: React.FC<Props> = ({ theme }) => {
       <ConfigColorRow labelKey="config_panel_config.toast_info_color" value={config.config_toast_info_color} onChange={v => handleConfigChange("config_toast_info_color", v)} theme={theme} />
 
       <SubSectionTitle textColor={theme.textColor} inputBorder={theme.inputBorder}>
-        Inputs &amp; Controls
+        {t("config.inputs_controls")}
       </SubSectionTitle>
 
       <ConfigColorRow labelKey="config_panel_config.input_background_color" value={config.config_input_background_color} onChange={v => handleConfigChange("config_input_background_color", v)} theme={theme} />

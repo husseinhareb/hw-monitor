@@ -25,6 +25,10 @@ interface GraphProps {
    * render as unreadable seven-digit tick labels.
    */
   formatValue?: (value: number) => string;
+  /** Legend names for the first and second series; the legend is hidden without them. */
+  seriesLabels?: [string, string];
+  /** Lowest y-axis top, so an idle series does not scale the axis down to fractions. */
+  suggestedMax?: number;
 }
 
 const MAX_POINTS = 20;
@@ -40,6 +44,8 @@ const Graph: React.FC<GraphProps> = ({
   hideScales = false,
   title,
   formatValue,
+  seriesLabels,
+  suggestedMax,
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
@@ -105,6 +111,7 @@ const Graph: React.FC<GraphProps> = ({
       y: {
         beginAtZero: true,
         max: maxValue,
+        suggestedMax,
         ticks: {
           display: !hideScales,
           callback: (value) => {
@@ -135,7 +142,16 @@ const Graph: React.FC<GraphProps> = ({
     };
     chart.options.plugins = {
       ...chart.options.plugins,
-      legend: { display: false },
+      legend: {
+        display: !!seriesLabels && !hideScales,
+        position: 'top',
+        align: 'end',
+        labels: {
+          color: performanceConfig.config.performance_label_color,
+          boxWidth: 12,
+          boxHeight: 12,
+        },
+      },
       tooltip: {
         enabled: !hideScales,
         backgroundColor: '#000000b3',
@@ -147,6 +163,8 @@ const Graph: React.FC<GraphProps> = ({
         },
       },
     };
+    chart.data.datasets[0].label = seriesLabels?.[0] ?? '';
+    chart.data.datasets[1].label = seriesLabels?.[1] ?? '';
     chart.data.datasets[0].borderColor = performanceConfig.config.performance_graph_color;
     chart.data.datasets[0].backgroundColor = performanceConfig.config.performance_graph_color + '33';
     chart.data.datasets[1].borderColor = performanceConfig.config.performance_sec_graph_color;
@@ -155,6 +173,9 @@ const Graph: React.FC<GraphProps> = ({
   }, [
     hideScales,
     maxValue,
+    suggestedMax,
+    seriesLabels?.[0],
+    seriesLabels?.[1],
     performanceConfig?.config.performance_graph_color,
     performanceConfig?.config.performance_label_color,
     performanceConfig?.config.performance_sec_graph_color,

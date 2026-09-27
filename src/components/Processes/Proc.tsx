@@ -78,7 +78,6 @@ const ProcessRow = memo<ProcessRowProps>(({
                 bodyBackgroundColor={bodyBg}
                 bodyColor={bodyColor}
                 borderColor={borderColor}
-                columnCount={columns.length}
             >
                 {column === 'name' ? (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
@@ -383,7 +382,6 @@ const Proc: React.FC = () => {
                                     headColor={processConfig.config.processes_head_color}
                                     borderColor={processConfig.config.processes_border_color}
                                     aria-sort={sortBy === column ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
-                                    columnCount={displayedColumns.length}
                                 >
                                     <div className="header-label">
                                         <div className="header-content">

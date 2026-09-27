@@ -134,21 +134,15 @@ const SystemInfo: React.FC = () => {
         { label: t("system_info.cpu_cache_l3"), value: cpu?.cache_l3 },
     ];
 
-    const gpuRows: Row[] = data.gpus.length > 0
-        ? data.gpus.map((gpu, i) => ({
-              label:
-                  data.gpus.length === 1
-                      ? t("system_info.gpu_name")
-                      : `${t("system_info.gpu_name")} ${i + 1}`,
-              value: [
-                  gpu.name,
-                  gpu.driver_version ? `Driver: ${gpu.driver_version}` : null,
-                  gpu.memory_total ? `VRAM: ${gpu.memory_total}` : null,
-              ]
-                  .filter(Boolean)
-                  .join(" — ") || null,
-          }))
-        : [];
+    // One row per field; labels get the GPU number when there are several (labels are row keys)
+    const gpuRows: Row[] = data.gpus.flatMap((gpu, i) => {
+        const suffix = data.gpus.length === 1 ? "" : ` ${i + 1}`;
+        return [
+            { label: `${t("system_info.gpu_name")}${suffix}`, value: gpu.name },
+            { label: `${t("performance.driver_version")}${suffix}`, value: gpu.driver_version },
+            { label: `${t("performance.memory_total")}${suffix}`, value: gpu.memory_total },
+        ];
+    });
 
     const mem = data.mem;
     const memRows: Row[] = [
