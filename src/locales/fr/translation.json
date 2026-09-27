@@ -130,6 +130,7 @@
     "sensors.status_warning": "Avertissement",
     "sensors.status_critical": "Critique",
     "sensors.intrusion_detected": "Détecté",
+    "sensors.intrusion_hint": "La carte mère mémorise ce signal ; il reste souvent actif sans interrupteur de boîtier branché. Masquez le capteur pour l'ignorer.",
     "sensors.intrusion_clear": "Aucune intrusion",
     "sensors.type_temperature": "Température",
     "sensors.type_fan": "Ventilateur",
@@ -277,6 +278,7 @@
     "proc.table_value_write_disk_speed": "Vitesse d'Écriture du Disque",
     "proc.table_value_nice": "Priorité (nice)",
     "proc.kill_process": "Terminer le Processus",
+    "proc.kill_confirm": "Cliquez à nouveau pour terminer",
     "proc.monitor_button": "Surveiller",
     "proc.monitor_title": "Moniteur de processus",
     "proc.monitor_cpu": "Utilisation CPU (%)",
@@ -567,6 +569,7 @@
     "system_info.no_data": "Aucune information système disponible",
 
     "config.theme": "Thème",
+    "common.close": "Fermer",
     "config.colors": "Couleurs",
     "config.status_colors": "Couleurs d'état",
     "config.inputs_controls": "Champs et contrôles",

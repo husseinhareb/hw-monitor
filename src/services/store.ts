@@ -57,6 +57,9 @@ interface Store {
       | ((previous: Record<string, NetworkData>) => Record<string, NetworkData>),
   ) => void;
 
+  /** Drops the Performance page's sample histories (kept: interface list, totals) */
+  resetHistories: () => void;
+
   processSearch: string;
   setProcessSearch: (processSearch: string) => void;
 
@@ -139,6 +142,20 @@ export const useStore = create<Store>((set) => ({
     };
     }),
 
+  resetHistories: () => set((state) => ({
+    tick: 0,
+    cpu: [],
+    cpuCores: [],
+    memory: [],
+    gpuUsages: {},
+    networkSpeeds: Object.fromEntries(
+      Object.keys(state.networkSpeeds).map((name) => [name, { download: [], upload: [] }]),
+    ),
+    networkFullData: Object.fromEntries(
+      Object.entries(state.networkFullData).map(([name, data]) => [name, { ...data, download: [], upload: [] }]),
+    ),
+  })),
+
   processSearch: "",
   setProcessSearch: (processSearch) => set({ processSearch }),
 
@@ -188,6 +205,8 @@ export const useNetworkInterfaces = () => useStore((state) => state.networkInter
 export const useNetworkSpeeds = () => useStore((state) => state.networkSpeeds);
 export const useNetworkFullData = () => useStore((state) => state.networkFullData);
 export const useSetNetworkSnapshot = () => useStore((state) => state.setNetworkSnapshot);
+
+export const useResetHistories = () => useStore((state) => state.resetHistories);
 
 export const useProcessSearch = () => useStore((state) => state.processSearch);
 export const useSetProcessSearch = () => useStore((state) => state.setProcessSearch);

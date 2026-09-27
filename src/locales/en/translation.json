@@ -130,6 +130,7 @@
     "sensors.status_warning": "Warning",
     "sensors.status_critical": "Critical",
     "sensors.intrusion_detected": "Detected",
+    "sensors.intrusion_hint": "The board latches this flag; it often stays set when no case switch is connected. Hide the sensor to dismiss it.",
     "sensors.intrusion_clear": "Clear",
     "sensors.type_temperature": "Temperature",
     "sensors.type_fan": "Fan",
@@ -277,6 +278,7 @@
     "proc.table_value_write_disk_speed": "Write Disk Speed",
     "proc.table_value_nice": "Nice",
     "proc.kill_process": "Kill Process",
+    "proc.kill_confirm": "Click again to kill",
     "proc.monitor_button": "Monitor",
     "proc.monitor_title": "Process Monitor",
     "proc.monitor_cpu": "CPU Usage (%)",
@@ -579,6 +581,7 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "Theme",
+    "common.close": "Close",
     "config.colors": "Colors",
     "config.status_colors": "Status Colors",
     "config.inputs_controls": "Inputs & Controls",

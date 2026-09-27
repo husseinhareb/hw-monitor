@@ -130,6 +130,7 @@
     "sensors.status_warning": "Warnung",
     "sensors.status_critical": "Kritisch",
     "sensors.intrusion_detected": "Erkannt",
+    "sensors.intrusion_hint": "Das Mainboard speichert dieses Signal; ohne angeschlossenen Gehäuseschalter bleibt es oft gesetzt. Blende den Sensor aus, um es zu verwerfen.",
     "sensors.intrusion_clear": "Keine Intrusion",
     "sensors.type_temperature": "Temperatur",
     "sensors.type_fan": "Lüfter",
@@ -277,6 +278,7 @@
     "proc.table_value_write_disk_speed": "Schreibgeschwindigkeit",
     "proc.table_value_nice": "Nice-Wert",
     "proc.kill_process": "Prozess beenden",
+    "proc.kill_confirm": "Zum Beenden erneut klicken",
     "proc.monitor_button": "Überwachen",
     "proc.monitor_title": "Prozessüberwachung",
     "proc.monitor_cpu": "CPU-Auslastung (%)",
@@ -567,6 +569,7 @@
     "system_info.no_data": "Keine Systeminformationen verfügbar",
 
     "config.theme": "Farbschema",
+    "common.close": "Schließen",
     "config.colors": "Farben",
     "config.status_colors": "Statusfarben",
     "config.inputs_controls": "Eingaben & Steuerelemente",

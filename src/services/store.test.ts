@@ -21,6 +21,25 @@ describe("Zustand store", () => {
     });
   });
 
+  describe("resetHistories", () => {
+    it("clears samples and the tick but keeps interface details", () => {
+      const state = useStore.getState();
+      state.appendCpu(10);
+      state.appendMemory(5);
+      state.setNetworkSnapshot({
+        eth0: { download: [1, 2], upload: [3], totalDownload: 7 } as never,
+      });
+      useStore.getState().resetHistories();
+      const after = useStore.getState();
+      expect(after.tick).toBe(0);
+      expect(after.cpu).toEqual([]);
+      expect(after.memory).toEqual([]);
+      expect(after.networkSpeeds.eth0).toEqual({ download: [], upload: [] });
+      expect(after.networkFullData.eth0.totalDownload).toBe(7);
+      expect(after.networkInterfaces).toEqual(["eth0"]);
+    });
+  });
+
   describe("CPU history", () => {
     it("appends values and caps at 20 entries", () => {
       const { appendCpu } = useStore.getState();

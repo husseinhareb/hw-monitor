@@ -298,9 +298,12 @@ fn get_amd_gpu_info(gpu_path: &Path, index: usize) -> Option<GpuInformations> {
         _ => None,
     };
 
-    let performance_state = read_to_string(device_path.join("power_state"))
+    // amdgpu's DPM performance level (auto, low, high, manual, profile_*). The sibling
+    // power_state file is the PCI D-state (D0 = powered on), not a performance state.
+    let performance_state = read_to_string(device_path.join("power_dpm_force_performance_level"))
         .ok()
-        .map(|s| s.trim().to_string());
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
 
     let (fan_speed, temperature, clock_speed, wattage) = read_hwmon_info(&device_path);
     let utilization = read_gpu_busy_percent(&device_path);

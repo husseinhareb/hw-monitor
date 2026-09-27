@@ -130,6 +130,7 @@
     "sensors.status_warning": "تحذير",
     "sensors.status_critical": "حرج",
     "sensors.intrusion_detected": "تم الاكتشاف",
+    "sensors.intrusion_hint": "تحتفظ اللوحة الأم بهذه الإشارة؛ وغالبًا ما تبقى نشطة إذا لم يكن مفتاح الهيكل موصولًا. أخفِ المستشعر لتجاهلها.",
     "sensors.intrusion_clear": "لا يوجد اختراق",
     "sensors.type_temperature": "درجة الحرارة",
     "sensors.type_fan": "المروحة",
@@ -281,6 +282,7 @@
     "proc.table_value_write_disk_speed": "سرعة كتابة القرص",
     "proc.table_value_nice": "الأولوية (nice)",
     "proc.kill_process": "إيقاف العملية",
+    "proc.kill_confirm": "انقر مرة أخرى للإنهاء",
     "proc.monitor_button": "مراقبة",
     "proc.monitor_title": "مراقب العمليات",
     "proc.monitor_cpu": "استخدام المعالج (%)",
@@ -572,6 +574,7 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "السمة",
+    "common.close": "إغلاق",
     "config.colors": "الألوان",
     "config.status_colors": "ألوان الحالة",
     "config.inputs_controls": "الحقول وعناصر التحكم",

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::{Mutex, OnceLock};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -245,7 +246,79 @@ fn list_services() -> Result<Vec<SystemService>, String> {
         "--no-pager",
         "--no-legend",
     ])?;
-    Ok(merge_service_views(&units_output, &unit_files_output))
+    let mut services = merge_service_views(&units_output, &unit_files_output);
+    fill_unloaded_details(&mut services);
+    Ok(services)
+}
+
+// Units systemd has not loaded are missing from list-units, so they have no description and
+// an unknown load state. `systemctl show` loads them to answer, which costs ~0.8s for a few
+// hundred units, so each unit is asked about once per app run.
+static UNLOADED_DETAILS: OnceLock<Mutex<HashMap<String, (String, String)>>> = OnceLock::new();
+
+fn fill_unloaded_details(services: &mut [SystemService]) {
+    let needs_details = |service: &SystemService| {
+        service.description.is_empty()
+            && service.load_state != "masked"
+            && !service.name.ends_with('@')
+    };
+    let Ok(mut cache) = UNLOADED_DETAILS.get_or_init(Default::default).lock() else {
+        return;
+    };
+
+    let missing: Vec<String> = services
+        .iter()
+        .filter(|service| needs_details(service) && !cache.contains_key(&service.name))
+        .map(|service| format!("{}.service", service.name))
+        .collect();
+    if !missing.is_empty() {
+        let mut args = vec!["show", "--property=Id,Description,LoadState", "--"];
+        args.extend(missing.iter().map(String::as_str));
+        // Best effort: on failure the rows keep their fallback values
+        if let Ok(output) = run_systemctl(&args) {
+            cache.extend(parse_show_output(&output));
+        }
+        // Remember misses too, so a unit systemd cannot describe is not re-queried every poll
+        for unit in &missing {
+            if let Some(name) = service_name(unit) {
+                cache.entry(name).or_default();
+            }
+        }
+    }
+
+    for service in services.iter_mut().filter(|service| needs_details(service)) {
+        if let Some((description, load_state)) = cache.get(&service.name) {
+            // systemd echoes the unit name when it has no Description=
+            if !description.is_empty() && *description != format!("{}.service", service.name) {
+                service.description = description.clone();
+            }
+            if !load_state.is_empty() {
+                service.load_state = load_state.clone();
+            }
+        }
+    }
+}
+
+/// Parses `systemctl show --property=Id,Description,LoadState` output: one blank-line
+/// separated block per unit, keyed by service name.
+fn parse_show_output(output: &str) -> HashMap<String, (String, String)> {
+    output
+        .split("\n\n")
+        .filter_map(|block| {
+            let mut id = None;
+            let mut description = String::new();
+            let mut load_state = String::new();
+            for line in block.lines() {
+                match line.split_once('=') {
+                    Some(("Id", value)) => id = service_name(value),
+                    Some(("Description", value)) => description = value.to_string(),
+                    Some(("LoadState", value)) => load_state = value.to_string(),
+                    _ => {}
+                }
+            }
+            Some((id?, (description, load_state)))
+        })
+        .collect()
 }
 
 fn ensure_known_service_name(name: &str) -> Result<(), String> {
@@ -302,6 +375,10 @@ pub async fn get_service_details(name: String) -> Result<ServiceDetails, String>
 
 fn run_privileged_action(action: &str, service_name: &str) -> Result<(), String> {
     validate_service_action(action)?;
+    // "foo@" is a template: systemd needs an instance ("foo@bar") to act on it
+    if service_name.ends_with('@') {
+        return Err("service_template_unsupported".to_string());
+    }
     ensure_known_service_name(service_name)?;
 
     let unit = format!("{service_name}.service");
@@ -397,6 +474,21 @@ pub async fn disable_service(name: String) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn show_output_is_split_per_unit() {
+        let output = "Id=arptables.service\nDescription=ARP table\nLoadState=loaded\n\nLoadState=not-found\nId=gone.service\nDescription=gone.service\n";
+        let parsed = super::parse_show_output(output);
+        assert_eq!(
+            parsed["arptables"],
+            ("ARP table".to_string(), "loaded".to_string())
+        );
+        assert_eq!(
+            parsed["gone"],
+            ("gone.service".to_string(), "not-found".to_string())
+        );
+        assert_eq!(parsed.len(), 2);
+    }
+
     use super::{
         merge_service_views, parse_list_unit_files_output, parse_list_units_output,
         validate_service_action, validate_service_name_argument,

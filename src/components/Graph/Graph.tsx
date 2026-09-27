@@ -29,6 +29,11 @@ interface GraphProps {
   seriesLabels?: [string, string];
   /** Lowest y-axis top, so an idle series does not scale the axis down to fractions. */
   suggestedMax?: number;
+  /**
+   * Sample counter for the time labels. Defaults to the shared tick, which only
+   * advances with the Performance page's CPU samples; graphs fed elsewhere pass their own.
+   */
+  tick?: number;
 }
 
 const MAX_POINTS = 20;
@@ -46,10 +51,12 @@ const Graph: React.FC<GraphProps> = ({
   formatValue,
   seriesLabels,
   suggestedMax,
+  tick: ownTick,
 }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<'line'>>();
-  const tick = useTick();
+  const sharedTick = useTick();
+  const tick = ownTick ?? sharedTick;
   const performanceConfig = usePerformanceConfig();
 
   // Read through a ref so a caller passing an inline formatter does not force

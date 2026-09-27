@@ -154,6 +154,8 @@ const isMasked = (service: SystemService) =>
 const canRunAction = (service: SystemService, action: ServiceAction): boolean => {
     // systemd has no unit file to act on
     if (service.load_state === "not-found") return false;
+    // Templates ("getty@") only work with an instance name ("getty@tty1")
+    if (service.name.endsWith("@")) return false;
     switch (action) {
         case "start":
             return !isMasked(service) && service.active_state !== "active" && service.active_state !== "activating";

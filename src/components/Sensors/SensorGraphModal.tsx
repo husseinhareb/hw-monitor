@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
+import { useTranslation } from 'react-i18next';
 import {
   GraphModalOverlay,
   GraphModalContent,
@@ -44,6 +45,7 @@ const SensorGraphModal: React.FC<Props> = ({
   graphColor,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart<'line'>>();
   const modalTickRef = useRef(0);
@@ -146,7 +148,7 @@ const SensorGraphModal: React.FC<Props> = ({
         <GraphModalHeader>
           <GraphModalTitle $color={titleColor} title={sensorName}>{sensorName}</GraphModalTitle>
           <GraphModalValue>{displayValue}</GraphModalValue>
-          <GraphModalClose type="button" aria-label="Close" onClick={onClose}>
+          <GraphModalClose type="button" aria-label={t("common.close")} onClick={onClose}>
             &times;
           </GraphModalClose>
         </GraphModalHeader>

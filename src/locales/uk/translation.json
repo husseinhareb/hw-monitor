@@ -130,6 +130,7 @@
     "sensors.status_warning": "Попередження",
     "sensors.status_critical": "Критично",
     "sensors.intrusion_detected": "Виявлено",
+    "sensors.intrusion_hint": "Плата запам'ятовує цей сигнал; без підключеного датчика корпусу він часто лишається активним. Приховайте датчик, щоб прибрати його.",
     "sensors.intrusion_clear": "Немає втручання",
     "sensors.type_temperature": "Температура",
     "sensors.type_fan": "Вентилятор",
@@ -279,6 +280,7 @@
     "proc.table_value_write_disk_speed": "Швидкість диска (запис)",
     "proc.table_value_nice": "Пріоритет (nice)",
     "proc.kill_process": "Завершити процес",
+    "proc.kill_confirm": "Натисніть ще раз, щоб завершити",
     "proc.monitor_button": "Моніторинг",
     "proc.monitor_title": "Монітор процесу",
     "proc.monitor_cpu": "Використання ЦП (%)",
@@ -569,6 +571,7 @@
     "system_info.no_data": "No system information available",
 
     "config.theme": "Тема",
+    "common.close": "Закрити",
     "config.colors": "Кольори",
     "config.status_colors": "Кольори статусів",
     "config.inputs_controls": "Поля та елементи керування",

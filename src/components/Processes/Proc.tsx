@@ -211,22 +211,26 @@ const Proc: React.FC = () => {
         }
 
         const percentage = (convertDataValue(value) / (total || 1)) * 100;
+        // Heavy cells get an amber tint of rising strength; a plain lighten matched the
+        // selected-row color, so a busy process looked selected
+        const heat = (strength: number) =>
+            `color-mix(in srgb, ${processConfig.config.processes_services_transitioning_color} ${strength}%, ${processConfig.config.processes_body_background_color})`;
         let backgroundColor;
 
         if (isCpuUsage) {
             const cpuUsage = parseFloat(value);
             if (cpuUsage > 20) {
-                backgroundColor = safeLighten(0.15, processConfig.config.processes_body_background_color);
+                backgroundColor = heat(35);
             } else if (cpuUsage > 5) {
-                backgroundColor = safeLighten(0.1, processConfig.config.processes_body_background_color);
+                backgroundColor = heat(22);
             } else if (cpuUsage > 3) {
-                backgroundColor = safeLighten(0.05, processConfig.config.processes_body_background_color);
+                backgroundColor = heat(12);
             }
         } else {
             if (percentage > 10) {
-                backgroundColor = safeLighten(0.15, processConfig.config.processes_body_background_color);
+                backgroundColor = heat(35);
             } else if (percentage > 5) {
-                backgroundColor = safeLighten(0.1, processConfig.config.processes_body_background_color);
+                backgroundColor = heat(22);
             }
         }
 
@@ -284,8 +288,22 @@ const Proc: React.FC = () => {
     const [killPending, setKillPending] = useState(false);
     const [manageOpen, setManageOpen] = useState(false);
 
+    // Kill sits next to Monitor/Manage, so the first click only arms it for the selected process
+    const [killArmedPid, setKillArmedPid] = useState<number | null>(null);
+    useEffect(() => {
+        if (killArmedPid === null) return;
+        const timer = setTimeout(() => setKillArmedPid(null), 3000);
+        return () => clearTimeout(timer);
+    }, [killArmedPid]);
+    const killArmed = killArmedPid !== null && killArmedPid === selectedPid;
+
     const handleKillSelected = async () => {
         if (killPending) return;
+        if (!killArmed) {
+            setKillArmedPid(selectedPid);
+            return;
+        }
+        setKillArmedPid(null);
         const proc = getSelectedProcess();
         if (proc) {
             setKillPending(true);
@@ -448,7 +466,7 @@ const Proc: React.FC = () => {
                         killButtonColor={processConfig.config.processes_body_color}
                         onClick={handleKillSelected}
                         disabled={killPending}
-                    >{killPending ? '…' : t('proc.kill_process')}</KillButton>
+                    >{killPending ? '...' : t(killArmed ? 'proc.kill_confirm' : 'proc.kill_process')}</KillButton>
                 </BottomBar>
             )}
             {monitoredPid !== null && (

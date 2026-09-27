@@ -130,6 +130,7 @@
     "sensors.status_warning": "Advertencia",
     "sensors.status_critical": "Crítico",
     "sensors.intrusion_detected": "Detectado",
+    "sensors.intrusion_hint": "La placa mantiene esta señal; suele quedar activa si no hay un interruptor de chasis conectado. Oculta el sensor para descartarla.",
     "sensors.intrusion_clear": "Sin intrusión",
     "sensors.type_temperature": "Temperatura",
     "sensors.type_fan": "Ventilador",
@@ -277,6 +278,7 @@
     "proc.table_value_write_disk_speed": "Velocidad de Escritura del Disco",
     "proc.table_value_nice": "Prioridad (nice)",
     "proc.kill_process": "Terminar Proceso",
+    "proc.kill_confirm": "Haz clic de nuevo para terminar",
     "proc.monitor_button": "Monitorear",
     "proc.monitor_title": "Monitor de Proceso",
     "proc.monitor_cpu": "Uso de CPU (%)",
@@ -567,6 +569,7 @@
     "system_info.no_data": "No hay información del sistema disponible",
 
     "config.theme": "Tema",
+    "common.close": "Cerrar",
     "config.colors": "Colores",
     "config.status_colors": "Colores de estado",
     "config.inputs_controls": "Entradas y controles",

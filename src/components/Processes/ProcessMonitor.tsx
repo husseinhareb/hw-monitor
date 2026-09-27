@@ -110,6 +110,8 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, p
     const [cpuHistory, setCpuHistory] = useState<number[]>([]);
     const [memHistory, setMemHistory] = useState<number[]>([]);
     const [processAlive, setProcessAlive] = useState(true);
+    // Counts samples for the graph time labels (the shared tick only moves on the Performance page)
+    const [sampleCount, setSampleCount] = useState(0);
     const { t } = useTranslation();
     const performanceConfig = usePerformanceConfig();
     const processConfig = useProcessConfig();
@@ -136,6 +138,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, p
             const next = [...prev, memVal];
             return next.length > MAX_POINTS ? next.slice(-MAX_POINTS) : next;
         });
+        setSampleCount(count => count + 1);
     }, [pid, processes, startTime]);
 
     const currentCpu = cpuHistory.length > 0 ? cpuHistory[cpuHistory.length - 1] : 0;
@@ -175,6 +178,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, p
                         height="calc(100% - 50px)"
                         width="100%"
                         updateInterval={processConfig.config.processes_update_time}
+                        tick={sampleCount - 1}
                     />
                     <CurrentValue color={performanceConfig.config.performance_value_color}>
                         {t('proc.monitor_current')}: {currentCpu.toFixed(2)}%
@@ -189,6 +193,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, p
                         height="calc(100% - 50px)"
                         width="100%"
                         updateInterval={processConfig.config.processes_update_time}
+                        tick={sampleCount - 1}
                     />
                     <CurrentValue color={performanceConfig.config.performance_value_color}>
                         {t('proc.monitor_current')}: {currentMem.toFixed(2)} MB

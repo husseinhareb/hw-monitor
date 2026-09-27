@@ -145,16 +145,17 @@ export const SensorGroup = styled.div`
   width: 100%;
 `;
 
-export const SensorCardHeader = styled.div`
+export const SensorCardHeader = styled.div<{ $collapsed?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   cursor: pointer;
   user-select: none;
-  margin: 0 0 10px 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+  /* A collapsed card is just its header: no divider or gap above missing content */
+  margin: ${p => (p.$collapsed ? '0' : '0 0 10px 0')};
+  padding-bottom: ${p => (p.$collapsed ? '0' : '8px')};
+  border-bottom: ${p => (p.$collapsed ? 'none' : '1px solid color-mix(in srgb, currentColor 8%, transparent)')};
   transition: opacity 0.15s ease;
 
   &:hover {

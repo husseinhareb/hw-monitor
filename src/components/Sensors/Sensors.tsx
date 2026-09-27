@@ -169,7 +169,9 @@ const getSensorStatus = (
       if (critical <= 0) return 'normal';
       if (sensor.value >= critical) return 'critical';
     } else if (sensor.value >= 0.5) {
-      return 'critical';
+      // Boards latch this flag (often permanently when no switch is wired), so it is a
+      // warning by default; a critical threshold set in the editor still escalates it
+      return 'warning';
     }
     if (warning !== undefined && warning > 0 && sensor.value >= warning) return 'warning';
     return 'normal';
@@ -494,6 +496,7 @@ const Sensors: React.FC = () => {
               >
                 <SensorGroup>
                   <SensorCardHeader
+                    $collapsed={isCollapsed}
                     onClick={() => toggleChipCollapsed(hwmon.name)}
                     title={isCollapsed ? t('sensors.expand') : t('sensors.collapse')}
                   >
@@ -553,7 +556,11 @@ const Sensors: React.FC = () => {
                                     <SensorLabel title={displayName(sensor)}>{displayName(sensor)}</SensorLabel>
                                     <SensorMetaLine>
                                       {status !== 'normal' && (
-                                        <SensorStatusBadge $color={statusColor(status)} $textColor={cfg.sensors_boxes_background_color}>
+                                        <SensorStatusBadge
+                                          $color={statusColor(status)}
+                                          $textColor={cfg.sensors_boxes_background_color}
+                                          title={sensor.sensor_type === 'intrusion' ? t('sensors.intrusion_hint') : undefined}
+                                        >
                                           {t(`sensors.status_${status}`)}
                                         </SensorStatusBadge>
                                       )}

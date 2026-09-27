@@ -145,7 +145,7 @@ const ProcessManageModal: React.FC<Props> = ({ process, backgroundColor, color, 
                     <ManageModalTitle title={`${process.name ?? ''} (PID: ${process.pid})`}>
                         {t('proc.manage_title')}: {process.name} (PID: {process.pid})
                     </ManageModalTitle>
-                    <ManageModalClose type="button" aria-label="Close" onClick={onClose}>
+                    <ManageModalClose type="button" aria-label={t("common.close")} onClick={onClose}>
                         &times;
                     </ManageModalClose>
                 </ManageModalHeader>
