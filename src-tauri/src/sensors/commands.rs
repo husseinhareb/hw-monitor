@@ -92,8 +92,9 @@ const SENSOR_SPECS: &[SensorSpec] = &[
         warning_suffixes: &[],
         critical_suffixes: &[],
         sensor_type: "pwm",
-        unit: "",
-        scale: 1.0,
+        // hwmon duty cycle is 0-255; show it as a percentage
+        unit: "%",
+        scale: 2.55,
     },
     SensorSpec {
         prefix: "intrusion",
@@ -335,6 +336,13 @@ mod tests {
         assert_eq!(voltage.name, "Vcore");
         assert_eq!(voltage.value, 1.2);
         assert_eq!(voltage.unit, "V");
+
+        let pwm = sensors
+            .iter()
+            .find(|sensor| sensor.sensor_type == "pwm")
+            .unwrap();
+        assert_eq!(pwm.unit, "%");
+        assert!((pwm.value - 50.2).abs() < 0.1);
 
         let power = sensors
             .iter()

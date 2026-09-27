@@ -60,7 +60,14 @@ fn is_true(content: &str, key: &str) -> Option<bool> {
 fn executable_of(exec: &str) -> Option<String> {
     exec.split_whitespace()
         .find(|token| *token != "env" && !token.contains('='))
-        .map(|token| token.trim_matches('"').rsplit('/').next().unwrap_or(token).to_string())
+        .map(|token| {
+            token
+                .trim_matches('"')
+                .rsplit('/')
+                .next()
+                .unwrap_or(token)
+                .to_string()
+        })
         .filter(|name| !name.is_empty())
 }
 
@@ -119,7 +126,11 @@ pub fn set_desktop_key(content: &str, key: &str, value: &str) -> String {
                 written = true;
             }
             in_entry = trimmed == "[Desktop Entry]";
-        } else if in_entry && trimmed.split_once('=').is_some_and(|(k, _)| k.trim() == key) {
+        } else if in_entry
+            && trimmed
+                .split_once('=')
+                .is_some_and(|(k, _)| k.trim() == key)
+        {
             if !written {
                 out.push(entry.clone());
                 written = true;

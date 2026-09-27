@@ -76,6 +76,26 @@ pub fn build_uid_map() -> HashMap<u32, String> {
     map
 }
 
+// The kernel caps comm at 15 bytes ("WebKitWebProces"); argv[0] usually holds the full name.
+const COMM_MAX_LEN: usize = 15;
+
+fn full_name_from_cmdline(comm: &str, cmdline: &[u8]) -> Option<String> {
+    let argv0 = cmdline.split(|&b| b == 0).next()?;
+    let argv0 = std::str::from_utf8(argv0).ok()?;
+    let base = argv0.rsplit('/').next()?;
+    (base.len() > comm.len() && base.starts_with(comm)).then(|| base.to_string())
+}
+
+fn untruncated_name(pid: &str, comm: String) -> String {
+    if comm.len() < COMM_MAX_LEN {
+        return comm;
+    }
+    fs::read(format!("/proc/{pid}/cmdline"))
+        .ok()
+        .and_then(|cmdline| full_name_from_cmdline(&comm, &cmdline))
+        .unwrap_or(comm)
+}
+
 fn read_proc_status_file(
     pid: &str,
     uid_map: &HashMap<u32, String>,
@@ -256,7 +276,14 @@ fn calculate_cpu_percentage(
 ) -> (CpuUsageMap, DiskSpeedMap, ProcessIoMap, GpuUsageMap) {
     let total_cpu_time_now = match get_total_cpu_time() {
         Ok(t) => t,
-        Err(_) => return (HashMap::new(), HashMap::new(), HashMap::new(), HashMap::new()),
+        Err(_) => {
+            return (
+                HashMap::new(),
+                HashMap::new(),
+                HashMap::new(),
+                HashMap::new(),
+            )
+        }
     };
     let now = Instant::now();
 
@@ -454,7 +481,7 @@ pub async fn get_processes(
         processes.push(Process {
             pid: pid_u32,
             start_time: stat_data.start_time,
-            name: Some(name),
+            name: Some(untruncated_name(pid, name)),
             ppid: ppid_u32,
             state: Some(state),
             user: Some(user),
@@ -713,9 +740,10 @@ pub fn set_process_affinity(process: Process, cpus: Vec<usize>) -> Result<(), St
 #[cfg(test)]
 mod tests {
     use super::{
-        get_process_affinity, kill_process, online_cpus, parse_cpu_ids_from_stat, parse_cpu_list,
-        parse_cpus_allowed_list, parse_proc_stat, parse_proc_stat_content,
-        parse_proc_status_content, set_process_affinity, set_process_priority, Process,
+        full_name_from_cmdline, get_process_affinity, kill_process, online_cpus,
+        parse_cpu_ids_from_stat, parse_cpu_list, parse_cpus_allowed_list, parse_proc_stat,
+        parse_proc_stat_content, parse_proc_status_content, set_process_affinity,
+        set_process_priority, Process,
     };
     use std::collections::HashMap;
 
@@ -877,6 +905,26 @@ Cpus_allowed_list:\t0-3,6
             !online_cpus().is_empty(),
             "every running system has at least one online CPU"
         );
+    }
+
+    #[test]
+    fn full_name_replaces_comm_only_when_it_extends_it() {
+        assert_eq!(
+            full_name_from_cmdline(
+                "WebKitWebProces",
+                b"/usr/lib/webkit2gtk-4.1/WebKitWebProcess\x007\x00"
+            ),
+            Some("WebKitWebProcess".to_string())
+        );
+        // Renamed threads (Firefox content processes) keep their own name
+        assert_eq!(
+            full_name_from_cmdline(
+                "Isolated Web Co",
+                b"/usr/lib/firefox/firefox\x00-contentproc\x00"
+            ),
+            None
+        );
+        assert_eq!(full_name_from_cmdline("WebKitWebProces", b""), None);
     }
 
     #[test]

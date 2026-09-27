@@ -433,7 +433,11 @@ fn collect_table(
             rx_queue: row.rx_queue,
             inode: row.inode,
             uid: row.uid,
-            user: uid_map.get(&row.uid).cloned(),
+            // Orphaned sockets (TIME_WAIT and friends) have inode 0 and a placeholder uid 0,
+            // so reporting them as root would be wrong.
+            user: (row.inode != 0)
+                .then(|| uid_map.get(&row.uid).cloned())
+                .flatten(),
             pid: owner.map(|owner| owner.pid),
             process_name: owner.and_then(|owner| owner.name.clone()),
             remote_country_code: lookup_country_code(&row.remote.0.to_string()),
@@ -719,6 +723,26 @@ mod tests {
         );
 
         assert_eq!(connections[0].uid, 4242);
+        assert_eq!(connections[0].user, None);
+    }
+
+    #[test]
+    fn orphaned_time_wait_sockets_have_no_user() {
+        let content =
+            "   0: 0100007F:0BB8 0100007F:9258 06 00000000:00000000 03:00000F5A 00000000     0        0 0 3 0000000000000000\n";
+
+        let mut uid_map = HashMap::new();
+        uid_map.insert(0, "root".to_string());
+        let mut connections = Vec::new();
+        collect_table(
+            content,
+            &TCP_TABLE,
+            &uid_map,
+            &HashMap::new(),
+            &mut connections,
+        );
+
+        assert_eq!(connections[0].state, "TIME_WAIT");
         assert_eq!(connections[0].user, None);
     }
 

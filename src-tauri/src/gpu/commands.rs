@@ -166,6 +166,20 @@ pub fn add_clock_speed_unit(value: u32) -> String {
     }
 }
 
+// In-tree drivers (amdgpu, i915) ship without a version file; their version is the kernel's.
+fn module_version(module: &str) -> Option<String> {
+    let read = |path: String| {
+        read_to_string(path)
+            .ok()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+    };
+    read(format!("/sys/module/{module}/version")).or_else(|| {
+        read("/proc/sys/kernel/osrelease".into())
+            .map(|kernel| format!("{module} (kernel {kernel})"))
+    })
+}
+
 fn read_hwmon_info(
     device_path: &Path,
 ) -> (
@@ -213,10 +227,10 @@ fn read_hwmon_info(
 
             if let Ok(power_input) = read_to_string(hwmon_path.join("power1_average")) {
                 let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
-                wattage = Some(format!("{:.3} W", power_mw as f64 / 1000000.0));
+                wattage = Some(format!("{:.1} W", power_mw as f64 / 1000000.0));
             } else if let Ok(power_input) = read_to_string(hwmon_path.join("power1_input")) {
                 let power_mw = power_input.trim().parse::<u64>().unwrap_or(0);
-                wattage = Some(format!("{:.3} W", power_mw as f64 / 1000000.0));
+                wattage = Some(format!("{:.1} W", power_mw as f64 / 1000000.0));
             }
         }
     }
@@ -294,9 +308,7 @@ fn get_amd_gpu_info(gpu_path: &Path, index: usize) -> Option<GpuInformations> {
     Some(GpuInformations {
         id: Some(format!("amd-{}", index)),
         name: Some(get_device_name(&device_path, "AMD GPU")),
-        driver_version: read_to_string("/sys/module/amdgpu/version")
-            .ok()
-            .map(|s| s.trim().to_string()),
+        driver_version: module_version("amdgpu"),
         memory_total,
         memory_used,
         memory_free,
@@ -363,8 +375,10 @@ pub fn lookup_amdgpu_name(ids: &str, device_id: &str, revision: &str) -> Option<
         .find_map(|line| {
             let mut fields = line.splitn(3, ',').map(str::trim);
             let (dev, rev, name) = (fields.next()?, fields.next()?, fields.next()?);
-            (dev.eq_ignore_ascii_case(device_id) && rev.eq_ignore_ascii_case(revision) && !name.is_empty())
-                .then(|| name.to_string())
+            (dev.eq_ignore_ascii_case(device_id)
+                && rev.eq_ignore_ascii_case(revision)
+                && !name.is_empty())
+            .then(|| name.to_string())
         })
 }
 
@@ -442,9 +456,7 @@ fn get_intel_gpu_info(gpu_path: &Path, index: usize) -> Option<GpuInformations> 
     });
 
     // Driver version from i915 module
-    let driver_version = read_to_string("/sys/module/i915/version")
-        .ok()
-        .map(|s| s.trim().to_string());
+    let driver_version = module_version("i915");
 
     Some(GpuInformations {
         id: Some(format!("intel-{}", index)),

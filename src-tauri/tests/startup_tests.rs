@@ -15,9 +15,17 @@ fn parses_an_enabled_entry() {
 #[test]
 fn hidden_or_gnome_disabled_entries_are_disabled() {
     let hidden = startup::set_desktop_key(DISCORD, "Hidden", "true");
-    assert!(!startup::parse_startup_entry("d.desktop", &hidden, "user", &[]).unwrap().enabled);
+    assert!(
+        !startup::parse_startup_entry("d.desktop", &hidden, "user", &[])
+            .unwrap()
+            .enabled
+    );
     let gnome_off = startup::set_desktop_key(DISCORD, "X-GNOME-Autostart-enabled", "false");
-    assert!(!startup::parse_startup_entry("d.desktop", &gnome_off, "user", &[]).unwrap().enabled);
+    assert!(
+        !startup::parse_startup_entry("d.desktop", &gnome_off, "user", &[])
+            .unwrap()
+            .enabled
+    );
 }
 
 #[test]
@@ -45,7 +53,11 @@ fn set_desktop_key_appends_missing_key_before_next_group() {
     let out = startup::set_desktop_key(DISCORD, "Hidden", "true");
     let entry_group = out.split("[Desktop Action New]").next().unwrap();
     assert!(entry_group.contains("Hidden=true"));
-    assert!(!out.split("[Desktop Action New]").nth(1).unwrap().contains("Hidden"));
+    assert!(!out
+        .split("[Desktop Action New]")
+        .nth(1)
+        .unwrap()
+        .contains("Hidden"));
 }
 
 #[test]

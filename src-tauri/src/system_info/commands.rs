@@ -94,9 +94,11 @@ fn read_os_info() -> Option<(Option<String>, Option<String>, Option<String>)> {
 
 fn read_kernel_version() -> Option<String> {
     if let Ok(content) = fs::read_to_string("/proc/version") {
+        // "Linux version 7.2.7-arch1-1 (...)" -> "Linux 7.2.7-arch1-1"
         let version = content
             .split_whitespace()
             .take(3)
+            .filter(|word| *word != "version")
             .collect::<Vec<_>>()
             .join(" ");
         if !version.is_empty() {
@@ -182,7 +184,23 @@ fn read_dmi_field(path: &str) -> Option<String> {
     fs::read_to_string(path)
         .ok()
         .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
+        .filter(|s| !s.is_empty() && !is_dmi_placeholder(s))
+}
+
+// Board vendors often leave firmware template text in unused DMI fields.
+fn is_dmi_placeholder(value: &str) -> bool {
+    let lower = value.to_lowercase();
+    [
+        "default string",
+        "to be filled",
+        "system product name",
+        "system version",
+        "not applicable",
+        "not specified",
+    ]
+    .iter()
+    .any(|prefix| lower.starts_with(prefix))
+        || matches!(lower.as_str(), "none" | "n/a" | "0123456789" | "x.x")
 }
 
 fn read_chassis_type() -> Option<String> {
@@ -326,4 +344,29 @@ pub fn get_system_info(force: Option<bool>) -> Result<Option<SystemInfo>, String
     }
 
     Ok(info)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_dmi_placeholder;
+
+    #[test]
+    fn dmi_placeholders_are_dropped_but_real_values_kept() {
+        for junk in [
+            "Default string",
+            "Default string-CF",
+            "To Be Filled By O.E.M.",
+            "System Product Name",
+            "None",
+        ] {
+            assert!(is_dmi_placeholder(junk), "{junk}");
+        }
+        for real in [
+            "B550M AORUS ELITE AX",
+            "F7",
+            "Gigabyte Technology Co., Ltd.",
+        ] {
+            assert!(!is_dmi_placeholder(real), "{real}");
+        }
+    }
 }

@@ -351,16 +351,73 @@ fn get_cpu_usage_percentage(state: &PerfCpuState) -> Option<i64> {
     crate::cpu_utils::calc_cpu_usage(&state.0).map(|u| u as i64)
 }
 
+// Tdie is the real die temp on AMD; Tctl may carry a fan-curve offset, so it is the fallback.
+fn pick_cpu_temperature(hwmon_data: &[sensors::HwMonData]) -> Option<f32> {
+    const PREFERRED: &[(&str, &str)] = &[
+        ("k10temp", "Tdie"),
+        ("zenpower", "Tdie"),
+        ("k10temp", "Tctl"),
+        ("zenpower", "Tctl"),
+        ("coretemp", "Package id 0"),
+        ("cpu_thermal", "temp1"),
+    ];
+    PREFERRED.iter().find_map(|(chip, label)| {
+        hwmon_data
+            .iter()
+            .filter(|h| h.name == *chip)
+            .flat_map(|h| &h.sensors)
+            .find(|s| s.name == *label)
+            .map(|s| s.value)
+    })
+}
+
 fn get_cpu_temperature() -> Option<String> {
-    let hwmon_data = sensors::get_hwmon_data();
-    for hwmon in hwmon_data {
-        for sensor in hwmon.sensors {
-            if sensor.name.contains("core") || sensor.name.contains("Package") {
-                return Some(format!("{:.1} °C", sensor.value));
-            }
+    pick_cpu_temperature(&sensors::get_hwmon_data()).map(|v| format!("{:.1} °C", v))
+}
+
+#[cfg(test)]
+mod temperature_tests {
+    use super::pick_cpu_temperature;
+    use crate::sensors::{HwMonData, SensorData};
+
+    fn chip(name: &str, sensors: &[(&str, f32)]) -> HwMonData {
+        HwMonData {
+            index: 0,
+            name: name.into(),
+            sensors: sensors
+                .iter()
+                .map(|(n, v)| SensorData {
+                    id: String::new(),
+                    name: (*n).into(),
+                    value: *v,
+                    warning: None,
+                    critical: None,
+                    sensor_type: "temperature".into(),
+                    unit: "°C".into(),
+                })
+                .collect(),
         }
     }
-    None
+
+    #[test]
+    fn picks_amd_and_intel_package_temps() {
+        let amd = [
+            chip("nvme", &[("Composite", 35.0)]),
+            chip("k10temp", &[("Tctl", 58.0)]),
+        ];
+        assert_eq!(pick_cpu_temperature(&amd), Some(58.0));
+        let amd_tdie = [chip("k10temp", &[("Tctl", 68.0), ("Tdie", 58.0)])];
+        assert_eq!(pick_cpu_temperature(&amd_tdie), Some(58.0));
+        let intel = [chip(
+            "coretemp",
+            &[("Core 0", 40.0), ("Package id 0", 45.0)],
+        )];
+        assert_eq!(pick_cpu_temperature(&intel), Some(45.0));
+        assert_eq!(
+            pick_cpu_temperature(&[chip("acpitz", &[("temp1", 16.8)])]),
+            None
+        );
+    }
 }
 
 fn get_cached_cpu_temperature() -> Option<String> {

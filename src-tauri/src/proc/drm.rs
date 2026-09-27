@@ -51,7 +51,9 @@ pub fn parse_drm_fdinfo(content: &str) -> Option<(String, DrmClient)> {
     let mut other_resident = 0u64;
 
     for line in content.lines() {
-        let Some((key, value)) = line.split_once(':') else { continue };
+        let Some((key, value)) = line.split_once(':') else {
+            continue;
+        };
         let value = value.trim();
         if key == "drm-client-id" {
             client_id = Some(value);
@@ -65,7 +67,11 @@ pub fn parse_drm_fdinfo(content: &str) -> Option<(String, DrmClient)> {
                 client.engines.entry(name.to_string()).or_default().busy = ns;
             }
         } else if let Some(name) = key.strip_prefix("drm-total-cycles-") {
-            client.engines.entry(name.to_string()).or_default().total_cycles = value.parse().ok();
+            client
+                .engines
+                .entry(name.to_string())
+                .or_default()
+                .total_cycles = value.parse().ok();
         } else if let Some(name) = key.strip_prefix("drm-cycles-") {
             if let Ok(cycles) = value.parse() {
                 client.engines.entry(name.to_string()).or_default().busy = cycles;
@@ -103,7 +109,11 @@ pub fn read_drm_clients(pid: i32) -> DrmClients {
             continue;
         }
         let fdinfo = format!("/proc/{pid}/fdinfo/{}", fd.file_name().to_string_lossy());
-        if let Some((key, client)) = fs::read_to_string(fdinfo).ok().as_deref().and_then(parse_drm_fdinfo) {
+        if let Some((key, client)) = fs::read_to_string(fdinfo)
+            .ok()
+            .as_deref()
+            .and_then(parse_drm_fdinfo)
+        {
             clients.entry(key).or_insert(client);
         }
     }
@@ -115,9 +125,13 @@ pub fn read_drm_clients(pid: i32) -> DrmClients {
 pub fn gpu_usage_percent(prev: &DrmClients, cur: &DrmClients, elapsed_ns: f64) -> f64 {
     let mut max = 0.0f64;
     for (key, client) in cur {
-        let Some(prev_client) = prev.get(key) else { continue };
+        let Some(prev_client) = prev.get(key) else {
+            continue;
+        };
         for (name, engine) in &client.engines {
-            let Some(prev_engine) = prev_client.engines.get(name) else { continue };
+            let Some(prev_engine) = prev_client.engines.get(name) else {
+                continue;
+            };
             let busy = engine.busy.saturating_sub(prev_engine.busy) as f64;
             let usage = match (engine.total_cycles, prev_engine.total_cycles) {
                 (Some(total), Some(prev_total)) if total > prev_total => {

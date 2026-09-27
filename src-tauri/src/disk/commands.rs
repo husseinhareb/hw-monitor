@@ -275,6 +275,14 @@ fn read_bool<P: AsRef<Path>>(path: P) -> Option<bool> {
     read_u64(path).map(|value| value != 0)
 }
 
+fn udev_fs_type(udev_db: &str) -> Option<String> {
+    udev_db
+        .lines()
+        .find_map(|line| line.strip_prefix("E:ID_FS_TYPE="))
+        .filter(|fs| !fs.is_empty())
+        .map(str::to_string)
+}
+
 fn read_uevent<P: AsRef<Path>>(path: P) -> HashMap<String, String> {
     let mut values = HashMap::new();
     let Some(content) = read_trimmed(path) else {
@@ -651,6 +659,11 @@ pub async fn get_disks(
                 part.used_space = primary_mount.used_space;
                 part.file_system = Some(primary_mount.file_system.clone());
                 part.mount_point = Some(primary_mount.mount_point.clone());
+            } else {
+                // Unmounted (or swap) partitions: udev's probe result is user-readable
+                part.file_system =
+                    read_trimmed(format!("/run/udev/data/b{}:{}", part.major, part.minor))
+                        .and_then(|content| udev_fs_type(&content));
             }
         }
     }
@@ -661,6 +674,14 @@ pub async fn get_disks(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn udev_fs_type_reads_the_probed_filesystem() {
+        let db = "S:disk/by-uuid/9f1e\nE:ID_FS_UUID=9f1e\nE:ID_FS_TYPE=swap\nE:ID_FS_USAGE=other\n";
+        assert_eq!(udev_fs_type(db).as_deref(), Some("swap"));
+        assert_eq!(udev_fs_type("E:ID_FS_TYPE=\n"), None);
+        assert_eq!(udev_fs_type("E:ID_PART_ENTRY_TYPE=0x7\n"), None);
+    }
 
     #[test]
     fn diskstats_sector_count_always_uses_512_byte_units() {
