@@ -152,7 +152,7 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
             </NameContainer>
 
             {viewMode === 'overall' ? (
-                <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+                <div style={{ flex: 1, minHeight: 200, width: '98%', margin: '0 auto' }}>
                     <Graph
                         firstGraphValue={cpuUsage}
                         maxValue={100}

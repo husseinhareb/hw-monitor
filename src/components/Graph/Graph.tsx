@@ -137,7 +137,8 @@ const Graph: React.FC<GraphProps> = ({
         border: { display: !hideScales },
       },
       x: {
-        ticks: { display: !hideScales },
+        // Narrow graphs skip labels instead of tilting them into an unreadable diagonal
+        ticks: { display: !hideScales, maxRotation: 0, autoSkipPadding: 8 },
         grid: {
           display: true,
           color: hideScales

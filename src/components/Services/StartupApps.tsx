@@ -27,11 +27,12 @@ const Muted = styled.div`
 
 const COLUMNS = ["name", "command", "scope", "status", "action"] as const;
 const COLUMN_WIDTHS: Record<(typeof COLUMNS)[number], string> = {
+    // Fixed widths for the short columns so a narrow window squeezes the command, not the buttons
     name: "30%",
-    command: "40%",
-    scope: "10%",
-    status: "10%",
-    action: "10%",
+    command: "auto",
+    scope: "90px",
+    status: "120px",
+    action: "130px",
 };
 
 const StartupApps: React.FC = () => {

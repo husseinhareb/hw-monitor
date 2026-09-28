@@ -5,8 +5,9 @@
 // 2. The frontend runs in headless Chromium (Vite dev server) with Tauri's invoke() mocked
 //    to replay those responses, driven over the DevTools protocol. No extra npm deps.
 //
-// Usage: npm run screenshots [-- --no-dump] [--size 1400x900] [--samples 12]
+// Usage: npm run screenshots [-- --no-dump] [--size 1400x900] [--samples 12] [--out dir]
 //   --no-dump   reuse screenshots/fixtures.json instead of sampling the backend again
+//   --out       write the PNGs to another directory (fixtures stay in screenshots/)
 //
 // WebKitWebDriver (needed to drive the real Tauri window) is not packaged on every distro,
 // so this drives Chromium instead; fonts and scrollbars may differ slightly from WebKitGTK.
@@ -18,14 +19,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = join(root, "screenshots");
-const fixturesPath = join(outDir, "fixtures.json");
+const fixturesPath = join(root, "screenshots", "fixtures.json");
 const argv = process.argv.slice(2);
 const flag = (name) => argv.includes(name);
 const option = (name, fallback) => {
   const i = argv.indexOf(name);
   return i === -1 ? fallback : argv[i + 1];
 };
+const outDir = option("--out", join(root, "screenshots"));
 const [WIDTH, HEIGHT] = option("--size", "1400x900").split("x").map(Number);
 const SAMPLES = option("--samples", "12");
 const PORT = 1430;
@@ -277,6 +278,18 @@ await click("css:tbody tr");
 if (await click("Manage", 1200)) await shot("processes-manage-modal", { scroll: true });
 
 console.log("Performance");
+// Each graph from a fresh start, to catch layout that only looks wrong while the history fills.
+await fresh();
+await click("Performance", 1000);
+for (const item of await evaluate(`__ui.siblings("CPU")`)) {
+  await fresh();
+  await click("Performance", 0);
+  await click(item, 0);
+  for (const t of [0, 5, 10]) {
+    await sleep(t ? 5000 : 300);
+    await capture(`performance-${item}-${t}s`);
+  }
+}
 await fresh();
 await click("Performance", 12000); // let the graphs fill with the replayed samples
 for (const item of await evaluate(`__ui.siblings("CPU")`)) {

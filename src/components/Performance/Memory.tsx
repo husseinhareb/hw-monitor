@@ -101,10 +101,10 @@ const Memory: React.FC<MemoryProps> = ({ performanceConfig, memoryUsage, usedMem
                         <NameLabel performanceTitleColor={performanceConfig.config.performance_title_color}>{t('performance.memory')}</NameLabel>
                         <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{memoryData.total.value} {memoryData.total.unit}</NameValue>
                     </NameContainer>
-                    <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+                    <div style={{ flex: 1, minHeight: 200, width: '98%', margin: '0 auto' }}>
                         <Graph
                             firstGraphValue={usedMem}
-                            maxValue={Math.floor(memoryData.total.value)}
+                            suggestedMax={memoryData.total.value}
                             width="100%"
                         />
                     </div>

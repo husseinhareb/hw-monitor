@@ -92,8 +92,11 @@ export const BottomBar = styled.div<{ bottomBarBackgroundColor: string }>`
     position: fixed;
     bottom: 0;
     left: 0;
-    height:4%;
+    /* Fixed height: the services details panel sits exactly 36px above the bottom */
+    height: 36px;
+    box-sizing: border-box;
     width: 100%;
+    z-index: 20;
     background-color: ${(props) => props.bottomBarBackgroundColor};
     padding: 4px;
     display: flex;

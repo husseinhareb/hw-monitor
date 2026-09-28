@@ -69,7 +69,7 @@ const Disk: React.FC<DiskProps> = ({ diskName, performanceConfig, diskHist }) =>
         </NameValue>
       </NameContainer>
 
-      <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+      <div style={{ flex: 1, minHeight: 200, width: '98%', margin: '0 auto' }}>
         <Graph
           firstGraphValue={readValues}
           secondGraphValue={writeValues}

@@ -80,9 +80,9 @@ const ProcessRow = memo<ProcessRowProps>(({
                 borderColor={borderColor}
             >
                 {column === 'name' ? (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <ProcessIcon name={String(process[column] || '')} fallbackColor={bodyColor} />
-                        {process[column] || ''}
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{process[column] || ''}</span>
                     </span>
                 ) : column === 'cpu_usage' ? `${process[column] || ''} %`
                     : column === 'gpu_usage' ? (process[column] ? `${process[column]} %` : '')
@@ -342,7 +342,7 @@ const Proc: React.FC = () => {
     const managedProcess = manageOpen ? getSelectedProcess() : null;
 
     return (
-        <TableContainer style={{ backgroundColor: processConfig.config.processes_body_background_color, minHeight: '100vh', color: processConfig.config.processes_body_color, position: 'relative', paddingBottom: monitoredPid !== null ? '45vh' : undefined }}>
+        <TableContainer style={{ backgroundColor: processConfig.config.processes_body_background_color, color: processConfig.config.processes_body_color, position: 'relative', height: `calc(100% - ${monitoredPid !== null ? '45vh' : '0px'} - ${hasSelection ? '36px' : '0px'})` }}>
             {loading ? (<Spinner />) : error && processes.length === 0 ? (
                 <p>{t('error.fetch_failed')}</p>
             ) : (

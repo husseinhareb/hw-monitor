@@ -309,7 +309,8 @@ const Services: React.FC = () => {
             height: "auto",
             color: servicesConfig.config.services_body_color,
             position: "relative",
-            paddingBottom: hasSelection ? "calc(38vh + 50px)" : undefined,
+            // End above the fixed details panel and action bar so the scrollbars stay reachable
+            marginBottom: hasSelection ? "calc(max(38vh, 260px) + 36px)" : undefined,
         }}>
             {loading ? (
                 <Spinner />

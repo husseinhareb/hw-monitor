@@ -146,7 +146,7 @@ const Network: React.FC<NetworkProps> = ({ interfaceName, performanceConfig }) =
                         {interfaceName}
                     </NameValue>
                 </NameContainer>
-                <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+                <div style={{ flex: 1, minHeight: 200, width: '98%', margin: '0 auto' }}>
                     <Graph
                         firstGraphValue={download}
                         secondGraphValue={upload}

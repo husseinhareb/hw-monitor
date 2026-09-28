@@ -224,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ interfaceNames }) => {
               {t('sidebar.memory')}
               <Graph
                 firstGraphValue={memory}
-                maxValue={maxMemory}
+                suggestedMax={maxMemory}
                 height="120px"
                 width="100%"
               />

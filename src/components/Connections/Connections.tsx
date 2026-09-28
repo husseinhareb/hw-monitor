@@ -377,10 +377,13 @@ const Connections: React.FC = () => {
     return (
         <TableContainer style={{
             backgroundColor: bodyBackground,
-            minHeight: "100vh",
+            flex: 1,
+            minHeight: 0,
+            height: "auto",
             color: bodyColor,
             position: "relative",
-            paddingBottom: selectedConnection ? "50px" : undefined,
+            // End above the fixed detail bar so the last row and the scrollbars stay reachable
+            marginBottom: selectedConnection ? "36px" : undefined,
         }}>
             {loading ? (
                 <Spinner />

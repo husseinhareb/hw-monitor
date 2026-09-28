@@ -27,8 +27,8 @@ export default function useDiskData(updateInterval: number): Record<string,Hist>
 
           raw.forEach(d => {
             const prevH = prev[d.name] ?? {
-              readHistory:  [0],
-              writeHistory: [0],
+              readHistory:  [],
+              writeHistory: [],
               total_read:   d.total_read,
               total_write:  d.total_write,
             }

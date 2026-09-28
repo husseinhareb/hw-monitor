@@ -84,6 +84,7 @@ export const ConfigContent = styled.main<{ bgColor: string }>`
 export const TopBar = styled.div<{ containerBg: string; inputBorder: string }>`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 8px 18px;
   background-color: ${p => p.containerBg};

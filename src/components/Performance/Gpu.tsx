@@ -49,7 +49,7 @@ const Gpu: React.FC<GpuProps> = ({ gpuData, performanceConfig, gpuUsage }) => {
                     <NameValue performanceTitleColor={performanceConfig.config.performance_title_color}>{gpuData.name}</NameValue>
                 )}
             </NameContainer>
-            <div style={{ flex: 1, minHeight: 0, width: '98%', margin: '0 auto' }}>
+            <div style={{ flex: 1, minHeight: 200, width: '98%', margin: '0 auto' }}>
                 <Graph
                     firstGraphValue={gpuUsage}
                     maxValue={100}
