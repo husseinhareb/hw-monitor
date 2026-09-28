@@ -27,4 +27,4 @@ dist-ssr
 aur/
 
 # Local UI screenshots (npm run screenshots), contain real machine data
-screenshots/
+/screenshots/

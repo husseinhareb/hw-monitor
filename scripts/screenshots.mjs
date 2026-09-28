@@ -5,16 +5,18 @@
 // 2. The frontend runs in headless Chromium (Vite dev server) with Tauri's invoke() mocked
 //    to replay those responses, driven over the DevTools protocol. No extra npm deps.
 //
-// Usage: npm run screenshots [-- --no-dump] [--size 1400x900] [--samples 12] [--out dir]
+// Usage: npm run screenshots [-- --no-dump] [--size 1400x900] [--samples 12] [--out dir] [--readme]
 //   --no-dump   reuse screenshots/fixtures.json instead of sampling the backend again
 //   --out       write the PNGs to another directory (fixtures stay in screenshots/)
+//   --readme    capture the curated, themed README shots into docs/screenshots/ as framed WebP,
+//               with usernames, hostnames, IP and MAC addresses and disk serials scrubbed
 //
 // WebKitWebDriver (needed to drive the real Tauri window) is not packaged on every distro,
 // so this drives Chromium instead; fonts and scrollbars may differ slightly from WebKitGTK.
 
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { hostname, tmpdir, userInfo } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,7 +28,8 @@ const option = (name, fallback) => {
   const i = argv.indexOf(name);
   return i === -1 ? fallback : argv[i + 1];
 };
-const outDir = option("--out", join(root, "screenshots"));
+const README = flag("--readme");
+const outDir = option("--out", join(root, README ? "docs/screenshots" : "screenshots"));
 const [WIDTH, HEIGHT] = option("--size", "1400x900").split("x").map(Number);
 const SAMPLES = option("--samples", "12");
 const PORT = 1430;
@@ -35,6 +38,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // ── Fixtures ──────────────────────────────────────────────────────────────
 
 mkdirSync(outDir, { recursive: true });
+mkdirSync(dirname(fixturesPath), { recursive: true });
 if (!flag("--no-dump") || !existsSync(fixturesPath)) {
   console.log(`Sampling real backend data (${SAMPLES}s)...`);
   const dump = spawnSync(
@@ -44,13 +48,96 @@ if (!flag("--no-dump") || !existsSync(fixturesPath)) {
   );
   if (dump.status !== 0) process.exit(dump.status ?? 1);
 }
-for (const f of readdirSync(outDir)) if (f.endsWith(".png")) rmSync(join(outDir, f));
+for (const f of readdirSync(outDir)) if (/\.(png|webp)$/.test(f)) rmSync(join(outDir, f));
+
+// Public screenshots must not carry this machine's identity. Addresses are mapped to
+// documentation ranges (RFC 5737 / 3849) consistently, so the same host keeps the same fake IP.
+function scrub(fixtures) {
+  const user = userInfo().username;
+  const host = hostname();
+  const word = (w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
+  const ips = new Map();
+  const fakeIpv4 = (ip) => {
+    const [a, b] = ip.split(".").map(Number);
+    if (a === 0 || a === 127 || a >= 224) return ip;
+    if (!ips.has(ip)) {
+      const local = a === 10 || (a === 172 && b >= 16 && b < 32) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b < 128);
+      const n = ips.size + 10;
+      ips.set(ip, local ? `192.168.1.${n}` : `203.0.113.${n}`);
+    }
+    return ips.get(ip);
+  };
+  const macs = new Map();
+  const fakeMac = (mac) => {
+    if (!macs.has(mac)) macs.set(mac, `02:00:00:00:00:${String(macs.size + 1).padStart(2, "0")}`);
+    return macs.get(mac);
+  };
+  const v6 = new Map();
+  const fakeIpv6 = (addr) => {
+    // Clock times (17:08:13) also match the pattern; real addresses have "::" or 7 colons
+    if (!addr.includes("::") && addr.split(":").length < 8) return addr;
+    if (addr === "::" || addr === "::1") return addr;
+    if (!v6.has(addr)) v6.set(addr, `${addr.startsWith("fe80") ? "fe80" : "2001:db8"}::${(v6.size + 1).toString(16)}`);
+    return v6.get(addr);
+  };
+  const identifierKeys = ["serial", "wwid", "uuid", "part_uuid", "partuuid"];
+  // Same shape as the real value, obviously not it: letters and digits count up
+  const fakeIdentifier = (text) => {
+    let n = 0;
+    return text.replace(/[A-Za-z0-9]/g, (c) => {
+      const i = n++;
+      if (/[0-9]/.test(c)) return String((i + 1) % 10);
+      const letter = String.fromCharCode(65 + (i % 6));
+      return c === c.toLowerCase() ? letter.toLowerCase() : letter;
+    });
+  };
+  const identifiers = new Map();
+  const collect = (value, key) => {
+    if (typeof value === "string" && identifierKeys.includes(key) && value.length >= 6) identifiers.set(value, fakeIdentifier(value));
+    else if (Array.isArray(value)) value.forEach((v) => collect(v, key));
+    else if (value && typeof value === "object") Object.entries(value).forEach(([k, v]) => collect(v, k));
+  };
+  collect(fixtures, "");
+  const addressCommands = /^(get_connections|get_interfaces|get_network|get_system_info|get_service_details)/;
+  const clean = (text, key, command) => {
+    if (identifierKeys.includes(key)) return fakeIdentifier(text);
+    if (key === "hostname") return "workstation";
+    // Serials also hide inside other fields (NVMe subsystem NQNs embed them)
+    for (const [real, fake] of identifiers) text = text.replaceAll(real, fake);
+    text = text.replace(/\b(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b/gi, fakeMac);
+    if (addressCommands.test(command)) {
+      text = text.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, fakeIpv4);
+      text = text.replace(/(?<![\w:.])(?:[0-9a-f]{0,4}:){2,7}[0-9a-f]{0,4}(?![\w:.])/gi, fakeIpv6);
+    }
+    if (command.startsWith("get_service_details")) text = text.replace(word(host), "workstation");
+    return text.replace(word(user), "user").replace(word(host), "workstation");
+  };
+  const walk = (value, key, command) => {
+    if (typeof value === "string") return clean(value, key, command);
+    if (Array.isArray(value)) return value.map((v) => walk(v, key, command));
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, walk(v, k, command)]));
+    }
+    return value;
+  };
+  return Object.fromEntries(Object.entries(fixtures).map(([command, list]) => [command, walk(list, "", command)]));
+}
+
+const fixtures = JSON.parse(readFileSync(fixturesPath, "utf8"));
+const pageFixtures = README ? scrub(fixtures) : fixtures;
 
 // Mock of window.__TAURI_INTERNALS__ plus DOM helpers used by the steps below.
 const pageSetup = `(() => {
-  const FIX = ${readFileSync(fixturesPath, "utf8")};
-  // English labels keep the text-based steps below stable.
-  FIX.get_configs = FIX.get_configs.map((c) => ({ ...c, language: "en" }));
+  const FIX = ${JSON.stringify(pageFixtures)};
+  // English labels keep the text-based steps below stable; ?lang= and ?theme= (a preset
+  // label from themes.ts) let the README shots switch language and theme per page load.
+  const params = new URLSearchParams(location.search);
+  const configOverrides = (async () => {
+    const preset = params.get("theme")
+      ? (await import("/src/components/Config/themes.ts")).themes.find((t) => t.label === params.get("theme"))
+      : undefined;
+    return { ...(preset?.values ?? {}), language: params.get("lang") ?? "en" };
+  })();
   const counters = {};
   const next = (key) => {
     const list = FIX[key];
@@ -65,6 +152,7 @@ const pageSetup = `(() => {
       const keyed = arg !== undefined && FIX[cmd + ":" + arg];
       const value = keyed ? next(cmd + ":" + arg) : next(cmd);
       if (value && typeof value === "object" && "__error" in value) throw value.__error;
+      if (cmd === "get_configs" && value) return { ...value, ...(await configOverrides) };
       return value ?? null;
     },
     transformCallback(fn) { const id = ++callbackId; window["_" + id] = fn; return id; },
@@ -105,7 +193,7 @@ const pageSetup = `(() => {
     clickSibling(anchor, label) {
       const el = this.siblingElements(anchor).find((c) => c.textContent.trim() === label);
       if (!el) return false;
-      el.scrollIntoView({ block: "center" });
+      el.scrollIntoView({ block: "nearest" });
       el.click();
       return true;
     },
@@ -187,7 +275,7 @@ const { sessionId } = await cdp("Target.attachToTarget", { targetId, flatten: tr
 const page = (method, params) => cdp(method, params, sessionId);
 await page("Page.enable");
 await page("Runtime.enable");
-await page("Emulation.setDeviceMetricsOverride", { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: false });
+await page("Emulation.setDeviceMetricsOverride", { width: WIDTH, height: HEIGHT, deviceScaleFactor: README ? 2 : 1, mobile: false });
 await page("Page.addScriptToEvaluateOnNewDocument", { source: pageSetup });
 
 const evaluate = async (expression) => {
@@ -245,9 +333,10 @@ async function shot(name, { scroll = false } = {}) {
   }
 }
 
-async function fresh() {
-  await page("Page.navigate", { url: `http://localhost:${PORT}` });
-  if (!(await waitFor("Processes", 20000))) throw new Error("app did not render");
+async function fresh(query = "") {
+  await page("Page.navigate", { url: `http://localhost:${PORT}/${query}` });
+  // The process table is the landing page in every language
+  if (!(await waitFor("css:tbody tr", 20000))) throw new Error("app did not render");
   await sleep(1500);
 }
 
@@ -256,6 +345,179 @@ async function pressEscape() {
     await page("Input.dispatchKeyEvent", { type, key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
   }
   await sleep(400);
+}
+
+// ── README shots ──────────────────────────────────────────────────────────
+
+if (README) {
+  // Each shot is composited onto a backdrop matching its theme, with rounded corners and a shadow
+  const BACKDROPS = {
+    Default: "linear-gradient(135deg, #0f2027, #203a43 50%, #2c5364)",
+    Catppuccin: "linear-gradient(135deg, #cba6f7, #89b4fa)",
+    Gruvbox: "linear-gradient(135deg, #d65d0e, #fabd2f)",
+  };
+  const PAD = 40;
+  const { targetId: frameTarget } = await cdp("Target.createTarget", { url: "about:blank" });
+  const { sessionId: frameSession } = await cdp("Target.attachToTarget", { targetId: frameTarget, flatten: true });
+  const frame = (method, params) => cdp(method, params, frameSession);
+  await frame("Page.enable");
+  await frame("Emulation.setDeviceMetricsOverride", { width: WIDTH + 2 * PAD, height: HEIGHT + 2 * PAD, deviceScaleFactor: 2, mobile: false });
+
+  let theme = "Default";
+  const open = async (name, lang) => {
+    theme = name;
+    await fresh(`?theme=${name}${lang ? `&lang=${lang}` : ""}`);
+  };
+  const save = async (name) => {
+    await sleep(800);
+    const { data } = await page("Page.captureScreenshot", { format: "png" });
+    const { frameTree } = await frame("Page.getFrameTree");
+    await frame("Page.setDocumentContent", {
+      frameId: frameTree.frame.id,
+      html: `<body style="margin:0;background:${BACKDROPS[theme]}"><img src="data:image/png;base64,${data}" style="display:block;margin:${PAD}px;width:${WIDTH}px;height:${HEIGHT}px;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.45)"></body>`,
+    });
+    await frame("Runtime.evaluate", { expression: "document.images[0].decode()", awaitPromise: true });
+    const { data: webp } = await frame("Page.captureScreenshot", { format: "webp", quality: 90 });
+    writeFileSync(join(outDir, `${name}.webp`), Buffer.from(webp, "base64"));
+    console.log(`  ${name}.webp (${theme})`);
+  };
+  // Graphs hold 20 samples, one per second
+  const FILL = 40000;
+  const performance = async (item) => {
+    await click("Performance", 500);
+    if (item) await evaluate(`__ui.clickSibling("CPU", ${JSON.stringify(item)})`);
+    await sleep(FILL);
+  };
+  // The interface and disk that moved the most data make the liveliest graphs
+  const busiest = (samples, key, amount) => {
+    const totals = {};
+    for (const list of samples) for (const d of list ?? []) totals[d[key]] = (totals[d[key]] ?? 0) + amount(d);
+    return Object.entries(totals).sort((a, b) => b[1] - a[1])[0]?.[0];
+  };
+  const netItem = busiest(fixtures.get_network, "interface", (n) => n.download + n.upload);
+  const diskItem = busiest(fixtures.get_disks, "name", (d) => (parseFloat(d.read_speed) || 0) + (parseFloat(d.write_speed) || 0));
+
+  console.log(`README shots at ${WIDTH}x${HEIGHT} @2x into ${outDir} ...`);
+  await open("Default");
+  await performance();
+  await save("performance-cpu");
+
+  await open("Catppuccin");
+  await performance();
+  await click("Logical Processors", 1000);
+  await save("performance-cores");
+
+  await open("Gruvbox");
+  await performance("Memory");
+  await save("performance-memory");
+
+  await open("Catppuccin");
+  await performance(netItem);
+  await save("performance-network");
+
+  await open("Gruvbox");
+  await performance(diskItem);
+  await save("performance-disk");
+
+  await open("Default");
+  await performance(busiest(fixtures.get_gpu_informations, "name", () => 1));
+  await save("performance-gpu");
+
+  await open("Default");
+  // Second click sorts descending, so the busiest process is on top and gets monitored
+  await click("CPU Usage", 1000);
+  await click("CPU Usage", 1000);
+  await click("css:tbody tr");
+  await click("Monitor", 12000);
+  await save("processes");
+
+  await open("Gruvbox");
+  await click("Tree", 1500);
+  await click("Expand All", 1000);
+  await save("processes-tree");
+
+  await open("Catppuccin");
+  await click("css:tbody tr");
+  await click("Manage", 1200);
+  await save("processes-manage");
+
+  await open("Catppuccin");
+  await click("Sensors", 2500);
+  await save("sensors");
+
+  await open("Gruvbox");
+  await click("Sensors", 2500);
+  // Graph the temperature that moved the most while sampling (a name used by only one chip)
+  const temps = {};
+  for (const chips of fixtures.get_sensors) {
+    for (const chip of chips ?? []) {
+      for (const sensor of chip.sensors) {
+        if (sensor.sensor_type !== "temperature") continue;
+        (temps[sensor.name] ??= { ids: new Set(), values: [] }).ids.add(sensor.id);
+        temps[sensor.name].values.push(sensor.value);
+      }
+    }
+  }
+  const range = (values) => Math.max(...values) - Math.min(...values);
+  const [graphed] = Object.entries(temps)
+    .filter(([, t]) => t.ids.size === 1)
+    .sort(([, a], [, b]) => range(b.values) - range(a.values))[0] ?? [];
+  await evaluate(`(() => {
+    for (let e = __ui.find(${JSON.stringify(graphed)}); e; e = e.parentElement) {
+      const button = e.querySelector('button[title="Graph"]');
+      if (button) return button.click();
+    }
+  })()`);
+  await sleep(14000);
+  await save("sensors-graph");
+
+  await open("Default");
+  await click("Disks", 2500);
+  await save("disks");
+
+  await open("Catppuccin");
+  await click("Disks", 2500);
+  const diskIndex = Math.max(0, fixtures.get_disks[0].findIndex((d) => d.name === diskItem));
+  await evaluate(`document.querySelectorAll('[aria-label="Disk Details"]')[${diskIndex}]?.click()`);
+  await sleep(2000);
+  await save("disks-details");
+
+  await open("Gruvbox");
+  await click("Services", 2000);
+  const service = Object.keys(fixtures).find((key) => key.startsWith("get_service_details:"))?.split(":")[1];
+  if (service) await click(service, 2000);
+  await save("services");
+
+  await open("Catppuccin");
+  await click("Services", 2000);
+  await click("Startup Apps", 1500);
+  await save("startup-apps");
+
+  await open("Default");
+  await click("Connections", 2500);
+  // Established sockets carry the remote country flags
+  await click("All states", 500);
+  await click("Established", 1000);
+  await save("connections");
+
+  await open("Gruvbox");
+  await click("System Info", 2500);
+  await save("system-info");
+
+  await open("Catppuccin");
+  await click('css:button[aria-label="Config"]', 1500);
+  await click('css:button[aria-label="Theme"]');
+  await save("config");
+
+  await open("Default", "ar");
+  await click("css:nav li:nth-child(2) button", FILL);
+  await save("arabic");
+
+  await cdp("Browser.close").catch(() => {});
+  removeProfile();
+  ws.close();
+  console.log("Done");
+  process.exit(0);
 }
 
 // ── Walkthrough ───────────────────────────────────────────────────────────
@@ -333,7 +595,7 @@ await fresh();
 await click("Services", 2000);
 await shot("services");
 // A service whose details were dumped, so the panel does not show another unit's status
-const dumpedService = Object.keys(JSON.parse(readFileSync(fixturesPath, "utf8")))
+const dumpedService = Object.keys(fixtures)
   .find((key) => key.startsWith("get_service_details:"))
   ?.split(":")[1];
 if (dumpedService && (await click(dumpedService, 2000))) await shot("services-details-panel");

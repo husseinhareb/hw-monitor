@@ -5,8 +5,8 @@ Thank you for your interest in contributing to **hw-monitor**! This document out
 ## Prerequisites
 
 - [Rust](https://rustup.rs/) (stable toolchain)
-- [Node.js](https://nodejs.org/) >= 18
-- [Tauri CLI](https://tauri.app/v1/guides/getting-started/prerequisites) v2
+- [Node.js](https://nodejs.org/) 20.19, or 22.12 and newer (required by Vite)
+- The [Tauri v2 system dependencies](https://v2.tauri.app/start/prerequisites/) (the Tauri CLI itself comes with `npm install`)
 - A Linux machine (the app reads from `/proc`, `/sys`, etc.)
 
 ## Getting Started
@@ -31,22 +31,27 @@ Thank you for your interest in contributing to **hw-monitor**! This document out
 
 ```
 src/                  # React + TypeScript frontend
-  components/         # UI components (Performance, Processes, Sensors, Disks, Config)
-  hooks/              # Data-fetching hooks per module
-  services/           # Zustand global store
+  components/         # One folder per page: Processes, Performance, Sensors, Disks,
+                      # Services, Connections, SystemInfo, Config, plus Graph, Navbar, Misc
+  hooks/              # Data-fetching hooks per page
+  helpers/            # Pure formatting and table helpers (with tests)
+  services/           # Zustand stores
   styles/             # styled-components
   locales/            # i18n translation files (en, fr, de, es, ar, pl, ru, uk)
-src-tauri/src/        # Rust backend
-  cpu/                # CPU info and usage
-  memory/             # /proc/meminfo reader
-  disk/               # /proc/diskstats + partition info
-  network/            # /proc/net/dev reader
-  proc/               # Process list + kill
-  sensors/            # hwmon temperature sensors
-  battery/            # sysfs battery reader
-  gpu/                # NVIDIA (nvml) + AMD + Intel GPU info
+  bindings.ts         # Generated from the Rust command types, do not edit
+src-tauri/src/        # Rust backend, one module per area
+  cpu/ memory/ gpu/   # CPU, memory and GPU (NVML for NVIDIA, sysfs for AMD and Intel)
+  disk/ smart/        # Disks, partitions and SMART data
+  network/            # Interfaces and throughput
+  connections/        # Sockets from /proc/net with owners and GeoIP countries
+  proc/ proc_icon.rs  # Processes, priority, affinity, kill, and app icons
+  sensors/ battery/   # hwmon sensors and batteries
+  services/ startup/  # systemd services (actions via polkit) and startup apps
+  system_info/        # System Info page
   config/             # Configuration file (~/.config/hw-monitor/)
-  total_usages/       # Dashboard CPU/memory/process summary
+  total_usages/       # CPU, memory and process totals
+src-tauri/tests/      # Backend integration tests
+scripts/              # Bindings generator, theme checker, screenshot tool
 ```
 
 ## Making Changes
@@ -57,9 +62,19 @@ src-tauri/src/        # Rust backend
 - Prefer reading from `/proc` and `/sys` over external commands
 
 ### Frontend (TypeScript)
-- Match all Rust `Option<T>` fields with `T | null` in TypeScript interfaces
+- Types for command results come from `src/bindings.ts`, which `npm run dev` and `npm run build` regenerate from the Rust models; never edit it by hand
 - Use `?? 'N/A'` for nullable display values in components
 - Add new i18n strings to **all 8** locale files under `src/locales/`
+
+### Checks
+CI runs these on every push; run them before opening a pull request:
+
+```bash
+npm run check:bindings && npm run check:themes && npm run typecheck && npm run lint && npm test
+cd src-tauri && cargo fmt --check && cargo clippy --all-targets --all-features -- -D warnings && cargo test
+```
+
+`npm run screenshots` captures every page with real data from your machine, which helps when reviewing UI changes.
 
 ## Submitting a Pull Request
 

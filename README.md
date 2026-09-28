@@ -1,160 +1,170 @@
+<div align="center">
+
+<img src="src-tauri/icons/128x128.png" width="96" alt="hw-monitor icon">
+
 # hw-monitor
 
-hw-monitor is a Linux desktop application designed to monitor various aspects of your computer's hardware. Built with the Tauri framework, it pairs a Rust backend with a TypeScript/React frontend.
+A hardware and system monitor for Linux, built with Tauri: a Rust backend that reads `/proc`, `/sys`, hwmon, udev and systemd directly, and a React and TypeScript interface on top.
 
-## Description
+[![Release](https://img.shields.io/github/v/release/husseinhareb/hw-monitor)](https://github.com/husseinhareb/hw-monitor/releases)
+[![AUR](https://img.shields.io/aur/version/hw-monitor)](https://aur.archlinux.org/packages/hw-monitor)
+[![CI](https://github.com/husseinhareb/hw-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/husseinhareb/hw-monitor/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/husseinhareb/hw-monitor)](LICENSE)
 
-The app is organised around five main sections:
+<img src="docs/screenshots/performance-cores.webp" alt="Performance page showing a live graph for each of the 16 logical processors, in the Catppuccin theme">
 
-### Processes
+</div>
 
-Detailed information about each process running on the machine. Processes can be sorted, searched, and viewed as a flat list or a hierarchical tree. Each process displays its own icon fetched from installed `.desktop` files. The columns shown:
+## Features
 
-- User
-- PID
-- PPID
-- Name
-- State
-- Memory Usage
-- CPU Usage
-- Total Disk Read
-- Total Disk Write
-- Disk Read Speed
-- Disk Write Speed
+- **Processes**: sortable table or tree of every process, with app icons, search, per-process CPU and memory graphs, GPU usage and GPU memory, priority and CPU affinity control, and terminate or force kill
+- **Performance**: live graphs for CPU (overall or per logical processor), memory, every GPU, every network interface and every disk, each with a detail panel
+- **Sensors**: every hwmon chip, grouped by category, with heat bars, status badges, per-sensor graphs, custom labels and thresholds, and battery details on laptops
+- **Disks**: disks and partitions with usage, plus a details view covering hardware, SMART health, queue and discard settings, and I/O counters
+- **Services**: systemd services with status and recent logs, start, stop, restart and enable at startup through polkit, and a Startup Apps tab for autostart entries and systemd user services
+- **Connections**: every TCP and UDP socket with its owning process and user, and the remote country resolved offline
+- **System Info**: OS, kernel, host, CPU, GPU, memory, boot, user, packages, locale and network on one page
+- **Customisable**: three bundled themes, nearly every color configurable, per-section update intervals, and eight languages including right-to-left Arabic
+- **Tray icon**: closing the window hides it to the tray; Quit from the tray menu exits
 
-<img width="1216" height="916" alt="screenshot" src="https://github.com/user-attachments/assets/212bdcb4-e06a-477f-b46b-e1504cb46c29" />
+## Processes
 
-### Performance
+Every process with its name, PID, parent PID, user, state, memory, CPU usage and GPU usage. More columns can be switched on in the config: GPU memory, disk read and write totals and speeds, and nice value. Click a column to sort, use the search button in the navbar to filter, or switch to the **Tree** view to see parent and child processes. Memory and CPU cells are tinted amber as they get busier.
 
-Live graphs of key hardware components (CPU, RAM, GPU, disks, and network interfaces) with full detail panels next to each graph.
+Selecting a process opens a bottom bar with three actions:
 
-#### CPU
+- **Monitor**: live CPU and memory graphs for that process
+- **Manage**: set its priority (nice value), choose the CPUs it may run on, or terminate (SIGTERM) or force kill (SIGKILL) it
+- **Kill Process**: sends SIGTERM after a second click, so a stray click does nothing
 
-Name, socket, core/thread/live-thread counts, base/current/maximum speed, virtualisation flag, VM/hypervisor detection, uptime, temperature, and per-level cache sizes (L1d, L1i, L2, L3).
+GPU usage and GPU memory are read from the kernel's DRM client statistics in `/proc/<pid>/fdinfo`, which the amdgpu, i915, xe and nouveau drivers provide. The proprietary NVIDIA driver does not expose them.
 
-<img width="1213" height="919" alt="screenshot" src="https://github.com/user-attachments/assets/70b4300c-2e6f-4e9c-9941-dc413a154df7" />
-<img width="1365" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/7e81c0b4-6e7e-456d-b46d-276d662e70a5" />
+<img src="docs/screenshots/processes.webp" alt="Process table sorted by CPU usage, with the process monitor open below showing live CPU and memory graphs">
 
+<img src="docs/screenshots/processes-tree.webp" alt="Process tree view in the Gruvbox theme, with systemd and its children expanded">
 
-#### Memory
+<img src="docs/screenshots/processes-manage.webp" alt="Manage Process dialog with the priority slider, a CPU affinity grid for 16 threads, and Kill Process and Force Kill buttons">
 
-Live totals (total, free, available, cached, active, swap) plus hardware information read via `udevadm`, no root required:
+## Performance
 
-- **Speed**: configured transfer speed in MT/s
-- **Slots Used**: populated vs total memory slots
-- **Form Factor**: e.g. SODIMM, DIMM
-- **Type**: e.g. DDR4, DDR5
+A sidebar of small live graphs switches between devices; the selected one gets a full graph and a detail panel. The sidebar can be collapsed.
 
-<img width="1215" height="919" alt="screenshot" src="https://github.com/user-attachments/assets/bbdc536e-1878-4965-933a-7997a0c1488b" />
+**CPU**: usage as one graph or as a grid with one graph per logical processor. Current speed, usage, temperature, process and thread counts, uptime, socket, core and thread counts, base and max speed, virtualization support, virtual machine detection, and L1, L2 and L3 cache sizes.
 
-#### GPU
+<img src="docs/screenshots/performance-cpu.webp" alt="CPU usage graph with speed, usage, temperature, processes, threads, uptime and CPU details">
 
-NVIDIA cards via NVML and AMD cards via sysfs: name, driver version, memory totals, temperature, utilisation, clock speed, wattage, fan speed, performance state.
+**Memory**: used memory over time, a composition bar splitting RAM into in use, reclaimable and free, totals for free, available, cached and active memory and swap, and the module speed, slots used, form factor and type (read through udev, no root needed).
 
-<img width="1216" height="918" alt="screenshot" src="https://github.com/user-attachments/assets/05394fa4-f4b8-47c7-9b1f-bc1050d68b55" />
+<img src="docs/screenshots/performance-memory.webp" alt="Memory page in the Gruvbox theme with the memory graph, composition bar, RAM and swap totals, and module details">
 
-#### Network
+**GPU**: NVIDIA cards through NVML, AMD and Intel cards through sysfs. Usage, clock speed, temperature, power draw, driver version, memory used, free and total, fan speed and performance level.
 
-Per-interface upload/download speeds, totals transferred, MAC, IPv4/IPv6 addresses, link speed, connection state, interface type, WiFi signal strength, and RX/TX errors and drops. Virtual interfaces are hidden by default and can be toggled from the config panel.
+<img src="docs/screenshots/performance-gpu.webp" alt="GPU page for an AMD Radeon RX 6700 XT with usage graph, clock, temperature, wattage, driver and memory">
 
-<img width="1215" height="917" alt="Untitled design" src="https://github.com/user-attachments/assets/d33e50cc-154b-4461-b2d2-c01a86aa29f7" />
+**Network**: download and upload speed for each interface, with type, state, MAC, IPv4 and IPv6 addresses, link speed, Wi-Fi signal, error and drop counters, and total data transferred. Virtual interfaces (docker, veth, bridges, loopback) are hidden unless enabled in the config.
 
+<img src="docs/screenshots/performance-network.webp" alt="Network page in the Catppuccin theme with download and upload graphs and interface details">
 
-### Sensors
+**Disks**: read and write speed for each disk, with total data read and written.
 
-Every sensor exposed under `/sys/class/hwmon` is auto-detected and grouped by chip. Each sensor row shows its current reading, an optional heat bar relative to its critical threshold, and a status badge (normal, warning, or critical).
+<img src="docs/screenshots/performance-disk.webp" alt="Disk page in the Gruvbox theme showing write bursts of up to 200 MB/s on an NVMe drive">
 
-For each individual sensor you can:
+## Sensors
 
-- open a **live graph modal** plotting recent history;
-- override the displayed **label**;
-- set custom **warning** and **critical** thresholds;
-- **hide** the sensor (toggle "Show hidden" in the toolbar to see hidden ones again).
+Every sensor under `/sys/class/hwmon` is detected and grouped by chip, then by category: temperatures, fans, voltages, currents, power and energy, PWM controls and intrusion detection. Every sensor gets a status of normal, warning or critical, and sensors with a critical threshold get a heat bar filled up to it (temperatures without one use 100 °C).
 
-On laptops, a battery box surfaces cycle count, technology, energy, time-to-full/time-to-empty, temperature, state-of-health, and current charge.
+Each sensor has three buttons:
 
-<img width="1366" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/4362d17f-f6a8-404c-bb58-538c1f80a8b9" />
+- **Graph**: a live graph of recent readings
+- **Edit**: set a custom label and your own warning and critical thresholds
+- **Hide**: hide the sensor; tick **Show hidden sensors** to see hidden ones again
 
-<img width="1365" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/5a302e55-1ea8-43a8-befc-c4b688ddb20a" />
+The toolbar filters sensors by name and collapses or expands every chip. On laptops, a battery card shows charge, model, state, cycle count, energy, time to full or empty, technology, temperature and health.
 
-### Disks
+<img src="docs/screenshots/sensors.webp" alt="Sensors page in the Catppuccin theme with IT8689, AMDGPU, Gigabyte WMI and NVMe chips and their heat bars">
 
-A `lsblk`-style tree of disks and partitions, with a usage bar for each mounted partition. Live per-disk read/write speeds and IOPS update alongside the layout.
+<img src="docs/screenshots/sensors-graph.webp" alt="Live graph of the CPU Tctl temperature rising from 75 to 81 degrees Celsius">
 
-Selecting a disk opens a **details modal** with the full picture pulled from `/sys/block`:
+## Disks
 
-- model, vendor, serial, firmware revision, WWID, transport;
-- queue parameters (depth, schedulers, read-ahead, max sectors, write cache, FUA, DAX, zoned);
-- discard and TRIM behaviour;
-- aggregate I/O counters and queue stats;
-- **SMART data** for both ATA and NVMe drives, covering overall health, attribute table, power-on hours, temperature, reallocated/pending/uncorrectable sectors (ATA) and critical warnings, available spare, percentage used, power cycles, unsafe shutdowns, media errors, data units read/written (NVMe).
+Each disk is a card with its model and size, and a row per partition showing its mount point, filesystem and usage. The **i** button opens the full details:
 
-<img width="1218" height="943" alt="screenshot" src="https://github.com/user-attachments/assets/f6d80f2a-9610-46be-a4b6-ba0c577997ef" />
-<img width="1365" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/6fed8f69-5816-45de-a020-538ce08eef43" />
+- **Information**: device, transport, vendor, model, serial, size, type, block sizes and sysfs path
+- **SMART health**: overall result plus the ATA attribute table, power-on hours, temperature, and reallocated, pending and uncorrectable sectors, or for NVMe drives critical warnings, available spare, percentage used, power cycles, unsafe shutdowns, media errors and data read and written
+- **Advanced**: firmware, WWID, schedulers, write cache, queue depth, read-ahead, sector limits, FUA, DAX and zoned mode
+- **Discard**: TRIM granularity and limits, and discard counters
+- **Controller**, **Performance** (live speeds, IOPS, busy time and totals) and **Partitions**
 
+Reading SMART data needs root or membership in the `disk` group; without it the panel says so.
 
-### Services
+<img src="docs/screenshots/disks.webp" alt="Disks page with three drives and their partitions, mount points, filesystems and usage">
 
-Lists all systemd services on the system with their load state, active state, sub-state, and unit-file state. Services can be searched and sorted by any column.
+<img src="docs/screenshots/disks-details.webp" alt="Disk details for an NVMe drive in the Catppuccin theme, with SMART health PASSED, wear, power-on hours and data written">
 
-Selecting a service reveals an action bar with **Start**, **Stop**, and **Restart**. Performing any action opens an in-app password dialog, no terminal required. The password is passed only to `sudo -S systemctl` for the requested action, is not stored by hw-monitor, and errors (including a wrong password) surface directly in the UI.
+## Services
 
-### Connections
+Every systemd service with its description and load, active, sub and enabled state, searchable and sortable. Selecting a service opens a details panel with its `systemctl status` output, recent journal logs and unit file path, and an action bar with **Start**, **Stop**, **Restart**, **Enable at startup** and **Disable at startup**. Actions run through polkit, so your desktop's authentication dialog asks for the password; hw-monitor never sees it. Template units such as `getty@` cannot be acted on without an instance name, so their actions are disabled.
 
-Every TCP and UDP socket in the machine's network namespace, read directly from `/proc/net/tcp`, `/proc/net/tcp6`, `/proc/net/udp`, and `/proc/net/udp6`. The columns shown:
+<img src="docs/screenshots/services.webp" alt="Services page in the Gruvbox theme with NetworkManager selected, showing its status output and recent logs">
 
-- Protocol (`tcp`, `tcp6`, `udp`, `udp6`)
-- Local address and port
-- Remote address and port
-- State (the full TCP state machine, plus `UNCONN` for bound datagram sockets)
-- PID and process name
-- User
+The **Startup Apps** tab lists what starts when you log in: XDG autostart entries from `/etc/xdg/autostart` and `~/.config/autostart`, and systemd user services that start with the session. Enabling or disabling them needs no root: autostart entries get a user override file (system files are never modified), and user services are toggled with `systemctl --user`.
 
-Sockets are matched to the process holding them by resolving socket inodes through `/proc/[pid]/fd`. Reading another user's descriptors requires privileges, so an unprivileged run attributes only your own sockets and leaves the rest blank, the same way `ss(8)` and `netstat(8)` behave; the table says so rather than silently showing an empty column.
+<img src="docs/screenshots/startup-apps.webp" alt="Startup Apps tab in the Catppuccin theme listing autostart entries and systemd user services with Enable and Disable buttons">
 
-The list can be searched across every field and filtered by protocol (TCP/UDP) and by state (listening or established). Any column sorts, with addresses ordered by octet and ports ordered numerically rather than as text. Selecting a row reveals its full endpoints, owning UID, socket inode, and receive/send queue depths.
+## Connections
 
-## Multilingual Support
+Every TCP and UDP socket, read from `/proc/net/tcp`, `tcp6`, `udp` and `udp6`: protocol, local and remote address and port, state, PID, process and user. Remote addresses show a country flag, resolved from a GeoLite2 database compiled into the app, so nothing is looked up over the network. To use a newer database, set `GEOIP_DB_PATH` or place `GeoLite2-Country.mmdb` in `/usr/share/GeoIP/` or `/var/lib/GeoIP/`.
 
-The application ships with eight languages: Arabic, German, English, Spanish, French, Polish, Russian, and Ukrainian. Switch from the configuration panel.
+Search across every column, filter by protocol and by state (listening, established or other), and sort any column. Selecting a row shows its full endpoints, process, UID, queue sizes and socket inode. Sockets owned by other users can only be matched to a process with elevated privileges, the same limit `ss` and `netstat` have, and the page says so.
 
-<img width="1364" height="990" alt="screenshot" src="https://github.com/user-attachments/assets/59bbcbeb-1b64-42e1-ace9-a88280482f21" />
+<img src="docs/screenshots/connections.webp" alt="Connections page filtered to established sockets, with country flags next to remote addresses">
 
+## System Info
 
-## Themes
+Operating system, kernel, host (hostname, chassis, board, product and BIOS), CPU, GPU, memory, boot time and uptime, current user and shell, installed package counts (dpkg, rpm, pacman, apk, flatpak and snap, whichever are present), locale, and network addresses.
 
-Three presets bundle with the app and can be switched from the config panel:
+<img src="docs/screenshots/system-info.webp" alt="System Info page in the Gruvbox theme with operating system, kernel, host, CPU, GPU, memory, boot, user, packages, locale and network cards">
 
-- **Default**: neutral dark slate
-- **Catppuccin**: Mocha palette
-- **Gruvbox**: classic warm dark
+## Themes and Languages
 
-<img width="1365" height="987" alt="screenshot" src="https://github.com/user-attachments/assets/a7a7df1c-64a9-4231-b9bc-a9dc98aed3c2" />
-<img width="1365" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/42251a16-fccb-40f3-a9aa-cba174399eb0" />
-<img width="1364" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/d78cd662-9b12-46d6-89d1-1cd1863287f4" />
-<img width="1366" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/f9d55fee-8bf4-4b03-b0cf-1888c60b3d99" />
+Three themes ship with the app: **Default**, **Catppuccin** (Mocha) and **Gruvbox**. Nearly every color on every page can also be changed individually in the config, and the theme menu shows "Custom theme" once your colors no longer match a preset.
 
+<table>
+  <tr>
+    <td><img src="docs/screenshots/performance-cpu.webp" alt="Default theme"></td>
+    <td><img src="docs/screenshots/performance-network.webp" alt="Catppuccin theme"></td>
+    <td><img src="docs/screenshots/performance-memory.webp" alt="Gruvbox theme"></td>
+  </tr>
+  <tr>
+    <td align="center">Default</td>
+    <td align="center">Catppuccin</td>
+    <td align="center">Gruvbox</td>
+  </tr>
+</table>
 
-Every individual colour, update interval, and visible table column is editable from the config panel. The in-app picker is the source of truth, and edits persist to `~/.config/hw-monitor/hw-monitor.conf`. The bundled presets live in `src/components/Config/themes.ts`; new presets added there are validated automatically by `npm run check:themes` (palette completeness, valid hex values, monotonic heatbar gradient, foreground/background contrast).
+The interface is translated into English, Arabic, German, Spanish, French, Polish, Russian and Ukrainian. Arabic switches the whole layout to right to left.
+
+<img src="docs/screenshots/arabic.webp" alt="Performance page in Arabic with the right-to-left layout">
 
 ## Configuration
 
-The app creates a configuration file at startup at `~/.config/hw-monitor/hw-monitor.conf`. It can be managed via the built-in GUI or edited by hand. The config persists:
+The config page has a section for each page (Processes, Performance, Sensors, Disks, Heat Bars, Navbar, Services, Connections, System Info) and one for the config page itself. It covers colors, the update interval of each page, the visible process columns, and whether virtual network interfaces are shown. The language and theme menus and **Load Default Config** (which asks for a second click) sit in the header.
 
-- every section's colour palette;
-- per-section update intervals;
-- the visible Processes columns;
-- the selected language;
-- per-sensor preferences (hidden IDs, custom labels, custom warning/critical thresholds);
-- the "show virtual network interfaces" toggle.
+<img src="docs/screenshots/config.webp" alt="Config page in the Catppuccin theme with the theme menu open, process colors and table column checkboxes">
 
-<img width="1364" height="988" alt="screenshot" src="https://github.com/user-attachments/assets/716c592f-0fd2-4c30-9de9-6c8ae6c6e3be" />
-<img width="1365" height="989" alt="screenshot" src="https://github.com/user-attachments/assets/ba3507a9-1ce9-4d58-ad6a-ccca8123ce5a" />
-
+Settings are saved to `~/.config/hw-monitor/hw-monitor.conf` (or `$XDG_CONFIG_HOME/hw-monitor/hw-monitor.conf`), which can also be edited by hand. Sensor labels, thresholds and hidden sensors are stored there too.
 
 ## Installation
 
+Packages for every release are on the [releases page](https://github.com/husseinhareb/hw-monitor/releases): a `.deb`, an `.rpm` and a standalone `hw-monitor` binary for x86_64.
+
 ### Arch Linux (AUR)
+
+```bash
+yay -S hw-monitor
+```
+
+or without an AUR helper:
 
 ```bash
 git clone https://aur.archlinux.org/hw-monitor.git
@@ -162,54 +172,53 @@ cd hw-monitor
 makepkg -si
 ```
 
-Or with an AUR helper:
+### Debian and Ubuntu
 
 ```bash
-yay -S hw-monitor
+sudo apt install ./hw-monitor_<version>_amd64.deb
 ```
 
-### Debian/Ubuntu
+Installing through `apt` pulls in the dependencies automatically.
 
-Download the `.deb` package from the [releases page](https://github.com/husseinhareb/hw-monitor/releases) and install it:
+### Fedora and other RPM distributions
 
 ```bash
-sudo dpkg -i hw-monitor_<version>_amd64.deb
-sudo apt-get install -f   # resolve any missing dependencies
+sudo dnf install ./hw-monitor-<version>-1.x86_64.rpm
 ```
 
-### Resolving Dependency Errors
+### Verifying a download
 
-If the app fails to start with a missing shared-library error such as:
+Each release includes a `SHA256SUMS` file and a GitHub build provenance attestation for every artifact. Compare the checksum with the file's line in `SHA256SUMS`, and check the attestation with the GitHub CLI:
 
+```bash
+sha256sum hw-monitor_<version>_amd64.deb
+gh attestation verify hw-monitor_<version>_amd64.deb --repo husseinhareb/hw-monitor
 ```
-error while loading shared libraries: libjavascriptcoregtk-4.1.so
-```
 
-install the WebKit2GTK 4.1 package for your distribution:
+## Troubleshooting
+
+### Missing libraries
+
+The packages above install everything the app needs. When running the standalone binary, install WebKitGTK 4.1 and the Ayatana AppIndicator library yourself; without the latter the app exits at startup with `Failed to load ayatana-appindicator3 or appindicator3 dynamic library`.
 
 | Distribution | Command |
 |---|---|
-| Arch Linux | `sudo pacman -S webkit2gtk-4.1` |
-| Debian/Ubuntu | `sudo apt install libwebkit2gtk-4.1-dev` |
-| Fedora/RHEL | `sudo dnf install webkit2gtk4.1-devel` |
-| Gentoo | `sudo emerge --ask net-libs/webkit-gtk:4.1` |
-| Void Linux | `sudo xbps-install -S webkit2gtk-devel` |
+| Arch Linux | `sudo pacman -S webkit2gtk-4.1 libayatana-appindicator` |
+| Debian and Ubuntu | `sudo apt install libwebkit2gtk-4.1-0 libayatana-appindicator3-1` |
+| Fedora | `sudo dnf install webkit2gtk4.1 libayatana-appindicator-gtk3` |
 
-Managing system services also requires polkit and a running desktop
-authentication agent (`policykit-1` on Debian/Ubuntu, `polkit` on most other
-distributions). Passwords are entered only in the native polkit dialog and are
-never sent through the application's webview or IPC layer.
+Service actions also need polkit and a running authentication agent, which desktop environments normally provide.
 
-### Fixing NVIDIA GPU Errors
+### NVIDIA GPU rendering errors
 
-If you use an NVIDIA GPU and encounter errors like:
+With some NVIDIA drivers the window fails to render with errors like:
 
 ```
 GBM-DRV error (nv_gbm_create_device_native): nv_common_gbm_create_device failed
 Failed to create GBM buffer of size 800x600: Permission denied
 ```
 
-add these environment variables to your shell config (`.bashrc`, `.zshrc`, or `config.fish`):
+Add these variables to your shell configuration to turn off WebKit's DMA-BUF renderer and use software rendering:
 
 ```bash
 export WEBKIT_DISABLE_DMABUF_RENDERER=1
@@ -225,97 +234,54 @@ set -Ux LIBGL_ALWAYS_SOFTWARE 1
 set -Ux QT_XCB_FORCE_SOFTWARE_OPENGL 1
 ```
 
+### Permissions
+
+hw-monitor runs as your user. A few readings need more:
+
+- **SMART data**: root, or membership in the `disk` group
+- **Raising a process's priority** (a negative nice value): root or `CAP_SYS_NICE`
+- **Processes behind other users' sockets** on the Connections page: root
+- **Service actions**: handled by polkit, which asks for your password
+
 ## Building from Source
 
-1. **Clone the repository**:
+You need a stable [Rust](https://rustup.rs/) toolchain, [Node.js](https://nodejs.org/) 20.19 or 22.12 and newer, and the [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/). On Debian and Ubuntu, the CI installs:
 
-    ```bash
-    git clone https://github.com/husseinhareb/hw-monitor
-    cd hw-monitor
-    ```
+```bash
+sudo apt install libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+```
 
-2. **Install frontend dependencies**:
+Then:
 
-    ```bash
-    npm install
-    ```
-
-3. **Run in development mode** (auto-regenerates the Rust to TS bindings):
-
-    ```bash
-    npm run tauri dev
-    ```
-
-4. **Build a release binary**:
-
-    ```bash
-    npm run tauri build
-    ```
+```bash
+git clone https://github.com/husseinhareb/hw-monitor
+cd hw-monitor
+npm install
+npm run tauri dev      # run in development mode
+npm run tauri build    # build the release binary and packages
+```
 
 ### Developer scripts
 
-- `npm run check:bindings`: verify `src/bindings.ts` is in sync with the Rust command models.
-- `npm run check:themes`: validate the bundled theme presets (palette completeness, valid hex, monotonic heatbar gradient, foreground/background contrast).
-- `npm run typecheck`: run the TypeScript compiler without emitting files.
-- `npm run lint`: lint JavaScript, TypeScript, and React hook usage.
-- `npm test`: run the frontend regression tests.
+| Script | What it does |
+|---|---|
+| `npm test` | Frontend tests (Vitest) |
+| `npm run lint` | ESLint with zero warnings allowed |
+| `npm run typecheck` | TypeScript without emitting files |
+| `npm run check:bindings` | Checks `src/bindings.ts` matches the Rust command types (regenerated automatically by `npm run dev` and `npm run build`) |
+| `npm run check:themes` | Validates the bundled themes: every color key present, valid hex, a monotonic heat bar gradient and readable contrast |
+| `npm run screenshots` | Records real backend data from your machine and screenshots every page, tab, modal and menu in headless Chromium into `screenshots/` (gitignored). `-- --size 800x600` sets the window size and `-- --readme` regenerates the images in this README, with usernames, hostnames, addresses and serials replaced |
+
+Backend tests run with `cargo test` in `src-tauri/`. CI runs all of the above plus `cargo fmt --check`, `cargo clippy -D warnings`, `npm audit` and `cargo audit` on every push.
 
 ## Changelog
 
-### v0.4.0
-- **feat**: disk details modal exposing full `/sys/block` metadata (model, vendor, serial, firmware, WWID, transport, schedulers, queue depth, read-ahead, write cache, FUA, DAX, TRIM, discard limits)
-- **feat**: SMART data for ATA and NVMe drives (overall health, attribute table, power-on hours, temperature, reallocated/pending/uncorrectable sectors, NVMe wear, available spare, media errors, data units read/written)
-- **feat**: per-sensor live graph modal plotting recent history
-- **feat**: per-sensor controls (hide/show, custom label, custom warning/critical thresholds, filter)
-- **feat**: system tray icon with Open/Quit menu, close-to-tray instead of close-to-quit
-- **feat**: service startup management (enable/disable systemd units)
-- **feat**: recent service logs displayed inside the service details panel
-- **feat**: detailed network interface panel (MAC, IPv4/IPv6, link speed, type, WiFi signal, RX/TX errors and drops)
-- **feat**: theme integrity validator (`npm run check:themes`) wired into CI
-- **feat**: frontend bindings auto-generated from Rust command models (`npm run check:bindings`, predev/prebuild hooks)
-- **feat**: dedicated CI workflow (rustfmt, clippy, backend tests, bindings check, theme check, frontend build)
-- **fix**: Catppuccin and Gruvbox heatbars re-tuned to be palette-correct and strictly monotonic, no duplicate stops
-- **fix**: Gruvbox contrast bumped on performance title, value, and disk-name colours
-- **fix**: sensor graph modal now follows the configured foreground and title colours
-- **fix**: disk details modal width widened for readability
-- **fix**: multiple sensor and disk modal styling regressions
-- **fix**: replaced `polished` dependency with a small in-tree `safeLighten` helper
-- **fix**: `zbus` dependency dropped, all data now read via direct sysfs and procfs
-
-### v0.3.1
-- **fix**: memory hardware info (speed, slots, form factor, type) now reads via `udevadm info`, no root required
-- **fix**: services start/stop/restart errors are now properly surfaced in the UI
-- **fix**: process icons now visible in production builds (CSP `data:` URI fix)
-- **feat**: GUI password dialog for service management, no terminal prompt needed
-
-### v0.0.3
-- **feat**: Services section: list, search, sort, start/stop/restart systemd services
-- **feat**: memory hardware info panel (speed, slots used, form factor, type)
-- **feat**: CPU details: live thread count, VM/hypervisor detection, cache sizes
-- **feat**: theme selector in config panel (Default, Catppuccin, Gruvbox)
-- **fix**: unknown config keys are skipped instead of crashing
-- **fix**: i18n fully awaited before first render
-- **fix**: responsive graph height and config dropdown layout
-
-### v0.0.2
-- **feat**: multilingual support (Arabic, German, English, Spanish, French, Polish, Russian, Ukrainian)
-- **feat**: process tree view
-- **feat**: per-core CPU graphs
-- **feat**: GPU monitoring (NVIDIA via NVML, AMD via sysfs)
-- **feat**: disk performance graphs
+Release notes for every version are on the [releases page](https://github.com/husseinhareb/hw-monitor/releases).
 
 ## Contributing
 
-Contributions are welcome.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and the checks a pull request has to pass.
 
-1. Fork the repository.
-2. Create a branch: `git checkout -b feature/YourFeature`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature/YourFeature`
-5. Submit a pull request.
+## License
 
-Please run `npm run check:bindings` and `npm run check:themes` before opening a PR. Both are enforced in CI alongside `cargo fmt --check`, `cargo clippy -D warnings`, and `cargo test`.
-
-## Licence
-
-This project is licensed under the [MIT License](https://github.com/husseinhareb/hw-monitor/blob/main/LICENSE).
+hw-monitor is licensed under the [MIT License](LICENSE).
