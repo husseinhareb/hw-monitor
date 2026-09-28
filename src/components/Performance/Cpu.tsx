@@ -120,6 +120,10 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
     const totalUsages = useTotalUsagesData();
     const { t } = useTranslation();
 
+    // The backend reports these as fixed English words
+    const localized = (value: string | null | undefined) =>
+        ({ Yes: t('yes'), No: t('no'), Enabled: t('startup.enabled'), Disabled: t('startup.disabled') } as Record<string, string>)[value ?? ''] ?? value ?? 'N/A';
+
     const coreCount = coreUsageHistories.length;
     const columns = getGridColumns(coreCount);
     const rows = Math.ceil(coreCount / columns);
@@ -246,11 +250,11 @@ const Cpu: React.FC<CpuProps> = ({ performanceConfig, cpuData, cpuUsage, coreUsa
 
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.virtualization')}</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.virtualization ?? 'N/A'}</RightValue>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{localized(cpuData.virtualization)}</RightValue>
                     </FixedValueItem>
                     <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.virtual_machine')}</RightLabel>
-                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{cpuData.virtual_machine ?? 'N/A'}</RightValue>
+                        <RightValue performanceValueColor={performanceConfig.config.performance_value_color}>{localized(cpuData.virtual_machine)}</RightValue>
                     </FixedValueItem>
                     {cpuData.cache_l1 && <FixedValueItem>
                         <RightLabel performanceLabelColor={performanceConfig.config.performance_label_color}>{t('performance.cache_l1')}</RightLabel>

@@ -324,8 +324,8 @@
     "performance.cache_l1": "ذاكرة التخزين المؤقت L1",
     "performance.cache_l2": "ذاكرة التخزين المؤقت L2",
     "performance.cache_l3": "ذاكرة التخزين المؤقت L3",
-    "performance.overall_usage": "Overall Usage",
-    "performance.logical_processors": "Logical Processors",
+    "performance.overall_usage": "الاستخدام الكلي",
+    "performance.logical_processors": "المعالجات المنطقية",
 
     "performance.gpu": "وحدة معالجة الرسوميات",
     "performance.wattage": "الطاقة المستهلكة",

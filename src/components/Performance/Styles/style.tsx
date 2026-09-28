@@ -21,12 +21,18 @@ font-size: 20px;
 `;
 
 // Common Value Style
+// Values are numbers with Latin units ("3.70 GHz"); in Arabic they still read left to right
 const Value = styled.p<{ performanceValueColor: string; }>`
 color: ${(props) => props.performanceValueColor};
 margin: 5px;
 margin-left: 20px;
 margin-right: 20px;
 flex-shrink: 0;
+unicode-bidi: isolate;
+[dir='rtl'] & {
+    direction: ltr;
+    text-align: right;
+}
 `;
 
 export const RightValue = styled(Value)`
@@ -241,6 +247,10 @@ export const NetworkInfoValue = styled.span<{ performanceValueColor: string; }>`
 color: ${(props) => props.performanceValueColor};
 font-size: 14px;
 text-align: right;
+unicode-bidi: isolate;
+[dir='rtl'] & {
+    direction: ltr;
+}
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;

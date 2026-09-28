@@ -174,7 +174,9 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({ pid, startTime, name, p
                     </GraphLabel>
                     <Graph
                         firstGraphValue={cpuHistory}
-                        maxValue={100}
+                        // Share of all cores, so one busy thread on 16 threads is ~6%; a fixed
+                        // 0-100 axis flattened every line. Start at 10% and grow with the data.
+                        suggestedMax={10}
                         height="calc(100% - 50px)"
                         width="100%"
                         updateInterval={processConfig.config.processes_update_time}

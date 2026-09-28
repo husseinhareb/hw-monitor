@@ -60,7 +60,8 @@ const HeaderCell = styled.div<{ borderColor: string }>`
 const TreeRow = styled.div<{ bgColor: string; selected: boolean; depth: number; borderColor: string; gridCols: string }>`
     display: grid;
     grid-template-columns: ${props => props.gridCols};
-    align-items: center;
+    /* Stretch so an empty cell (PPID of a root process) still draws a full-height border */
+    align-items: stretch;
     cursor: pointer;
     background-color: ${props => props.selected ? safeLighten(0.15, props.bgColor) : 'transparent'};
     border-bottom: 1px solid ${props => props.borderColor};

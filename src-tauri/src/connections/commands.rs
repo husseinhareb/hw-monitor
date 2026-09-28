@@ -424,9 +424,10 @@ fn collect_table(
 
         connections.push(Connection {
             protocol: table.protocol.to_string(),
-            local_address: row.local.0.to_string(),
+            // Dual-stack sockets report IPv4 peers as ::ffff:a.b.c.d; show them as plain IPv4
+            local_address: row.local.0.to_canonical().to_string(),
             local_port: row.local.1,
-            remote_address: row.remote.0.to_string(),
+            remote_address: row.remote.0.to_canonical().to_string(),
             remote_port: row.remote.1,
             state: state.to_string(),
             tx_queue: row.tx_queue,

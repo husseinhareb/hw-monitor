@@ -23,6 +23,8 @@ const FG_BG_PAIRS = [
   ["disks_size_foreground_color", "disks_boxes_background_color"],
   ["disks_partition_name_foreground_color", "disks_partition_background_color"],
   ["navbar_buttons_foreground_color", "navbar_buttons_background_color"],
+  // Inactive tabs draw their label in the button background color, straight on the navbar
+  ["navbar_buttons_background_color", "navbar_background_color"],
   ["navbar_search_foreground_color", "navbar_search_background_color"],
   ["config_text_color", "config_background_color"],
   ["config_button_foreground_color", "config_button_background_color"],
