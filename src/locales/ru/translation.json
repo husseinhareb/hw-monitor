@@ -588,6 +588,7 @@
     "startup.col_action": "Действие",
     "startup.scope_user": "Пользователь",
     "startup.scope_system": "Система",
+    "startup.scope_service": "Служба",
     "startup.enabled": "Включено",
     "startup.disabled": "Отключено",
     "startup.enable": "Включить",

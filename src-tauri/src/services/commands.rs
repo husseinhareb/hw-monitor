@@ -189,7 +189,7 @@ fn trusted_command_path(command: &str) -> Result<PathBuf, String> {
         .ok_or_else(|| format!("{command} is not installed in a trusted system directory"))
 }
 
-fn run_systemctl(args: &[&str]) -> Result<String, String> {
+pub(crate) fn run_systemctl(args: &[&str]) -> Result<String, String> {
     let systemctl = trusted_command_path("systemctl")?;
     let output = Command::new(systemctl)
         .args(args)

@@ -591,6 +591,7 @@
     "startup.col_action": "الإجراء",
     "startup.scope_user": "المستخدم",
     "startup.scope_system": "النظام",
+    "startup.scope_service": "خدمة",
     "startup.enabled": "مفعّل",
     "startup.disabled": "معطّل",
     "startup.enable": "تفعيل",

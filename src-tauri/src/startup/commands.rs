@@ -2,6 +2,7 @@
 //! System entries live in $XDG_CONFIG_DIRS/autostart (default /etc/xdg/autostart), user
 //! entries in $XDG_CONFIG_HOME/autostart. A user file with the same name overrides the
 //! system one, which is how an app is disabled without root: copy it with Hidden=true.
+//! systemd user services that start at login are listed too, toggled with `systemctl --user`.
 
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -10,6 +11,7 @@ use std::path::PathBuf;
 
 use crate::config::get_config_dir;
 use crate::proc_icon::extract_desktop_field;
+use crate::services::run_systemctl;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct StartupApp {
@@ -21,7 +23,8 @@ pub struct StartupApp {
     /// Executable basename, so the frontend can resolve the app icon.
     pub executable: Option<String>,
     pub enabled: bool,
-    /// "system" when the entry ships in a system autostart dir, "user" otherwise.
+    /// "system" when the entry ships in a system autostart dir, "user" for a user autostart
+    /// file, "service" for a systemd user service.
     pub scope: String,
 }
 
@@ -181,12 +184,148 @@ pub fn get_startup_apps() -> Vec<StartupApp> {
             parse_startup_entry(&id, &content, scope, &desktops)
         })
         .collect();
+    apps.extend(user_services());
     apps.sort_by_key(|app| app.name.to_lowercase());
     apps
 }
 
+/// Every value of `key` in a systemd unit file, split on whitespace (WantedBy= can repeat).
+fn unit_values<'a>(content: &'a str, key: &str) -> Vec<&'a str> {
+    content
+        .lines()
+        .filter_map(|line| line.trim().split_once('='))
+        .filter(|(k, _)| k.trim() == key)
+        .flat_map(|(_, v)| v.split_whitespace())
+        .collect()
+}
+
+/// Build the entry for a systemd user service from its unit file. Disabled services are
+/// kept only when enabling them would start them at login and they are not socket
+/// activated (Also=), which would otherwise surface plumbing like pipewire.
+pub fn parse_user_service(id: &str, content: &str, enabled: bool) -> Option<StartupApp> {
+    let content = &content.replace("\\\n", " ");
+    let at_login = unit_values(content, "WantedBy").iter().any(|t| {
+        matches!(
+            *t,
+            "default.target" | "graphical-session.target" | "graphical-session-pre.target"
+        )
+    });
+    if !enabled && (!at_login || !unit_values(content, "Also").is_empty()) {
+        return None;
+    }
+    let field = |key: &str| {
+        content.lines().find_map(|line| {
+            let (k, v) = line.trim().split_once('=')?;
+            (k.trim() == key && !v.trim().is_empty()).then(|| v.trim().to_string())
+        })
+    };
+    // Strip systemd's ExecStart prefixes (-, @, :, +, !)
+    let home = std::env::var("HOME").unwrap_or_default();
+    let command = field("ExecStart").map(|c| {
+        let c = c
+            .trim_start_matches(['-', '@', ':', '+', '!'])
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+        expand_specifiers(&c, &home)
+    });
+    Some(StartupApp {
+        id: id.to_string(),
+        name: id.trim_end_matches(".service").to_string(),
+        comment: field("Description"),
+        executable: command.as_deref().and_then(executable_of),
+        command,
+        enabled,
+        scope: "service".to_string(),
+    })
+}
+
+/// Expand the systemd specifiers a user unit's ExecStart commonly uses: %h (home) and %% (a
+/// literal %). Others are left as written.
+pub fn expand_specifiers(command: &str, home: &str) -> String {
+    let mut out = String::with_capacity(command.len());
+    let mut chars = command.chars();
+    while let Some(c) = chars.next() {
+        if c != '%' {
+            out.push(c);
+            continue;
+        }
+        match chars.next() {
+            Some('h') => out.push_str(home),
+            Some('%') => out.push('%'),
+            Some(other) => {
+                out.push('%');
+                out.push(other);
+            }
+            None => out.push('%'),
+        }
+    }
+    out
+}
+
+fn user_services() -> Vec<StartupApp> {
+    let Ok(files) = run_systemctl(&[
+        "--user",
+        "list-unit-files",
+        "--type=service",
+        "--state=enabled,disabled",
+        "--no-legend",
+        "--plain",
+        "--no-pager",
+    ]) else {
+        return Vec::new();
+    };
+    // Template units (foo@.service) cannot be enabled without an instance name
+    let units: BTreeMap<&str, bool> = files
+        .lines()
+        .filter_map(|line| {
+            let mut fields = line.split_whitespace();
+            let unit = fields.next()?;
+            let state = fields.next()?;
+            (!unit.contains('@')).then_some((unit, state == "enabled"))
+        })
+        .collect();
+    if units.is_empty() {
+        return Vec::new();
+    }
+
+    let mut args = vec!["--user", "show", "--property=Id,FragmentPath", "--"];
+    args.extend(units.keys());
+    let Ok(show) = run_systemctl(&args) else {
+        return Vec::new();
+    };
+    show.split("\n\n")
+        .filter_map(|block| {
+            let mut id = None;
+            let mut path = None;
+            for line in block.lines() {
+                match line.split_once('=') {
+                    Some(("Id", value)) => id = Some(value),
+                    Some(("FragmentPath", value)) if !value.is_empty() => path = Some(value),
+                    _ => {}
+                }
+            }
+            let id = id?;
+            let content = fs::read_to_string(path?).ok()?;
+            parse_user_service(id, &content, *units.get(id)?)
+        })
+        .collect()
+}
+
+fn set_user_service_enabled(id: &str, enabled: bool) -> Result<(), String> {
+    // Only toggle a service this tab lists, never an arbitrary unit name from the UI
+    if !user_services().iter().any(|app| app.id == id) {
+        return Err(format!("startup entry not found: {id}"));
+    }
+    let action = if enabled { "enable" } else { "disable" };
+    run_systemctl(&["--user", action, "--", id]).map(|_| ())
+}
+
 #[tauri::command]
 pub fn set_startup_app_enabled(id: String, enabled: bool) -> Result<(), String> {
+    if id.ends_with(".service") {
+        return set_user_service_enabled(&id, enabled);
+    }
     // The id comes from the UI; only accept a bare desktop file name.
     if !id.ends_with(".desktop") || id.contains('/') || id.starts_with('.') {
         return Err(format!("invalid startup entry: {id}"));

@@ -586,6 +586,7 @@
     "startup.col_action": "Action",
     "startup.scope_user": "Utilisateur",
     "startup.scope_system": "Système",
+    "startup.scope_service": "Service",
     "startup.enabled": "Activé",
     "startup.disabled": "Désactivé",
     "startup.enable": "Activer",

@@ -65,3 +65,25 @@ fn set_startup_app_enabled_rejects_path_traversal() {
     assert!(startup::set_startup_app_enabled("../../etc/passwd.desktop".into(), false).is_err());
     assert!(startup::set_startup_app_enabled("evil".into(), false).is_err());
 }
+
+#[test]
+fn user_services_list_login_units_but_not_socket_activated_plumbing() {
+    let openrgb = "[Unit]\nDescription=OpenRGB server\n\n[Service]\nExecStart=-/usr/bin/openrgb \\\n  --server\n\n[Install]\nWantedBy=default.target\n";
+    let app = startup::parse_user_service("openrgb.service", openrgb, false).unwrap();
+    assert_eq!(app.name, "openrgb");
+    assert_eq!(app.comment.as_deref(), Some("OpenRGB server"));
+    assert_eq!(app.command.as_deref(), Some("/usr/bin/openrgb --server"));
+    assert_eq!(app.executable.as_deref(), Some("openrgb"));
+    assert_eq!(app.scope, "service");
+
+    let pipewire = "[Service]\nExecStart=/usr/bin/pipewire\n[Install]\nAlso=pipewire.socket\nWantedBy=default.target\n";
+    assert!(startup::parse_user_service("pipewire.service", pipewire, false).is_none());
+    assert!(startup::parse_user_service("pipewire.service", pipewire, true).is_some());
+    assert_eq!(
+        startup::expand_specifiers("%h/bin/app --pct=50%% %t/sock", "/home/u"),
+        "/home/u/bin/app --pct=50% %t/sock"
+    );
+
+    let basic = "[Install]\nWantedBy=basic.target\n";
+    assert!(startup::parse_user_service("tmp.service", basic, false).is_none());
+}
