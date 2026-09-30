@@ -156,7 +156,7 @@ Settings are saved to `~/.config/hw-monitor/hw-monitor.conf` (or `$XDG_CONFIG_HO
 
 ## Installation
 
-Packages for every release are on the [releases page](https://github.com/husseinhareb/hw-monitor/releases): a `.deb`, an `.rpm` and a standalone `hw-monitor` binary for x86_64.
+Packages for every release are on the [releases page](https://github.com/husseinhareb/hw-monitor/releases): a `.deb`, an `.rpm` and a standalone `hw-monitor` binary for x86_64. They need glibc 2.35 or newer (Ubuntu 22.04, Debian 12 or later).
 
 ### Arch Linux (AUR)
 
