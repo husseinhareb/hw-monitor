@@ -84,12 +84,12 @@ jobs:
         run: npm run build
 
       - name: Build Tauri app
-        run: npx tauri build --bundles deb,rpm
+        run: npx tauri build --bundles deb,rpm,appimage
 
       - name: Generate SHA-256 checksums
         working-directory: src-tauri/target/release
         # Plain file names, so `sha256sum -c SHA256SUMS` works next to the downloaded files
-        run: sha256sum hw-monitor bundle/deb/*.deb bundle/rpm/*.rpm | sed 's| bundle/[a-z]*/| |' > SHA256SUMS
+        run: sha256sum hw-monitor bundle/deb/*.deb bundle/rpm/*.rpm bundle/appimage/*.AppImage | sed 's| bundle/[a-z]*/| |' > SHA256SUMS
 
       - name: Attest release artifacts
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
@@ -98,6 +98,7 @@ jobs:
             src-tauri/target/release/hw-monitor
             src-tauri/target/release/bundle/deb/*.deb
             src-tauri/target/release/bundle/rpm/*.rpm
+            src-tauri/target/release/bundle/appimage/*.AppImage
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -106,5 +107,6 @@ jobs:
           files: |
             src-tauri/target/release/bundle/deb/*.deb
             src-tauri/target/release/bundle/rpm/*.rpm
+            src-tauri/target/release/bundle/appimage/*.AppImage
             src-tauri/target/release/hw-monitor
             src-tauri/target/release/SHA256SUMS

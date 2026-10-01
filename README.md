@@ -156,7 +156,7 @@ Settings are saved to `~/.config/hw-monitor/hw-monitor.conf` (or `$XDG_CONFIG_HO
 
 ## Installation
 
-Packages for every release are on the [releases page](https://github.com/husseinhareb/hw-monitor/releases): a `.deb`, an `.rpm` and a standalone `hw-monitor` binary for x86_64. They need glibc 2.35 or newer (Ubuntu 22.04, Debian 12 or later).
+Packages for every release are on the [releases page](https://github.com/husseinhareb/hw-monitor/releases): a `.deb`, an `.rpm`, an `.AppImage` and a standalone `hw-monitor` binary for x86_64. They need glibc 2.35 or newer (Ubuntu 22.04, Debian 12 or later).
 
 ### Arch Linux (AUR)
 
@@ -185,6 +185,15 @@ Installing through `apt` pulls in the dependencies automatically.
 ```bash
 sudo dnf install ./hw-monitor-<version>-1.x86_64.rpm
 ```
+
+### AppImage (any distribution)
+
+```bash
+chmod +x hw-monitor_<version>_amd64.AppImage
+./hw-monitor_<version>_amd64.AppImage
+```
+
+The AppImage bundles WebKitGTK and the other libraries the app needs. If it fails to start with a FUSE error, run it with `--appimage-extract-and-run`.
 
 ### Verifying a download
 
