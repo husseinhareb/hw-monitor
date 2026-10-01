@@ -34,3 +34,10 @@ libc = "0.2"
 base64 = "0.22"
 nvml-wrapper = "0.10.0"
 maxminddb = "0.30"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
