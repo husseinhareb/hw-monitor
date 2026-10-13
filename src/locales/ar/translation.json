@@ -424,6 +424,9 @@
     "connections_config.head_color": "لون الرأس",
     "connections_config.border_color": "لون الحدود",
 
+    "appearance_config.title": "المظهر",
+    "appearance_config.font_family": "الخط",
+    "appearance_config.ui_scale": "حجم الواجهة",
     "config_panel_config.title": "إعدادات لوحة التكوين",
     "config_panel_config.background_color": "لون الخلفية",
     "config_panel_config.container_background_color": "لون خلفية الحاوية",

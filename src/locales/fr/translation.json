@@ -419,6 +419,9 @@
     "connections_config.head_color": "Couleur de l'En-tête",
     "connections_config.border_color": "Couleur de Bordure",
 
+    "appearance_config.title": "Apparence",
+    "appearance_config.font_family": "Police",
+    "appearance_config.ui_scale": "Échelle de l'interface",
     "config_panel_config.title": "Configuration du Panneau de Config",
     "config_panel_config.background_color": "Couleur de Fond",
     "config_panel_config.container_background_color": "Couleur de Fond du Conteneur",

@@ -114,6 +114,8 @@ export const defaultConfig: ConfigData = {
   system_info_value_color: "#ffffff",
   system_info_border_color: "#444444",
   language: "en",
+  ui_font_family: "",
+  ui_scale: 100,
   show_virtual_interfaces: false,
 };
 

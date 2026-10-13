@@ -421,6 +421,9 @@
     "connections_config.head_color": "Kolor Nagłówka",
     "connections_config.border_color": "Kolor Obramowania",
 
+    "appearance_config.title": "Wygląd",
+    "appearance_config.font_family": "Czcionka",
+    "appearance_config.ui_scale": "Skala interfejsu",
     "config_panel_config.title": "Konfiguracja Panelu Ustawień",
     "config_panel_config.background_color": "Kolor Tła",
     "config_panel_config.container_background_color": "Kolor Tła Kontenera",

@@ -419,6 +419,9 @@
     "connections_config.head_color": "Kopfzeilenfarbe",
     "connections_config.border_color": "Rahmenfarbe",
 
+    "appearance_config.title": "Darstellung",
+    "appearance_config.font_family": "Schriftart",
+    "appearance_config.ui_scale": "UI-Skalierung",
     "config_panel_config.title": "Konfigurationspanel-Einstellungen",
     "config_panel_config.background_color": "Hintergrundfarbe",
     "config_panel_config.container_background_color": "Container-Hintergrundfarbe",

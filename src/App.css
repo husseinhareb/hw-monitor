@@ -3,7 +3,7 @@
 *{
     margin: 0;
     padding: 0;
-    font-family: "Varela Round", sans-serif;
+    font-family: var(--ui-font, "Varela Round"), sans-serif;
     font-weight: 400;
     font-style: normal;
     box-sizing: border-box;

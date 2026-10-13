@@ -111,6 +111,8 @@ export interface ConfigData {
   system_info_value_color: string;
   system_info_border_color: string;
   language: string;
+  ui_font_family: string;
+  ui_scale: number;
   show_virtual_interfaces: boolean;
 }
 

@@ -420,6 +420,9 @@
     "connections_config.head_color": "Head Color",
     "connections_config.border_color": "Border Color",
 
+    "appearance_config.title": "Appearance",
+    "appearance_config.font_family": "Font",
+    "appearance_config.ui_scale": "UI Scale",
     "config_panel_config.title": "Config Panel",
     "config_panel_config.background_color": "Background Color",
     "config_panel_config.container_background_color": "Container Background Color",

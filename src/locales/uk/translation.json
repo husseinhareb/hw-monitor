@@ -421,6 +421,9 @@
     "connections_config.head_color": "Колір Заголовка",
     "connections_config.border_color": "Колір Рамки",
 
+    "appearance_config.title": "Вигляд",
+    "appearance_config.font_family": "Шрифт",
+    "appearance_config.ui_scale": "Масштаб інтерфейсу",
     "config_panel_config.title": "Налаштування панелі конфігурації",
     "config_panel_config.background_color": "Колір фону",
     "config_panel_config.container_background_color": "Колір фону контейнера",

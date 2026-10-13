@@ -5,6 +5,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 const MIN_UPDATE_INTERVAL_MS: u32 = 1000;
+const UI_SCALE_RANGE: std::ops::RangeInclusive<u32> = 50..=300;
 
 trait ConfigValue: Sized {
     fn parse_config(s: &str) -> Result<Self, io::Error>;
@@ -232,6 +233,8 @@ define_config! {
     system_info_value_color: String = "#ffffff".into(),
     system_info_border_color: String = "#444444".into(),
     language: String = "en".into(),
+    ui_font_family: String = "".into(),
+    ui_scale: u32 = 100,
     show_virtual_interfaces: bool = false,
 }
 
@@ -277,7 +280,7 @@ impl ConfigDocument {
 }
 
 impl ConfigData {
-    pub fn clamp_update_intervals(&mut self) -> bool {
+    pub fn clamp_values(&mut self) -> bool {
         let mut changed = false;
 
         if self.processes_update_time < MIN_UPDATE_INTERVAL_MS {
@@ -300,6 +303,13 @@ impl ConfigData {
             self.system_info_update_time = MIN_UPDATE_INTERVAL_MS;
             changed = true;
         }
+        let ui_scale = self
+            .ui_scale
+            .clamp(*UI_SCALE_RANGE.start(), *UI_SCALE_RANGE.end());
+        if ui_scale != self.ui_scale {
+            self.ui_scale = ui_scale;
+            changed = true;
+        }
 
         changed
     }
@@ -320,7 +330,7 @@ macro_rules! set_config_command {
             $( if let Some(value) = configs.$field {
                 data.$field = value;
             } )*
-            data.clamp_update_intervals();
+            data.clamp_values();
             write_config_document(&file_path, &document, &data)
                 .map_err(|e| e.to_string())?;
             Ok(())
@@ -398,7 +408,7 @@ pub fn write_all_configs(config_data: &ConfigData) -> Result<(), io::Error> {
     };
 
     let mut normalized = config_data.clone();
-    normalized.clamp_update_intervals();
+    normalized.clamp_values();
     write_config_document(&file_path, &document, &normalized)
 }
 
@@ -572,6 +582,14 @@ set_config_command!(
 
 set_config_command!(set_language_config, LanguageConfig { language: String });
 
+set_config_command!(
+    set_appearance_configs,
+    AppearanceConfig {
+        ui_font_family: String,
+        ui_scale: u32,
+    }
+);
+
 fn load_config_document_from_path(
     file_path: &Path,
 ) -> Result<(ConfigData, ConfigDocument), io::Error> {
@@ -627,7 +645,7 @@ fn parse_config_content(content: &str) -> (ConfigData, ConfigDocument) {
             .push(ConfigLine::Unknown(raw_line.to_string()));
     }
 
-    if data.clamp_update_intervals() {
+    if data.clamp_values() {
         document.needs_rewrite = true;
     }
 
@@ -752,5 +770,19 @@ processes_update_time=2500
         assert!(rendered.contains("custom_key=value"));
         assert!(rendered.contains("processes_update_time=2500"));
         assert!(rendered.contains("language=en"));
+    }
+
+    #[test]
+    fn parser_clamps_ui_scale() {
+        let (data, document) = parse_config_content("ui_scale=10\n");
+        assert_eq!(data.ui_scale, 50);
+        assert!(document.needs_rewrite);
+
+        let (data, _) = parse_config_content("ui_scale=1000\n");
+        assert_eq!(data.ui_scale, 300);
+
+        let (data, document) = parse_config_content("ui_scale=150\n");
+        assert_eq!(data.ui_scale, 150);
+        assert!(!document.needs_rewrite);
     }
 }

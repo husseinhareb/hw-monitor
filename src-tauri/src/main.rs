@@ -175,6 +175,7 @@ fn main() {
             config::set_connections_configs,
             config::set_system_info_configs,
             config::set_language_config,
+            config::set_appearance_configs,
             gpu::get_gpu_informations,
             proc_icon::get_process_icon,
             services::get_services,

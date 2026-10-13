@@ -122,7 +122,9 @@ interface ConfigUpdateTimeRowProps {
   setDraft: React.Dispatch<React.SetStateAction<string>>;
   commit: () => void;
   min?: number;
+  max?: number;
   step?: number;
+  unit?: string;
   theme: ConfigTheme;
 }
 
@@ -132,7 +134,9 @@ export const ConfigUpdateTimeRow: React.FC<ConfigUpdateTimeRowProps> = ({
   setDraft,
   commit,
   min = 1000,
+  max,
   step = 100,
+  unit = "ms",
   theme,
 }) => {
   const { t } = useTranslation();
@@ -144,6 +148,7 @@ export const ConfigUpdateTimeRow: React.FC<ConfigUpdateTimeRowProps> = ({
           type="number"
           value={draft}
           min={min}
+          max={max}
           step={step}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
@@ -161,7 +166,7 @@ export const ConfigUpdateTimeRow: React.FC<ConfigUpdateTimeRowProps> = ({
           inputBorder={theme.inputBorder}
           inputBg={theme.inputBg}
         >
-          ms
+          {unit}
         </UnitLabel>
       </SettingControl>
     </SettingRow>

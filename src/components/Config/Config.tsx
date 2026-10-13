@@ -12,6 +12,7 @@ import ConfigPanelConfigSection from "./ConfigPanelConfig";
 import ServicesConfig from "./ServicesConfig";
 import ConnectionsConfig from "./ConnectionsConfig";
 import SystemInfoConfig from "./SystemInfoConfig";
+import AppearanceConfig from "./AppearanceConfig";
 import { activeThemeIndex, themes } from "./themes";
 import {
   ConfigPage,
@@ -32,6 +33,7 @@ import {
 } from "./Styles/style";
 
 type SectionKey =
+  | "appearance"
   | "processes"
   | "performance"
   | "sensors"
@@ -44,6 +46,7 @@ type SectionKey =
   | "configpanel";
 
 const sections: { key: SectionKey; labelKey: string }[] = [
+  { key: "appearance",  labelKey: "appearance_config.title" },
   { key: "processes",   labelKey: "processes_config.title" },
   { key: "performance", labelKey: "performance_config.title" },
   { key: "sensors",     labelKey: "sensors_config.title" },
@@ -69,7 +72,7 @@ const languages = [
 
 const Config: React.FC = () => {
   const { i18n, t } = useTranslation();
-  const [activeSection, setActiveSection] = useState<SectionKey>("processes");
+  const [activeSection, setActiveSection] = useState<SectionKey>("appearance");
   const [langOpen, setLangOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
@@ -160,6 +163,7 @@ const Config: React.FC = () => {
 
   const renderSection = () => {
     switch (activeSection) {
+      case "appearance":  return <AppearanceConfig theme={theme} />;
       case "processes":   return <ProcessesConfig theme={theme} />;
       case "performance": return <PerformanceConfig theme={theme} />;
       case "sensors":     return <SensorsConfig theme={theme} />;
