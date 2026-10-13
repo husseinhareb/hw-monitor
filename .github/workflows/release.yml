@@ -44,8 +44,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          # Separate from CI's key: CI runs on a newer Ubuntu, and its target/ breaks builds here
+          key: ${{ runner.os }}-jammy-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-jammy-cargo-
 
       - name: Install frontend dependencies
         run: npm ci
