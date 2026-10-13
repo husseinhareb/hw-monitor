@@ -24,8 +24,8 @@ A hardware and system monitor for Linux, built with Tauri: a Rust backend that r
 - **Services**: systemd services with status and recent logs, start, stop, restart and enable at startup through polkit, and a Startup Apps tab for autostart entries and systemd user services
 - **Connections**: every TCP and UDP socket with its owning process and user, and the remote country resolved offline
 - **System Info**: OS, kernel, host, CPU, GPU, memory, boot, user, packages, locale and network on one page
-- **Customisable**: three bundled themes, nearly every color configurable, per-section update intervals, and eight languages including right-to-left Arabic
-- **Tray icon**: closing the window hides it to the tray; Quit from the tray menu exits
+- **Customisable**: three bundled themes, nearly every color configurable, a custom UI font and UI scale, per-section update intervals, and eight languages including right-to-left Arabic
+- **Tray icon**: closing the window hides it to the tray; Quit from the tray menu exits, and launching hw-monitor again brings the running window back instead of starting a second copy
 
 ## Processes
 
@@ -148,7 +148,7 @@ The interface is translated into English, Arabic, German, Spanish, French, Polis
 
 ## Configuration
 
-The config page has a section for each page (Processes, Performance, Sensors, Disks, Heat Bars, Navbar, Services, Connections, System Info) and one for the config page itself. It covers colors, the update interval of each page, the visible process columns, and whether virtual network interfaces are shown. The language and theme menus and **Load Default Config** (which asks for a second click) sit in the header.
+The config page has an Appearance section, a section for each page (Processes, Performance, Sensors, Disks, Heat Bars, Navbar, Services, Connections, System Info) and one for the config page itself. Appearance sets the UI font (any installed font, empty keeps the bundled Varela Round) and the UI scale from 50% to 300%, which zooms text and layout together for high resolution displays. The other sections cover colors, the update interval of each page, the visible process columns, and whether virtual network interfaces are shown. The language and theme menus and **Load Default Config** (which asks for a second click) sit in the header.
 
 <img src="docs/screenshots/config.webp" alt="Config page in the Catppuccin theme with the theme menu open, process colors and table column checkboxes">
 
@@ -220,9 +220,10 @@ Service actions also need polkit and a running authentication agent, which deskt
 
 ### NVIDIA GPU rendering errors
 
-With some NVIDIA drivers the window fails to render with errors like:
+With some NVIDIA drivers the window fails to render or the app exits at startup with errors like:
 
 ```
+Error 71 (Protocol error) dispatching to Wayland display.
 GBM-DRV error (nv_gbm_create_device_native): nv_common_gbm_create_device failed
 Failed to create GBM buffer of size 800x600: Permission denied
 ```
@@ -242,6 +243,8 @@ set -Ux WEBKIT_DISABLE_DMABUF_RENDERER 1
 set -Ux LIBGL_ALWAYS_SOFTWARE 1
 set -Ux QT_XCB_FORCE_SOFTWARE_OPENGL 1
 ```
+
+The Wayland error comes from a [WebKitGTK bug](https://bugs.webkit.org/show_bug.cgi?id=280210), and `WEBKIT_DISABLE_DMABUF_RENDERER=1` alone is usually enough. To set it only for hw-monitor on KDE, right click hw-monitor in the application menu, choose **Edit Application**, and add it under **Environment variables**.
 
 ### Permissions
 
